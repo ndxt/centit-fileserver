@@ -151,7 +151,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * 这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-	 * @return
+	 * @return String
 	 */
 	public String getFileShowPath() {
 		return fileShowPath;
@@ -159,7 +159,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * 这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-	 * @param fileShowPath
+	 * @param fileShowPath String
 	 */
 	public void setFileShowPath(String fileShowPath) {
 		this.fileShowPath = fileShowPath;
@@ -175,7 +175,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
-	 * @return
+	 * @return String
 	 */
 	public String getFileState() {
 		return fileState;
@@ -183,7 +183,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
-	 * @param fileState
+	 * @param fileState String
 	 */
 	public void setFileState(String fileState) {
 		this.fileState = fileState;
@@ -199,7 +199,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * N ：不需要索引 S：等待索引 I：已索引 F:索引失败
-	 * @return
+	 * @return String
 	 */
 	public String getIndexState() {
 		return indexState;
@@ -207,7 +207,7 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * N ：不需要索引 S：等待索引 I：已索引 F:索引失败
-	 * @param indexState
+	 * @param indexState String
 	 */
 	public void setIndexState(String indexState) {
 		this.indexState = indexState;
@@ -271,17 +271,17 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * N : 没有加密   Z：zipFile    D:DES加密
-	 * @return
+	 * @return String
 	 */
 	public String getEncryptType() {
 		return encryptType;
 	}
 	/**
 	 * N : 没有加密   Z：zipFile    D:DES加密
-	 * @param String
+	 * @param encryptType String
 	 */
-	public void setEncryptType(String String) {
-		this.encryptType = String;
+	public void setEncryptType(String encryptType) {
+		this.encryptType = encryptType;
 	}
 
 	public String getFileOwner() {
@@ -318,14 +318,14 @@ public class FileStoreInfo implements Serializable {
 
 	/**
 	 * 附属文件类别：N :   没有  T：缩略图  P： pdf只读文件
-	 * @return
+	 * @return String
 	 */
 	public String getAttachedType() {
 		return attachedType;
 	}
 	/**
 	 * 附属文件类别：N :   没有  T：缩略图  P： pdf只读文件
-	 * @param attachedType
+	 * @param attachedType String
 	 */
 	public void setAttachedType(String attachedType) {
 		this.attachedType = attachedType;

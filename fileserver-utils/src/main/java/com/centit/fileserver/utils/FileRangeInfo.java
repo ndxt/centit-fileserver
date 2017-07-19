@@ -1,7 +1,6 @@
 package com.centit.fileserver.utils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,9 +19,8 @@ public class FileRangeInfo implements Serializable {
 	//static final Pattern RANGE_PATTERN = Pattern.compile("bytes \\d+-\\d+/\\d+");
 	/**
 	 * 获取Range参数
-	 * @param req
-	 * @return
-	 * @throws IOException
+	 * @param req HttpServletRequest
+	 * @return FileRangeInfo
 	 */
 	public static FileRangeInfo parseRange(HttpServletRequest req){
 		return parseRange(req.getHeader("content-range"));

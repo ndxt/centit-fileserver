@@ -30,7 +30,7 @@ public class UploadDownloadUtils {
      * @param inputStream InputStream
      * @param fSize long
      * @param fileName fileName
-     * @throws IOException
+     * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
                                       InputStream inputStream, long fSize, String fileName)
@@ -95,13 +95,14 @@ public class UploadDownloadUtils {
     }
 
     /**
+     * @param tempFilePath 需要保存的临时文件路径
      * @param token String
      * @param size long
      * @param fileInputStream InputStream
      * @param request HttpServletRequest
-     * @return long 0 complete <0 error  >0 completeSize rangecomplete
-     * @throws IOException
-     * @throws ObjectException
+     * @return long 0 complete &lt; 0 error &gt; 0 completeSize rangecomplete
+     * @throws IOException IOException
+     * @throws ObjectException ObjectException
      */
     public static long uploadRange(String tempFilePath,
                                     InputStream fileInputStream,String token,

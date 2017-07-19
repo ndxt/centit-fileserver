@@ -13,34 +13,34 @@ public interface FileStore {
 	/**
 	 * 保存文件
 	 * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
-	 * @return
+	 * @return 文件的存储路径
 	 */
-	String/*文件存储路径 */saveFile(String sourFilePath)
+	String saveFile(String sourFilePath)
 			throws IOException;
 	/**
 	 * 保存文件
-	 * @param is
-	 * @param fileMd5
-	 * @param fileSize
-	 * @return
+	 * @param is InputStream
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @return 文件的存储路径
 	 */
-	String/*文件存储路径 */saveFile(InputStream is, String fileMd5, long fileSize)
+	String saveFile(InputStream is, String fileMd5, long fileSize)
 			throws IOException;
 	
 	/**
 	 * 保存文件
 	 * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
-	 * @param fileMd5
-	 * @param fileSize
-	 * @return
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @return 文件的存储路径
 	 */
-	String/*文件存储路径 */saveFile(String sourFilePath, String fileMd5, long fileSize)
+	String saveFile(String sourFilePath, String fileMd5, long fileSize)
 			throws IOException;
 	
 	/**
 	 * 检查文件是否存在，如果存在则实现秒传
-	 * @param fileMd5
-	 * @param fileSize
+	 * @param fileMd5 String
+	 * @param fileSize long
 	 * @return true 文件存在 false 文件不存在
 	 */
 	boolean checkFile(String fileMd5, long fileSize);
@@ -48,57 +48,61 @@ public interface FileStore {
 	/**
 	 * 获取文件的存储路径 url，通过这个路径 fileStroe可以获得这个文件
 	 * 如果不存在返回null checkFile返回为true则这个肯定存在
-	 * @param fileMd5
-	 * @param fileSize
-	 * @return
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @return 如果不存在返回null checkFile返回为true则这个肯定存在
 	 */
 	String getFileStoreUrl(String fileMd5, long fileSize);
 	
 	/**
-	 * 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
-	 * @return
+	 * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
+	 *
 	 */
 	String getFileAccessUrl(String fileStoreUrl);
 	
 	/**
 	 * 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
-	 * @param fileMd5
-	 * @param fileSize
-	 * @return
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @return 文件的Access url
 	 */
 	String getFileAccessUrl(String fileMd5, long fileSize);
 	
 	/**
-	 * 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
-	 * @return
+	 * @param fileUrl  文件的url
+	 * @return 文件大小
+	 * @throws IOException IOException
 	 */
 	long getFileSize(String fileUrl) throws IOException;
 	/**
 	 * 获取文件
 	 * @param fileUrl saveFile 返回的文件路径
-	 * @return
+	 * @return InputStream
+	 * @throws IOException IOException
 	 */
 	InputStream loadFileStream(String fileUrl) throws IOException;
 	
 	/**
 	 * 
-	 * @param fileUrl
-	 * @return
-	 * @throws IOException
+	 * @param fileUrl 文件的url
+	 * @return File
+	 * @throws IOException IOException
 	 */
 	File getFile(String fileUrl) throws IOException;
 	/**
-	 * 删除文件 
+	 * 删除文件
+	 * @param fileUrl 文件的url
+	 * @throws IOException IOException
 	 * @return true 删除成功 或者文件本来就不存在  false
 	 */
 	boolean deleteFile(String fileUrl) throws IOException;
 	
 	/**
 	 * 删除文件
-	 * @param fileMd5
-	 * @param fileSize
-	 * @return
-	 * @throws IOException
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @throws IOException IOException
+	 * @return true 删除成功 或者文件本来就不存在  false
 	 */
 	boolean deleteFile(String fileMd5, long fileSize) throws IOException;
 }

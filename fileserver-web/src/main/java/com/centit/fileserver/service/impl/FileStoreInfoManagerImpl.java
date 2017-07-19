@@ -90,7 +90,8 @@ public class FileStoreInfoManagerImpl
 	/**
 	 * 同步保存文件
 	 *
-	 * @param osId@throws Exception
+	 * @param osId  String
+	 * @return  JSONArray
 	 */
 	@Override
 	public JSONArray listOptsByOs(String osId) {
