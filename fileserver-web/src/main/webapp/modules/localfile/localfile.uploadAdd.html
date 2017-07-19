@@ -1,0 +1,48 @@
+
+<label>
+    <input  name="encryptType" type="radio" value="zip" />zipFile
+</label>
+<label>
+    <input  name="encryptType" type="radio" value="des" />DES加密
+</label>
+<label>
+    <input  name="encryptType" type="radio"  checked = "true" />清空
+</label>
+<label>
+    <input  name="index" type="checkbox"  />是否加入全文检索
+</label>
+<label>
+    <input  name="pdf" type="checkbox"  />添加pdf副本
+</label>
+<label>
+    <input  name="watermark" type="checkbox"   />水印
+</label>
+<label>
+    <input  name="thumbnail" type="checkbox" />添加缩略图
+</label>
+<br>
+<input name = "pwd" type="password">添加密码
+<br>
+<input name = "width" type="text" value="100">长度
+
+<input name = "height" type="text" value="100">高度
+
+<br>
+设置上传路径(以当前目录"/a/b的形式")<input name="path">
+<br>
+
+<input type="hidden" id="upload_btn" value="402804f9576b283a01576b28eb510000" >
+
+<div id="uploInfoSuccess"></div>
+<style>
+    #dialog_uploadAdd{
+        padding:10px 10px;
+    }
+    #dialog_uploadAdd input{
+        margin:5px;
+    }
+    #uploInfoSuccess{
+        height : 100px;
+        overflow-y : auto;
+    }
+</style>

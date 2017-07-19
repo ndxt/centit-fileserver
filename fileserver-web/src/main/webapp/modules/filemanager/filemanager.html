@@ -1,0 +1,54 @@
+
+
+<table pagination="false" toolbar=".temp-toolbar" rownumbers="false" id="fileSystemTable"  fitColumns = false style="width:100%;height:100%;overflow:scroll">
+    <thead>
+        <tr>
+            <th data-options="field:'osName'" width="300" align="center">文件名</th>
+            <th data-options="field:'osId'" width="300" align="center">文件ID</th>
+        </tr>
+    </thead>
+</table>
+<div class="temp-toolbar">
+    <a rel="returnViewFile" iconCls="icon-back" target = "custom" trigger="none" title="返回">返回上级</a>
+
+    <a rel="manangerViewModule" class="listView" target="custom" trigger="none" title="切换试图"></a>
+</div>
+
+
+
+
+<script>
+    $.parser.onComplete = function(panel) {
+        $.parser.onComplete = $.noop;
+        requirejs([
+            'core/filter/filter.dictionary',
+            'modules/filemanager/ctrl/filemanager'
+        ], function(FilterDictionary, FileManager) {
+            FilterDictionary.add(['YesOrNo']).then(function() {
+                new FileManager('filemanager', panel).load(panel);
+            });
+        });
+    };
+
+</script>
+
+<style>
+
+    div.imgRowSelected{
+        background-color:#CAE0FC;
+        border:1px solid #7DA2CE;
+    }
+    .viewClickRow{
+        border:1px solid transparent;
+        width: 100px;
+        height: 100px;
+        margin: 10px;
+        display: inline-block;
+        position:relative
+    }
+    div.viewClickRow p{
+        height:14px;
+        width:100%;
+        overflow: hidden;
+    }
+</style>

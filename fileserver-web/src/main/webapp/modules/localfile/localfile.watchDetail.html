@@ -1,0 +1,20 @@
+<div id="fileWatch" class="easyui-tabs"  fit="true" style="width:220px;height:500px;">
+    <div title="文件信息">
+        <table pagination="false" id="file_detail" class="easyui-propertygrid"  fit="true" style="width:500px;height:500px;">
+        </table>
+    </div>
+    <div title="下载日志">
+        <table pagination="false" id="down_detail" class="easyui-datagrid">
+            <thead>
+            <tr>
+                <th data-options="field:'accessUsename'" width="100" align="center">授权人员名</th>
+                <th data-options="field:'accessUsercode'" width="120" align="center">连接用户编码</th>
+                <th data-options="field:'fileId'" width="200" align="center">文件ID</th>
+                <th data-options="field:'lastAccessHost'" width="150" align="center">最后连接主机</th>
+                <th data-options="field:'lastAccessTime'" width="200" align="center">最后连接时间</th>
+                <th data-options="field:'tokenExpireTime'" width="200" align="center">获得文件时间</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
