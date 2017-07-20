@@ -1,4 +1,4 @@
-package com.centit.fileserver.client.controller;
+package com.centit.fileserver.demo.fileserverclient;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils.demo;
+package com.centit.fileserver.demo.localstore;
 
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.support.algorithm.UuidOpt;

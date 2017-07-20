@@ -1,4 +1,4 @@
-package com.centit.fileserver.client.test;
+package com.centit.fileserver.demo.fileserverclient;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.impl.client.CloseableHttpClient;

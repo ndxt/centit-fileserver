@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils.demo;
+package com.centit.fileserver.demo.localstore;
 
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.OsFileStore;

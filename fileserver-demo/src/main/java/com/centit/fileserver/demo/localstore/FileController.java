@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils.demo;
+package com.centit.fileserver.demo.localstore;
 
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.utils.FileServerConstant;
