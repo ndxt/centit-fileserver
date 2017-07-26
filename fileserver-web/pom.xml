@@ -43,8 +43,8 @@
 
         <dependency>
             <groupId>com.centit.framework</groupId>
-            <artifactId>framework-system-static</artifactId>
-            <version>${centit.framework.version}</version>
+            <artifactId>centit-ip-app</artifactId>
+            <version>${centit.ip.version}</version>
         </dependency>
 
         <dependency>
