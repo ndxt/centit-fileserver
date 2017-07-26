@@ -16,16 +16,16 @@
 
 package com.centit.upload.util.zip4j.extract;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.io.ZipInputStream;
+import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.unzip.UnzipUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.io.ZipInputStream;
-import net.lingala.zip4j.model.FileHeader;
-import net.lingala.zip4j.unzip.UnzipUtil;
 
 /**
  * Example demonstrating the use of InputStreams 

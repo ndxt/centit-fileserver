@@ -1,11 +1,11 @@
 package com.centit.test;
 
+import com.centit.fileserver.fileaccess.FilePretreatment;
+import com.centit.support.file.FileMD5Maker;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
-
-import com.centit.fileserver.fileaccess.FilePretreatment;
-import com.centit.support.file.FileMD5Maker;
 
 public class TestRegex {
 	
@@ -13,7 +13,7 @@ public class TestRegex {
 	//r"(?<=p[\d])"
 	/**
 	 * 获取Range参数
-	 * @param req
+	 * @param args
 	 * @return
 	 * @throws IOException
 	 */

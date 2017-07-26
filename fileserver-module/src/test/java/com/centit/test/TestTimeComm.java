@@ -1,12 +1,12 @@
 package com.centit.test;
 
+import com.centit.support.algorithm.DatetimeOpt;
+
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
-
-import com.centit.support.algorithm.DatetimeOpt;
 
 public class TestTimeComm {
 	 //获得当前的时间戳
