@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" version="4">
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="web" name="Web">
+      <configuration>
+        <webroots>
+          <root url="file://$MODULE_DIR$/src/main/webapp" relative="/" />
+        </webroots>
+        <sourceRoots>
+          <root url="file://$MODULE_DIR$/src/main/java" />
+          <root url="file://$MODULE_DIR$/src/main/resources" />
+        </sourceRoots>
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
@@ -35,7 +48,7 @@
     <orderEntry type="module-library">
       <library name="Maven: com.sun:tools:1.8">
         <CLASSES>
-          <root url="jar:///opt/develop/jvm/jdk1.8.0_102/lib/tools.jar!/" />
+          <root url="jar://C:/develop/Java/jdk1.8.0_121/lib/tools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -44,7 +57,7 @@
     <orderEntry type="module-library">
       <library name="Maven: com.sun:rt:1.8">
         <CLASSES>
-          <root url="jar:///opt/develop/jvm/jdk1.8.0_102/jre/lib/rt.jar!/" />
+          <root url="jar://C:/develop/Java/jdk1.8.0_121/jre/lib/rt.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -53,7 +66,7 @@
     <orderEntry type="module-library">
       <library name="Maven: com.sun:jce:1.8">
         <CLASSES>
-          <root url="jar:///opt/develop/jvm/jdk1.8.0_102/jre/lib/jce.jar!/" />
+          <root url="jar://C:/develop/Java/jdk1.8.0_121/jre/lib/jce.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
