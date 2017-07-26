@@ -34,7 +34,7 @@ public class H2DBServerStartListener implements ServletContextListener {
                     Class.forName("org.h2.Driver");
                     DriverManager.getConnection("jdbc:h2:" + jdbcUrl + ";INIT=RUNSCRIPT FROM 'classpath:h2.sql'", "sa", "sa");
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    //throw new RuntimeException(e);
                 }
             }
         }
