@@ -2,6 +2,7 @@ package com.centit.fileserver.config;
 
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
+import com.centit.support.file.PropertiesReader;
 import org.h2.server.web.WebServlet;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import java.util.Properties;
 
 /**
  * Created by zou_wy on 2017/3/29.
@@ -26,7 +28,7 @@ public class WebInitializer implements WebApplicationInitializer {
         initializeSpringConfig(servletContext);
         initializeSystemSpringMvcConfig(servletContext);
         initializeSpringMvcConfig(servletContext);
-        registerRequestContextListener(servletContext);
+        WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
         WebConfig.registerResponseCorsFilter(servletContext);
         WebConfig.registerCharacterEncodingFilter(servletContext);
@@ -34,8 +36,14 @@ public class WebInitializer implements WebApplicationInitializer {
         WebConfig.registerHiddenHttpMethodFilter(servletContext);
         WebConfig.registerRequestThreadLocalFilter(servletContext);
         WebConfig.registerSpringSecurityFilter(servletContext);
-        registerH2DBListener(servletContext);
-        initializeH2Console(servletContext);
+
+        Properties properties = PropertiesReader.getClassPathProperties("/system.properties");
+        String jdbcUrl = properties.getProperty("jdbc.url");
+
+        if(jdbcUrl.startsWith("jdbc:h2")){
+            registerH2DBListener(servletContext);
+            initializeH2Console(servletContext);
+        }
     }
 
     /**
@@ -74,13 +82,6 @@ public class WebInitializer implements WebApplicationInitializer {
         system.setAsyncSupported(true);
     }
 
-    /**
-     * 注册RequestContextListener监听器 （增加request、session和global session作用域）
-     * @param servletContext ServletContext
-     */
-    private void registerRequestContextListener(ServletContext servletContext) {
-        servletContext.addListener(RequestContextListener.class);
-    }
 
     /**
      * 访问 h2 console
