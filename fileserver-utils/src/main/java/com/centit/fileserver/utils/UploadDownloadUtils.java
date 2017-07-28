@@ -138,7 +138,8 @@ public class UploadDownloadUtils {
             //fs.saveFile(tempFilePath, token, size);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             if (StringUtils.equals(fileMd5, token)) {
-                FileSystemOpt.deleteFile(tempFilePath);
+                //FileSystemOpt.deleteFile(tempFilePath);
+                //成功上传到临时路径
                 return 0;
                 //completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
             } else {

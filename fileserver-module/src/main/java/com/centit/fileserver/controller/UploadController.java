@@ -327,6 +327,7 @@ public class UploadController extends BaseController {
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
             if(uploadSize==0){
+                fs. saveFile(tempFilePath, token, size);
                 completedFileStoreAndPretreat(fs, token, size, formData.getLeft(),
                         formData.getMiddle(), response);
                 return;
