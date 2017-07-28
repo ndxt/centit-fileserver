@@ -257,6 +257,7 @@ public class FileController extends BaseController {
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, fileInfo.getRight(), token, size, request);
             if(uploadSize==0){
+                fs.saveFile(tempFilePath, token, size);
                 completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
                 return;
             }else if( uploadSize>0){
