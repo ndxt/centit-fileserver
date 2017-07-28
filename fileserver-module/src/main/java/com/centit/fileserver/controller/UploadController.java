@@ -244,7 +244,7 @@ public class UploadController extends BaseController {
 
         try {
             if (pretreatInfo.needPretreat()) {
-                fileInfo = FilePretreatment.pretreatment(fileInfo, pretreatInfo);
+                fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
             }
             String fileId = (String) fileStoreInfoManager.saveNewObject(fileInfo);
             // 返回响应
@@ -327,9 +327,11 @@ public class UploadController extends BaseController {
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
             if(uploadSize==0){
+                //上传到临时去成功
                 fs. saveFile(tempFilePath, token, size);
                 completedFileStoreAndPretreat(fs, token, size, formData.getLeft(),
                         formData.getMiddle(), response);
+                FileSystemOpt.deleteFile(tempFilePath);
                 return;
             }else if( uploadSize>0){
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize);

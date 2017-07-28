@@ -191,12 +191,12 @@ public class FilePretreatment {
 	}
 	
 	public static FileStoreInfo
-		pretreatment( FileStoreInfo fileStoreInfo,PretreatInfo pretreatInfo) throws Exception
+		pretreatment(FileStore fs, FileStoreInfo fileStoreInfo,PretreatInfo pretreatInfo) throws Exception
 	{
 		if(! pretreatInfo.needPretreat())
 			return fileStoreInfo;
 		
-		FileStore fs = FileStoreFactory.createDefaultFileStore();
+		//FileStore fs = FileStoreFactory.createDefaultFileStore();
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
 		
 		if(pretreatInfo.getIsIndex()){
