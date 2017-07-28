@@ -18,11 +18,14 @@ public class OsFileStore implements FileStore {
 	}
 	
 	public OsFileStore(String fileRoot){
-		this.fileRoot = fileRoot;
+		setFileRoot(fileRoot);
 	}
 
 	public void setFileRoot(String fileRoot){
-		this.fileRoot = fileRoot;
+		if(fileRoot.endsWith(String.valueOf(File.separatorChar )))
+			this.fileRoot = fileRoot;
+		else
+			this.fileRoot = fileRoot + File.separatorChar;
 	}
 	public String getFileRoot(){
 		/*if(fileRoot==null)
@@ -86,8 +89,8 @@ public class OsFileStore implements FileStore {
 
 	@Override
 	public String getFileStoreUrl(String fileMd5, long fileSize) {
-		String fileUrl = matchFileToStoreUrl(fileMd5,fileSize);
-		return FileSystemOpt.existFile(getFileRoot() + fileUrl) ? fileUrl : null;
+		return matchFileToStoreUrl(fileMd5,fileSize);
+		//return FileSystemOpt.existFile(getFileRoot() + fileUrl) ? fileUrl : null;
 	}
 	
 	@Override
@@ -99,6 +102,12 @@ public class OsFileStore implements FileStore {
 	@Override
 	public InputStream loadFileStream(String fileUrl) throws IOException {
 		return new FileInputStream(new File(getFileRoot() + fileUrl));
+	}
+
+	@Override
+	public InputStream loadFileStream(String fileMd5, long fileSize) throws IOException {
+		return new FileInputStream(new File(getFileRoot() +
+				matchFileToStoreUrl(fileMd5,fileSize)));
 	}
 
 	@Override

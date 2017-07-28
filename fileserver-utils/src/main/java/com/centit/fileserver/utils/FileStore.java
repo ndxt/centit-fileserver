@@ -81,7 +81,16 @@ public interface FileStore {
 	 * @throws IOException IOException
 	 */
 	InputStream loadFileStream(String fileUrl) throws IOException;
-	
+
+	/**
+	 * 获取文件
+	 * @param fileMd5 String
+	 * @param fileSize long
+	 * @return InputStream
+	 * @throws IOException IOException
+	 */
+	InputStream loadFileStream(String fileMd5, long fileSize) throws IOException;
+
 	/**
 	 * 
 	 * @param fileUrl 文件的url

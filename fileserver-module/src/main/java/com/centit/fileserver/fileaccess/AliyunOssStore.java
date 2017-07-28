@@ -132,6 +132,11 @@ public class AliyunOssStore implements FileStore {
 	}
 
 	@Override
+	public InputStream loadFileStream(String fileMd5, long fileSize) throws IOException {
+		return  loadFileStream(matchFileToStoreUrl(fileMd5,fileSize));
+	}
+
+	@Override
 	public File getFile(String fileUrl) throws IOException {
 		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
 		OSSObject oobj = ossc.getObject(bucketName, fileUrl);
