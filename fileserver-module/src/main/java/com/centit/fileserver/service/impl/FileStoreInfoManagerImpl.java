@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
-import com.centit.framework.hibernate.dao.SysDaoOptUtils;
 import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
 import com.centit.support.database.DBType;
 import com.centit.support.database.QueryAndNamedParams;
@@ -77,13 +77,9 @@ public class FileStoreInfoManagerImpl
 
 		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
 		//System.out.println(qap.getQuery());
-		JSONArray dataList = SysDaoOptUtils.listObjectsBySqlAsJson(baseDao, 
-				qap.getQuery(), qap.getParams(), 
-				null,
-				//d 步骤
-				/*SysDaoOptUtils
-					.createDictionaryMapBuilder("userCode","owenrName", "userCode").create(),*/
-				pageDesc);	
+		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(
+				DatabaseOptUtils.findObjectsAsJSonBySql(baseDao,
+				qap.getQuery(), qap.getParams(), pageDesc));
 		return dataList;
 	}
 

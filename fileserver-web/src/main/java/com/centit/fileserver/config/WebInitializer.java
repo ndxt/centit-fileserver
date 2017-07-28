@@ -2,6 +2,7 @@ package com.centit.fileserver.config;
 
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
+import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.PropertiesReader;
 import org.h2.server.web.WebServlet;
 import org.springframework.web.WebApplicationInitializer;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import java.sql.DriverManager;
 import java.util.Properties;
 
 /**
@@ -41,7 +43,6 @@ public class WebInitializer implements WebApplicationInitializer {
         String jdbcUrl = properties.getProperty("jdbc.url");
 
         if(jdbcUrl.startsWith("jdbc:h2")){
-            registerH2DBListener(servletContext);
             initializeH2Console(servletContext);
         }
     }
@@ -88,6 +89,24 @@ public class WebInitializer implements WebApplicationInitializer {
      * @param servletContext ServletContext
      */
     private void initializeH2Console(ServletContext servletContext){
+
+        /*Properties properties = PropertiesReader.getClassPathProperties("/system.properties");
+        String jdbcUrl = properties.getProperty("jdbc.url");
+        int bPos = jdbcUrl.indexOf("file");
+        bPos = jdbcUrl.indexOf(':',bPos)+1;
+        int ePos = jdbcUrl.indexOf(';',bPos);
+        String dbFile = ePos<1 ? jdbcUrl.substring(bPos) : jdbcUrl.substring(bPos,ePos);
+        //数据文件不存在就初始化数据库
+        if (!FileSystemOpt.existFile(dbFile.trim())) {
+            try {
+                Class.forName( properties.getProperty("jdbc.driver"));//  "org.h2.Driver");
+                DriverManager.getConnection( jdbcUrl +
+                        ";INIT=RUNSCRIPT FROM 'classpath:db/migration/h2/V1_1__system-h2.sql'", "sa", "sa");
+            } catch (Exception e) {
+                //throw new RuntimeException(e);
+            }
+        }*/
+
         AnnotationConfigWebApplicationContext contextSer = new AnnotationConfigWebApplicationContext();
         contextSer.register(NormalSpringMvcConfig.class);
         contextSer.setServletContext(servletContext);
@@ -98,11 +117,5 @@ public class WebInitializer implements WebApplicationInitializer {
         h2console.setAsyncSupported(true);
     }
 
-    /**
-     * 注册H2DBServerStartListener监听器，连接h2数据库
-     * @param servletContext ServletContext
-     */
-    private void registerH2DBListener(ServletContext servletContext){
-        servletContext.addListener(H2DBServerStartListener.class);
-    }
+
 }

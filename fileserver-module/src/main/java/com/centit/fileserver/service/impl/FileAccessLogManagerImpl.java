@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileAccessLogDao;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.service.FileAccessLogManager;
+import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
-import com.centit.framework.hibernate.dao.SysDaoOptUtils;
 import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.QueryAndNamedParams;
@@ -67,13 +67,8 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
 				+ " order by a.AUTH_TIME desc";
 
 		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
-		JSONArray dataList = SysDaoOptUtils.listObjectsBySqlAsJson(baseDao, 
-				qap.getQuery(), qap.getParams(), 
-				null,
-				//d 步骤
-				/*SysDaoOptUtils
-					.createDictionaryMapBuilder("userCode","owenrName", "userCode").create(),*/
-				pageDesc);	
+		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSonBySql(
+				baseDao,qap.getQuery(), qap.getParams(), pageDesc));
 		return dataList;
 	}
 }
