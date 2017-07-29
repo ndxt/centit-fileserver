@@ -11,10 +11,15 @@ import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.UploadDownloadUtils;
+import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.common.JsonResultUtils;
 import com.centit.framework.core.common.ObjectException;
 import com.centit.framework.core.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.search.document.FileDocument;
+import com.centit.search.service.Indexer;
+import com.centit.search.service.IndexerSearcherFactory;
+import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringRegularOpt;
 import com.centit.support.file.FileIOOpt;
@@ -28,6 +33,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +58,10 @@ import java.util.Map;
 @RequestMapping("/upload")
 
 public class UploadController extends BaseController {
+
+    @Value("${file.check.duplicate}")
+    protected boolean checkDuplicate;
+
     @Resource
     private FileStoreInfoManager fileStoreInfoManager;
 
@@ -84,6 +94,7 @@ public class UploadController extends BaseController {
         fileInfo.setFileOwner(request.getParameter("fileOwner"));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
+        fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
 
         return fileInfo;
     }
@@ -243,10 +254,24 @@ public class UploadController extends BaseController {
         fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
 
         try {
+            String fileId = (String) fileStoreInfoManager.saveNewObject(fileInfo);
             if (pretreatInfo.needPretreat()) {
                 fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
             }
-            String fileId = (String) fileStoreInfoManager.saveNewObject(fileInfo);
+            if( checkDuplicate){
+                FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
+                if(duplicateFile != null){
+                    if("I".equals(duplicateFile.getIndexState())){
+                        Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+                                IndexerSearcherFactory.loadESServerConfigFormProperties(
+                                        SysParametersUtils.loadProperties()), FileDocument.class);
+                        indexer.deleteDocument(
+                                FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+                    }
+                    fileStoreInfoManager.deleteFile(duplicateFile);
+                }
+            }
+            fileStoreInfoManager.updateObject(fileInfo);
             // 返回响应
             JSONObject json = new JSONObject();
             json.put("start", size);

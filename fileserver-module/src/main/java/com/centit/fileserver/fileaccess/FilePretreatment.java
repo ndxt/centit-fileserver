@@ -225,6 +225,7 @@ public class FilePretreatment {
 					fs.loadFileStream(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize())) );
 			fileDoc.setCreateTime(fileStoreInfo.getCreateTime() );
 			indexer.saveNewDocument(fileDoc);
+			fileStoreInfo.setIndexState("I");
 		}
 		
 		if(pretreatInfo.getAddPdf()){

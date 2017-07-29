@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 @Service("fileStoreInfoManager")
@@ -83,6 +84,19 @@ public class FileStoreInfoManagerImpl
 		return dataList;
 	}
 
+	@Override
+	public FileStoreInfo getDuplicateFile(FileStoreInfo originalFile){
+		String queryStatement = " From FileStoreInfo " +
+				" where fileId <> ? and fileMd5 = ?  and fileSize = ?" +
+				" and ( fileOwner = ? or fileUnit= ? )";
+		List<FileStoreInfo> duplicateFiles =
+				baseDao.listObjects(queryStatement, new Object[]
+				{originalFile.getFileId(),originalFile.getFileMd5(),originalFile.getFileSize(),
+						originalFile.getFileOwner(),originalFile.getFileUnit()});
+		if(duplicateFiles!=null && duplicateFiles.size()>0)
+			return duplicateFiles.get(0);
+		return null;
+	}
 	/**
 	 * 同步保存文件
 	 *

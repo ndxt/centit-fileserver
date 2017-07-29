@@ -18,7 +18,9 @@ public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, S
 	 * @param originalFile 原始文件
 	 */
 	void deleteFile(FileStoreInfo originalFile);
-	
+
+	FileStoreInfo getDuplicateFile(FileStoreInfo originalFile);
+	//String owner, String unit, String fileMd5, long fileSize, String fileId)
 	/**
 	 * 
 	 * @param queryParamsMap Map<String,Object>
