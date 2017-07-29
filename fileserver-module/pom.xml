@@ -20,6 +20,11 @@
             <version>${centit.fileserver.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.centit.support</groupId>
+            <artifactId>centit-es-client</artifactId>
+            <version>${centit.search.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.centit.framework</groupId>

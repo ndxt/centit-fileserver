@@ -3,6 +3,10 @@ package com.centit.fileserver.fileaccess;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.SysParametersUtils;
+import com.centit.search.document.FileDocument;
+import com.centit.search.service.Indexer;
+import com.centit.search.service.IndexerSearcherFactory;
+import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileMD5Maker;
@@ -200,7 +204,27 @@ public class FilePretreatment {
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
 		
 		if(pretreatInfo.getIsIndex()){
-			//TODO 调用检索接口
+
+			Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+				IndexerSearcherFactory.loadESServerConfigFormProperties(
+					SysParametersUtils.loadProperties()), FileDocument.class) ;
+			FileDocument fileDoc = new FileDocument();
+			fileDoc.setFileId(fileStoreInfo.getFileId() );
+			fileDoc.setOsId( fileStoreInfo.getOsId());
+			fileDoc.setOptId( fileStoreInfo.getOptId());
+			fileDoc.setOptMethod( fileStoreInfo.getOptMethod());
+			fileDoc.setOptTag( fileStoreInfo.getOptTag());
+			fileDoc.setFileMD5( fileStoreInfo.getFileMd5());
+			fileDoc.setFileName( fileStoreInfo.getFileName());
+			fileDoc.setFileSummary( fileStoreInfo.getFileDesc());
+			fileDoc.setOptUrl( fileStoreInfo.getFileShowPath());
+			fileDoc.setUserCode( fileStoreInfo.getFileOwner());
+			fileDoc.setUserCode(fileStoreInfo.getFileUnit());
+			//获取文件的文本信息
+			fileDoc.setContent( TikaTextExtractor.extractInputStreamText(
+					fs.loadFileStream(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize())) );
+			fileDoc.setCreateTime(fileStoreInfo.getCreateTime() );
+			indexer.saveNewDocument(fileDoc);
 		}
 		
 		if(pretreatInfo.getAddPdf()){
