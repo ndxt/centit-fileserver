@@ -79,7 +79,7 @@ public class FileStoreInfoManagerImpl
 		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
 		//System.out.println(qap.getQuery());
 		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(
-				DatabaseOptUtils.findObjectsAsJSonBySql(baseDao,
+				DatabaseOptUtils.findObjectsAsJSONBySql(baseDao,
 				qap.getQuery(), qap.getParams(), pageDesc));
 		return dataList;
 	}
@@ -110,7 +110,7 @@ public class FileStoreInfoManagerImpl
 						"from FILE_STORE_INFO " +
 						"where OS_ID = ? " +
 						"group by OPT_ID";
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId},null);
 		return dataList;
 	}
@@ -132,7 +132,7 @@ public class FileStoreInfoManagerImpl
 					"where OS_ID = ? and OPT_ID = ? " +
 					"group by nvl(FILE_OWNER,FILE_UNIT) ";
 		}
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId,optId},null);
 		return dataList;
 	}
@@ -148,7 +148,7 @@ public class FileStoreInfoManagerImpl
 						+ "where a.OS_ID=? and a.OPT_ID = ? " +
 							"and (a.FILE_OWNER = ? or a.FILE_UNIT = ?) ";
 
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId,optId,owner,owner},null);
 		return dataList;
 	}
