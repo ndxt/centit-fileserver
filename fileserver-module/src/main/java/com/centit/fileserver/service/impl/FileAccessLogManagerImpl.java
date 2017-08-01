@@ -67,7 +67,7 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
 				+ " order by a.AUTH_TIME desc";
 
 		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
-		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,qap.getQuery(), qap.getParams(), pageDesc));
 		return dataList;
 	}

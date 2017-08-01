@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 @Service("fileStoreInfoManager")
@@ -78,11 +79,24 @@ public class FileStoreInfoManagerImpl
 		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
 		//System.out.println(qap.getQuery());
 		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(
-				DatabaseOptUtils.findObjectsAsJSonBySql(baseDao,
+				DatabaseOptUtils.findObjectsAsJSONBySql(baseDao,
 				qap.getQuery(), qap.getParams(), pageDesc));
 		return dataList;
 	}
 
+	@Override
+	public FileStoreInfo getDuplicateFile(FileStoreInfo originalFile){
+		String queryStatement = " From FileStoreInfo " +
+				" where fileId <> ? and fileMd5 = ?  and fileSize = ?" +
+				" and ( fileOwner = ? or fileUnit= ? )";
+		List<FileStoreInfo> duplicateFiles =
+				baseDao.listObjects(queryStatement, new Object[]
+				{originalFile.getFileId(),originalFile.getFileMd5(),originalFile.getFileSize(),
+						originalFile.getFileOwner(),originalFile.getFileUnit()});
+		if(duplicateFiles!=null && duplicateFiles.size()>0)
+			return duplicateFiles.get(0);
+		return null;
+	}
 	/**
 	 * 同步保存文件
 	 *
@@ -96,7 +110,7 @@ public class FileStoreInfoManagerImpl
 						"from FILE_STORE_INFO " +
 						"where OS_ID = ? " +
 						"group by OPT_ID";
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId},null);
 		return dataList;
 	}
@@ -118,7 +132,7 @@ public class FileStoreInfoManagerImpl
 					"where OS_ID = ? and OPT_ID = ? " +
 					"group by nvl(FILE_OWNER,FILE_UNIT) ";
 		}
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId,optId},null);
 		return dataList;
 	}
@@ -134,7 +148,7 @@ public class FileStoreInfoManagerImpl
 						+ "where a.OS_ID=? and a.OPT_ID = ? " +
 							"and (a.FILE_OWNER = ? or a.FILE_UNIT = ?) ";
 
-		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSonBySql(
+		JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
 				baseDao,queryStatement,new Object[]{osId,optId,owner,owner},null);
 		return dataList;
 	}

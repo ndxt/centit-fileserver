@@ -10,6 +10,7 @@ import java.util.Map;
 public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String>{
 	/**
 	 * @param originalFile 原始文件
+	 * @return 返回文档主键
 	 */
 	String saveNewFile(FileStoreInfo originalFile);
 	
@@ -18,12 +19,13 @@ public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, S
 	 * @param originalFile 原始文件
 	 */
 	void deleteFile(FileStoreInfo originalFile);
-	
+
+	FileStoreInfo getDuplicateFile(FileStoreInfo originalFile);
+	//String owner, String unit, String fileMd5, long fileSize, String fileId)
 	/**
-	 * 
-	 * @param queryParamsMap Map<String,Object>
+	 * @param queryParamsMap Map &lt; String,Object &gt;
 	 * @param pageDesc PageDesc
-	 * @return JSONArray
+	 * @return JSONArray 文件
 	 */
 	JSONArray listStoredFiles(Map<String,Object> queryParamsMap,
 			PageDesc pageDesc);

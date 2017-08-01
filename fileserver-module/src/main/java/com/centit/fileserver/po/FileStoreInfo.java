@@ -43,7 +43,7 @@ public class FileStoreInfo implements Serializable {
 	private String fileType;
 	
 	/**
-	 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
+	 * C : 正在上传 A:已审核 N : 正常 Z:空文件 F:文件上传失败  D:已删除
 	 */
 	@Column(name="FILE_STATE")
 	private String fileState;
@@ -174,7 +174,7 @@ public class FileStoreInfo implements Serializable {
 	}
 
 	/**
-	 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
+	 * C : 正在上传  A:已审核 N : 正常 Z:空文件 F:文件上传失败  D:已删除
 	 * @return String
 	 */
 	public String getFileState() {
@@ -182,7 +182,7 @@ public class FileStoreInfo implements Serializable {
 	}
 
 	/**
-	 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
+	 * C : 正在上传  A:已审核 N : 正常 Z:空文件 F:文件上传失败  D:已删除
 	 * @param fileState String
 	 */
 	public void setFileState(String fileState) {
