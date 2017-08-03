@@ -34,6 +34,18 @@
         </dependency>
 
         <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-view</artifactId>
+            <version>${centit.fileserver.version}</version>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>centit-ip-app</artifactId>
+            <version>${centit.ip.version}</version>
+        </dependency>-->
+
+        <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-persistence-hibernate</artifactId>
             <version>${centit.framework.version}</version>
@@ -49,12 +61,6 @@
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-system-view-easyui</artifactId>
             <version>${centit.framework.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-view</artifactId>
-            <version>${centit.fileserver.version}</version>
         </dependency>
 
         <dependency>

@@ -4,6 +4,8 @@ import com.centit.fileserver.listener.InstantiationServiceBeanPostProcessor;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
 import com.centit.framework.hibernate.config.DataSourceConfig;
+import com.centit.framework.ip.service.IntegrationEnvironment;
+import com.centit.framework.ip.service.impl.DummyIntegrationEnvironment;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.system.config.SystemBeanConfig;
@@ -17,6 +19,14 @@ import org.springframework.context.annotation.*;
 @Import({SystemBeanConfig.class, DataSourceConfig.class})
 @Configuration
 public class ServiceConfig {
+
+
+    @Bean
+    @Lazy(value = false)
+    public IntegrationEnvironment integrationEnvironment() {
+        return new DummyIntegrationEnvironment();
+    }
+
     @Bean
     public NotificationCenter notificationCenter() {
         NotificationCenterImpl notificationCenter = new NotificationCenterImpl();
