@@ -34,20 +34,20 @@ public class FileStoreInfoManagerImpl
 	}
 	
 	@Override
-	public String saveNewObject(FileStoreInfo originalFile){
+	public void saveNewObject(FileStoreInfo originalFile){
 
 		if(StringUtils.isBlank(originalFile.getOsId()))
 			originalFile.setOsId("NOTSET");
 		if(StringUtils.isBlank(originalFile.getOptId()))
 			originalFile.setOptId("NOTSET");
-		return this.baseDao.saveNewObject(originalFile);
+		this.baseDao.saveNewObject(originalFile);
 		
 
 	}
 
 	@Override
-	public String saveNewFile(FileStoreInfo originalFile){
-		return saveNewObject(originalFile);
+	public void saveNewFile(FileStoreInfo originalFile){
+		 saveNewObject(originalFile);
 	}
 
 	@Override

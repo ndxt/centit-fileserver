@@ -12,7 +12,7 @@ public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, S
 	 * @param originalFile 原始文件
 	 * @return 返回文档主键
 	 */
-	String saveNewFile(FileStoreInfo originalFile);
+	void saveNewFile(FileStoreInfo originalFile);
 	
 	/**
 	 * 删除文件
