@@ -8,16 +8,14 @@ import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.core.common.JsonResultUtils;
 import com.centit.framework.core.common.ResponseData;
+import com.centit.framework.core.common.ResponseSingleData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -34,15 +32,14 @@ public class AccessManagerController extends BaseController {
 	@Resource
 	private FileStoreInfoManager fileStoreInfoManager;
 	
-	private void applyAccess(FileAccessLog accessLog , HttpServletResponse response)
+	private ResponseSingleData applyAccess(FileAccessLog accessLog)
 			throws Exception{
 		String fileId = accessLog.getFileId();	
 		FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileId);
 		if(fileStoreInfo==null){
-			JsonResultUtils.writeAjaxErrorMessage(
+			return new ResponseSingleData(
 					FileServerConstant.ERROR_FILE_NOT_EXIST,
-					"文件不存："+fileId, response);
-			return;
+					"文件不存："+fileId);
 		}
 		String ar = accessLog.getAccessRight();
 		if(StringUtils.isBlank(ar))
@@ -55,17 +52,19 @@ public class AccessManagerController extends BaseController {
 		fileStoreInfo.addDownloadTimes();		
 		fileAccessLogManager.saveNewAccessLog(accessLog);
 		fileStoreInfoManager.updateObject(fileStoreInfo);
-		JsonResultUtils.writeSingleDataJson(accessLog, response);
+		return ResponseSingleData.makeResponseData(accessLog);
 	}
 	
 	@RequestMapping(value="/apply", method = RequestMethod.POST)
 	public void accessFile(@Valid FileAccessLog accessLog , HttpServletResponse response) throws Exception{
-		applyAccess(accessLog , response);		
+		JsonResultUtils.writeOriginalObject(
+			applyAccess(accessLog), response);
 	}
 	
 	@RequestMapping(value="/japply", method = RequestMethod.POST)
-	public void accessFileByJson(@RequestBody FileAccessLog accessLog , HttpServletResponse response) throws Exception{
-		applyAccess(accessLog , response);		
+	@ResponseBody
+	public ResponseSingleData accessFileByJson(@RequestBody FileAccessLog accessLog) throws Exception{
+		return applyAccess(accessLog);
 	}
 	
 	@RequestMapping(value="/log/{token}", method = RequestMethod.GET)
