@@ -33,10 +33,10 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
 	}
 	
 	@Override
-	public String saveNewAccessLog(FileAccessLog fileAccessLog) {
+	public void saveNewAccessLog(FileAccessLog fileAccessLog) {
 		if(fileAccessLog.getTokenExpireTime()==null)
 			fileAccessLog.setTokenExpireTime(DatetimeOpt.addHours(DatetimeOpt.currentUtilDate(),1));
-		return baseDao.saveNewObject(fileAccessLog);
+		baseDao.saveNewObject(fileAccessLog);
 	}
 	
 	@Override
