@@ -6,7 +6,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.core.common.JsonResultUtils;
-import com.centit.framework.core.common.ResponseData;
+import com.centit.framework.core.common.ResponseMapData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.framework.ip.po.OsInfo;
@@ -147,7 +147,7 @@ public class FileManagerController extends BaseController {
 		Map<String, Object> queryParamsMap = convertSearchColumn(request);
 		
 		JSONArray listObjects = fileStoreInfoManager.listStoredFiles(queryParamsMap, pageDesc);
-		ResponseData resData = new ResponseData();
+		ResponseMapData resData = new ResponseMapData();
 	    resData.addResponseData(OBJLIST, listObjects);
 	    resData.addResponseData(PAGE_DESC, pageDesc);
 	
