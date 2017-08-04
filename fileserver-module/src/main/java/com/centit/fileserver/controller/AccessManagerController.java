@@ -61,9 +61,10 @@ public class AccessManagerController extends BaseController {
 			applyAccess(accessLog), response);
 	}
 	
-	@RequestMapping(value="/japply", method = RequestMethod.POST)
+	@RequestMapping(value="/japply", method = RequestMethod.POST )//, headers="content-type=application/json")
 	@ResponseBody
 	public ResponseSingleData accessFileByJson(@RequestBody FileAccessLog accessLog) throws Exception{
+		//return applyAccess(JSON.parseObject(accessLog,FileAccessLog.class));
 		return applyAccess(accessLog);
 	}
 	
