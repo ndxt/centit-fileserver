@@ -7,7 +7,7 @@ import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.core.common.JsonResultUtils;
-import com.centit.framework.core.common.ResponseData;
+import com.centit.framework.core.common.ResponseMapData;
 import com.centit.framework.core.common.ResponseSingleData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.dao.PageDesc;
@@ -87,7 +87,7 @@ public class AccessManagerController extends BaseController {
 		Map<String, Object> queryParamsMap = convertSearchColumn(request);
 		
 		JSONArray listObjects = fileAccessLogManager.listAccessLog(queryParamsMap, pageDesc);
-		ResponseData resData = new ResponseData();
+		ResponseMapData resData = new ResponseMapData();
 	    resData.addResponseData(OBJLIST, listObjects);
 	    resData.addResponseData(PAGE_DESC, pageDesc);
 	
@@ -102,7 +102,7 @@ public class AccessManagerController extends BaseController {
 		filterMap.put("fileId", fileId);
 		
 		List<FileAccessLog> listObjects = fileAccessLogManager.listObjects(filterMap, pageDesc);
-		ResponseData resData = new ResponseData();
+		ResponseMapData resData = new ResponseMapData();
 		resData.addResponseData(OBJLIST, listObjects);
 		resData.addResponseData(PAGE_DESC, pageDesc);
 		
