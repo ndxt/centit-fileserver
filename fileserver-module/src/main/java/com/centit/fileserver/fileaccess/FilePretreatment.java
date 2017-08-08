@@ -202,7 +202,7 @@ public class FilePretreatment {
 		
 		//FileStore fs = FileStoreFactory.createDefaultFileStore();
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
-		
+
 		if(pretreatInfo.getIsIndex()){
 
 			Indexer indexer = IndexerSearcherFactory.obtainIndexer(
