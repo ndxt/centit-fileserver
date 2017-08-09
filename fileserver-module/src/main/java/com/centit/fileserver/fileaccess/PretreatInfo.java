@@ -30,6 +30,7 @@ public class PretreatInfo implements Serializable {
 	private Boolean addThumbnail;
 	private Integer thumbnailWidth;
 	private Integer thumbnailHeight;
+	private Boolean isUnzip;
 	
 	public PretreatInfo(){
 		isIndex = false;
@@ -39,7 +40,7 @@ public class PretreatInfo implements Serializable {
 
 	public boolean needPretreat(){
 		return this.getIsIndex() || this.getAddPdf()
-				|| this.getAddThumbnail() || 
+				|| this.getAddThumbnail() ||
 				!"N".equals(this.getEncryptType());
 	}
 	
@@ -65,6 +66,14 @@ public class PretreatInfo implements Serializable {
 
 	public void setFileSize(Long fileSize) {
 		this.fileSize = fileSize;
+	}
+
+	public Boolean getIsUnzip() {
+		return isUnzip==null?false:isUnzip;
+	}
+
+	public void setIsIsUnzip(Boolean isUnzip) {
+		this.isUnzip = isUnzip;
 	}
 
 	public Boolean getIsIndex() {
