@@ -97,6 +97,20 @@ public class FileStoreInfoManagerImpl
 			return duplicateFiles.get(0);
 		return null;
 	}
+
+	@Override
+	public FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile){
+		String queryStatement = " From FileStoreInfo " +
+				" where fileId <> ? and fileShowPath = ? " +
+				" and ( fileOwner = ? or fileUnit= ? )";
+		List<FileStoreInfo> duplicateFiles =
+				baseDao.listObjects(queryStatement, new Object[]
+						{originalFile.getFileId(),originalFile.getFileShowPath(),
+								originalFile.getFileOwner(),originalFile.getFileUnit()});
+		if(duplicateFiles!=null && duplicateFiles.size()>0)
+			return duplicateFiles.get(0);
+		return null;
+	}
 	/**
 	 * 同步保存文件
 	 *

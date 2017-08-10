@@ -62,6 +62,9 @@ public class UploadController extends BaseController {
     @Value("${file.check.duplicate}")
     protected boolean checkDuplicate;
 
+    @Value("${file.index.keepsingle.showpath}")
+    protected boolean keepSingleIndexByShowpath;
+
     @Resource
     private FileStoreInfoManager fileStoreInfoManager;
 
@@ -272,6 +275,18 @@ public class UploadController extends BaseController {
                     fileStoreInfoManager.deleteFile(duplicateFile);
                 }
             }
+
+            if(keepSingleIndexByShowpath ){
+                FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
+                if("I".equals(duplicateFile.getIndexState())){
+                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+                            IndexerSearcherFactory.loadESServerConfigFormProperties(
+                                    SysParametersUtils.loadProperties()), FileDocument.class);
+                    indexer.deleteDocument(
+                            FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+                }
+            }
+
             fileStoreInfoManager.updateObject(fileInfo);
             // 返回响应
             JSONObject json = new JSONObject();
