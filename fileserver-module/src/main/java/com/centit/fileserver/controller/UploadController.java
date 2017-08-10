@@ -287,10 +287,7 @@ public class UploadController extends BaseController {
             int fi = name.indexOf('/');
             int di = name.lastIndexOf('/');
 
-
             FileStore fsTemp = FileStoreFactory.createDefaultFileStore();
-
-
             String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
             int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
             String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
@@ -453,14 +450,6 @@ public class UploadController extends BaseController {
 
     }
 
-    /**
-     * 单个上传文件
-     * @param file
-     * @param preInfo
-     */
-    public static void uploadFile(FileStoreInfo file, PretreatInfo preInfo) {
-
-    }
 
     /**
      * 上传整个文件适用于IE8
