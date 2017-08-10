@@ -47,12 +47,12 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Controller
 @RequestMapping("/upload")
@@ -114,6 +114,7 @@ public class UploadController extends BaseController {
         }
         pretreatInfo.setFileSize(fileSize);
         pretreatInfo.setIsIndex(StringRegularOpt.isTrue(request.getParameter("index")));
+        pretreatInfo.setIsIsUnzip(StringRegularOpt.isTrue(request.getParameter("unzip")));
         pretreatInfo.setAddPdf(StringRegularOpt.isTrue(request.getParameter("pdf")));
         pretreatInfo.setWatermark(request.getParameter("watermark"));
         pretreatInfo.setAddThumbnail(StringRegularOpt.isTrue(request.getParameter("thumbnail")));
@@ -247,59 +248,11 @@ public class UploadController extends BaseController {
      * @param size
      * @param response
      */
-
     private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
                                                FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
                                                HttpServletResponse response) {
-
-        fileInfo.setFileMd5(fileMd5);
-        fileInfo.setFileSize(size);
-        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
-
         try {
-            fileStoreInfoManager.saveNewObject(fileInfo);
-            String fileId = fileInfo.getFileId();
-            if (pretreatInfo.needPretreat()) {
-                fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
-            }
-            if( checkDuplicate){
-                FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
-                if(duplicateFile != null){
-                    if("I".equals(duplicateFile.getIndexState())){
-                        Indexer indexer = IndexerSearcherFactory.obtainIndexer(
-                                IndexerSearcherFactory.loadESServerConfigFormProperties(
-                                        SysParametersUtils.loadProperties()), FileDocument.class);
-                        indexer.deleteDocument(
-                                FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
-                    }
-                    fileStoreInfoManager.deleteFile(duplicateFile);
-                }
-            }
-
-            if(keepSingleIndexByShowpath ){
-                FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
-                if("I".equals(duplicateFile.getIndexState())){
-                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
-                            IndexerSearcherFactory.loadESServerConfigFormProperties(
-                                    SysParametersUtils.loadProperties()), FileDocument.class);
-                    indexer.deleteDocument(
-                            FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
-                }
-            }
-
-            fileStoreInfoManager.updateObject(fileInfo);
-            // 返回响应
-            JSONObject json = new JSONObject();
-            json.put("start", size);
-            json.put("name", fileInfo.getFileName());
-            json.put("token", fileMd5);
-            json.put("success", true);
-            json.put("fileId", fileId);
-
-            json.put(ResponseData.RES_CODE_FILED, 0);
-            json.put(ResponseData.RES_MSG_FILED, "上传成功");
-            json.put(ResponseData.RES_DATA_FILED, fileInfo);
-
+            JSONObject json = completedFileStoreAndPretreat(fs, fileMd5, size, fileInfo, pretreatInfo);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,6 +260,117 @@ public class UploadController extends BaseController {
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
         }
+    }
+
+    /**
+     * 解压缩文件
+     * @param fs
+     * @param fileStoreInfo
+     * @throws IOException
+     */
+    private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) throws Exception {
+
+        File zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
+
+        ZipInputStream zis = new ZipInputStream(
+                new BufferedInputStream(
+                        new FileInputStream(zipFile)));
+        ZipEntry entry;
+        while (( entry = zis.getNextEntry() ) != null) {
+            System.out.println( "Extracting: " + entry.getName());
+
+            if (entry.isDirectory()) {
+                continue;
+            }
+
+            String name = entry.getName();
+            int fi = name.indexOf('/');
+            int di = name.lastIndexOf('/');
+
+
+            FileStore fsTemp = FileStoreFactory.createDefaultFileStore();
+
+
+            String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+            int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
+            String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+            fsTemp.saveFile(tempFilePath, token, size);
+
+            FileStoreInfo fileStoreInfoTemp = new FileStoreInfo();
+            fileStoreInfoTemp.copyNotNullProperty(fileStoreInfo);
+            fileStoreInfoTemp.setFileMd5(token);
+            fileStoreInfoTemp.setFileName(name.substring(di + 1));
+            fileStoreInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
+            fileStoreInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)) );
+            fileStoreInfoTemp.setFileStorePath(fsTemp.getFileStoreUrl(token, size));
+
+            PretreatInfo pretreatInfoTemp = new PretreatInfo();
+            pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
+            pretreatInfoTemp.setIsIsUnzip(false);
+
+            completedFileStoreAndPretreat(fsTemp, token, size, fileStoreInfoTemp, pretreatInfoTemp);
+
+            FileSystemOpt.deleteFile(tempFilePath);
+        }
+    }
+
+    private JSONObject completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
+                                               FileStoreInfo fileInfo, PretreatInfo pretreatInfo) throws Exception {
+
+        fileInfo.setFileMd5(fileMd5);
+        fileInfo.setFileSize(size);
+        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
+
+        fileStoreInfoManager.saveNewObject(fileInfo);
+        String fileId = fileInfo.getFileId();
+        if (pretreatInfo.needPretreat()) {
+            fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
+        }
+
+        // 只有zip文件才需要解压
+        if (pretreatInfo.getIsUnzip() && "zip".equals(fileInfo.getFileType())) {
+            unzip(fs, fileInfo, pretreatInfo, fileInfo.getFileShowPath());
+        }
+
+        if(checkDuplicate){
+            FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
+            if(duplicateFile != null){
+                if("I".equals(duplicateFile.getIndexState())){
+                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+                            IndexerSearcherFactory.loadESServerConfigFormProperties(
+                                    SysParametersUtils.loadProperties()), FileDocument.class);
+                    indexer.deleteDocument(
+                            FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+                }
+                fileStoreInfoManager.deleteFile(duplicateFile);
+            }
+        }
+
+        if(keepSingleIndexByShowpath ){
+            FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
+            if("I".equals(duplicateFile.getIndexState())){
+                Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+                        IndexerSearcherFactory.loadESServerConfigFormProperties(
+                                SysParametersUtils.loadProperties()), FileDocument.class);
+                indexer.deleteDocument(
+                        FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+            }
+        }
+
+        fileStoreInfoManager.updateObject(fileInfo);
+        // 返回响应
+        JSONObject json = new JSONObject();
+        json.put("start", size);
+        json.put("name", fileInfo.getFileName());
+        json.put("token", fileMd5);
+        json.put("success", true);
+        json.put("fileId", fileId);
+
+        json.put(ResponseData.RES_CODE_FILED, 0);
+        json.put(ResponseData.RES_MSG_FILED, "上传成功");
+        json.put(ResponseData.RES_DATA_FILED, fileInfo);
+
+        return json;
     }
 
     /**
@@ -386,6 +450,15 @@ public class UploadController extends BaseController {
             JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
+
+    }
+
+    /**
+     * 单个上传文件
+     * @param file
+     * @param preInfo
+     */
+    public static void uploadFile(FileStoreInfo file, PretreatInfo preInfo) {
 
     }
 
