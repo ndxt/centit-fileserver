@@ -84,6 +84,11 @@ public class UploadController extends BaseController {
         String fileName = request.getParameter("name");
         if(StringUtils.isBlank(fileName))
             fileName = request.getParameter("fileName");
+
+        String fileState = request.getParameter("fileState");
+        if(StringUtils.isNotBlank(fileState))
+            fileInfo.setFileState(fileState);
+
         fileInfo.setFileName(fileName);//*
         fileInfo.setOsId(request.getParameter("osId"));//*
         fileInfo.setOptId(request.getParameter("optId"));
@@ -345,12 +350,14 @@ public class UploadController extends BaseController {
 
         if(keepSingleIndexByShowpath ){
             FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
-            if("I".equals(duplicateFile.getIndexState())){
-                Indexer indexer = IndexerSearcherFactory.obtainIndexer(
-                        IndexerSearcherFactory.loadESServerConfigFormProperties(
-                                SysParametersUtils.loadProperties()), FileDocument.class);
-                indexer.deleteDocument(
-                        FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+            if(duplicateFile != null){
+                if("I".equals(duplicateFile.getIndexState())){
+                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+                            IndexerSearcherFactory.loadESServerConfigFormProperties(
+                                    SysParametersUtils.loadProperties()), FileDocument.class);
+                    indexer.deleteDocument(
+                            FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
+                }
             }
         }
 
