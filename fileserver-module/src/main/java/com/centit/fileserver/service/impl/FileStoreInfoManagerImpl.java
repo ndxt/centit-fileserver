@@ -100,15 +100,27 @@ public class FileStoreInfoManagerImpl
 
 	@Override
 	public FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile){
-		String queryStatement = " From FileStoreInfo " +
-				" where fileId <> ? and fileShowPath = ? " +
-				" and ( fileOwner = ? or fileUnit= ? )";
-		List<FileStoreInfo> duplicateFiles =
-				baseDao.listObjects(queryStatement, new Object[]
-						{originalFile.getFileId(),originalFile.getFileShowPath(),
-								originalFile.getFileOwner(),originalFile.getFileUnit()});
-		if(duplicateFiles!=null && duplicateFiles.size()>0)
-			return duplicateFiles.get(0);
+		if (StringUtils.isBlank(originalFile.getFileShowPath())){
+			String queryStatement2 = " From FileStoreInfo " +
+					" where fileId <> ? and fileShowPath is null " +
+					" and fileName = ? and ( fileOwner = ? or fileUnit= ? )";
+			List<FileStoreInfo> duplicateFiles =
+					baseDao.listObjects(queryStatement2, new Object[]
+							{originalFile.getFileId(),originalFile.getFileName(),
+									originalFile.getFileOwner(),originalFile.getFileUnit()});
+			if(duplicateFiles!=null && duplicateFiles.size()>0)
+				return duplicateFiles.get(0);
+		}else {
+			String queryStatement = " From FileStoreInfo " +
+					" where fileId <> ? and fileShowPath = ? " +
+					" and fileName = ? and ( fileOwner = ? or fileUnit= ? )";
+			List<FileStoreInfo> duplicateFiles =
+					baseDao.listObjects(queryStatement, new Object[]
+							{originalFile.getFileId(),originalFile.getFileShowPath(),originalFile.getFileName(),
+									originalFile.getFileOwner(),originalFile.getFileUnit()});
+			if(duplicateFiles!=null && duplicateFiles.size()>0)
+				return duplicateFiles.get(0);
+		}
 		return null;
 	}
 	/**
