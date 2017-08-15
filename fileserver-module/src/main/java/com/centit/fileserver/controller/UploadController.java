@@ -303,7 +303,19 @@ public class UploadController extends BaseController {
             fileStoreInfoTemp.setFileMd5(token);
             fileStoreInfoTemp.setFileName(name.substring(di + 1));
             fileStoreInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
-            fileStoreInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)) );
+
+            // ① name: test/4.东航国际运输条件.docx && showPath: null =========> showPath: null
+            // ② name: test/4.东航国际运输条件.docx && showPath: a =========> showPath: a
+            // ③ name: test/b/4.东航国际运输条件.docx && showPath: null =========> showPath: b
+            // ④ name: test/b/4.东航国际运输条件.docx && showPath: a =========> showPath: a/b
+            if (fi == di) {
+                // 情况 ① ②
+                fileStoreInfoTemp.setFileShowPath(rootPath);
+            } else {
+                // 情况 ③ ④
+                fileStoreInfoTemp.setFileShowPath( rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)) );
+            }
+
             fileStoreInfoTemp.setFileStorePath(fsTemp.getFileStoreUrl(token, size));
 
             PretreatInfo pretreatInfoTemp = new PretreatInfo();
