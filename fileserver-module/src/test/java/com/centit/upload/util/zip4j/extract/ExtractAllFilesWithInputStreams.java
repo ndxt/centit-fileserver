@@ -20,6 +20,8 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.io.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.unzip.UnzipUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +34,8 @@ import java.util.List;
  * to extract files from the ZipFile
  */
 public class ExtractAllFilesWithInputStreams {
+
+	private Logger logger = LoggerFactory.getLogger(ExtractSelectFilesWithInputStream.class);
 	
 	private final int BUFF_SIZE = 4096;
 	
@@ -105,12 +109,12 @@ public class ExtractAllFilesWithInputStreams {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			try {
 				closeFileHandlers(is, os);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}

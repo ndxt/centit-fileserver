@@ -69,8 +69,9 @@ public class UploadDownloadUtils {
         try(ServletOutputStream out = response.getOutputStream();
             BufferedOutputStream bufferOut = new BufferedOutputStream(out)){
 
+            long num;
             if(pos>0)
-                inputStream.skip(pos);
+                num = inputStream.skip(pos);
             byte[] buffer = new byte[64 * 1024];
             int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
             int length = 0;

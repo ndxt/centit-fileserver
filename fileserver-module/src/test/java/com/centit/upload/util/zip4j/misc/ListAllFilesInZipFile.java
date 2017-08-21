@@ -16,11 +16,13 @@
 
 package com.centit.upload.util.zip4j.misc;
 
-import java.util.List;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Lists all the files in a zip file including the properties of the file
@@ -28,6 +30,8 @@ import net.lingala.zip4j.model.FileHeader;
  *
  */
 public class ListAllFilesInZipFile {
+
+	private Logger logger = LoggerFactory.getLogger(ListAllFilesInZipFile.class);
 
 	public ListAllFilesInZipFile() {
 		
@@ -54,7 +58,7 @@ public class ListAllFilesInZipFile {
 			}
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

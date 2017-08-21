@@ -16,16 +16,14 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.io.ZipOutputStream;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * This example demonstrates the use of ZipOutputStreams.
@@ -33,6 +31,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * with all compression and encryption being done in memory
  */
 public class CreateZipWithOutputStreams {
+
+	private Logger logger = LoggerFactory.getLogger(CreateZipWithOutputStreams.class);
 	
 	public CreateZipWithOutputStreams() {
 		
@@ -124,13 +124,13 @@ public class CreateZipWithOutputStreams {
 			outputStream.finish();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} finally {
 			if (outputStream != null) {
 				try {
 					outputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			}
 			
@@ -138,7 +138,7 @@ public class CreateZipWithOutputStreams {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}

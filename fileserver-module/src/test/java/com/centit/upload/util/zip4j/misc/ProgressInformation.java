@@ -16,14 +16,16 @@
 
 package com.centit.upload.util.zip4j.misc;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * This example demonstrates ProgressMonitor usage. Progress Monitor
@@ -35,6 +37,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * rest of the tasks is similar to this approach 
  */
 public class ProgressInformation {
+
+	private Logger logger = LoggerFactory.getLogger(ProgressInformation.class);
 	
 	public ProgressInformation() {
 		
@@ -138,7 +142,7 @@ public class ProgressInformation {
 			}
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

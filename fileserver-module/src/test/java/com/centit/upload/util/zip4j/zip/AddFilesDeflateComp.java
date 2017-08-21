@@ -16,13 +16,15 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Example showing addition of files to Zip File using deflate compression
@@ -31,6 +33,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  *
  */
 public class AddFilesDeflateComp {
+
+	private Logger logger = LoggerFactory.getLogger(AddFilesDeflateComp.class);
 	
 	public AddFilesDeflateComp() {
 		try {
@@ -69,7 +73,7 @@ public class AddFilesDeflateComp {
 			// allow updating split zip files
 			zipFile.addFiles(filesToAdd, parameters);
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		} 
 		
 		

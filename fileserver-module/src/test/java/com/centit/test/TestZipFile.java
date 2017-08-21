@@ -1,14 +1,18 @@
 package com.centit.test;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 public class TestZipFile {
+
+	private static Logger logger = LoggerFactory.getLogger(TestZipFile.class);
 	
 	public static boolean zipFileAndEncryptWithAes(String inputFilePath, String zipFilePath,String password) {
 		boolean ziped=false;
@@ -60,7 +64,7 @@ public class TestZipFile {
 			zipFile.addFiles(filesToAdd, parameters);
 			ziped=true;
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 		return ziped;

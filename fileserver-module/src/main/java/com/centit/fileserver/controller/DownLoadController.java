@@ -46,7 +46,7 @@ public class DownLoadController extends BaseController {
 			downloadChineseFileName = new String(
 					HtmlUtils.htmlUnescape(paramName).getBytes("GBK"), "ISO8859-1");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return downloadChineseFileName;
 	}
@@ -72,6 +72,7 @@ public class DownLoadController extends BaseController {
 					OutputStream diminationFile = new FileOutputStream(tmpFile)	){
 					FileEncryptWithAes.decrypt(downFile, diminationFile, password);
 				}catch (Exception e) {
+					logger.error(e.getMessage(), e);
 					JsonResultUtils.writeAjaxErrorMessage(
 							FileServerConstant.ERROR_FILE_ENCRYPT,
 							"解码文件失败："+e.getMessage(),

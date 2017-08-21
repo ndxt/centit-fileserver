@@ -16,13 +16,15 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Demonstrated how to create a split zip file
@@ -31,6 +33,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  *
  */
 public class CreateSplitZipFile {
+
+	private Logger logger = LoggerFactory.getLogger(CreateSplitZipFile.class);
 	
 	public CreateSplitZipFile() {
 		
@@ -62,7 +66,7 @@ public class CreateSplitZipFile {
 			// exception
 			zipFile.createZipFile(filesToAdd, parameters, true, 10485760);
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

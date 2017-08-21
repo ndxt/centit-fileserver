@@ -19,6 +19,8 @@ package com.centit.upload.util.zip4j.misc;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates how to remove a file from a zip file
@@ -27,6 +29,8 @@ import net.lingala.zip4j.model.FileHeader;
  *
  */
 public class RemoveFileFromZipFile {
+
+	private Logger logger = LoggerFactory.getLogger(RemoveFileFromZipFile.class);
 	
 	public RemoveFileFromZipFile() {
 		
@@ -52,7 +56,7 @@ public class RemoveFileFromZipFile {
 			}
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

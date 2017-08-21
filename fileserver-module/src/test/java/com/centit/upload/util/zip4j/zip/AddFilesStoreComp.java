@@ -16,13 +16,15 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Class demonstrating creation of a zip file by adding files with store 
@@ -32,6 +34,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * 
  */
 public class AddFilesStoreComp {
+
+	private Logger logger = LoggerFactory.getLogger(AddFilesStoreComp.class);
 
 	public AddFilesStoreComp() {
 		
@@ -62,7 +66,7 @@ public class AddFilesStoreComp {
 			// allow updating split zip files
 			zipFile.addFiles(filesToAdd, parameters);
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

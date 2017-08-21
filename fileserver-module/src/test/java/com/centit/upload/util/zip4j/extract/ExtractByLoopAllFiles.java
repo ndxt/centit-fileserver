@@ -16,11 +16,13 @@
 
 package com.centit.upload.util.zip4j.extract;
 
-import java.util.List;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Demonstrates extraction of files from a zip file by looping through
@@ -31,6 +33,8 @@ import net.lingala.zip4j.model.FileHeader;
  */
 
 public class ExtractByLoopAllFiles {
+
+	private Logger logger = LoggerFactory.getLogger(ExtractByLoopAllFiles.class);
 
 	public ExtractByLoopAllFiles() {
 		
@@ -55,7 +59,7 @@ public class ExtractByLoopAllFiles {
 			}
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

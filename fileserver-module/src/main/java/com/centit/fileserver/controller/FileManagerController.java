@@ -11,6 +11,8 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +30,9 @@ import java.util.Map;
 @Controller
 @RequestMapping("/files")
 public class FileManagerController extends BaseController {
+
+	private Logger logger = LoggerFactory.getLogger(FileManagerController.class);
+
 	@Resource
 	private FileStoreInfoManager fileStoreInfoManager;	
 	
@@ -66,6 +71,7 @@ public class FileManagerController extends BaseController {
 			try {
 				fs.deleteFile(path);
 			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 				JsonResultUtils.writeErrorMessageJson(
 						e.getMessage(), response);
 				return;

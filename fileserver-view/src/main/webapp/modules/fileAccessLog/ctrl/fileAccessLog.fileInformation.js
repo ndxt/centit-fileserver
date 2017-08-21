@@ -13,7 +13,7 @@ define(function(require) {
             vm.tableDown = panel.find("#fileAccessLog_down_info");
             vm.tableDown.cdatagrid({
                 // 必须要加此项!!
-                controller: this,
+                controller: this
             });
             var loadData = [
                 { name : '文件名', value : data['fileName'] },
@@ -28,7 +28,7 @@ define(function(require) {
                 { name : '文件机构', value : data['fileUnit'] },
                 { name : '索引状态', value : data['indexState'] },
                 { name : '系统ID', value : data['optId'] },
-                { name : '操作类别', value : data['osId'] },
+                { name : '操作类别', value : data['osId'] }
                 // { name : '存储路径', value : data['fileStorePath'] },
                 // { name : '系统方法', value : data['optMethod'] },
                 // { name : '系统标签', value : data['optTag'] }

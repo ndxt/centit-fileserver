@@ -1,15 +1,19 @@
 package com.centit.upload.service;
 
+import com.centit.support.database.QueryUtils;
+import com.centit.support.network.HttpExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.centit.support.database.QueryUtils;
-import com.centit.support.network.HttpExecutor;
-
 public class Test {
+
+	private static Logger logger = LoggerFactory.getLogger(Test.class);
 
 	public static void main(String[] args) {
 		Calendar cal = Calendar.getInstance();
@@ -41,7 +45,7 @@ public class Test {
 			String response = postMethod.getResponseBodyAsString();*/
 			System.out.println(response);
 		}catch(Exception e){
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 //		File file = new File("D:\\红酒报价单.pdf");

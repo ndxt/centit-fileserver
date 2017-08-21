@@ -20,6 +20,8 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrated adding a folder to zip file
@@ -27,6 +29,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * @author Srikanth Reddy Lingala
  */
 public class AddFolder {
+
+	private Logger logger = LoggerFactory.getLogger(AddFolder.class);
 	
 	public AddFolder() {
 		
@@ -51,7 +55,7 @@ public class AddFolder {
 			zipFile.addFolder(folderToAdd, parameters);
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

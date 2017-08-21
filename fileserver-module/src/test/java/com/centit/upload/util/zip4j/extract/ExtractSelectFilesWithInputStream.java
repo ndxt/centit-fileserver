@@ -1,15 +1,19 @@
 package com.centit.upload.util.zip4j.extract;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.io.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.unzip.UnzipUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 public class ExtractSelectFilesWithInputStream {
+
+	private Logger logger = LoggerFactory.getLogger(ExtractSelectFilesWithInputStream.class);
 	
 	private final int BUFF_SIZE = 4096;
 	
@@ -84,12 +88,12 @@ public class ExtractSelectFilesWithInputStream {
 				//can be used as shown below
 				UnzipUtil.applyFileAttributes(fileHeader, outFile);
 				
-				System.out.println("Done extracting: " + fileHeader.getFileName());
+				logger.info("Done extracting: " + fileHeader.getFileName());
 			} else {
-				System.err.println("FileHeader does not exist");
+				logger.info("FileHeader does not exist");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(),e);
 		}
 	}
 	

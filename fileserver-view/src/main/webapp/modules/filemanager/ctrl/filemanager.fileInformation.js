@@ -13,7 +13,7 @@ define(function(require) {
             vm.tableDown = panel.find("#down_info");
             vm.tableDown.cdatagrid({
                 // 必须要加此项!!
-                controller: this,
+                controller: this
             });
             var loadData = [
                 { name : '文件名', value : data['FILE_NAME'] },
@@ -28,7 +28,7 @@ define(function(require) {
                 { name : '文件机构', value : data['FILE_UNIT'] },
                 { name : '索引状态', value : data['INDEX_STATE'] },
                 { name : '系统ID', value : data['OPT_ID'] },
-                { name : '操作类别', value : data['OS_ID'] },
+                { name : '操作类别', value : data['OS_ID'] }
                 // {name : '存储路径', value : data['FILE_STORE_PATH'] },
                 // { name : '系统方法', value : data['OPT_TAG'] },
                 // { name : '系统标签', value : data['OS_ID'] }

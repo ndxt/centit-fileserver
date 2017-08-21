@@ -15,6 +15,8 @@ import com.centit.support.file.FileSystemOpt;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +43,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/store")
 public class StoreFileController extends BaseController {
+
+	private Logger logger = LoggerFactory.getLogger(StoreFileController.class);
 
 	/**
 	 * 判断文件是否存在，如果文件已经存在可以实现秒传
@@ -255,6 +259,7 @@ public class StoreFileController extends BaseController {
 			completedFileStore(fileMd5,fileSize,  response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
+        	logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }

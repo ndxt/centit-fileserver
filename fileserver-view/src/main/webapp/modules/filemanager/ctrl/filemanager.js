@@ -11,7 +11,6 @@ define(function(require) {
 
     // 角色信息列表
     return Page.extend(function() {
-        var table;
         //层级状态
         this.TOPSTATE;
         this.CLASSSTATE;
@@ -30,7 +29,7 @@ define(function(require) {
         this.injecte([
             new returnViewFile('returnViewFile'),
             new manangerViewModule('manangerViewModule'),
-            fileIn =  new fileInformation('fileInformation'),
+            fileIn =  new fileInformation('fileInformation')
         ]);
         //打开文件详细信息地址
         var openFileDetail = 'modules/filemanager/filemanager.fileInformation.html';
@@ -78,30 +77,30 @@ define(function(require) {
             this.switchView();
             var url;
             var simData = [];
-            if(this.STATE == this.TOPSTATE){
+            if(this.STATE === this.TOPSTATE){
                 url = topUrl;
             }
-            else if(this.STATE == this.CLASSSTATE){
+            else if(this.STATE === this.CLASSSTATE){
                 url = classUrl+this.osId;
             }
-            else if(this.STATE == this.OWNERSTATE){
+            else if(this.STATE === this.OWNERSTATE){
                 url = ownerUrl+this.osId+'/'+this.optId;
             }
-            else if(this.STATE == this.FILESTATE){
+            else if(this.STATE === this.FILESTATE){
                 url = fileUrl+this.osId+'/'+this.optId+'/'+this.owner;
             }
 
 
             Core.ajax(url)
                 .then(function (data) {
-                    data= (data==undefined)?[]:data;
+                    data= (data===undefined)?[]:data;
                     this.BufferArray = data;
-                    if(this.nowViewModule == this.LISTVIEW) {
+                    if(this.nowViewModule === this.LISTVIEW) {
                         simData = [];
                         //模拟数据
                         this.simData(data,simData);
                     }
-                    else if(this.nowViewModule == this.IMGVIEW){
+                    else if(this.nowViewModule === this.IMGVIEW){
                         simData = data;
                     }
                     //保存一份数据
@@ -117,7 +116,7 @@ define(function(require) {
             $('body').on('dblclick','div.viewClickRow',function(e){
                 e.preventDefault();
                 //定位给父元素
-                var target = (e.target.nodeName != "DIV")?e.target.parentNode:e.target;
+                var target = (e.target.nodeName !== "DIV")?e.target.parentNode:e.target;
                 var index = target.getAttribute('index');
                 if(this.STATE === this.FILESTATE) {
                     Dialog.open({
@@ -134,7 +133,7 @@ define(function(require) {
             //单击选中
             $('body').on('mousedown','div.viewClickRow',function(e){
                 var target = (e.target.nodeName!=='DIV')?e.target.parentNode: e.target;
-                var index = target.getAttribute('index');
+                // var index = target.getAttribute('index');
                 $('.imgRowSelected').removeClass('imgRowSelected');
                 target.className += " imgRowSelected";
             }.bind(this));
@@ -147,22 +146,22 @@ define(function(require) {
                 this.table.cdatagrid('getPanel').find('.datagrid-header').hide();
                 this.table.cdatagrid('options').view.renderRow = function(target, fields, frozen, rowIndex, rowData) {
                     //如果为空对象直接返回
-                    if(JSON.stringify(rowData)=="{}" ){
+                    if(JSON.stringify(rowData)==="{}" ){
                         return;
                     }
                     //显示文件名
                     var name;
                     var src = this.filePathImage;
-                    if(this.STATE == this.TOPSTATE){
+                    if(this.STATE === this.TOPSTATE){
                         name = rowData.osName;
                     }
-                    else if(this.STATE == this.CLASSSTATE){
+                    else if(this.STATE === this.CLASSSTATE){
                         name = rowData.OPT_ID;
                     }
-                    else if(this.STATE == this.OWNERSTATE){
+                    else if(this.STATE === this.OWNERSTATE){
                         name = rowData.FILE_OWNER;
                     }
-                    else if(this.STATE == this.FILESTATE){
+                    else if(this.STATE === this.FILESTATE){
                         name = rowData.FILE_NAME;
                         src = this.fileImage;
                     }
@@ -183,15 +182,15 @@ define(function(require) {
         //双击事件
         this.onDblClickRow = function(index,field){
             //改变状态
-            if(this.STATE == this.TOPSTATE) {
+            if(this.STATE === this.TOPSTATE) {
                 this.STATE = this.CLASSSTATE;
                 this.osId = field.osId;
             }
-            else if(this.STATE == this.CLASSSTATE) {
+            else if(this.STATE === this.CLASSSTATE) {
                 this.STATE = this.OWNERSTATE;
                 this.optId = field.OPT_ID;
             }
-            else if(this.STATE == this.OWNERSTATE) {
+            else if(this.STATE === this.OWNERSTATE) {
                 this.STATE = this.FILESTATE;
                 this.owner = field.FILE_OWNER;
             }
@@ -210,22 +209,22 @@ define(function(require) {
 
         //原生
         this.simData = function(data,simData){
-            if (this.STATE == this.TOPSTATE) {
+            if (this.STATE === this.TOPSTATE) {
                 data.forEach(function (value) {
                     simData.push({osName: value.osName, osId: value.osId});
                 });
             }
-            else if (this.STATE == this.CLASSSTATE) {
+            else if (this.STATE === this.CLASSSTATE) {
                 data.forEach(function (value) {
                     simData.push({osName: value.OPT_ID, osId: value.OPT_ID});
                 });
             }
-            else if(this.STATE == this.OWNERSTATE){
+            else if(this.STATE === this.OWNERSTATE){
                 data.forEach(function (value) {
                     simData.push({osName: value.FILE_OWNER, osId: value.FILE_OWNER});
                 });
             }
-            else if(this.STATE == this.FILESTATE){
+            else if(this.STATE === this.FILESTATE){
                 data.forEach(function (value) {
                     simData.push({osName: value.FILE_NAME, osId: value.FILE_ID});
                 });

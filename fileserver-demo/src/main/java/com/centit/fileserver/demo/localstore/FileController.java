@@ -54,7 +54,7 @@ public class FileController extends BaseController {
             downloadChineseFileName = new String(
                     HtmlUtils.htmlUnescape(paramName).getBytes("GBK"), "ISO8859-1");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         return downloadChineseFileName;
     }
@@ -149,7 +149,7 @@ public class FileController extends BaseController {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
         FileStore fs = FileStoreFactory.createDefaultFileStore();
-        long tempFileSize = 0;
+        long tempFileSize;
         // 如果文件已经存在则完成秒传，无需再传
         if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
@@ -177,7 +177,7 @@ public class FileController extends BaseController {
 
             String fileId =  fileMd5 +"_"+String.valueOf(size)+"."+
                     FileType.getFileExtName(fileName);
-            String filePath = fs.getFileStoreUrl(fileMd5,size);
+//            String filePath = fs.getFileStoreUrl(fileMd5,size);
             // 返回响应
             JSONObject json = new JSONObject();
             /*json.put("start", size);
@@ -196,7 +196,7 @@ public class FileController extends BaseController {
 
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             JsonResultUtils.writeAjaxErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
@@ -269,6 +269,7 @@ public class FileController extends BaseController {
             }
 
         }catch (ObjectException e){
+            logger.error(e.getMessage(), e);
             JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
@@ -295,6 +296,7 @@ public class FileController extends BaseController {
             completedStoreFile(fs, fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
+            logger.error(e.getMessage(), e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }

@@ -20,6 +20,8 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +29,7 @@ import java.util.ArrayList;
 
 public class FilePretreatment {
 	
-	//private static final Logger logger = LoggerFactory.getLogger(FilePretreatment.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilePretreatment.class);
 	
 	//private static BlockingQueue<PretreatInfo> waitingForPretreat = new LinkedBlockingQueue<>();
 	//private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(3);
@@ -60,7 +62,7 @@ public class FilePretreatment {
                            FilePretreatment.pretreatment(
                    				fileStoreInfoManager,fileStoreInfo,pretreatInfo);	
                        } catch (Exception e) {
-                        
+                        	logger.error(e.getMessage(), e);
                        }
                    }
                  
@@ -105,7 +107,7 @@ public class FilePretreatment {
 			ZipCompressor.compress(zipFilePathName, fileName, inputFile);
 			ziped = true;
 		}catch(RuntimeException e){
-			
+			logger.error(e.getMessage(), e);
 		}
 		return ziped;
 	}
@@ -147,7 +149,7 @@ public class FilePretreatment {
 			zipFile.addFiles(filesToAdd, parameters);
 			ziped=true;
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 		return ziped;
@@ -164,7 +166,7 @@ public class FilePretreatment {
 			FileEncryptWithAes.encrypt(inputFile, diminationFileName, password);
 			encrypted=true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return encrypted;
 	}
@@ -184,7 +186,7 @@ public class FilePretreatment {
 			ImageOpt.createThumbnail(filename, thumbWidth, thumbHeight, quality, outFilename);
 			created = true;
 		} catch (InterruptedException | IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		return created;
 	}

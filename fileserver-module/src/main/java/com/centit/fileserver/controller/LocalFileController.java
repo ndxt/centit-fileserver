@@ -13,6 +13,8 @@ import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,8 @@ import java.net.URLDecoder;
 @Controller
 @RequestMapping("/local")
 public class LocalFileController extends BaseController {
+
+	private Logger logger = LoggerFactory.getLogger(LocalFileController.class);
 	private static final int URI_START_PARAM = 5;
 	@Resource
 	private LocalFileManager localFileManager;
@@ -121,6 +125,7 @@ public class LocalFileController extends BaseController {
                     localFileManager.listUserFiles(userCode, fetchUserShowPath(uri)),
                     response);
 		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage(), e);
 			JsonResultUtils.writeErrorMessageJson("url 解析出错:"+e.getMessage(),response);
 		}
 	}
@@ -143,6 +148,7 @@ public class LocalFileController extends BaseController {
 					localFileManager.listUnitFiles(p.getLeft(),p.getRight()),
 					response);
 		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage(), e);
 			JsonResultUtils.writeErrorMessageJson("url 解析出错:"+e.getMessage(),response);
 		}
 	}
@@ -163,6 +169,7 @@ public class LocalFileController extends BaseController {
 					localFileManager.listUserFileVersions(userCode,p.getLeft(),p.getRight()),
 					response);
 		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage(), e);
 			JsonResultUtils.writeErrorMessageJson("url 解析出错:"+e.getMessage(),response);
 			}
 	}
@@ -184,6 +191,7 @@ public class LocalFileController extends BaseController {
 					localFileManager.listUnitFileVersions(t.getLeft(),t.getMiddle(),t.getRight()),
 					response);
 		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage(), e);
 			JsonResultUtils.writeErrorMessageJson("url 解析出错:"+e.getMessage(),response);
 		}
 	}

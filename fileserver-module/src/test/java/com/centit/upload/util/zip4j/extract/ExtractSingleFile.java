@@ -18,6 +18,8 @@ package com.centit.upload.util.zip4j.extract;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates extraction of a single file from the zip file
@@ -26,6 +28,8 @@ import net.lingala.zip4j.exception.ZipException;
  */
 
 public class ExtractSingleFile {
+
+	private Logger logger = LoggerFactory.getLogger(ExtractSingleFile.class);
 	
 	public ExtractSingleFile() {
 		
@@ -49,7 +53,7 @@ public class ExtractSingleFile {
 			zipFile.extractFile("FolderToAdd\\myvideo.avi", "c:\\ZipTest\\");
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

@@ -18,6 +18,8 @@ package com.centit.upload.util.zip4j.misc;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Example to check if the zip file is a split archive
@@ -26,6 +28,8 @@ import net.lingala.zip4j.exception.ZipException;
  *
  */
 public class CheckZipFileSplitArchive {
+
+	private Logger logger = LoggerFactory.getLogger(CheckZipFileSplitArchive.class);
 	
 	public CheckZipFileSplitArchive() {
 		
@@ -36,7 +40,7 @@ public class CheckZipFileSplitArchive {
 			// Check if the zip file is a split archive
 			System.out.println("Is this zip file a split archive? " + zipFile.isSplitArchive());
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

@@ -18,6 +18,8 @@ package com.centit.upload.util.zip4j.extract;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Demonstrates extracting all files from a zip file
@@ -26,6 +28,8 @@ import net.lingala.zip4j.exception.ZipException;
  *
  */
 public class ExtractAllFiles {
+
+	private Logger logger = LoggerFactory.getLogger(ExtractAllFiles.class);
 	
 	public ExtractAllFiles() {
 		
@@ -37,7 +41,7 @@ public class ExtractAllFiles {
 			zipFile.extractAll("c:\\ZipTest");
 			
 		} catch (ZipException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 	}

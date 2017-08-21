@@ -26,6 +26,8 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,6 +37,14 @@ import java.util.List;
 
 
 public class FileClientImpl implements FileClient {
+
+    private Logger logger = LoggerFactory.getLogger(FileClientImpl.class);
+
+    private AppSession appSession;
+
+    private String fileServerExportUrl;
+
+    private final String ERROR_MESSAGE = "请求失败！";
 
     /**
      *   #文件服务器
@@ -51,10 +61,6 @@ public class FileClientImpl implements FileClient {
                 appServerUrl,false,userCode,password);
         this.fileServerExportUrl = appServerExportUrl;
     }
-
-    private AppSession appSession;
-
-    private String fileServerExportUrl;
 
     public void setAppSession(AppSession appSession) {
         this.appSession = appSession;
@@ -139,8 +145,7 @@ public class FileClientImpl implements FileClient {
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
         }
-        FileStoreInfo fileStoreInfo = resJson.getDataAsObject(FileStoreInfo.class);
-        return fileStoreInfo;
+        return resJson.getDataAsObject(FileStoreInfo.class);
     }
 
     public boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws Exception {
@@ -149,7 +154,7 @@ public class FileClientImpl implements FileClient {
                 appSession.completeQueryUrl("/service/files/j/" + fsi.getFileId()), fsi);
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
         if (resJson == null) {
-            throw new ObjectException(fsi, "请求失败！");
+            throw new ObjectException(fsi, ERROR_MESSAGE);
         }
         return resJson.getCode() == 0;
     }
@@ -174,10 +179,11 @@ public class FileClientImpl implements FileClient {
         try {
             resJson = ResponseJSON.valueOfJson(jsonStr);
         }catch(Exception e){
+            logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
         if (resJson == null) {
-            throw new ObjectException(jsonStr, "请求失败！");
+            throw new ObjectException(jsonStr, ERROR_MESSAGE);
         }
         return resJson.getDataAsObject(FileStoreInfo.class);
     }
@@ -191,7 +197,7 @@ public class FileClientImpl implements FileClient {
 
     public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws Exception{
         String uri =  appSession.completeQueryUrl(
-                "/service/upload/range?token="+fileMd5+"&size="+String.valueOf(fileSize));
+                "/service/upload/range?token="+fileMd5+"&size="+fileSize);
         String jsonStr = HttpExecutor.simpleGet(httpClient,uri);
         long rangeStart = -1;
 
@@ -199,6 +205,7 @@ public class FileClientImpl implements FileClient {
             JSONObject obj = JSON.parseObject(jsonStr);
             rangeStart = obj.getLong("start");
         }catch(Exception e){
+            logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
 
@@ -232,7 +239,7 @@ public class FileClientImpl implements FileClient {
         long fileSize = file.length();
 
         String uri =  appSession.completeQueryUrl(
-                "/service/upload/range?token="+fileMd5+"&size="+String.valueOf(fileSize));
+                "/service/upload/range?token="+fileMd5+"&size="+fileSize);
         List<NameValuePair> params = HttpExecutor.makeRequectParams(fsi, "");
 
         String paramsUrl1 = EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
@@ -256,8 +263,9 @@ public class FileClientImpl implements FileClient {
         int gotlen=0;
         int read1;
         byte[] bytes = new byte[10240];
+        long num;
         if(rangeStart>0)
-            fin.skip(rangeStart);
+            num = fin.skip(rangeStart);
         while(gotlen < postFileSize) {
             read1 = fin.read(bytes);
             if(read1 + gotlen < postFileSize) {
@@ -270,6 +278,7 @@ public class FileClientImpl implements FileClient {
             }
             gotlen += read1;
         }
+        fin.close();
         //File tempfile = new File("/D/Projects/RunData/file_home/temp/tem.data");
         //FileIOOpt.writeInputStreamToFile(new ByteArrayInputStream(bos.toByteArray()),tempfile);
         ByteArrayEntity entity = new ByteArrayEntity(bos.toByteArray());
@@ -280,10 +289,11 @@ public class FileClientImpl implements FileClient {
         try {
             resJson = ResponseJSON.valueOfJson(jsonStr);
         }catch(Exception e){
+            logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
         if (resJson == null) {
-            throw new ObjectException(jsonStr, "请求失败！");
+            throw new ObjectException(jsonStr, ERROR_MESSAGE);
         }
         return resJson.getDataAsObject(FileStoreInfo.class);
 

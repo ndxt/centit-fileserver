@@ -16,13 +16,15 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.File;
-import java.util.ArrayList;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Demonstrates adding files to zip file with AES Encryption
@@ -30,6 +32,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * @author Srikanth Reddy Lingala
  */
 public class AddFilesWithAESEncryption {
+
+	private Logger logger = LoggerFactory.getLogger(AddFilesWithAESEncryption.class);
 	
 	public AddFilesWithAESEncryption() {
 		
@@ -84,7 +88,7 @@ public class AddFilesWithAESEncryption {
 			// allow updating split zip files
 			zipFile.addFiles(filesToAdd, parameters);
 		} catch (ZipException e) {
-			e.printStackTrace();
+		logger.error(e.getMessage(), e);
 		}
 	}
 	

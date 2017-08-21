@@ -198,8 +198,7 @@ public class UploadController extends BaseController {
         PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart)
-            return new ImmutableTriple<FileStoreInfo, PretreatInfo, InputStream>
-                    (fileInfo, pretreatInfo, request.getInputStream());
+            return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
 
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
@@ -219,14 +218,14 @@ public class UploadController extends BaseController {
                         FileStoreInfo fsi = JSON.parseObject(fi.getString(), FileStoreInfo.class);
                         fileInfo.copyNotNullProperty(fsi);
                     } catch (Exception e) {
-
+                        logger.error(e.getMessage(),e);
                     }
                 } else if (StringUtils.equals("pretreatInfo", fi.getFieldName())) {
                     try {
                         PretreatInfo pi = JSON.parseObject(fi.getString(), PretreatInfo.class);
                         pretreatInfo.copyNotNullProperty(pi);
                     } catch (Exception e) {
-
+                        logger.error(e.getMessage(),e);
                     }
                 }
             } else {
@@ -287,7 +286,7 @@ public class UploadController extends BaseController {
 
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeAjaxErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
@@ -368,6 +367,7 @@ public class UploadController extends BaseController {
             }
 
         }catch (ObjectException e){
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
@@ -397,6 +397,7 @@ public class UploadController extends BaseController {
             completedFileStoreAndPretreat(fs, fileMd5, fileSize, formData.getLeft(), formData.getMiddle(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }
@@ -435,7 +436,7 @@ public class UploadController extends BaseController {
 
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeAjaxErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
@@ -538,6 +539,7 @@ public class UploadController extends BaseController {
             }
 
         }catch (ObjectException e){
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
@@ -564,6 +566,7 @@ public class UploadController extends BaseController {
             completedStoreFile(fs, fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
+            logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }

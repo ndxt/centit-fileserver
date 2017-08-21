@@ -1,6 +1,5 @@
 setI18NText("");
 define(function(require) {
-//	var Config = require('config');
 	var Core = require('core/core');
 	var Page = require('core/page');
 	var Dialog = require('centit/centit.dialog');
@@ -26,7 +25,7 @@ define(function(require) {
 		//文件信息
 		var fileIn;
 		this.injecte([
-			fileIn =  new fileInformation('fileInformation'),
+			fileIn =  new fileInformation('fileInformation')
 		]);
 		this.load = function (panel) {
 			var vm = this;
@@ -59,7 +58,7 @@ define(function(require) {
 				}
 				this.selectOss.combobox('loadData',SimData);
 				this.selectOss.combobox({
-					onChange:ossSelected.bind(this),
+					onChange:ossSelected.bind(this)
 				});
 			}.bind(this));
 
@@ -93,7 +92,7 @@ define(function(require) {
 				this.selectOsId.combobox('loadData',SimData);
 				//绑定第二层时间
 				this.selectOsId.combobox({
-					onChange : osIdSelected.bind(this),
+					onChange : osIdSelected.bind(this)
 				});
 			}.bind(this))
 		}

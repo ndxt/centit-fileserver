@@ -16,13 +16,15 @@
 
 package com.centit.upload.util.zip4j.zip;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Example demonstrating creation of a zip file with content 
@@ -40,6 +42,8 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * </ul>
  */
 public class AddStreamToZip {
+
+	private Logger logger = LoggerFactory.getLogger(AddStreamToZip.class);
 	
 	public AddStreamToZip() {
 		
@@ -82,7 +86,7 @@ public class AddStreamToZip {
 				try {
 					is.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error(e.getMessage(), e);
 				}
 			}
 		}
