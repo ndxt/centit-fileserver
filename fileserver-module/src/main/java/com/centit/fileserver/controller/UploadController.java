@@ -385,13 +385,6 @@ public class UploadController extends BaseController {
         json.put(ResponseData.RES_MSG_FILED, "上传成功");
         json.put(ResponseData.RES_DATA_FILED, fileInfo);
 
-            JsonResultUtils.writeOriginalJson(json.toString(), response);
-        } catch (Exception e) {
-            logger.error(e.getMessage(),e);
-            JsonResultUtils.writeAjaxErrorMessage(
-                    FileServerConstant.ERROR_FILE_PRETREAT,
-                    "文件上传成功，但是在保存前：" + e.getMessage(), response);
-        }
         return json;
     }
 
