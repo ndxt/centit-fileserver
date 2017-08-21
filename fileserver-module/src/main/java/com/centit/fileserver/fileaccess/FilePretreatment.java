@@ -204,7 +204,7 @@ public class FilePretreatment {
 		
 		//FileStore fs = FileStoreFactory.createDefaultFileStore();
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
-		
+
 		if(pretreatInfo.getIsIndex()){
 
 			Indexer indexer = IndexerSearcherFactory.obtainIndexer(
@@ -221,7 +221,7 @@ public class FilePretreatment {
 			fileDoc.setFileSummary( fileStoreInfo.getFileDesc());
 			fileDoc.setOptUrl( fileStoreInfo.getFileShowPath());
 			fileDoc.setUserCode( fileStoreInfo.getFileOwner());
-			fileDoc.setUserCode(fileStoreInfo.getFileUnit());
+			fileDoc.setUnitCode(fileStoreInfo.getFileUnit());
 			//获取文件的文本信息
 			fileDoc.setContent( TikaTextExtractor.extractInputStreamText(
 					fs.loadFileStream(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize())) );
