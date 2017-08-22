@@ -85,7 +85,7 @@ public class UploadDownloadUtils {
             //bufferOut.close();
             //out.close();
         } catch (SocketException e){
-            logger.info("客户端断开链接："+e.getMessage());
+            logger.info("客户端断开链接："+e.getMessage(), e);
         }
     }
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
 public class ExtractSelectFilesWithInputStream {
@@ -78,10 +79,10 @@ public class ExtractSelectFilesWithInputStream {
 				//skipCRCCheck to false
 				//NOTE: It is recommended to close outputStream first because Zip4j throws 
 				//an exception if CRC check fails
-				is.close();
+//				is.close();
 				
 				//Close output stream
-				os.close();
+//				os.close();
 				
 				//To restore File attributes (ex: last modified file time, 
 				//read only flag, etc) of the extracted file, a utility class
@@ -94,6 +95,21 @@ public class ExtractSelectFilesWithInputStream {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(),e);
+		}finally {
+			if(is != null){
+				try {
+					is.close();
+				}catch(IOException ie){
+					logger.error(ie.getMessage(), ie);
+				}
+			}
+			if(os != null){
+				try {
+					os.close();
+				}catch(IOException ie){
+					logger.error(ie.getMessage(), ie);
+				}
+			}
 		}
 	}
 	

@@ -275,55 +275,62 @@ public class UploadController extends BaseController {
     private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) throws Exception {
 
         File zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
+        ZipInputStream zis = null;
 
-        ZipInputStream zis = new ZipInputStream(
-                new BufferedInputStream(
-                        new FileInputStream(zipFile)));
-        ZipEntry entry;
-        while (( entry = zis.getNextEntry() ) != null) {
-            System.out.println( "Extracting: " + entry.getName());
+        try {
+            zis = new ZipInputStream(
+                    new BufferedInputStream(
+                            new FileInputStream(zipFile)));
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                System.out.println("Extracting: " + entry.getName());
 
-            if (entry.isDirectory()) {
-                continue;
+                if (entry.isDirectory()) {
+                    continue;
+                }
+
+                String name = entry.getName();
+                int fi = name.indexOf('/');
+                int di = name.lastIndexOf('/');
+
+                FileStore fsTemp = FileStoreFactory.createDefaultFileStore();
+                String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+                int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
+                String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+                fsTemp.saveFile(tempFilePath, token, size);
+
+                FileStoreInfo fileStoreInfoTemp = new FileStoreInfo();
+                fileStoreInfoTemp.copyNotNullProperty(fileStoreInfo);
+                fileStoreInfoTemp.setFileMd5(token);
+                fileStoreInfoTemp.setFileName(name.substring(di + 1));
+                fileStoreInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
+
+                // ① name: test/4.东航国际运输条件.docx && showPath: null =========> showPath: null
+                // ② name: test/4.东航国际运输条件.docx && showPath: a =========> showPath: a
+                // ③ name: test/b/4.东航国际运输条件.docx && showPath: null =========> showPath: b
+                // ④ name: test/b/4.东航国际运输条件.docx && showPath: a =========> showPath: a/b
+                if (fi == di) {
+                    // 情况 ① ②
+                    fileStoreInfoTemp.setFileShowPath(rootPath);
+                } else {
+                    // 情况 ③ ④
+                    fileStoreInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)));
+                }
+
+                fileStoreInfoTemp.setFileStorePath(fsTemp.getFileStoreUrl(token, size));
+
+                PretreatInfo pretreatInfoTemp = new PretreatInfo();
+                pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
+                pretreatInfoTemp.setIsIsUnzip(false);
+
+                completedFileStoreAndPretreat(fsTemp, token, size, fileStoreInfoTemp, pretreatInfoTemp);
+
+                FileSystemOpt.deleteFile(tempFilePath);
             }
-
-            String name = entry.getName();
-            int fi = name.indexOf('/');
-            int di = name.lastIndexOf('/');
-
-            FileStore fsTemp = FileStoreFactory.createDefaultFileStore();
-            String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
-            int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
-            String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            fsTemp.saveFile(tempFilePath, token, size);
-
-            FileStoreInfo fileStoreInfoTemp = new FileStoreInfo();
-            fileStoreInfoTemp.copyNotNullProperty(fileStoreInfo);
-            fileStoreInfoTemp.setFileMd5(token);
-            fileStoreInfoTemp.setFileName(name.substring(di + 1));
-            fileStoreInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
-
-            // ① name: test/4.东航国际运输条件.docx && showPath: null =========> showPath: null
-            // ② name: test/4.东航国际运输条件.docx && showPath: a =========> showPath: a
-            // ③ name: test/b/4.东航国际运输条件.docx && showPath: null =========> showPath: b
-            // ④ name: test/b/4.东航国际运输条件.docx && showPath: a =========> showPath: a/b
-            if (fi == di) {
-                // 情况 ① ②
-                fileStoreInfoTemp.setFileShowPath(rootPath);
-            } else {
-                // 情况 ③ ④
-                fileStoreInfoTemp.setFileShowPath( rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)) );
+        }finally {
+            if(zis != null){
+                zis.close();
             }
-
-            fileStoreInfoTemp.setFileStorePath(fsTemp.getFileStoreUrl(token, size));
-
-            PretreatInfo pretreatInfoTemp = new PretreatInfo();
-            pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
-            pretreatInfoTemp.setIsIsUnzip(false);
-
-            completedFileStoreAndPretreat(fsTemp, token, size, fileStoreInfoTemp, pretreatInfoTemp);
-
-            FileSystemOpt.deleteFile(tempFilePath);
         }
     }
 
