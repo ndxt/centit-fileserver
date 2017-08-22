@@ -55,7 +55,9 @@ public class TestFileClient {
 			}catch (Exception e){
 				logger.error(e.getMessage(), e);
 			}
-			upload = ftemp.getFileSize();
+			if(ftemp != null) {
+                upload = ftemp.getFileSize();
+            }
 			System.out.println(JSON.toJSONString(ftemp));
 		}
 	}

@@ -274,12 +274,9 @@ public class UploadController extends BaseController {
     private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) throws Exception {
 
         File zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
-        ZipInputStream zis = null;
 
-        try {
-            zis = new ZipInputStream(
-                    new BufferedInputStream(
-                            new FileInputStream(zipFile)));
+        try(ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)))) {
+
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 System.out.println("Extracting: " + entry.getName());
@@ -325,10 +322,6 @@ public class UploadController extends BaseController {
                 completedFileStoreAndPretreat(fsTemp, token, size, fileStoreInfoTemp, pretreatInfoTemp);
 
                 FileSystemOpt.deleteFile(tempFilePath);
-            }
-        }finally {
-            if(zis != null){
-                zis.close();
             }
         }
     }
