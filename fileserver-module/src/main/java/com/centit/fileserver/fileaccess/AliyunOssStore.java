@@ -60,6 +60,13 @@ public class AliyunOssStore implements FileStore {
 					+ "/"+ fileMd5.charAt(2);		
 		return pathname +"/" + fileMd5 +"_"+fileSize+".dat";
 	}
+
+	private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
+		String pathname = fileMd5.charAt(0)
+				+ "/"+ fileMd5.charAt(1)
+				+ "/"+ fileMd5.charAt(2);
+		return pathname +"/" + fileMd5 +"_"+fileSize+"."+extName;
+	}
 		
 	public String saveFileByMd5(String sourFilePath, String fileMd5, long fileSize)
 			throws IOException {
@@ -94,6 +101,14 @@ public class AliyunOssStore implements FileStore {
 	}
 
 	@Override
+	public String saveFile(String sourFilePath, String fileMd5, long fileSize, String extName) throws IOException {
+		String filePath =  matchFileToStoreUrl(fileMd5,fileSize,extName);
+		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
+		ossc.putObject(bucketName, filePath, new File(sourFilePath));
+		return filePath;
+	}
+
+	@Override
 	public boolean checkFile(String fileMd5, long fileSize) {
 		String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
 		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
@@ -107,7 +122,14 @@ public class AliyunOssStore implements FileStore {
 		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
 		return ossc.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
 	}
-	
+
+	@Override
+	public String getFileStoreUrl(String fileMd5, long fileSize, String extName) {
+		String fileUrl = matchFileToStoreUrl(fileMd5,fileSize,extName);
+		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
+		return ossc.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
+	}
+
 	@Override
 	public long getFileSize(String fileUrl) throws IOException {
 		OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);

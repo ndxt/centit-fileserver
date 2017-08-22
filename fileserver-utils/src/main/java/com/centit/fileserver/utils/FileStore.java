@@ -36,6 +36,18 @@ public interface FileStore {
 	 */
 	String saveFile(String sourFilePath, String fileMd5, long fileSize)
 			throws IOException;
+
+	/**
+	 * 保存文件
+	 * @param sourFilePath
+	 * @param fileMd5
+	 * @param fileSize
+	 * @param extName
+	 * @return
+	 * @throws IOException
+	 */
+	String saveFile(String sourFilePath, String fileMd5, long fileSize,String extName)
+			throws IOException;
 	
 	/**
 	 * 检查文件是否存在，如果存在则实现秒传
@@ -53,6 +65,8 @@ public interface FileStore {
 	 * @return 如果不存在返回null checkFile返回为true则这个肯定存在
 	 */
 	String getFileStoreUrl(String fileMd5, long fileSize);
+
+	String getFileStoreUrl(String fileMd5, long fileSize,String extName);
 	
 	/**
 	 * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
