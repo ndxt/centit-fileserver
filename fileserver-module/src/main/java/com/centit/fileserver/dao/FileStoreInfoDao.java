@@ -24,6 +24,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 			filterField.put("groupId" , CodeBook.EQUAL_HQL_ID);
 			filterField.put("isValid" , CodeBook.EQUAL_HQL_ID);
 			filterField.put("files", " fileId in (?) ");
+			filterField.put("fileName",CodeBook.EQUAL_HQL_ID);
 		}
 		return filterField;
 	}

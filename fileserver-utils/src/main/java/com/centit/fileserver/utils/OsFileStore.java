@@ -40,6 +40,14 @@ public class OsFileStore implements FileStore {
 		FileSystemOpt.createDirect(getFileRoot() + pathname);
 		return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
 	}
+
+	private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
+		String pathname = String.valueOf(fileMd5.charAt(0))
+				+ File.separatorChar + fileMd5.charAt(1)
+				+ File.separatorChar + fileMd5.charAt(2);
+		FileSystemOpt.createDirect(getFileRoot() + pathname);
+		return pathname + File.separatorChar + fileMd5 +"_"+fileSize+"."+extName;
+	}
 		
 	@Override
 	public String saveFile(InputStream is, String fileMd5, long fileSize)
@@ -72,7 +80,15 @@ public class OsFileStore implements FileStore {
 			throw new IOException("文件MD5校验出错："+fileMd5);*/
 		return saveFileByMd5(sourFilePath, fileMd5, fileSize);
 	}
-	
+
+	@Override
+	public String saveFile(String sourFilePath, String fileMd5, long fileSize, String extName) throws IOException {
+		String filePath =  matchFileToStoreUrl(fileMd5,fileSize,extName);
+		FileSystemOpt.createDirect(new File(getFileRoot() + filePath).getParent());
+		FileSystemOpt.fileCopy(sourFilePath,getFileRoot() + filePath);
+		return filePath;
+	}
+
 	@Override
 	public String saveFile(String sourFilePath) throws IOException {
 		File file = new File(sourFilePath);
@@ -92,7 +108,12 @@ public class OsFileStore implements FileStore {
 		return matchFileToStoreUrl(fileMd5,fileSize);
 		//return FileSystemOpt.existFile(getFileRoot() + fileUrl) ? fileUrl : null;
 	}
-	
+
+	@Override
+	public String getFileStoreUrl(String fileMd5, long fileSize, String extName) {
+		return matchFileToStoreUrl(fileMd5,fileSize,extName);
+	}
+
 	@Override
 	public long getFileSize(String fileUrl) throws IOException {
 		File f = new File(getFileRoot() + fileUrl);
