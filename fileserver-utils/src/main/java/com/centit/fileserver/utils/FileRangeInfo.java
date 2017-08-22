@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
 
 public class FileRangeInfo implements Serializable {
 
-	private static final long serialVersionUID = 1l;
-	public static final long FILE_BLOCK_SIZE = 10*1024*1024;
+	private static final long serialVersionUID = 1L;
+	public static final long FILE_BLOCK_SIZE = 10*1024*1024L;
 	
 
 	private	long rangeStart;

@@ -20,8 +20,10 @@ import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
@@ -196,9 +198,8 @@ public class FilePretreatment {
 			FileSystemOpt.deleteFile(filePath);
 	}
 	
-	public static FileStoreInfo
-		pretreatment(FileStore fs, FileStoreInfo fileStoreInfo,PretreatInfo pretreatInfo) throws Exception
-	{
+	public static FileStoreInfo pretreatment(FileStore fs, FileStoreInfo fileStoreInfo,PretreatInfo pretreatInfo)
+	throws IOException{
 		if(! pretreatInfo.needPretreat())
 			return fileStoreInfo;
 		
@@ -223,8 +224,14 @@ public class FilePretreatment {
 			fileDoc.setUserCode( fileStoreInfo.getFileOwner());
 			fileDoc.setUnitCode(fileStoreInfo.getFileUnit());
 			//获取文件的文本信息
-			fileDoc.setContent( TikaTextExtractor.extractInputStreamText(
-					fs.loadFileStream(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize())) );
+			try {
+				fileDoc.setContent(TikaTextExtractor.extractInputStreamText(
+						fs.loadFileStream(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize())));
+			}catch (TikaException te){
+				logger.error(te.getMessage(), te);
+			}catch (SAXException se){
+				logger.error(se.getMessage(), se);
+			}
 			fileDoc.setCreateTime(fileStoreInfo.getCreateTime() );
 			indexer.saveNewDocument(fileDoc);
 			fileStoreInfo.setIndexState("I");
@@ -243,11 +250,11 @@ public class FilePretreatment {
 					if( addWatermarkForPdf(pdfTmpFile , pdfTmpFile2, pretreatInfo.getWatermark())){
 						fileStoreInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile2));
 					}else
-						throw new Exception("给PDF添加水印出错！"+ fileStoreInfo.getFileMd5());
+						logger.error("给PDF添加水印出错！"+ fileStoreInfo.getFileMd5());
 				}else
 					fileStoreInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile));
 			}else
-				throw new Exception("生产PDF文件出错！"+ fileStoreInfo.getFileMd5());
+				logger.error("生产PDF文件出错！"+ fileStoreInfo.getFileMd5());
 		}
 		
 		if(pretreatInfo.getAddThumbnail()){
@@ -259,7 +266,7 @@ public class FilePretreatment {
 				fileStoreInfo.setAttachedType("T");
 				fileStoreInfo.setAttachedStorePath(fs.saveFile(outFilename));
 			}else
-				throw new Exception("生产缩略图出错！"+ fileStoreInfo.getFileMd5());
+				logger.error("生产缩略图出错！"+ fileStoreInfo.getFileMd5());
 		}
 		//String oldFileStorePath = fileStoreInfo.getFileStorePath();
 		if(!"N".equals(pretreatInfo.getEncryptType())){
@@ -269,7 +276,7 @@ public class FilePretreatment {
 			
 			if("D".equals(pretreatInfo.getEncryptType())){				
 				if(StringUtils.isBlank(pretreatInfo.getEncryptPassword()))
-					throw new Exception("设置DES加密时请同时设置密码！"+ fileStoreInfo.getFileMd5());
+					logger.error("设置DES加密时请同时设置密码！"+ fileStoreInfo.getFileMd5());
 				if(encryptFile(sourceFilePath,
 						outFilename,pretreatInfo.getEncryptPassword())){
 					
@@ -283,7 +290,7 @@ public class FilePretreatment {
 					fileStoreInfo.setEncryptType("D");
 					//fs.deleteFile(oldFileStorePath);
 				}else
-					throw new Exception("DES加密文件时出错！"+ fileStoreInfo.getFileMd5());
+					logger.error("DES加密文件时出错！"+ fileStoreInfo.getFileMd5());
 			}else if("Z".equals(pretreatInfo.getEncryptType())){
 				if(StringUtils.isBlank(pretreatInfo.getEncryptPassword())){
 					
@@ -302,7 +309,7 @@ public class FilePretreatment {
 						fileStoreInfo.setFileType("zip");
 						//fs.deleteFile(oldFileStorePath);
 					 }else
-						 throw new Exception("Zip压缩文件时出错！"+ fileStoreInfo.getFileMd5());
+						 logger.error("Zip压缩文件时出错！"+ fileStoreInfo.getFileMd5());
 				}else{
 					String entFileDir = SysParametersUtils.getTempHome()
 							+ File.separatorChar + fileStoreInfo.getFileMd5();
@@ -332,7 +339,7 @@ public class FilePretreatment {
 					}else{
 						FileSystemOpt.deleteFile(entFilePath);
 						FileSystemOpt.deleteDirect(entFileDir);
-						throw new Exception("zipFileAndEncrypt 压缩文件时出错！"+ fileStoreInfo.getFileMd5());
+						logger.error("zipFileAndEncrypt 压缩文件时出错！"+ fileStoreInfo.getFileMd5());
 					}
 				}
 			}

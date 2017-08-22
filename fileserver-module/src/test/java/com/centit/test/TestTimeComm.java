@@ -1,6 +1,8 @@
 package com.centit.test;
 
 import com.centit.support.algorithm.DatetimeOpt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -9,6 +11,8 @@ import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 public class TestTimeComm {
+
+	private static Logger logger = LoggerFactory.getLogger(TestTimeComm.class);
 	 //获得当前的时间戳
 	  /**
 	   * Gets the pre time stamp.
@@ -318,16 +322,14 @@ public class TestTimeComm {
 	   * 
 	   * @throws Exception the exception
 	   */
-	  public static String getOneDate(String strDate, int distance)
-	    throws Exception
-	  {
+	  public static String getOneDate(String strDate, int distance) {
 	    DateFormat df = DateFormat.getDateInstance();
 	    Calendar cal = new GregorianCalendar();
 
 	    StringTokenizer stk = 
 	      new StringTokenizer(strDate, "-", false);
 	    if (stk.countTokens() != 3) {
-	      throw new Exception("不合法的日期字符串！");
+	      logger.error("不合法的日期字符串！");
 	    }
 	    int[] date = new int[3];
 	    int i = 0;

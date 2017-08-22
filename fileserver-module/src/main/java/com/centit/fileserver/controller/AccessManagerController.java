@@ -32,8 +32,7 @@ public class AccessManagerController extends BaseController {
 	@Resource
 	private FileStoreInfoManager fileStoreInfoManager;
 	
-	private ResponseSingleData applyAccess(FileAccessLog accessLog)
-			throws Exception{
+	private ResponseSingleData applyAccess(FileAccessLog accessLog) {
 		String fileId = accessLog.getFileId();	
 		FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileId);
 		if(fileStoreInfo==null){

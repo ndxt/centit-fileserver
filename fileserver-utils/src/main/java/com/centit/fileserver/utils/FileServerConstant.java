@@ -20,14 +20,14 @@ public abstract class FileServerConstant {
 		415 - Unsupported Media Type
 	 */
 	/** the file has delete for break point upload */
-	public static int ERROR_FILE_FORBIDDEN = 403;
-	public static int ERROR_FILE_NOT_EXIST = 404;
+	public static final int ERROR_FILE_FORBIDDEN = 403;
+	public static final int ERROR_FILE_NOT_EXIST = 404;
 	
 	/** args error: the data block start position error */
-	public static int ERROR_FILE_RANGE_START = 420;	
-	public static int ERROR_FILE_RANGE_ERROR = 421;
-	public static int ERROR_FILE_PRETREAT = 422;
-	public static int ERROR_FILE_ENCRYPT = 423;
-	public static int ERROR_FILE_MD5_ERROR = 425;
+	public static final int ERROR_FILE_RANGE_START = 420;
+	public static final int ERROR_FILE_RANGE_ERROR = 421;
+	public static final int ERROR_FILE_PRETREAT = 422;
+	public static final int ERROR_FILE_ENCRYPT = 423;
+	public static final int ERROR_FILE_MD5_ERROR = 425;
 	
 }

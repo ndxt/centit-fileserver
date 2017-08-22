@@ -258,7 +258,7 @@ public class UploadController extends BaseController {
             JSONObject json = completedFileStoreAndPretreat(fs, fileMd5, size, fileInfo, pretreatInfo);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             JsonResultUtils.writeAjaxErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
@@ -334,7 +334,7 @@ public class UploadController extends BaseController {
     }
 
     private JSONObject completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
-                                               FileStoreInfo fileInfo, PretreatInfo pretreatInfo) throws Exception {
+                                               FileStoreInfo fileInfo, PretreatInfo pretreatInfo)  {
 
         fileInfo.setFileMd5(fileMd5);
         fileInfo.setFileSize(size);
@@ -343,13 +343,17 @@ public class UploadController extends BaseController {
 
         fileStoreInfoManager.saveNewObject(fileInfo);
         String fileId = fileInfo.getFileId();
-        if (pretreatInfo.needPretreat()) {
-            fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
-        }
+        try {
+            if (pretreatInfo.needPretreat()) {
+                fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
+            }
 
-        // 只有zip文件才需要解压
-        if (pretreatInfo.getIsUnzip() && "zip".equals(fileInfo.getFileType())) {
-            unzip(fs, fileInfo, pretreatInfo, fileInfo.getFileShowPath());
+            // 只有zip文件才需要解压
+            if (pretreatInfo.getIsUnzip() && "zip".equals(fileInfo.getFileType())) {
+                unzip(fs, fileInfo, pretreatInfo, fileInfo.getFileShowPath());
+            }
+        }catch(Exception e){
+            logger.error(e.getMessage(), e);
         }
 
         if(checkDuplicate){
