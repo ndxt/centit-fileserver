@@ -249,7 +249,7 @@ public class FilePretreatment {
 
 			if(createPdf){
 				fileStoreInfo.setAttachedType("P");
-				if(StringUtils.isNotBlank(pretreatInfo.getWatermark())){
+				if(StringUtils.isBlank(pretreatInfo.getWatermark())){
 					String pdfTmpFile2 = SysParametersUtils.getTempHome()
 							+ File.separatorChar + fileStoreInfo.getFileMd5()+"2.pdf";
 					if( addWatermarkForPdf(pdfTmpFile , pdfTmpFile2, pretreatInfo.getWatermark())){
