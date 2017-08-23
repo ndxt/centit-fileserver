@@ -89,6 +89,10 @@ public class FilePretreatment {
 	public static boolean office2Pdf(String inputFile, String pdfFile) {
 		return OfficeToPdf.office2Pdf(inputFile, pdfFile);
 	}
+
+	public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) {
+		return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
+	}
 	/**
 	 * 给PDF文件添加水印
 	 * @param inputFile
@@ -240,8 +244,9 @@ public class FilePretreatment {
 		if(pretreatInfo.getAddPdf()){
 			String pdfTmpFile = SysParametersUtils.getTempHome()
 					+ File.separatorChar + fileStoreInfo.getFileMd5()+"1.pdf";
-			boolean createPdf = 
-					office2Pdf(sourceFilePath , pdfTmpFile );
+			boolean createPdf =
+					office2Pdf(fileStoreInfo.getFileType(),sourceFilePath , pdfTmpFile );
+
 			if(createPdf){
 				fileStoreInfo.setAttachedType("P");
 				if(StringUtils.isNotBlank(pretreatInfo.getWatermark())){

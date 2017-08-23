@@ -132,6 +132,12 @@ public class OsFileStore implements FileStore {
 	}
 
 	@Override
+	public InputStream loadFileStream(String fileMd5, long fileSize, String extName) throws IOException {
+		return new FileInputStream(new File(getFileRoot() +
+				matchFileToStoreUrl(fileMd5,fileSize,extName)));
+	}
+
+	@Override
 	public File getFile(String fileUrl) throws IOException {
 		return new File(getFileRoot() + fileUrl);
 	}
