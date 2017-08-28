@@ -6,7 +6,7 @@ import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
-import com.centit.framework.core.common.JsonResultUtils;
+import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.security.model.CentitUserDetails;
 import com.centit.support.algorithm.DatetimeOpt;

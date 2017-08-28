@@ -4,13 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageDesc;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
 import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
-import com.centit.support.database.DBType;
-import com.centit.support.database.QueryAndNamedParams;
-import com.centit.support.database.QueryUtils;
+import com.centit.support.database.utils.DBType;
+import com.centit.support.database.utils.QueryAndNamedParams;
+import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,7 +145,7 @@ public class FileStoreInfoManagerImpl
 	@Override
 	public JSONArray listFileOwners(String osId, String optId) {
 		String queryStatement;
-		DBType dbt = DBType.mapDialectToDBType(DatabaseOptUtils.getDialectName());
+		DBType dbt = DBType.mapDialectToDBType(SysParametersUtils.getStringValue("jdbc.dialect"));
 		if(dbt==DBType.MySql){
 			queryStatement = "select ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') as FILE_OWNER, " +
 					"count(1) as FILE_COUNT " +

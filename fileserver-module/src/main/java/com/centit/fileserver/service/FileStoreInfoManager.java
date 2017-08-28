@@ -3,11 +3,11 @@ package com.centit.fileserver.service;
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.framework.core.dao.PageDesc;
-import com.centit.framework.core.service.BaseEntityManager;
+import com.centit.framework.hibernate.service.BaseEntityManager;
 
 import java.util.Map;
 
-public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String>{
+public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String> {
 	/**
 	 * @param originalFile 原始文件
 	 * @return 返回文档主键
