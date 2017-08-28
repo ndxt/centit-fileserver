@@ -20,13 +20,7 @@
             <version>${mysql.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>${ojdbc6.version}</version>
-            <scope>runtime</scope>
-        </dependency>-->
+
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-module</artifactId>
@@ -44,26 +38,6 @@
             <artifactId>centit-ip-app</artifactId>
             <version>${centit.ip.version}</version>
         </dependency>
-
-<!--
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-persistence-hibernate</artifactId>
-            <version>${centit.framework.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-system-module</artifactId>
-            <version>${centit.framework.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-system-view-easyui</artifactId>
-            <version>${centit.framework.version}</version>
-        </dependency>
--->
 
         <!-- server runtime library -->
         <dependency>
