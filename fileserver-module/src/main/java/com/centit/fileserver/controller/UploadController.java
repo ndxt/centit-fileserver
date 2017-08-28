@@ -331,8 +331,7 @@ public class UploadController extends BaseController {
 
         fileInfo.setFileMd5(fileMd5);
         fileInfo.setFileSize(size);
-        String extName = FileType.getFileExtName(fileInfo.getFileName()) ;
-        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size,extName));
+        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
 
         fileStoreInfoManager.saveNewObject(fileInfo);
         String fileId = fileInfo.getFileId();
@@ -447,13 +446,12 @@ public class UploadController extends BaseController {
         }
 
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
-        String extName = FileType.getFileExtName( formData.getLeft().getFileName());
 
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
             if(uploadSize==0){
                 //上传到临时去成功
-                fs. saveFile(tempFilePath, token, size,extName);
+                fs. saveFile(tempFilePath, token, size);
                 completedFileStoreAndPretreat(fs, token, size, formData.getLeft(),
                         formData.getMiddle(), response);
                 FileSystemOpt.deleteFile(tempFilePath);

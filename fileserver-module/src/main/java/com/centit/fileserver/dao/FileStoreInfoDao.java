@@ -26,6 +26,8 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 			filterField.put("isValid" , CodeBook.EQUAL_HQL_ID);
 			filterField.put("files", " fileId in (?) ");
 			filterField.put("fileName",CodeBook.EQUAL_HQL_ID);
+			filterField.put("fileShowPath",CodeBook.EQUAL_HQL_ID);
+			filterField.put("fileState",CodeBook.EQUAL_HQL_ID);
 		}
 		return filterField;
 	}
@@ -287,7 +289,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 					"from FILE_STORE_INFO " +
 					"where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
 					"and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
-					"and FILE_NAME=:fn";
+					"and FILE_NAME=:fn and FILE_STATE='A'";
 			objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
 					sqlsen, QueryUtils.createSqlParamsMap(
 							"uc",unitCode,
@@ -297,7 +299,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 					"from FILE_STORE_INFO " +
 					"where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
 					"and FILE_SHOW_PATH=:fsp " +
-					"and FILE_NAME=:fn";
+					"and FILE_NAME=:fn and FILE_STATE='A'";
 			objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
 					sqlsen, QueryUtils.createSqlParamsMap(
 							"uc",unitCode,
