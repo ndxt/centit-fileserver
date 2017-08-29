@@ -121,7 +121,9 @@ public class DownLoadController extends BaseController {
 			}
 			String fileName = stroeInfo.getFileName();
 			if("P".equals(at)){
-				fileName = fileName+".pdf" ;
+				if (fileName.lastIndexOf(".") != -1){
+					fileName = fileName.substring(0,fileName.lastIndexOf("."))+".pdf" ;
+				}
 			}
 
 			downFileRange(request, response,
