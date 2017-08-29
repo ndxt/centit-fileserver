@@ -328,5 +328,22 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 		}
 		return files;
 	}
+
+	public List<FileStoreInfo> listFileStoreInfo(String fileShowPath,String fileName) {
+		List<FileStoreInfo> objects = null;
+		if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
+			String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
+					"from FILE_STORE_INFO " +
+					"where (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
+					"and FILE_NAME=?";
+			objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsBySql(this,sqlsen,new Object[]{fileName});
+		}else{
+			String sqlsen = "select FILE_ID ,ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
+					"from FILE_STORE_INFO " +
+					"where  FILE_SHOW_PATH=? and FILE_NAME=?";
+			objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsBySql(this,sqlsen,new Object[]{fileShowPath,fileName});
+		}
+		return objects;
+	}
 }
 
