@@ -339,7 +339,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 		}else{
 			String hqlsen = "from FileStoreInfo " +
 					"where  fileShowPath=? and fileName=?";
-			objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsBySql(this,hqlsen,new Object[]{fileShowPath,fileName});
+			objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsByHql(this,hqlsen,new Object[]{fileShowPath,fileName});
 		}
 		return objects;
 	}
