@@ -174,6 +174,11 @@ public class UploadController extends BaseController {
     public void checkFileRange(String token, long size,
                                HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+        if (size==0){
+            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_EMPTY,
+                    "上传文件为空文件" , response);
+            return;
+        }
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         FileStore fs = FileStoreFactory.createDefaultFileStore();
         long tempFileSize = 0;
