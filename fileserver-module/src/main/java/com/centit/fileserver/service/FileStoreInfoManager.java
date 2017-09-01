@@ -10,7 +10,6 @@ import java.util.Map;
 public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String> {
 	/**
 	 * @param originalFile 原始文件
-	 * @return 返回文档主键
 	 */
 	void saveNewFile(FileStoreInfo originalFile);
 	

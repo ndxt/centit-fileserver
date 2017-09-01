@@ -80,11 +80,12 @@ public class FilePretreatment {
 			logger.error(e.getMessage() + JSON.toJSONString(pretreatInfo));
 		}
 	}*/
+
 	/**
 	 * 将office文件转换为PDF
-	 * @param inputFile
-	 * @param pdfFile
-	 * @return
+	 * @param inputFile office文件
+	 * @param pdfFile PDF文件
+	 * @return 布尔值
 	 */
 	public static boolean office2Pdf(String inputFile, String pdfFile) {
 		return OfficeToPdf.office2Pdf(inputFile, pdfFile);
@@ -93,19 +94,24 @@ public class FilePretreatment {
 	public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) {
 		return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
 	}
+
 	/**
-	 * 给PDF文件添加水印
-	 * @param inputFile
-	 * @param waterMarkStr
-	 * @return
+	 *  * 给PDF文件添加水印
+	 * @param inputFile 处理前的文件
+	 * @param outputFile 处理后的文件
+	 * @param waterMarkStr 水印
+	 * @return 布尔值
 	 */
 	public static boolean addWatermarkForPdf(String inputFile , String outputFile,  String waterMarkStr){
 		return Watermark4Pdf.addWatermark4Pdf(inputFile, outputFile, waterMarkStr, 0.4f, 45f, 60f);
 	}
+
 	/**
 	 * 压缩文件
-	 * @param inputFile
-	 * @return
+	 * @param inputFile 处理前的文件
+	 * @param fileName 文件名
+	 * @param zipFilePathName zip文件路径
+	 * @return 布尔值
 	 */
 	public static boolean zipFile(String inputFile, String fileName ,String zipFilePathName) {
 		boolean ziped=false;
@@ -117,10 +123,13 @@ public class FilePretreatment {
 		}
 		return ziped;
 	}
+
 	/**
 	 * 压缩文件并通过密码加密
-	 * @param password
-	 * @return
+	 * @param inputFilePath 处理前的文件
+	 * @param zipFilePath zip文件路径
+	 * @param password 密码
+	 * @return 布尔值
 	 */
 	public static boolean zipFileAndEncrypt(String inputFilePath, String zipFilePath,String password) {
 		boolean ziped=false;
@@ -160,11 +169,13 @@ public class FilePretreatment {
 		
 		return ziped;
 	}
+
 	/**
 	 * 加密文件：加密算法暂时不可以设定
-	 * @param inputFile
-	 * @param password
-	 * @return
+	 * @param inputFile 处理前文件
+	 * @param diminationFileName diminationFileName
+	 * @param password 密码
+	 * @return 布尔值
 	 */
 	public static boolean encryptFile(String inputFile, String diminationFileName,String password) {
 		boolean encrypted=false;
@@ -178,12 +189,12 @@ public class FilePretreatment {
 	}
 	/**
 	 * 给文件添加缩略图
-	 * @param filename
-	 * @param thumbWidth
-	 * @param thumbHeight
-	 * @param quality
-	 * @param outFilename
-	 * @return
+	 * @param filename 文件名
+	 * @param thumbWidth 宽度
+	 * @param thumbHeight 高度
+	 * @param quality quality
+	 * @param outFilename 处理后文件名
+	 * @return 布尔值
 	 */
 	public static boolean createImageThumbnail(String filename, int thumbWidth, int thumbHeight, int quality,
 			String outFilename){

@@ -41,9 +41,12 @@ public class LocalFileController extends BaseController {
 
 	@Resource
 	private FileAccessLogManager fileAccessLogManager;
+
 	/**
 	 * 获取当前用户的文件类别
 	 * 个人文件，和本人所属的部门
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/catalog",method = RequestMethod.GET)
 	public void getFileCatalog(HttpServletRequest request, HttpServletResponse response){
@@ -111,9 +114,12 @@ public class LocalFileController extends BaseController {
         return new ImmutableTriple<>(URLDecoder.decode(urips[URI_START_PARAM],"UTF-8"),
 				sb.toString(),URLDecoder.decode(urips[n-1],"UTF-8"));
     }
+
 	/**
 	 * 获取个人文件列表  {showPath}
-     * PathVariable("showPath") String showPath
+	 * PathVariable("showPath") String showPath
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/userdir/**", method = RequestMethod.GET)
 	public void listUserFiles( HttpServletRequest request,
@@ -132,6 +138,8 @@ public class LocalFileController extends BaseController {
 
 	/**
 	 * 获取机构文件列表 {unitCode}/{showPath}
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/unitdir/**", method = RequestMethod.GET)
 	public void listUnitFiles(HttpServletRequest request,
@@ -152,8 +160,11 @@ public class LocalFileController extends BaseController {
 			JsonResultUtils.writeErrorMessageJson("url 解析出错:"+e.getMessage(),response);
 		}
 	}
+
 	/**
 	 * 获取个人文件版本信息 {showPath}/{fileName}
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/userfile/**", method = RequestMethod.GET)
 	public void listUserFileVersion(HttpServletRequest request,HttpServletResponse response){
@@ -176,6 +187,8 @@ public class LocalFileController extends BaseController {
 
 	/**
 	 * 获取机构文件版本信息 {unitCode}/{showPath}/{fileName}
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/unitfile/**", method = RequestMethod.GET)
 	public void listUnitFileVersion(HttpServletRequest request,
@@ -219,12 +232,13 @@ public class LocalFileController extends BaseController {
 		fileAccessLogManager.saveNewAccessLog(accessLog);
 		fileStoreInfoManager.updateObject(fileStoreInfo);
 	}
+
 	/**
 	 * 根据文件的id下载文件
-	 *
-	 * @param fileId
-	 * @return
-	 * @throws IOException
+	 * @param fileId 文件ID
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@RequestMapping(value= "/download/{fileId}", method=RequestMethod.GET)
 	public void downloadFile(@PathVariable("fileId") String fileId, HttpServletRequest request,

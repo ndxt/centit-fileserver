@@ -24,9 +24,11 @@ public class DownloadDemoController extends BaseController {
     /**
      * 根据文件的id下载文件
      *
-     * @param attachId
-     * @return
-     * @throws Exception
+     * @param attachId 文件ID
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @return String
+     * @throws Exception Exception
      */
     @RequestMapping(value = "/download/{attachId}", method = RequestMethod.GET)
     public String downloadFile(@PathVariable("attachId") String attachId, HttpServletRequest request,

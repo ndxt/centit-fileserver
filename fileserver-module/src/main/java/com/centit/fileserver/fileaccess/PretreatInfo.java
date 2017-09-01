@@ -85,14 +85,13 @@ public class PretreatInfo implements Serializable {
 	}
 	/**
 	 *  加密方式 N : 没有加密 Z：zipFile D:DES加密 //A:AES加密 AES 暂未实现
-	 * @return
+	 * @return encryptType
 	 */
 	public String getEncryptType() {
 		return encryptType==null?"N":encryptType;
 	}
 	/**
 	 *  加密方式 N : 没有加密 Z：zipFile D:DES加密  //A:AES加密 AES 暂未实现
-	 * @param encryptType
 	 */
 	public void setEncryptType(String encryptType) {
 		this.encryptType = encryptType;

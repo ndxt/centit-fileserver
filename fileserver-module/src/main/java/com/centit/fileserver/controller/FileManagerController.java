@@ -41,7 +41,8 @@ public class FileManagerController extends BaseController {
 
 	/**
 	 * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-	 * @param fileId
+	 * @param fileId 文件ID
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
 	public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
@@ -59,7 +60,8 @@ public class FileManagerController extends BaseController {
 	}
 	/**
 	 * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-	 * @param fileId
+	 * @param fileId 文件ID
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/force/{fileId}",method = RequestMethod.DELETE)
 	public void deleteForce(@PathVariable("fileId") String fileId, HttpServletResponse response){
@@ -88,7 +90,8 @@ public class FileManagerController extends BaseController {
 	
 	/**
 	 * 根据文件的id获取文件存储信息
-	 * @param fileId
+	 * @param fileId 文件ID
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/{fileId}",method = RequestMethod.GET)
 	public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletResponse response){
@@ -104,8 +107,8 @@ public class FileManagerController extends BaseController {
 
 	/**
 	 * 更新文件存储信息
-	 * @param storeInfo
-	 * @param response
+	 * @param storeInfo 文件对象
+	 * @param response HttpServletResponse
 	 */
 
 	private void updateFileStoreInfo(FileStoreInfo storeInfo, HttpServletResponse response){
@@ -120,10 +123,12 @@ public class FileManagerController extends BaseController {
 					"文件不存在："+storeInfo.getFileId(), response);
 		}		
 	}
-	
+
 	/**
 	 * 根据文件的id修改文件存储信息，文件春粗信息按照表单的形式传送
-	 * @param fileId
+	 * @param fileId 文件ID
+	 * @param storeInfo 文件对象
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/{fileId}",method = RequestMethod.POST)
 	public void postFileStoreInfo(@PathVariable("fileId") String fileId,
@@ -131,9 +136,12 @@ public class FileManagerController extends BaseController {
 		storeInfo.setFileId(fileId);
 		updateFileStoreInfo(storeInfo,response);
 	}
+
 	/**
 	 * 根据文件的id修改文件存储信息，文件存储信息按照json的格式传送
-	 * @param fileId
+	 * @param fileId 文件ID
+	 * @param storeInfo 文件对象
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/j/{fileId}",method = RequestMethod.POST)
 	public void jsonpostFileStoreInfo(@PathVariable("fileId") String fileId,
@@ -141,10 +149,12 @@ public class FileManagerController extends BaseController {
 		storeInfo.setFileId(fileId);
 		updateFileStoreInfo(storeInfo,response);
 	}
+
 	/**
 	 * 根据相关的条件查询文件
-	 * @param request
-	 * @param response
+	 * @param pageDesc 分页对象
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public void listStroedFiles( PageDesc pageDesc,
@@ -163,8 +173,8 @@ public class FileManagerController extends BaseController {
 
 	/**
 	 * 获取系统中的所有OS
-	 * @param request
-	 * @param response
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 */
 	@RequestMapping(value = "/oss",method = RequestMethod.GET)
 	public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
@@ -173,11 +183,12 @@ public class FileManagerController extends BaseController {
 	}
 
 
-    /**
-     * 获取系统所有操作
-     * @param response
-     */
-    @RequestMapping(value = "/optids/{osId}",method = RequestMethod.GET)
+	/**
+	 * 获取系统所有操作
+	 * @param osId 项目编号
+	 * @param response HttpServletResponse
+	 */
+	@RequestMapping(value = "/optids/{osId}",method = RequestMethod.GET)
     public void listOptsByOs(@PathVariable("osId") String osId,
                              HttpServletResponse response) {
         JSONArray listObjects = fileStoreInfoManager.listOptsByOs(osId);
@@ -185,10 +196,12 @@ public class FileManagerController extends BaseController {
     }
 
 
-    /**
-     * 获取系统所有文件属主
-     * @param response
-     */
+	/**
+	 * 获取系统所有文件属主
+	 * @param osId 项目编号
+	 * @param optId 模块编号
+	 * @param response HttpServletResponse
+	 */
     @RequestMapping(value = "/owner/{osId}/{optId}",method = RequestMethod.GET)
     public void listFileOwners(@PathVariable("osId") String osId,
                              @PathVariable("optId") String optId,
@@ -197,10 +210,13 @@ public class FileManagerController extends BaseController {
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
 
-    /**
-     * 获取系统所有文件
-     * @param response
-     */
+	/**
+	 * 获取系统所有文件
+	 * @param osId 项目编号
+	 * @param optId 模块编号
+	 * @param owner 所属者
+	 * @param response HttpServletResponse
+	 */
     @RequestMapping(value = "/files/{osId}/{optId}/{owner}",method = RequestMethod.GET)
     public void listFilesByOwner(@PathVariable("osId") String osId,
                                @PathVariable("optId") String optId,

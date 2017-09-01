@@ -337,9 +337,8 @@ public class FileStoreInfo implements Serializable {
 		this.fileShowPath=other.getFileShowPath();
 		this.fileType = other.getFileType();
 		
-		/**
-		 * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
-		 */
+		//C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
+
 		this.fileState = other.getFileState();
 		
 		this.fileDesc = other.getFileDesc();

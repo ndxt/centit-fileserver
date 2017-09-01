@@ -143,11 +143,11 @@ public class UploadController extends BaseController {
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
-     * @param token
-     * @param size
-     * @param request
-     * @param response
-     * @throws IOException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
             allowedHeaders = "*", methods = RequestMethod.GET)
@@ -164,10 +164,11 @@ public class UploadController extends BaseController {
     /**
      * 获取文件 断点位置，前端根据断点位置续传
      *
-     * @param token
-     * @param size
-     * @param response
-     * @throws IOException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
@@ -247,9 +248,12 @@ public class UploadController extends BaseController {
 
     /**
      * 处理文件信息 并按照指令对文件进行加工
-     *
-     * @param size
-     * @param response
+     * @param fs 文件的物理存储接口
+     * @param fileMd5 加密
+     * @param size 大小
+     * @param fileInfo 文件对象
+     * @param pretreatInfo PretreatInfo对象
+     * @param response HttpServletResponse
      */
     private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
                                                FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
@@ -267,9 +271,11 @@ public class UploadController extends BaseController {
 
     /**
      * 解压缩文件
-     * @param fs
-     * @param fileStoreInfo
-     * @throws IOException
+     * @param fs 文件的物理存储接口
+     * @param fileStoreInfo 文件对象
+     * @param pretreatInfo  PretreatInfo
+     * @param rootPath 根路径
+     * @throws Exception Exception
      */
     private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) throws Exception {
 
@@ -393,12 +399,11 @@ public class UploadController extends BaseController {
 
     /**
      * 完成秒传，如果文件不存在会返回失败
-     *
-     * @param token
-     * @param size
-     * @param request
-     * @param response
-     * @throws IOException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
@@ -422,11 +427,12 @@ public class UploadController extends BaseController {
 
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/range", method = {RequestMethod.POST})
@@ -475,10 +481,9 @@ public class UploadController extends BaseController {
 
     /**
      * 上传整个文件适用于IE8
-     *
-     * @param request
-     * @param response
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/file", method = RequestMethod.POST)
@@ -504,8 +509,11 @@ public class UploadController extends BaseController {
 
     /**
      * 保存文件
-     * @param size
-     * @param response
+     * @param fs 文件的物理存储接口
+     * @param fileMd5 加密
+     * @param size 大小
+     * @param fileName 文件名
+     * @param response HttpServletResponse
      */
 
     private void completedStoreFile(FileStore fs, String fileMd5, long size,
@@ -572,10 +580,11 @@ public class UploadController extends BaseController {
     /**
      * 获取文件 断点位置，前端根据断点位置续传
      *
-     * @param token
-     * @param size
-     * @param response
-     * @throws IOException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/storerange", method = {RequestMethod.GET})
@@ -605,11 +614,11 @@ public class UploadController extends BaseController {
 
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
+     * @param token token
+     * @param size 大小
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/storerange", method = {RequestMethod.POST})
@@ -646,9 +655,9 @@ public class UploadController extends BaseController {
     /**
      * 仅仅保存文件不记录任何记录
      * 上传整个文件适用于IE8
-     * @param request
-     * @param response
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/upload", method = RequestMethod.POST)

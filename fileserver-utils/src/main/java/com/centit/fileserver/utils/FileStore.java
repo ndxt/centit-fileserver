@@ -9,11 +9,12 @@ import java.io.InputStream;
  * 
  */
 public interface FileStore {
-	
+
 	/**
 	 * 保存文件
 	 * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
 	 * @return 文件的存储路径
+	 * @throws IOException
 	 */
 	String saveFile(String sourFilePath)
 			throws IOException;
@@ -23,6 +24,7 @@ public interface FileStore {
 	 * @param fileMd5 String
 	 * @param fileSize long
 	 * @return 文件的存储路径
+	 * @throws IOException
 	 */
 	String saveFile(InputStream is, String fileMd5, long fileSize)
 			throws IOException;
@@ -33,17 +35,18 @@ public interface FileStore {
 	 * @param fileMd5 String
 	 * @param fileSize long
 	 * @return 文件的存储路径
+	 * @throws IOException
 	 */
 	String saveFile(String sourFilePath, String fileMd5, long fileSize)
 			throws IOException;
 
 	/**
 	 * 保存文件
-	 * @param sourFilePath
-	 * @param fileMd5
-	 * @param fileSize
-	 * @param extName
-	 * @return
+	 * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
+	 * @param fileMd5 加密
+	 * @param fileSize 文件大小
+	 * @param extName 文件后缀名
+	 * @return 文件的存储路径
 	 * @throws IOException
 	 */
 	String saveFile(String sourFilePath, String fileMd5, long fileSize,String extName)

@@ -100,9 +100,9 @@ public class DownLoadController extends BaseController {
 	/**
 	 * 根据文件的id下载附属文件
 	 * 这个需要权限 控制 用于内部服务之间文件传输
-	 * @param fileId
-	 * @param request
-	 * @param response
+	 * @param fileId 文件ID
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
 	 * @throws IOException
 	 */
 	@RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
@@ -135,12 +135,14 @@ public class DownLoadController extends BaseController {
 		}
 	}
 	// 文件目录 = 配置目录 + file.getFileStorePath()
+
 	/**
 	 * 根据文件的id下载文件
 	 * 这个需要权限 控制 用于内部服务之间文件传输
-	 * @param fileId
-	 * @return
-	 * @throws IOException
+	 * @param fileId 文件ID
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@RequestMapping(value= "/pfile/{fileId}", method=RequestMethod.GET)
 	public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
@@ -153,8 +155,10 @@ public class DownLoadController extends BaseController {
 
 	/**
 	 * 根据文件的 access_token 下载文件
-	 * @return
-	 * @throws IOException
+	 * @param token token
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@RequestMapping(value= "/file/{token}", method=RequestMethod.GET)
 	public void downloadByAccessToken(
@@ -183,10 +187,10 @@ public class DownLoadController extends BaseController {
 
 	/**
 	 * 根据access_token下载附属文件
-	 * @param token
-	 * @param request
-	 * @param response
-	 * @throws IOException
+	 * @param token token
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@RequestMapping(value= "/attach/{token}", method=RequestMethod.GET)
 	public void downloadAttachByAccessToken(
@@ -218,8 +222,9 @@ public class DownLoadController extends BaseController {
 	 * 如果是通过 store 上传的需要指定 extName 扩展名
 	 * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
 	 * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
-	 * @return
-	 * @throws IOException
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@RequestMapping(value= "/unprotected/{md5SizeExt}", method=RequestMethod.GET)
 	public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,

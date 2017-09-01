@@ -48,11 +48,11 @@ public class StoreFileController extends BaseController {
 
 	/**
 	 * 判断文件是否存在，如果文件已经存在可以实现秒传
-	 * @param token
-	 * @param size
-	 * @param request
-	 * @param response
-	 * @throws IOException
+	 * @param token token
+	 * @param size 大小
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,
 			allowedHeaders="*", methods=RequestMethod.GET) 
@@ -68,10 +68,11 @@ public class StoreFileController extends BaseController {
 	
 	/**
 	 * 获取文件 断点位置，前端根据断点位置续传
-	 * @param token
-	 * @param size
-	 * @param response
-	 * @throws IOException
+	 * @param token token
+	 * @param size 大小
+	 * @param request HttpServletRequest     
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,methods=RequestMethod.GET)
 	@RequestMapping(value="/range", method = { RequestMethod.GET })
@@ -135,11 +136,11 @@ public class StoreFileController extends BaseController {
 	}
 	/**
 	 * 完成秒传，如果文件不存在会返回失败
-	 * @param token
-	 * @param size
-	 * @param request
-	 * @param response
-	 * @throws IOException
+	 * @param token token
+	 * @param size 大小
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST)
 	@RequestMapping(value="/secondpass", method = RequestMethod.POST)
@@ -166,13 +167,15 @@ public class StoreFileController extends BaseController {
 					FileServerConstant.ERROR_FILE_NOT_EXIST,
 					"文件不存在无法实现秒传，MD5："+token, response);
 	}
-	
+
 	/**
-	 * 续传文件（range） 如果文件已经传输完成 对文件进行保存
-	 * @param request
-	 * @param response
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
+	 *  续传文件（range） 如果文件已经传输完成 对文件进行保存
+	 * @param token token
+	 * @param size 大小
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
+	 * @throws NoSuchAlgorithmException NoSuchAlgorithmException
 	 */
 	@CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST) 
 	@RequestMapping(value="/range", method = { RequestMethod.POST })
@@ -239,9 +242,9 @@ public class StoreFileController extends BaseController {
 	
 	/**
 	 * 上传整个文件适用于IE8
-	 * @param request
-	 * @param response
-	 * @throws IOException
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @throws IOException IOException
 	 */
 	@CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST) 
 	@RequestMapping(value="/file", method = RequestMethod.POST)

@@ -43,8 +43,8 @@ public class FileAccessLog implements Serializable {
     /**
      * 下载附属文件
      *
-     * @param getAttach
-     * @return
+     * @param getAttach getAttach
+     * @return 布尔值
      */
     public boolean checkValid(boolean getAttach) {
         //如果下载源文件，并且没有权限返回false

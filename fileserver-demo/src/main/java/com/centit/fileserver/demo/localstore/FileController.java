@@ -81,8 +81,9 @@ public class FileController extends BaseController {
      * 如果是通过 store 上传的需要指定 extName 扩展名
      * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
      * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
-     * @return
-     * @throws IOException
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
     @RequestMapping(value= "/download/{md5SizeExt}", method=RequestMethod.GET)
     public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,

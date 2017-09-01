@@ -18,38 +18,42 @@ public interface FileClient {
     String/*文件下载url */getFileUrl(FileAccessLog aacessLog) throws IOException;
 
     /**
-     * @param fileId
+     * 文件下载url
+     * @param fileId 文件ID
      * @param expireTime 失效期限  按照分钟计算
-     * @return
-     * @throws Exception
+     * @return 文件下载url
+     * @throws IOException IOException
      */
-    String/*文件下载url */getFileUrl(String fileId, int expireTime) throws IOException;
+    String getFileUrl(String fileId, int expireTime) throws IOException;
 
     /**
-     * @param fileId
+     * 附属文件下载url
+     * @param fileId 文件ID
      * @param expireTime 失效期限  按照分钟计算
-     * @return
-     * @throws Exception
+     * @return String
+     * @throws IOException IOException
      */
-    String/*附属文件下载url */getAttachFileUrl(String fileId, int expireTime) throws IOException;
+    String getAttachFileUrl(String fileId, int expireTime) throws IOException;
 
     /**
-     * @param httpClient
-     * @param fileId
+     * 文件下载url
+     * @param httpClient CloseableHttpClient
+     * @param fileId 文件ID
      * @param expireTime 失效期限  按照分钟计算
-     * @return
-     * @throws Exception
+     * @return 文件下载url
+     * @throws IOException IOException
      */
-    String/*文件下载url */getFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException;
+    String getFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException;
 
     /**
-     * @param httpClient
-     * @param fileId
+     * 附属文件下载url
+     * @param httpClient CloseableHttpClient
+     * @param fileId 文档ID
      * @param expireTime 失效期限  按照分钟计算
-     * @return
-     * @throws Exception
+     * @return 附属文件下载url
+     * @throws IOException IOException
      */
-    String/*附属文件下载url */getAttachFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException;
+    String getAttachFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException;
 
     FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException;
 
