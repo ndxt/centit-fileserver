@@ -277,9 +277,14 @@ public class UploadController extends BaseController {
      * @param rootPath 根路径
      * @throws Exception Exception
      */
-    private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) throws Exception {
+    private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) {
 
-        File zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
+        File zipFile = null;
+        try {
+            zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
+        }catch (IOException e){
+            throw new ObjectException(e);
+        }
 
         try(ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)))) {
 
@@ -329,6 +334,8 @@ public class UploadController extends BaseController {
 
                 FileSystemOpt.deleteFile(tempFilePath);
             }
+        } catch (IOException ie){
+            throw new ObjectException(ie);
         }
     }
 
