@@ -463,7 +463,7 @@ public class UploadController extends BaseController {
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
             if(uploadSize==0){
-                //上传到临时去成功
+                //上传到临时区成功
                 fs. saveFile(tempFilePath, token, size);
                 completedFileStoreAndPretreat(fs, token, size, formData.getLeft(),
                         formData.getMiddle(), response);
@@ -476,7 +476,6 @@ public class UploadController extends BaseController {
                 json.put(ResponseData.RES_DATA_FILED, fileInfo);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
-
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
