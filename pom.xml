@@ -31,6 +31,7 @@
     <version>2.0.1-SNAPSHOT</version>
     <name>com.centit.product:centit-fileserver</name>
     <packaging>pom</packaging>
+
     <description>文件服务器，可以作为文件的存储服务单独运行，并为其他业务服务，可以作为一个文件版本管理器来运行。</description>
     <url>https://github.com/ndxt/centit-fileserver</url>
 
