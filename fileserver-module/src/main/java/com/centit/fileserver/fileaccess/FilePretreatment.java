@@ -2,6 +2,7 @@ package com.centit.fileserver.fileaccess;
 
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;

@@ -4,6 +4,7 @@ import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 

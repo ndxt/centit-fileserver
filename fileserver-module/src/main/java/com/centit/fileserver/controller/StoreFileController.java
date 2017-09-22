@@ -2,10 +2,10 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.fileaccess.FileStoreFactory;
-import com.centit.fileserver.fileaccess.SystemTempFileUtils;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
