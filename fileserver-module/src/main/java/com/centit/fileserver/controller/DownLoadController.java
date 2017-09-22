@@ -1,13 +1,13 @@
 package com.centit.fileserver.controller;
 
 import com.centit.fileserver.fileaccess.FileStoreFactory;
-import com.centit.fileserver.fileaccess.SystemTempFileUtils;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;

@@ -1,4 +1,4 @@
-package com.centit.fileserver.fileaccess;
+package com.centit.fileserver.utils;
 
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.support.algorithm.UuidOpt;
@@ -14,20 +14,26 @@ import java.io.IOException;
 public class SystemTempFileUtils {
 
 	private static Logger logger = LoggerFactory.getLogger(SysParametersUtils.class);
-
+	
 	public static String getTempFilePath(String fileMd5, long size){
-		return SysParametersUtils.getTempHome() +
-				File.separatorChar + fileMd5 +"_"+size+".tmp";
+		return SysParametersUtils.getTempHome()
+					+ File.separatorChar + fileMd5 +"_"+size+".tmp";
+	}
+	
+	public static String getTempDirectory(){
+		return SysParametersUtils.getTempHome()
+					+ File.separatorChar ;
 	}
 	
 	public static String getRandomTempFilePath(){
-		return SysParametersUtils.getTempHome() +
-				File.separatorChar + UuidOpt.getUuidAsString32() +".tmp";
+		return SysParametersUtils.getTempHome()
+					+ File.separatorChar + UuidOpt.getUuidAsString32() +".tmp";
 	}
-
+	
 	public static long checkTempFileSize(String filePath){
 		File f = new File(filePath);
-		if(!f.exists()) return 0;
+		if(!f.exists())
+			return 0;
 		return f.length();
 	}
 	
@@ -40,7 +46,5 @@ public class SystemTempFileUtils {
 			return false;
 		}
 	}
-
-
 
 }
