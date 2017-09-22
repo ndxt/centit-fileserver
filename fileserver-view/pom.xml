@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fileserver-view</artifactId>
+    <name>com.centit.product:centit-fileserver-view</name>
 
     <dependencies>
         <dependency>

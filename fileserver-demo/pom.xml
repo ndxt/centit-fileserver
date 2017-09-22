@@ -10,9 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fileserver-demo</artifactId>
-
+    <name>com.centit.product:centit-fileserver-demo</name>
     <packaging>war</packaging>
-    <name>com.centit.product:fileserver-demo</name>
+
     <description>文件服务器的使用示例，具体项目中使用可以复制这部分代码;
         有两种方式使用文件服务通用模块:
         1, 引入 fileserver-utils 使用localstore中的代码， 将文件直接存储在本地，不需要文件服务器协助

@@ -10,6 +10,7 @@
         <version>2.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>fileserver-utils</artifactId>
+    <name>com.centit.product:centit-fileserver-utils</name>
 
     <dependencies>
 

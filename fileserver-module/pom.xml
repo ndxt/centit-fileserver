@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>fileserver-module</artifactId>
+    <name>com.centit.product:centit-fileserver-module</name>
 
 
     <dependencies>
