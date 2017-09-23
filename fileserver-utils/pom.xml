@@ -19,6 +19,7 @@
             <artifactId>centit-utils</artifactId>
             <version>${centit.commons.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-adapter</artifactId>

@@ -191,6 +191,7 @@ public class FileController extends BaseController {
             json1.put("src","service/file/download/"+fileId+"?fileName="+fileName);
             json1.put("fileId", fileId);
             json1.put("token", fileMd5);
+            json1.put("size", String.valueOf(size));
             json1.put("name", fileName);
             json.put(ResponseData.RES_CODE_FILED, 0);
             json.put(ResponseData.RES_MSG_FILED, "上传成功");
