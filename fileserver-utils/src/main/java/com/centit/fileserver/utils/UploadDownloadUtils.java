@@ -7,6 +7,7 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,18 @@ import java.net.SocketException;
 public class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
+
+
+    public static String encodeDownloadFilename(String paramName) {
+        try {
+            return new String(
+                    StringEscapeUtils.unescapeHtml4(paramName).getBytes("GBK"), "ISO8859-1");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("转换文件名 " + paramName + " 报错："+e.getMessage(),e);
+            return paramName;
+        }
+    }
+
     /**
      *
      * @param request HttpServletRequest
@@ -46,7 +59,7 @@ public class UploadDownloadUtils {
         String s = request.getParameter("downloadType");
         response.setHeader("Content-Disposition",
                 ("inline".equalsIgnoreCase(s)?"inline": "attachment")+"; filename="
-                        + fileName);
+                        + UploadDownloadUtils.encodeDownloadFilename(fileName));
         long pos = 0;
 
         FileRangeInfo fr = FileRangeInfo.parseRange(request.getHeader("Range"));
@@ -69,13 +82,13 @@ public class UploadDownloadUtils {
         try(ServletOutputStream out = response.getOutputStream();
             BufferedOutputStream bufferOut = new BufferedOutputStream(out)){
 
-            long num;
-            if(pos>0)
-                num = inputStream.skip(pos);
+            if(pos>0) {
+                inputStream.skip(pos);
+            }
             byte[] buffer = new byte[64 * 1024];
             int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
             int length = 0;
-            while (needSize>0 && (length = inputStream.read(buffer, 0, buffer.length)) != -1) {
+            while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
                 int writeLen =  needSize > length ? length: needSize;
                 bufferOut.write(buffer, 0, writeLen);
                 bufferOut.flush();

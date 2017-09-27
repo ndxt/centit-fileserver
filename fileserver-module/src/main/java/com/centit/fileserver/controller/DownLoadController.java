@@ -40,23 +40,12 @@ public class DownLoadController extends BaseController {
 	@Resource
 	private FileAccessLogManager fileAccessLogManager;
 
-	private static String encodeFilename(String paramName) {
-		String downloadChineseFileName = "";
-		try {
-			downloadChineseFileName = new String(
-					HtmlUtils.htmlUnescape(paramName).getBytes("GBK"), "ISO8859-1");
-		} catch (UnsupportedEncodingException e) {
-			logger.error(e.getMessage(), e);
-		}
-		return downloadChineseFileName;
-	}
-
 
 	private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
 			InputStream inputStream,long fSize, String fileName)
 			throws IOException {
 		 UploadDownloadUtils.downFileRange(request, response,
-				 inputStream, fSize, encodeFilename(fileName));
+				 inputStream, fSize, fileName);
 	}
 
 	public static void downloadFile(FileStoreInfo stroeInfo, HttpServletRequest request,
