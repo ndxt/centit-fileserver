@@ -8,7 +8,7 @@ import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.framework.core.dao.PageDesc;
+import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
 import org.slf4j.Logger;

@@ -6,7 +6,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.dao.DictionaryMapUtils;
-import com.centit.framework.core.dao.PageDesc;
+import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
 import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.DBType;

@@ -2,7 +2,7 @@ package com.centit.fileserver.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.framework.core.dao.PageDesc;
+import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.hibernate.service.BaseEntityManager;
 
 import java.util.Map;
