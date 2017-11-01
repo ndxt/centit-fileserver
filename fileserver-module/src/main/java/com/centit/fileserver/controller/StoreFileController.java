@@ -129,7 +129,7 @@ public class StoreFileController extends BaseController {
 			CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
 			FileItem fi = cMultipartFile.getFileItem();
 			if (!fi.isFormField()){
-				return  fi.getInputStream();
+				return fi.getInputStream();
 			}
 		}
 		return null;

@@ -7,8 +7,14 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,14 +23,50 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.SocketException;
+import java.util.List;
 
 /**
  * Created by codefan on 17-7-19.
+ * @author codefan
  */
-public class UploadDownloadUtils {
+@SuppressWarnings("unused")
+public abstract class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
 
+    public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request)
+            throws IOException, FileUploadException {
+
+        String fileName = null;
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart) {
+            fileName = request.getParameter("name");
+            if(StringUtils.isBlank(fileName))
+                fileName = request.getParameter("fileName");
+            return new ImmutablePair<>(fileName, request.getInputStream());
+        }
+
+        ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
+        List<FileItem> fileItems =  servletFileUpload.parseRequest(request);
+        InputStream fis = null;
+        for (FileItem fi : fileItems) {
+            if (! fi.isFormField())  {
+                fileName = fi.getName();
+                fis = fi.getInputStream();
+                if(fis!=null)
+                    break;
+            }
+        }
+
+        if(StringUtils.isBlank(fileName)) {
+            fileName = request.getParameter("name");
+        }
+        if(StringUtils.isBlank(fileName)) {
+            fileName = request.getParameter("fileName");
+        }
+
+        return  new ImmutablePair<>(fileName, fis);
+    }
 
     public static String encodeDownloadFilename(String paramName) {
         try {

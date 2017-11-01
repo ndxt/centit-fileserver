@@ -25,10 +25,15 @@
             <artifactId>framework-adapter</artifactId>
             <version>${centit.framework.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons-fileupload.version}</version>
+        </dependency>
+
         <!-- test library -->
         <!-- 添加这个core 只是为了 展示 DownlaodDemoController 这个测试类 -->
-
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

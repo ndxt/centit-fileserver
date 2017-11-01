@@ -213,6 +213,8 @@ public class FileController extends BaseController {
             if (! fi.isFormField())  {
                 fileName = fi.getName();
                 fis = fi.getInputStream();
+                if(fis!=null)
+                    break;
             }
         }
         return  new ImmutablePair<>(fileName, fis);
