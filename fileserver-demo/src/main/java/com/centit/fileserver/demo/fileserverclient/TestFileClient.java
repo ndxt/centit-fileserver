@@ -1,18 +1,18 @@
 package com.centit.fileserver.demo.fileserverclient;
 
 import com.alibaba.fastjson.JSON;
-import org.apache.http.impl.client.CloseableHttpClient;
-
 import com.centit.fileserver.client.DefaultFileClient;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileStoreInfo;
 import com.centit.framework.appclient.AppSession;
 import com.centit.support.algorithm.DatetimeOpt;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+//@Service
 public class TestFileClient {
 
 	private static Logger logger = LoggerFactory.getLogger(TestFileClient.class);

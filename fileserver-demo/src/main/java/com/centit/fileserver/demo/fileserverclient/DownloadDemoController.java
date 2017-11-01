@@ -1,24 +1,19 @@
 package com.centit.fileserver.demo.fileserverclient;
 
-import javax.annotation.Resource;
+import com.centit.fileserver.client.FileClient;
+import com.centit.framework.core.controller.BaseController;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.centit.fileserver.client.FileClient;
-import com.centit.framework.core.controller.BaseController;
-
-@Controller
-@RequestMapping("/demo")
+//@Controller
+//@RequestMapping("/demo")
 public class DownloadDemoController extends BaseController {
 
     //private static final Logger logger = LoggerFactory.getLogger(DownLoadController.class);
 
-    @Resource
+    //@Resource
     protected FileClient fileClient;
 
     /**
@@ -30,7 +25,7 @@ public class DownloadDemoController extends BaseController {
      * @return String
      * @throws Exception Exception
      */
-    @RequestMapping(value = "/download/{attachId}", method = RequestMethod.GET)
+    //@RequestMapping(value = "/download/{attachId}", method = RequestMethod.GET)
     public String downloadFile(@PathVariable("attachId") String attachId, HttpServletRequest request,
                                HttpServletResponse response) throws Exception {
         String fileId = attachId;//根据 attachId获得 对应的fileID
