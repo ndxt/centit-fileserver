@@ -167,11 +167,11 @@ public class FileController extends BaseController {
 //            String filePath = fs.getFileStoreUrl(fileMd5,size);
             // 返回响应
             JSONObject json = new JSONObject();
-            /*json.put("start", size);
+            json.put("start", size);
             json.put("name", fileName);
             json.put("token", fileMd5);
             json.put("success", true);
-            json.put("fileId", fileId);*/
+            json.put("fileId", fileId);
             Map<String,String> json1 = new HashMap<>();
             json1.put("src","service/file/download/"+fileId+"?fileName="+fileName);
             json1.put("fileId", fileId);
