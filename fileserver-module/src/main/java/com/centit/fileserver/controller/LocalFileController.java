@@ -225,7 +225,7 @@ public class LocalFileController extends BaseController {
 		CentitUserDetails ud = this.getLoginUser(request);
 		if(ud!=null) {
 			accessLog.setAccessUsercode(ud.getUserCode());
-			accessLog.setAccessUsename(ud.getUserName());
+			accessLog.setAccessUsename(ud.getUserInfo().getUserName());
 		}
 		fileStoreInfo.addDownloadTimes();
 

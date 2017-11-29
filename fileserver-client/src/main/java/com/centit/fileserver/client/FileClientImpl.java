@@ -12,6 +12,7 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.network.HttpExecutor;
 import com.centit.support.network.InputStreamResponseHandler;
+import com.centit.support.network.UrlOptUtils;
 import com.centit.support.network.Utf8ResponseHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -245,7 +246,7 @@ public class FileClientImpl implements FileClient {
         List<NameValuePair> params = HttpExecutor.makeRequectParams(fsi, "");
 
         String paramsUrl1 = EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
-        HttpPost httpPost = new HttpPost(HttpExecutor.appendParamToUrl(uri, paramsUrl1));
+        HttpPost httpPost = new HttpPost(UrlOptUtils.appendParamToUrl(uri, paramsUrl1));
         httpPost.setHeader("Content-Type","application/octet-stream");
         httpPost.addHeader("method","post");
         httpPost.addHeader("type","file");

@@ -8,7 +8,7 @@ import com.centit.framework.hibernate.config.HibernateConfig;
 import com.centit.framework.ip.app.config.IPAppSystemBeanConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
-import com.centit.framework.staticsystem.config.SpringSecurityDaoConfig;
+import com.centit.framework.config.SpringSecurityDaoConfig;
 import org.springframework.context.annotation.*;
 
 /**
