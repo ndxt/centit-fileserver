@@ -142,13 +142,12 @@ public class FileController extends BaseController {
         if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
             completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
-            tempFileSize = size;
-        } else {
-            //检查临时目录中的文件大小，返回文件的其实点
-            //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
-            tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                    SystemTempFileUtils.getTempFilePath(token, size));
+            return;
         }
+        //检查临时目录中的文件大小，返回文件的其实点
+        //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
+        tempFileSize = SystemTempFileUtils.checkTempFileSize(
+                SystemTempFileUtils.getTempFilePath(token, size));
 
         JsonResultUtils.writeOriginalJson(
                 UploadDownloadUtils.makeRangeUploadJson(tempFileSize).toJSONString(), response);
