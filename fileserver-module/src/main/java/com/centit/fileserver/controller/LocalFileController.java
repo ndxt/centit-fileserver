@@ -252,6 +252,6 @@ public class LocalFileController extends BaseController {
 			return;
 		}
 		writeDownloadFileLog(stroeInfo,request);
-		DownLoadController.downloadFile(stroeInfo,request,response);
+		DownloadController.downloadFile(stroeInfo,request,response);
 	}
 }

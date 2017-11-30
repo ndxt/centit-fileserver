@@ -22,7 +22,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -31,9 +30,9 @@ import java.io.*;
 
 @Controller
 @RequestMapping("/download")
-public class DownLoadController extends BaseController {
+public class DownloadController extends BaseController {
 
-	private static final Logger logger = LoggerFactory.getLogger(DownLoadController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
 	@Resource
 	private FileStoreInfoManager fileStoreInfoManager;

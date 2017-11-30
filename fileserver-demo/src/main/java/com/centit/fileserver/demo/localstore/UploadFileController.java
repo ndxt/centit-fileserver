@@ -41,64 +41,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/file")
+@RequestMapping("/upload")
 
-public class FileController extends BaseController {
+public class UploadFileController extends BaseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
-    /**
-     *
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @param inputStream InputStream
-     * @param fSize long
-     * @param fileName String
-     * @throws IOException IOException
-     */
-    private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                      InputStream inputStream, long fSize, String fileName)
-            throws IOException {
-        UploadDownloadUtils.downFileRange(request, response,
-                inputStream, fSize,UploadDownloadUtils.encodeDownloadFilename(fileName));
-    }
-
-
-    /**
-     * 根据文件的 MD5码 下载不受保护的文件，不需要访问文件记录
-     * 如果是通过 store 上传的需要指定 extName 扩展名
-     * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
-     * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @RequestMapping(value= "/download/{md5SizeExt}", method=RequestMethod.GET)
-    public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,
-                                        String fileName,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response) throws IOException {
-        //FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(md5);
-        //downloadFile(stroeInfo,request,response);
-        String uri = request.getRequestURI();
-        String [] urips = uri.split("/");
-        int n=urips.length;
-        if(StringUtils.isBlank(fileName)){
-            fileName = urips[n-1];
-        }
-
-
-        String fileMd5 =  md5SizeExt.substring(0,32);
-        int pos = md5SizeExt.indexOf('.');
-        //String extName = md5SizeExt.substring(pos);
-        long fileSize = pos<0? NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
-                : NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
-        String filePath = fs.getFileStoreUrl(fileMd5, fileSize);
-        InputStream inputStream = fs.loadFileStream(filePath);
-        downFileRange(request,  response,
-                inputStream, fileSize,
-                fileName);
-    }
+    private static final Logger logger = LoggerFactory.getLogger(UploadFileController.class);
 
 
     /**
@@ -289,5 +236,15 @@ public class FileController extends BaseController {
             logger.error(e.getMessage(), e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
+    }
+
+    /**
+     * 根据文件的id物理删除文件(同时删除文件和数据库记录)
+     * @param fileId 文件ID
+     * @param response HttpServletResponse
+     */
+    @RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
+    public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
+        JsonResultUtils.writeSuccessJson(response);
     }
 }
