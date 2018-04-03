@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
@@ -13,6 +12,7 @@ import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.QueryAndNamedParams;
 import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +26,9 @@ import java.util.Map;
 public class FileStoreInfoManagerImpl
 		extends BaseEntityManagerImpl<FileStoreInfo, String, FileStoreInfoDao>
  	implements FileStoreInfoManager {
+
+	@Value("${jdbc.dialect}")
+	protected String jdbcDialect;
 
 	@Resource(name ="fileStoreInfoDao")
 	@NotNull
@@ -45,6 +48,7 @@ public class FileStoreInfoManagerImpl
 		
 
 	}
+
 
 	@Override
 	public void saveNewFile(FileStoreInfo originalFile){
@@ -145,7 +149,7 @@ public class FileStoreInfoManagerImpl
 	@Override
 	public JSONArray listFileOwners(String osId, String optId) {
 		String queryStatement;
-		DBType dbt = DBType.mapDialectToDBType(SysParametersUtils.getStringValue("jdbc.dialect"));
+		DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
 		if(dbt==DBType.MySql){
 			queryStatement = "select ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') as FILE_OWNER, " +
 					"count(1) as FILE_COUNT " +

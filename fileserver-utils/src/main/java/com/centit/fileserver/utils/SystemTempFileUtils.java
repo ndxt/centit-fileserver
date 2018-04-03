@@ -1,6 +1,5 @@
 package com.centit.fileserver.utils;
 
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileMD5Maker;
 import org.apache.commons.lang3.StringUtils;
@@ -13,21 +12,27 @@ import java.io.IOException;
 
 public class SystemTempFileUtils {
 
-	private static Logger logger = LoggerFactory.getLogger(SysParametersUtils.class);
-	
+	private static Logger logger = LoggerFactory.getLogger(SystemTempFileUtils.class);
+
+	private static String TEMP_FILE_DIRECTORY = "/user/temp/";
+
+	public static synchronized void setTempFileDirectory(String tempFileDirectory){
+		TEMP_FILE_DIRECTORY = tempFileDirectory;
+	}
+
 	public static String getTempFilePath(String fileMd5, long size){
-		return SysParametersUtils.getTempHome()
-					+ File.separatorChar + fileMd5 +"_"+size+".tmp";
+		return TEMP_FILE_DIRECTORY // SysParametersUtils.getTempHome() + File.separatorChar
+					 + fileMd5 +"_"+size+".tmp";
 	}
 	
 	public static String getTempDirectory(){
-		return SysParametersUtils.getTempHome()
-					+ File.separatorChar ;
+		return TEMP_FILE_DIRECTORY; // SysParametersUtils.getTempHome()
+					//+ File.separatorChar ;
 	}
-	
+
 	public static String getRandomTempFilePath(){
-		return SysParametersUtils.getTempHome()
-					+ File.separatorChar + UuidOpt.getUuidAsString32() +".tmp";
+		return TEMP_FILE_DIRECTORY //SysParametersUtils.getTempHome()+ File.separatorChar
+					 + UuidOpt.getUuidAsString32() +".tmp";
 	}
 	
 	public static long checkTempFileSize(String filePath){

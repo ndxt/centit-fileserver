@@ -3,6 +3,7 @@ package com.centit.fileserver.controller;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
+import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
@@ -41,6 +42,9 @@ public class LocalFileController extends BaseController {
 
 	@Resource
 	private FileAccessLogManager fileAccessLogManager;
+
+	@Resource
+	protected FileStoreFactory fileStoreFactory;
 
 	/**
 	 * 获取当前用户的文件类别
@@ -252,6 +256,6 @@ public class LocalFileController extends BaseController {
 			return;
 		}
 		writeDownloadFileLog(stroeInfo,request);
-		DownloadController.downloadFile(stroeInfo,request,response);
+		DownloadController.downloadFile(fileStoreFactory, stroeInfo, request, response);
 	}
 }

@@ -3,9 +3,9 @@ package com.centit.fileserver.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.fileaccess.FilePretreatment;
-import com.centit.fileserver.fileaccess.FileStoreFactory;
 import com.centit.fileserver.fileaccess.PretreatInfo;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -14,11 +14,9 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;
-import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringRegularOpt;
@@ -66,7 +64,13 @@ public class UploadController extends BaseController {
     protected boolean keepSingleIndexByShowpath;
 
     @Resource
-    private FileStoreInfoManager fileStoreInfoManager;
+    protected FileStoreFactory fileStoreFactory;
+
+    @Resource
+    protected Indexer documentIndexer;
+
+    @Resource
+    protected FileStoreInfoManager fileStoreInfoManager;
 
     private static FileStoreInfo fetchFileInfoFromRequest(HttpServletRequest request){
 
@@ -156,7 +160,7 @@ public class UploadController extends BaseController {
                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
 
         JsonResultUtils.writeOriginalObject(fs.checkFile(token, size), response);
     }
@@ -176,7 +180,7 @@ public class UploadController extends BaseController {
                                HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
         long tempFileSize = 0;
         // 如果文件已经存在则完成秒传，无需再传
         if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
@@ -300,7 +304,7 @@ public class UploadController extends BaseController {
                 int fi = name.indexOf('/');
                 int di = name.lastIndexOf('/');
 
-                FileStore fsTemp = FileStoreFactory.createDefaultFileStore();
+                FileStore fsTemp = fileStoreFactory.createDefaultFileStore();
                 String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
                 int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
                 String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
@@ -350,7 +354,7 @@ public class UploadController extends BaseController {
         String fileId = fileInfo.getFileId();
         try {
             if (pretreatInfo.needPretreat()) {
-                fileInfo = FilePretreatment.pretreatment(fs, fileInfo, pretreatInfo);
+                fileInfo = FilePretreatment.pretreatment(fs,documentIndexer, fileInfo, pretreatInfo);
             }
 
             // 只有zip文件才需要解压
@@ -365,10 +369,7 @@ public class UploadController extends BaseController {
             FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
             if(duplicateFile != null){
                 if("I".equals(duplicateFile.getIndexState())){
-                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
-                            IndexerSearcherFactory.loadESServerConfigFormProperties(
-                                    SysParametersUtils.loadProperties()), FileDocument.class);
-                    indexer.deleteDocument(
+                    documentIndexer.deleteDocument(
                             FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
                 }
                 fileStoreInfoManager.deleteFile(duplicateFile);
@@ -379,10 +380,7 @@ public class UploadController extends BaseController {
             FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
             if(duplicateFile != null){
                 if("I".equals(duplicateFile.getIndexState())){
-                    Indexer indexer = IndexerSearcherFactory.obtainIndexer(
-                            IndexerSearcherFactory.loadESServerConfigFormProperties(
-                                    SysParametersUtils.loadProperties()), FileDocument.class);
-                    indexer.deleteDocument(
+                    documentIndexer.deleteDocument(
                             FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
                 }
             }
@@ -419,7 +417,7 @@ public class UploadController extends BaseController {
             throws IOException {
 
         request.setCharacterEncoding("utf8");
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
 
         if (fs.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileStoreInfo, PretreatInfo, InputStream> formData
@@ -451,7 +449,7 @@ public class UploadController extends BaseController {
         Triple<FileStoreInfo, PretreatInfo, InputStream> formData
                 = fetchUploadFormFromRequest(request);
         //TODO 添加权限验证 : OSID + Token
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
         if (fs.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStoreAndPretreat(fs, token, size, formData.getLeft(),
                     formData.getMiddle(), response);
@@ -502,7 +500,7 @@ public class UploadController extends BaseController {
         try {
             int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            FileStore fs = FileStoreFactory.createDefaultFileStore();
+            FileStore fs = fileStoreFactory.createDefaultFileStore();
             fs.saveFile(tempFilePath);
             completedFileStoreAndPretreat(fs, fileMd5, fileSize, formData.getLeft(), formData.getMiddle(), response);
             FileSystemOpt.deleteFile(tempFilePath);
@@ -599,7 +597,7 @@ public class UploadController extends BaseController {
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
         long tempFileSize = 0;
         // 如果文件已经存在则完成秒传，无需再传
         if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
@@ -635,7 +633,7 @@ public class UploadController extends BaseController {
         Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
         if (fs.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
             return;
@@ -675,7 +673,7 @@ public class UploadController extends BaseController {
             Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
             int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight() , tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            FileStore fs = FileStoreFactory.createDefaultFileStore();
+            FileStore fs = fileStoreFactory.createDefaultFileStore();
             fs.saveFile(tempFilePath);
             completedStoreFile(fs, fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);

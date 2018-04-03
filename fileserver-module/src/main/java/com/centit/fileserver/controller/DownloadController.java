@@ -1,9 +1,9 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.fileaccess.FileStoreFactory;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
+import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -38,7 +38,8 @@ public class DownloadController extends BaseController {
 	private FileStoreInfoManager fileStoreInfoManager;
 	@Resource
 	private FileAccessLogManager fileAccessLogManager;
-
+	@Resource
+	protected FileStoreFactory fileStoreFactory;
 
 	private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
 			InputStream inputStream,long fSize, String fileName)
@@ -47,10 +48,10 @@ public class DownloadController extends BaseController {
 				 inputStream, fSize, fileName);
 	}
 
-	public static void downloadFile(FileStoreInfo stroeInfo, HttpServletRequest request,
+	public static void downloadFile(FileStoreFactory fileStoreFactory, FileStoreInfo stroeInfo, HttpServletRequest request,
 							 HttpServletResponse response) throws IOException {
 		if (null != stroeInfo) {
-			FileStore fs = FileStoreFactory.createDefaultFileStore();
+			FileStore fs = fileStoreFactory.createDefaultFileStore();
 			//对加密的进行特殊处理，ZIP加密的无需处理
 			String password = request.getParameter("password");
 			if("D".equals(stroeInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
@@ -100,7 +101,7 @@ public class DownloadController extends BaseController {
 		FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
 
 		if (null != stroeInfo) {
-			FileStore fs = FileStoreFactory.createDefaultFileStore();
+			FileStore fs = fileStoreFactory.createDefaultFileStore();
 			String at = stroeInfo.getAttachedType();
 			if("N".equals(at)){
 				JsonResultUtils.writeAjaxErrorMessage(
@@ -138,7 +139,7 @@ public class DownloadController extends BaseController {
 		
 		FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
 
-		downloadFile(stroeInfo,request,response);
+		downloadFile(fileStoreFactory, stroeInfo, request, response);
 	}
 
 	/**
@@ -157,7 +158,7 @@ public class DownloadController extends BaseController {
 		if(fileAccessLog!=null){
 			if(fileAccessLog.checkValid(false)){
 				FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileAccessLog.getFileId());
-				downloadFile(stroeInfo, request ,response);
+				downloadFile(fileStoreFactory, stroeInfo, request ,response);
 				// 记录访问日志
 				fileAccessLog.chargeAccessTimes();
 				fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
@@ -232,7 +233,7 @@ public class DownloadController extends BaseController {
 		//String extName = md5SizeExt.substring(pos);
 		long fileSize = pos<0?NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
 							:NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-		FileStore fs = FileStoreFactory.createDefaultFileStore();
+		FileStore fs = fileStoreFactory.createDefaultFileStore();
 		String filePath = fs.getFileStoreUrl(fileMd5, fileSize);
 		InputStream inputStream = fs.loadFileStream(filePath);
 		downFileRange(request,  response,

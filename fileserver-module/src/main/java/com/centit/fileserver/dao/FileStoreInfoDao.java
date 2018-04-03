@@ -3,7 +3,6 @@ package com.centit.fileserver.dao;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.LocalFileManager;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.hibernate.dao.BaseDaoImpl;
 import com.centit.framework.hibernate.dao.DatabaseOptUtils;
@@ -12,15 +11,20 @@ import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 @Repository
 public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
+
+	@Value("${jdbc.dialect}")
+	protected String jdbcDialect;
+
 	public Map<String, String> getFilterField() {
 		if( filterField == null){
-			filterField = new HashMap<String, String>();
+			filterField = new HashMap<>();
 
 			filterField.put("groupId" , CodeBook.EQUAL_HQL_ID);
 			filterField.put("isValid" , CodeBook.EQUAL_HQL_ID);
@@ -46,7 +50,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 		//StringUtils.indexOf(DatabaseOptUtils.getDialectName(),"Oracle")>=0
 		//这个地方需要根据不同的数据库编写不同的sql语句
 		Set<String> dirs = new HashSet<>();
-		DBType dbt = DBType.mapDialectToDBType(SysParametersUtils.getStringValue("jdbc.dialect"));
+		DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
 		List<?> objects = null;
 		if (StringUtils.isBlank(fileShowPath)) {
 			String sqlsenOralce = "select distinct subStr( CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
@@ -95,7 +99,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 		//StringUtils.indexOf(DatabaseOptUtils.getDialectName(),"Oracle")>=0
 		//这个地方需要根据不同的数据库编写不同的sql语句
 		Set<String> dirs = new HashSet<>();
-		DBType dbt = DBType.mapDialectToDBType(SysParametersUtils.getStringValue("jdbc.dialect"));
+		DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
 		List<?> objects = null;
 		if (StringUtils.isBlank(fileShowPath)) {
 			String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +

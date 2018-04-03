@@ -1,16 +1,16 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
-import com.centit.fileserver.fileaccess.FileStoreFactory;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
+import com.centit.support.database.utils.PageDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -39,6 +39,8 @@ public class FileManagerController extends BaseController {
 	@Resource
 	private IntegrationEnvironment integrationEnvironment;
 
+	@Resource
+	protected FileStoreFactory fileStoreFactory;
 	/**
 	 * 根据文件的id物理删除文件(同时删除文件和数据库记录)
 	 * @param fileId 文件ID
@@ -69,7 +71,7 @@ public class FileManagerController extends BaseController {
 		FileStoreInfo storeInfo =fileStoreInfoManager.getObjectById(fileId);
 		if(storeInfo !=null){
 			String path= storeInfo.getFileStorePath();
-			FileStore fs = FileStoreFactory.createDefaultFileStore();
+			FileStore fs = fileStoreFactory.createDefaultFileStore();
 			try {
 				fs.deleteFile(path);
 			} catch (IOException e) {

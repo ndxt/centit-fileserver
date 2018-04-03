@@ -3,10 +3,8 @@ package com.centit.fileserver.fileaccess;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;
-import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
@@ -214,7 +212,9 @@ public class FilePretreatment {
 			FileSystemOpt.deleteFile(filePath);
 	}
 	
-	public static FileStoreInfo pretreatment(FileStore fs, FileStoreInfo fileStoreInfo,PretreatInfo pretreatInfo)
+	public static FileStoreInfo pretreatment(FileStore fs,Indexer indexer,
+                                             FileStoreInfo fileStoreInfo,
+                                             PretreatInfo pretreatInfo)
 	throws IOException{
 		if(! pretreatInfo.needPretreat())
 			return fileStoreInfo;
@@ -223,10 +223,9 @@ public class FilePretreatment {
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
 
 		if(pretreatInfo.getIsIndex()){
-
-			Indexer indexer = IndexerSearcherFactory.obtainIndexer(
+			/*Indexer indexer = IndexerSearcherFactory.obtainIndexer(
 				IndexerSearcherFactory.loadESServerConfigFormProperties(
-					SysParametersUtils.loadProperties()), FileDocument.class) ;
+						"" *//*SysParametersUtils.loadProperties()*//*), FileDocument.class) ;*/
 			FileDocument fileDoc = new FileDocument();
 			fileDoc.setFileId(fileStoreInfo.getFileId() );
 			fileDoc.setOsId( fileStoreInfo.getOsId());
@@ -254,16 +253,14 @@ public class FilePretreatment {
 		}
 		
 		if(pretreatInfo.getAddPdf()){
-			String pdfTmpFile = SysParametersUtils.getTempHome()
-					+ File.separatorChar + fileStoreInfo.getFileMd5()+"1.pdf";
+			String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.pdf";
 			boolean createPdf =
 					office2Pdf(fileStoreInfo.getFileType(),sourceFilePath , pdfTmpFile );
 
 			if(createPdf){
 				fileStoreInfo.setAttachedType("P");
 				if(StringUtils.isBlank(pretreatInfo.getWatermark())){
-					String pdfTmpFile2 = SysParametersUtils.getTempHome()
-							+ File.separatorChar + fileStoreInfo.getFileMd5()+"2.pdf";
+					String pdfTmpFile2 =  SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"2.pdf";
 					if( addWatermarkForPdf(pdfTmpFile , pdfTmpFile2, pretreatInfo.getWatermark())){
 						fileStoreInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile2));
 					}else
@@ -275,8 +272,7 @@ public class FilePretreatment {
 		}
 		
 		if(pretreatInfo.getAddThumbnail()){
-			String outFilename = SysParametersUtils.getTempHome()
-					+ File.separatorChar + fileStoreInfo.getFileMd5()+"1.jpf";
+			String outFilename =  SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.jpf";
 			if(createImageThumbnail(sourceFilePath,
 					pretreatInfo.getThumbnailWidth(), pretreatInfo.getThumbnailHeight(), 100,
 					outFilename)){
@@ -288,8 +284,7 @@ public class FilePretreatment {
 		//String oldFileStorePath = fileStoreInfo.getFileStorePath();
 		if(!"N".equals(pretreatInfo.getEncryptType())){
 			
-			String outFilename = SysParametersUtils.getTempHome()
-					+ File.separatorChar + fileStoreInfo.getFileMd5()+"1.ent";
+			String outFilename = SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.ent";
 			
 			if("D".equals(pretreatInfo.getEncryptType())){				
 				if(StringUtils.isBlank(pretreatInfo.getEncryptPassword()))
@@ -328,8 +323,8 @@ public class FilePretreatment {
 					 }else
 						 logger.error("Zip压缩文件时出错！"+ fileStoreInfo.getFileMd5());
 				}else{
-					String entFileDir = SysParametersUtils.getTempHome()
-							+ File.separatorChar + fileStoreInfo.getFileMd5();
+					String entFileDir = SystemTempFileUtils.getTempDirectory()
+							+ fileStoreInfo.getFileMd5();
 					FileSystemOpt.createDirect(entFileDir);
 					String entFilePath = entFileDir + File.separatorChar + fileStoreInfo.getFileName();
 					

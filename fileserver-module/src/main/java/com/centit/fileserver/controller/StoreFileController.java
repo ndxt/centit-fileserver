@@ -1,7 +1,7 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.fileaccess.FileStoreFactory;
+import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -46,6 +47,8 @@ public class StoreFileController extends BaseController {
 
 	private Logger logger = LoggerFactory.getLogger(StoreFileController.class);
 
+	@Resource
+	protected FileStoreFactory fileStoreFactory;
 	/**
 	 * 判断文件是否存在，如果文件已经存在可以实现秒传
 	 * @param token token
@@ -61,7 +64,7 @@ public class StoreFileController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		
-		FileStore fs = FileStoreFactory.createDefaultFileStore();
+		FileStore fs = fileStoreFactory.createDefaultFileStore();
 		
 		JsonResultUtils.writeOriginalObject(fs.checkFile(token, size), response);
 	}	
@@ -80,7 +83,7 @@ public class StoreFileController extends BaseController {
                 HttpServletRequest request, HttpServletResponse response)
 			throws IOException {		
 		//FileRangeInfo fr = new FileRangeInfo(token,size);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+        FileStore fs = fileStoreFactory.createDefaultFileStore();
         long tempFileSize = 0;
 		// 如果文件已经存在则完成秒传，无需再传
 		if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
@@ -149,7 +152,7 @@ public class StoreFileController extends BaseController {
 			throws IOException {
 
         request.setCharacterEncoding("utf8");
-		FileStore fs = FileStoreFactory.createDefaultFileStore();
+		FileStore fs = fileStoreFactory.createDefaultFileStore();
 		
 		if(fs.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。
 			completedFileStore(token,size,  response);
@@ -186,7 +189,7 @@ public class StoreFileController extends BaseController {
 
 
 		//TODO 添加权限验证 : OSID + Token
-		FileStore fs = FileStoreFactory.createDefaultFileStore();		
+		FileStore fs = fileStoreFactory.createDefaultFileStore();
 		if(fs.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。	
 			completedFileStore(token,size,  response);
 			return;
@@ -257,7 +260,7 @@ public class StoreFileController extends BaseController {
         try{
             int fileSize = FileIOOpt.writeInputStreamToFile(fis, tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            FileStore fs = FileStoreFactory.createDefaultFileStore();
+            FileStore fs = fileStoreFactory.createDefaultFileStore();
             fs.saveFile(tempFilePath);
 			completedFileStore(fileMd5,fileSize,  response);
             FileSystemOpt.deleteFile(tempFilePath);
