@@ -2,6 +2,7 @@ package com.centit.fileserver.config;
 
 import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.service.impl.FileStoreFactoryImpl;
+import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
 import com.centit.framework.core.config.DataSourceConfig;
@@ -36,11 +37,12 @@ public class ServiceConfig {
     public FileStoreFactory fileStoreFactory() {
         return new FileStoreFactoryImpl();
     }
+
     @Bean
     public Indexer documentIndexer(){
         return IndexerSearcherFactory.obtainIndexer(
                 IndexerSearcherFactory.loadESServerConfigFormProperties(
-                        "" /*SysParametersUtils.loadProperties()*/), FileDocument.class);
+                        SysParametersUtils.loadProperties()), FileDocument.class);
     }
 
     @Bean
