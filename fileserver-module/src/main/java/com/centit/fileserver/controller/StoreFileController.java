@@ -1,7 +1,6 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.service.FileStoreFactory;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -48,7 +47,7 @@ public class StoreFileController extends BaseController {
 	private Logger logger = LoggerFactory.getLogger(StoreFileController.class);
 
 	@Resource
-	protected FileStoreFactory fileStoreFactory;
+	protected FileStore fileStore;
 	/**
 	 * 判断文件是否存在，如果文件已经存在可以实现秒传
 	 * @param token token
@@ -64,9 +63,7 @@ public class StoreFileController extends BaseController {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		
-		FileStore fs = fileStoreFactory.createDefaultFileStore();
-		
-		JsonResultUtils.writeOriginalObject(fs.checkFile(token, size), response);
+		JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
 	}	
 	
 	/**
@@ -83,10 +80,9 @@ public class StoreFileController extends BaseController {
                 HttpServletRequest request, HttpServletResponse response)
 			throws IOException {		
 		//FileRangeInfo fr = new FileRangeInfo(token,size);
-        FileStore fs = fileStoreFactory.createDefaultFileStore();
         long tempFileSize = 0;
 		// 如果文件已经存在则完成秒传，无需再传
-		if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
+		if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
 			//添加完成 后 相关的处理  类似与 uploadRange
             tempFileSize  = size;
 		}else {
@@ -152,16 +148,15 @@ public class StoreFileController extends BaseController {
 			throws IOException {
 
         request.setCharacterEncoding("utf8");
-		FileStore fs = fileStoreFactory.createDefaultFileStore();
 		
-		if(fs.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。
+		if(fileStore.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。
 			completedFileStore(token,size,  response);
 			return;
 		}else{
 			String  tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 			long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
 			if(tempFileSize == size) {
-				fs.saveFile(tempFilePath, token, size);
+				fileStore.saveFile(tempFilePath, token, size);
 				completedFileStore(token,size,  response);
 				return;
 			}
@@ -189,8 +184,7 @@ public class StoreFileController extends BaseController {
 
 
 		//TODO 添加权限验证 : OSID + Token
-		FileStore fs = fileStoreFactory.createDefaultFileStore();
-		if(fs.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。	
+		if(fileStore.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。
 			completedFileStore(token,size,  response);
 			return;
 		}
@@ -224,7 +218,7 @@ public class StoreFileController extends BaseController {
 		//range.setRangeStart(rangeStart);
 		if(tempFileSize == size){
 			//判断是否传输完成
-			fs.saveFile(tempFilePath,token, size);
+			fileStore.saveFile(tempFilePath,token, size);
 			String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
 			if(StringUtils.equals(fileMd5,token)) {
 				completedFileStore(token,size,  response);
@@ -260,8 +254,8 @@ public class StoreFileController extends BaseController {
         try{
             int fileSize = FileIOOpt.writeInputStreamToFile(fis, tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            FileStore fs = fileStoreFactory.createDefaultFileStore();
-            fs.saveFile(tempFilePath);
+
+			fileStore.saveFile(tempFilePath);
 			completedFileStore(fileMd5,fileSize,  response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
