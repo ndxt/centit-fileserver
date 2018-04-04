@@ -9,7 +9,6 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -21,6 +20,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +47,8 @@ public class UploadFileController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadFileController.class);
 
-
+    @Autowired
+    protected FileStore fileStore;
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
@@ -62,9 +63,7 @@ public class UploadFileController extends BaseController {
     public void checkFileExists(String token, long size, HttpServletResponse response)
             throws IOException {
 
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
-
-        JsonResultUtils.writeOriginalObject(fs.checkFile(token, size), response);
+        JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
     }
 
     /**
@@ -83,12 +82,12 @@ public class UploadFileController extends BaseController {
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
+
         long tempFileSize;
         // 如果文件已经存在则完成秒传，无需再传
-        if (fs.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
+        if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
-            completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
+            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
             return;
         }
         //检查临时目录中的文件大小，返回文件的其实点
@@ -185,9 +184,9 @@ public class UploadFileController extends BaseController {
         Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
-        if (fs.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
+        //FileStore fs = FileStoreFactory.createDefaultFileStore();
+        if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
+            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
             return;
         }
 
@@ -195,8 +194,8 @@ public class UploadFileController extends BaseController {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, fileInfo.getRight(), token, size, request);
             if(uploadSize==0){
                 //上传到临时区成功
-                fs.saveFile(tempFilePath, token, size);
-                completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
+                fileStore.saveFile(tempFilePath, token, size);
+                completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
                 FileSystemOpt.deleteFile(tempFilePath);
                 return;
             }else if( uploadSize>0){
@@ -228,9 +227,9 @@ public class UploadFileController extends BaseController {
             Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
             int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight() , tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            FileStore fs = FileStoreFactory.createDefaultFileStore();
-            fs.saveFile(tempFilePath);
-            completedStoreFile(fs, fileMd5, fileSize, fileInfo.getLeft(), response);
+            //FileStore fs = FileStoreFactory.createDefaultFileStore();
+            fileStore.saveFile(tempFilePath);
+            completedStoreFile(fileStore, fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

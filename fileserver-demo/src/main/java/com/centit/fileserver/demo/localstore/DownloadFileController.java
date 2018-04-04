@@ -1,49 +1,30 @@
 package com.centit.fileserver.demo.localstore;
 
-import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
-import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
-import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.ObjectException;
-import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.file.FileIOOpt;
-import com.centit.support.file.FileMD5Maker;
-import com.centit.support.file.FileSystemOpt;
-import com.centit.support.file.FileType;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/download")
 
 public class DownloadFileController extends BaseController {
+
+    @Autowired
+    protected FileStore fileStore;
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadFileController.class);
     /**
@@ -91,9 +72,9 @@ public class DownloadFileController extends BaseController {
         //String extName = md5SizeExt.substring(pos);
         long fileSize = pos<0? NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
                 : NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-        FileStore fs = FileStoreFactory.createDefaultFileStore();
-        String filePath = fs.getFileStoreUrl(fileMd5, fileSize);
-        InputStream inputStream = fs.loadFileStream(filePath);
+
+        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
+        InputStream inputStream = fileStore.loadFileStream(filePath);
         downFileRange(request,  response,
                 inputStream, fileSize,
                 fileName);
