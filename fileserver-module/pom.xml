@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-utils</artifactId>
-            <version>${centit.fileserver.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -30,32 +30,27 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-adapter</artifactId>
-            <version>${centit.ip.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-hibernate</artifactId>
-            <version>${centit.persistence.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-office</artifactId>
-            <version>${centit.commons.version}</version>
         </dependency>
 
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>${commons-fileupload.version}</version>
         </dependency>
 
         <!--  add by zhuxw -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>${quartz.version}</version>
         </dependency>
         <!--  end -->
 
@@ -84,7 +79,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet-api.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
