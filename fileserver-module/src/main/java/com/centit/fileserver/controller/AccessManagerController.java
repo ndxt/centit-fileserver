@@ -3,16 +3,17 @@ package com.centit.fileserver.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileUploadAuthorized;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.service.FileUploadAuthorizedManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.common.ResponseSingleData;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.support.algorithm.*;
 import com.centit.support.database.utils.PageDesc;
-import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.UuidOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,12 @@ public class AccessManagerController extends BaseController {
 	private FileAccessLogManager fileAccessLogManager;
 	@Resource
 	private FileStoreInfoManager fileStoreInfoManager;
+	@Resource
+	private FileUploadAuthorizedManager fileUploadAuthorizedManager;
+
 	
 	private ResponseSingleData applyAccess(FileAccessLog accessLog) {
-		String fileId = accessLog.getFileId();	
+		String fileId = accessLog.getFileId();
 		FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileId);
 		if(fileStoreInfo==null){
 			return new ResponseSingleData(
@@ -43,7 +47,7 @@ public class AccessManagerController extends BaseController {
 		String ar = accessLog.getAccessRight();
 		if(StringUtils.isBlank(ar))
 			ar ="A";
-		accessLog.setFileId(fileId);
+		//accessLog.setFileId(fileId);
 		accessLog.setAccessToken( UuidOpt.getUuidAsString32());
 		accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
 		accessLog.setAccessRight(ar);
@@ -108,4 +112,24 @@ public class AccessManagerController extends BaseController {
 		
 		JsonResultUtils.writeResponseDataAsJson(resData, response);
 	}
+
+	@RequestMapping(value="/applyUpload", method = RequestMethod.POST)
+	public void applyUploadFiles(HttpServletResponse response) throws Exception{
+		FileUploadAuthorized authorized = fileUploadAuthorizedManager.createNewAuthorization(1);
+		JsonResultUtils.writeSingleDataJson(
+				authorized, response);
+	}
+
+	@RequestMapping(value="/applyUpload/{maxFiles}", method = RequestMethod.POST)
+	public void applyUploadManyFiles( @PathVariable("maxFiles") String maxFiles, HttpServletResponse response) throws Exception{
+		int maxUploadFiles = 1;
+		if(StringRegularOpt.isNumber(maxFiles)){
+			maxUploadFiles = NumberBaseOpt.castObjectToInteger(maxFiles);
+		}
+		FileUploadAuthorized authorized =
+				fileUploadAuthorizedManager.createNewAuthorization(maxUploadFiles);
+		JsonResultUtils.writeSingleDataJson(
+				authorized, response);
+	}
+
 }

@@ -15,6 +15,17 @@ create table FILE_ACCESS_LOG  (
 comment on column FILE_ACCESS_LOG.access_right is
 'A： 所有权限  S: 下载源文件  T ：下载附属文件 ';
 
+create table FILE_UPLOAD_AUTHORIZED  (
+   ACCESS_TOKEN       varchar2(36) not null,
+   MAX_UPLOAD_FILES   NUMBER(10) not null,
+   REST_UPLOAD_FILES   NUMBER(10)  not null,
+   CREATE_TIME        date,
+   LAST_UPLOAD_TIME   date,
+   constraint PK_FILE_UPLOAD_AUTHORIZED primary key (ACCESS_TOKEN)
+);
+
+
+
 create table FILE_STORE_INFO  (
    FILE_ID              varchar2(36)                    not null,
    FILE_MD5             VARCHAR(36),

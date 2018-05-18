@@ -13,10 +13,23 @@ public interface FileClient {
 
     void releaseHttpClient(CloseableHttpClient httpClient);
 
+    /*
+     * 请求下载文件
+     */
     String/*文件下载url */getFileUrl(CloseableHttpClient httpClient, FileAccessLog aacessLog) throws IOException;
 
     String/*文件下载url */getFileUrl(FileAccessLog aacessLog) throws IOException;
 
+    /*
+        请求上传文件
+     */
+    String applyUploadFiles(CloseableHttpClient httpClient, int maxUploadFiles) throws IOException ;
+
+    String applyUploadFiles(int maxUploadFiles) throws IOException ;
+
+    default String applyUploadFile() throws IOException {
+        return applyUploadFiles(1);
+    }
     /**
      * 文件下载url
      * @param fileId 文件ID

@@ -6,6 +6,7 @@ import com.centit.fileserver.fileaccess.FilePretreatment;
 import com.centit.fileserver.fileaccess.PretreatInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.service.FileUploadAuthorizedManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
@@ -55,12 +56,17 @@ import java.util.zip.ZipInputStream;
 @RequestMapping("/upload")
 
 public class UploadController extends BaseController {
+    public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
 
-    @Value("${file.check.duplicate}")
+    @Value("${file.check.duplicate:false}")
     protected boolean checkDuplicate;
 
-    @Value("${file.index.keepsingle.showpath}")
+    @Value("${file.index.keepsingle.showpath:false}")
     protected boolean keepSingleIndexByShowpath;
+
+    @Value("${file.check.upload.token:false}")
+    protected boolean checkUploadToken;
+
 
     @Resource
     protected FileStore fileStore;
@@ -70,6 +76,10 @@ public class UploadController extends BaseController {
 
     @Resource
     protected FileStoreInfoManager fileStoreInfoManager;
+
+    @Resource
+    private FileUploadAuthorizedManager fileUploadAuthorizedManager;
+
 
     private static FileStoreInfo fetchFileInfoFromRequest(HttpServletRequest request){
 
@@ -185,7 +195,7 @@ public class UploadController extends BaseController {
                     StringUtils.isNotBlank(fileInfo.getOsId()) &&
                     StringUtils.isNotBlank(fileInfo.getOptId())) {
                 PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
-                completedFileStoreAndPretreat(fileStore, token, size, fileInfo, pretreatInfo, response);
+                storeAndPretreatFile(fileStore, token, size, fileInfo, pretreatInfo, request, response);
                 return;
             }
             tempFileSize = size;
@@ -254,12 +264,17 @@ public class UploadController extends BaseController {
      * @param pretreatInfo PretreatInfo对象
      * @param response HttpServletResponse
      */
-    private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
-                                               FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
-                                               HttpServletResponse response) {
+    private void storeAndPretreatFile(FileStore fs, String fileMd5, long size,
+                                      FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
+                                      HttpServletRequest request,
+                                      HttpServletResponse response) {
         try {
-            JSONObject json = completedFileStoreAndPretreat(fs, fileMd5, size, fileInfo, pretreatInfo);
+            JSONObject json = storeAndPretreatFile(fs, fileMd5, size, fileInfo, pretreatInfo);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
+            if(checkUploadToken){
+                String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
+                fileUploadAuthorizedManager.consumeAuthorization(uploadToken);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             JsonResultUtils.writeAjaxErrorMessage(
@@ -328,7 +343,7 @@ public class UploadController extends BaseController {
                 pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
                 pretreatInfoTemp.setIsIsUnzip(false);
 
-                completedFileStoreAndPretreat(fileStore, token, size, fileStoreInfoTemp, pretreatInfoTemp);
+                storeAndPretreatFile(fileStore, token, size, fileStoreInfoTemp, pretreatInfoTemp);
 
                 FileSystemOpt.deleteFile(tempFilePath);
             }
@@ -337,8 +352,8 @@ public class UploadController extends BaseController {
         }
     }
 
-    private JSONObject completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
-                                               FileStoreInfo fileInfo, PretreatInfo pretreatInfo)  {
+    private JSONObject storeAndPretreatFile(FileStore fs, String fileMd5, long size,
+                                            FileStoreInfo fileInfo, PretreatInfo pretreatInfo)  {
 
         fileInfo.setFileMd5(fileMd5);
         fileInfo.setFileSize(size);
@@ -415,14 +430,27 @@ public class UploadController extends BaseController {
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileStoreInfo, PretreatInfo, InputStream> formData
                     = fetchUploadFormFromRequest(request);
-            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), response);
+            storeAndPretreatFile(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
             return;
-        } else
+        } else {
             JsonResultUtils.writeAjaxErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存在无法实现秒传，MD5：" + token, response);
+        }
     }
 
+    protected boolean checkUploadAuthorization(HttpServletRequest request, HttpServletResponse response){
+
+        String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
+        if( fileUploadAuthorizedManager.checkAuthorization(uploadToken)<1){
+            JsonResultUtils.writeAjaxErrorMessage(
+                    FileServerConstant.ERROR_FILE_FORBIDDEN,
+                    "没有权限上传文件,请检查参数:" + UPLOAD_FILE_TOKEN_NAME, response);
+            return false;
+        }
+
+        return true;
+    }
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
      * @param token token
@@ -437,15 +465,19 @@ public class UploadController extends BaseController {
     public void uploadFileRange(
             String token, long size,
             HttpServletRequest request, HttpServletResponse response)
-            throws IOException, NoSuchAlgorithmException {
+            throws IOException {
+
+        if(checkUploadToken && !checkUploadAuthorization(request, response)){
+            return;
+        }
 
         Triple<FileStoreInfo, PretreatInfo, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-        //TODO 添加权限验证 : OSID + Token
+
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
-                    formData.getMiddle(), response);
+            storeAndPretreatFile(fileStore, token, size, formData.getLeft(),
+                    formData.getMiddle(), request, response);
             return;
         }
 
@@ -456,8 +488,8 @@ public class UploadController extends BaseController {
             if(uploadSize==0){
                 //上传到临时区成功
                 fileStore. saveFile(tempFilePath, token, size);
-                completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
-                        formData.getMiddle(), response);
+                storeAndPretreatFile(fileStore, token, size, formData.getLeft(),
+                        formData.getMiddle(), request, response);
                 FileSystemOpt.deleteFile(tempFilePath);
                 return;
             }else if( uploadSize>0){
@@ -486,6 +518,10 @@ public class UploadController extends BaseController {
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
+
+        if(checkUploadToken && !checkUploadAuthorization(request, response)){
+            return;
+        }
         request.setCharacterEncoding("utf8");
         Triple<FileStoreInfo, PretreatInfo, InputStream> formData
                 = fetchUploadFormFromRequest(request);
@@ -495,7 +531,8 @@ public class UploadController extends BaseController {
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
 
             fileStore.saveFile(tempFilePath);
-            completedFileStoreAndPretreat(fileStore, fileMd5, fileSize, formData.getLeft(), formData.getMiddle(), response);
+            storeAndPretreatFile(fileStore, fileMd5, fileSize,
+                    formData.getLeft(), formData.getMiddle(), request, response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
@@ -635,7 +672,6 @@ public class UploadController extends BaseController {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, fileInfo.getRight(), token, size, request);
             if(uploadSize==0){
                 completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
-                return;
             }else if( uploadSize>0){
 
                 JsonResultUtils.writeOriginalJson(UploadDownloadUtils.

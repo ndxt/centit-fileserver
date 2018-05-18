@@ -103,6 +103,28 @@ public class FileClientImpl implements FileClient {
         return url;
     }
 
+    @Override
+    public String applyUploadFiles(CloseableHttpClient httpClient, int maxUploadFiles) throws IOException {
+
+        appSession.checkAccessToken(httpClient);
+
+        String jsonStr = HttpExecutor.formPost(httpClient,
+                appSession.completeQueryUrl("/service/access//applyUpload/" + maxUploadFiles), null);
+        ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
+        if (resJson.getCode() != 0) {
+            throw new ObjectException(resJson.getMessage());
+        }
+        return resJson.getDataAsString("accessToken");
+    }
+
+    @Override
+    public String applyUploadFiles(int maxUploadFiles) throws IOException {
+        CloseableHttpClient httpClient = getHttpClient();
+        String uploadToken = applyUploadFiles(httpClient, maxUploadFiles);
+        releaseHttpClient(httpClient);
+        return uploadToken;
+    }
+
     public String getAttachFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException {
         FileAccessLog aacessLog = new FileAccessLog();
         aacessLog.setFileId(fileId);
