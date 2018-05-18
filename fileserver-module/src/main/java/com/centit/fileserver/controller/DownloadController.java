@@ -93,7 +93,7 @@ public class DownloadController extends BaseController {
 	 * @param fileId 文件ID
 	 * @param request HttpServletRequest
 	 * @param response HttpServletResponse
-	 * @throws IOException
+	 * @throws IOException 异常
 	 */
 	@RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
 	public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,

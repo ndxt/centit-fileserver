@@ -14,7 +14,7 @@ public interface FileStore {
 	 * 保存文件
 	 * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
 	 * @return 文件的存储路径
-	 * @throws IOException
+	 * @throws IOException io异常
 	 */
 	String saveFile(String sourFilePath)
 			throws IOException;
@@ -24,7 +24,7 @@ public interface FileStore {
 	 * @param fileMd5 String
 	 * @param fileSize long
 	 * @return 文件的存储路径
-	 * @throws IOException
+	 * @throws IOException io异常
 	 */
 	String saveFile(InputStream is, String fileMd5, long fileSize)
 			throws IOException;
@@ -35,7 +35,7 @@ public interface FileStore {
 	 * @param fileMd5 String
 	 * @param fileSize long
 	 * @return 文件的存储路径
-	 * @throws IOException
+	 * @throws IOException io异常
 	 */
 	String saveFile(String sourFilePath, String fileMd5, long fileSize)
 			throws IOException;
@@ -47,7 +47,7 @@ public interface FileStore {
 	 * @param fileSize 文件大小
 	 * @param extName 文件后缀名
 	 * @return 文件的存储路径
-	 * @throws IOException
+	 * @throws IOException io异常
 	 */
 	String saveFile(String sourFilePath, String fileMd5, long fileSize,String extName)
 			throws IOException;
@@ -73,7 +73,7 @@ public interface FileStore {
 	
 	/**
 	 * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
-	 *
+	 * @param fileStoreUrl  文件存储的位置URL
 	 */
 	String getFileAccessUrl(String fileStoreUrl);
 	
@@ -114,7 +114,7 @@ public interface FileStore {
 	 * 
 	 * @param fileUrl 文件的url
 	 * @return File
-	 * @throws IOException IOException
+	 * @throws IOException io异常
 	 */
 	File getFile(String fileUrl) throws IOException;
 	/**
@@ -129,7 +129,7 @@ public interface FileStore {
 	 * 删除文件
 	 * @param fileMd5 String
 	 * @param fileSize long
-	 * @throws IOException IOException
+	 * @throws IOException io异常
 	 * @return true 删除成功 或者文件本来就不存在  false
 	 */
 	boolean deleteFile(String fileMd5, long fileSize) throws IOException;

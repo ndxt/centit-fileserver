@@ -34,10 +34,13 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
         SystemTempFileUtils.setTempFileDirectory(
                  SysParametersUtils.getTempHome() + File.separatorChar );
 
-        if(innerMessageManager!=null)
+        if(innerMessageManager!=null) {
             notificationCenter.registerMessageSender("innerMsg", innerMessageManager);
-        if(optLogManager!=null)
+            notificationCenter.appointDefaultSendType("innerMsg");
+        }
+        if(optLogManager!=null) {
             OperationLogCenter.registerOperationLogWriter(optLogManager);
+        }
     }
 
 }

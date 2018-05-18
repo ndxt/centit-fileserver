@@ -131,8 +131,7 @@ public class FileStoreInfo implements Serializable {
 
     /**
      * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
-     *
-     * @param fileState
+     * @param fileState 文件状态
      */
     public void setFileState(String fileState) {
         this.fileState = fileState;

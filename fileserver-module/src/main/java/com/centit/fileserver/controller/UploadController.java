@@ -58,10 +58,10 @@ import java.util.zip.ZipInputStream;
 public class UploadController extends BaseController {
     public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
 
-    @Value("${file.check.duplicate:false}")
+    @Value("${file.check.duplicate:true}")
     protected boolean checkDuplicate;
 
-    @Value("${file.index.keepsingle.showpath:false}")
+    @Value("${file.index.keepsingle.showpath:true}")
     protected boolean keepSingleIndexByShowpath;
 
     @Value("${file.check.upload.token:false}")
@@ -458,7 +458,6 @@ public class UploadController extends BaseController {
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
-     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/range", method = {RequestMethod.POST})

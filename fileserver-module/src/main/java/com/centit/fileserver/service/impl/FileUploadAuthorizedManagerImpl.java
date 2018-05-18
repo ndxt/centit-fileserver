@@ -31,7 +31,7 @@ public class FileUploadAuthorizedManagerImpl extends BaseEntityManagerImpl<FileU
 	/**
 	 *
 	 * @param accessToken token
-	 * @return >0 可以上传文件否则不可以
+	 * @return &gt; 0 可以上传文件否则不可以
 	 */
 	@Override
 	public int checkAuthorization(String accessToken) {
