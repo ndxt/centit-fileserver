@@ -109,12 +109,12 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
 
         String jsonStr = HttpExecutor.formPost(httpClient,
-                appSession.completeQueryUrl("/service/access//applyUpload/" + maxUploadFiles), null);
+                appSession.completeQueryUrl("/service/access/applyUpload/" + maxUploadFiles), null);
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
         if (resJson.getCode() != 0) {
             throw new ObjectException(resJson.getMessage());
         }
-        return resJson.getDataAsString("accessToken");
+        return resJson.getDataAsString("uploadToken");
     }
 
     @Override

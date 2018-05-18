@@ -30,16 +30,16 @@ public class FileUploadAuthorizedManagerImpl extends BaseEntityManagerImpl<FileU
 
 	/**
 	 *
-	 * @param accessToken token
+	 * @param uploadToken token
 	 * @return &gt; 0 可以上传文件否则不可以
 	 */
 	@Override
-	public int checkAuthorization(String accessToken) {
-		if(StringUtils.isBlank(accessToken)){
+	public int checkAuthorization(String uploadToken) {
+		if(StringUtils.isBlank(uploadToken)){
 			return -1;
 		}
 
-		FileUploadAuthorized authorized = baseDao.getObjectById(accessToken);
+		FileUploadAuthorized authorized = baseDao.getObjectById(uploadToken);
 		if(authorized==null){
 			return -1;
 		}
@@ -50,7 +50,7 @@ public class FileUploadAuthorizedManagerImpl extends BaseEntityManagerImpl<FileU
 	@Transactional
 	public FileUploadAuthorized createNewAuthorization(int maxUploadFiles) {
 		FileUploadAuthorized authorized = new FileUploadAuthorized();
-		authorized.setAccessToken(UuidOpt.getUuidAsString32());
+		authorized.setUploadToken(UuidOpt.getUuidAsString32());
 		authorized.setMaxUploadFiles(maxUploadFiles);
 		authorized.setRestUploadFiles(maxUploadFiles);
 		authorized.setCraeteTime(DatetimeOpt.currentUtilDate());
@@ -60,12 +60,12 @@ public class FileUploadAuthorizedManagerImpl extends BaseEntityManagerImpl<FileU
 
 	@Override
 	@Transactional
-	public int consumeAuthorization(String accessToken) {
-		if(StringUtils.isBlank(accessToken)){
+	public int consumeAuthorization(String uploadToken) {
+		if(StringUtils.isBlank(uploadToken)){
 			return -1;
 		}
 
-		FileUploadAuthorized authorized = baseDao.getObjectById(accessToken);
+		FileUploadAuthorized authorized = baseDao.getObjectById(uploadToken);
 		if(authorized==null){
 			return -1;
 		}

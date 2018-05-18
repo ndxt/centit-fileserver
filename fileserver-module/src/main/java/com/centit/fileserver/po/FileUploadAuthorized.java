@@ -13,10 +13,10 @@ public class FileUploadAuthorized implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name ="ACCESS_TOKEN")
+    @Column(name ="UPLOAD_TOKEN")
     @GenericGenerator(name = "fileUuid", strategy = "uuid")
     @GeneratedValue(generator = "fileUuid")
-    private String accessToken;
+    private String uploadToken;
 
     @Column(name="MAX_UPLOAD_FILES")
     private Integer maxUploadFiles;
@@ -35,12 +35,12 @@ public class FileUploadAuthorized implements Serializable {
         restUploadFiles = 1;
     }
 
-    public String getAccessToken() {
-        return accessToken;
+    public String getUploadToken() {
+        return uploadToken;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public void setUploadToken(String uploadToken) {
+        this.uploadToken = uploadToken;
     }
 
     public Integer getMaxUploadFiles() {

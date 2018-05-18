@@ -195,7 +195,7 @@ public class UploadController extends BaseController {
                     StringUtils.isNotBlank(fileInfo.getOsId()) &&
                     StringUtils.isNotBlank(fileInfo.getOptId())) {
                 PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
-                storeAndPretreatFile(fileStore, token, size, fileInfo, pretreatInfo, request, response);
+                completedFileStoreAndPretreat(fileStore, token, size, fileInfo, pretreatInfo, request, response);
                 return;
             }
             tempFileSize = size;
@@ -264,7 +264,7 @@ public class UploadController extends BaseController {
      * @param pretreatInfo PretreatInfo对象
      * @param response HttpServletResponse
      */
-    private void storeAndPretreatFile(FileStore fs, String fileMd5, long size,
+    private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
                                       FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
@@ -430,7 +430,7 @@ public class UploadController extends BaseController {
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileStoreInfo, PretreatInfo, InputStream> formData
                     = fetchUploadFormFromRequest(request);
-            storeAndPretreatFile(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
+            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
             return;
         } else {
             JsonResultUtils.writeAjaxErrorMessage(
@@ -475,7 +475,7 @@ public class UploadController extends BaseController {
 
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            storeAndPretreatFile(fileStore, token, size, formData.getLeft(),
+            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
             return;
         }
@@ -487,10 +487,9 @@ public class UploadController extends BaseController {
             if(uploadSize==0){
                 //上传到临时区成功
                 fileStore. saveFile(tempFilePath, token, size);
-                storeAndPretreatFile(fileStore, token, size, formData.getLeft(),
+                completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
                         formData.getMiddle(), request, response);
-                FileSystemOpt.deleteFile(tempFilePath);
-                return;
+
             }else if( uploadSize>0){
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize);
                 FileStoreInfo fileInfo = new FileStoreInfo();
@@ -530,7 +529,7 @@ public class UploadController extends BaseController {
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
 
             fileStore.saveFile(tempFilePath);
-            storeAndPretreatFile(fileStore, fileMd5, fileSize,
+            completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
