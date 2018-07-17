@@ -10,10 +10,7 @@ import com.centit.framework.common.ResponseJSON;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
-import com.centit.support.network.HttpExecutor;
-import com.centit.support.network.InputStreamResponseHandler;
-import com.centit.support.network.UrlOptUtils;
-import com.centit.support.network.Utf8ResponseHandler;
+import com.centit.support.network.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -70,7 +67,7 @@ public class FileClientImpl implements FileClient {
 
     public CloseableHttpClient getHttpClient() {
         try {
-            return appSession.getHttpClient();
+            return appSession.allocHttpClient();
         }catch (Exception e){
             logger.error(e.getMessage(), e);
             return null;
@@ -83,7 +80,7 @@ public class FileClientImpl implements FileClient {
 
     public String/*文件下载url */getFileUrl(CloseableHttpClient httpClient, FileAccessLog aacessLog) throws IOException {
         appSession.checkAccessToken(httpClient);
-        String jsonStr = HttpExecutor.jsonPost(httpClient,
+        String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/access/japply"), aacessLog);
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
 
@@ -108,7 +105,7 @@ public class FileClientImpl implements FileClient {
 
         appSession.checkAccessToken(httpClient);
 
-        String jsonStr = HttpExecutor.formPost(httpClient,
+        String jsonStr = HttpExecutor.formPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/access/applyUpload/" + maxUploadFiles), null);
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
         if (resJson.getCode() != 0) {
@@ -163,7 +160,7 @@ public class FileClientImpl implements FileClient {
 
     public FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
         appSession.checkAccessToken(httpClient);
-        String jsonStr = HttpExecutor.simpleGet(httpClient,
+        String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/files/" + fileId));
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
 
@@ -175,7 +172,7 @@ public class FileClientImpl implements FileClient {
 
     public boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws IOException {
         appSession.checkAccessToken(httpClient);
-        String jsonStr = HttpExecutor.jsonPost(httpClient,
+        String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/files/j/" + fsi.getFileId()), fsi);
         ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
         if (resJson == null) {
@@ -195,7 +192,7 @@ public class FileClientImpl implements FileClient {
     public FileStoreInfo uploadFile(CloseableHttpClient httpClient, FileStoreInfo fsi,File file) throws IOException {
         appSession.checkAccessToken(httpClient);
 
-        String jsonStr = HttpExecutor.fileUpload(httpClient,
+        String jsonStr = HttpExecutor.fileUpload(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/upload/file"),
                 JSON.parseObject(JSON.toJSONString(fsi) ),
                 file);
@@ -223,7 +220,7 @@ public class FileClientImpl implements FileClient {
     public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException{
         String uri =  appSession.completeQueryUrl(
                 "/service/upload/range?token="+fileMd5+"&size="+fileSize);
-        String jsonStr = HttpExecutor.simpleGet(httpClient,uri);
+        String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),uri);
         long rangeStart = -1;
 
         try {
@@ -309,7 +306,8 @@ public class FileClientImpl implements FileClient {
         ByteArrayEntity entity = new ByteArrayEntity(bos.toByteArray());
         httpPost.setEntity(entity);
 
-        String jsonStr = HttpExecutor.httpExecute(httpClient, (HttpContext)null, (HttpRequestBase)httpPost);
+        String jsonStr = HttpExecutor.httpExecute(
+                HttpExecutorContext.create(httpClient), httpPost);
         ResponseJSON resJson = null;
         try {
             resJson = ResponseJSON.valueOfJson(jsonStr);

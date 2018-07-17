@@ -2,6 +2,7 @@ package com.centit.upload.service;
 
 import com.centit.support.database.utils.QueryUtils;
 import com.centit.support.network.HttpExecutor;
+import com.centit.support.network.HttpExecutorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,10 @@ public class Test {
 			Map<String,File> files = new HashMap<String,File>();
 			files.put("file", f);
 			String path="http://localhost:8080/product-uploader/service/formdata?http://localhost:8080/product-uploader/singleUploader.jsp";
-			String response = HttpExecutor.formPostWithFileUpload(HttpExecutor.createHttpClient(),
-					path, (Map<String,Object>) QueryUtils.createSqlParamsMap("filename","11"),
-					files);		
+			String response = HttpExecutor.formPostWithFileUpload(
+					HttpExecutorContext.create(HttpExecutor.createHttpClient()),
+					path, QueryUtils.createSqlParamsMap("filename","11"),
+					files);
 
 			
 			//GetMethod postMethod=new GetMethod(path);
