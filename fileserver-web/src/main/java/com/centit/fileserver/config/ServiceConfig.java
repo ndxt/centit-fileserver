@@ -15,6 +15,8 @@ import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;
 import com.centit.search.service.IndexerSearcherFactory;
+import com.centit.search.service.Searcher;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
@@ -63,9 +65,24 @@ public class ServiceConfig {
 
     @Bean
     public Indexer documentIndexer(){
-        return IndexerSearcherFactory.obtainIndexer(
-                IndexerSearcherFactory.loadESServerConfigFormProperties(
-                        SysParametersUtils.loadProperties()), FileDocument.class);
+        if(BooleanBaseOpt.castObjectToBoolean(
+                env.getProperty("fulltext.index.enable"),false)) {
+            return IndexerSearcherFactory.obtainIndexer(
+                    IndexerSearcherFactory.loadESServerConfigFormProperties(
+                            SysParametersUtils.loadProperties()), FileDocument.class);
+        }
+        return null;
+    }
+
+    @Bean
+    public Searcher documentSearcher(){
+        if(BooleanBaseOpt.castObjectToBoolean(
+                env.getProperty("fulltext.index.enable"),false)) {
+            return IndexerSearcherFactory.obtainSearcher(
+                    IndexerSearcherFactory.loadESServerConfigFormProperties(
+                            SysParametersUtils.loadProperties()), FileDocument.class);
+        }
+        return null;
     }
 
     @Bean

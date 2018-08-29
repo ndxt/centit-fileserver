@@ -222,7 +222,7 @@ public class FilePretreatment {
 		//FileStore fs = FileStoreFactory.createDefaultFileStore();
 		String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
 
-		if(pretreatInfo.getIsIndex()){
+		if(indexer != null && pretreatInfo.getIsIndex()){
 			/*Indexer indexer = IndexerSearcherFactory.obtainIndexer(
 				IndexerSearcherFactory.loadESServerConfigFormProperties(
 						"" *//*SysParametersUtils.loadProperties()*//*), FileDocument.class) ;*/

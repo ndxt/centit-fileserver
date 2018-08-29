@@ -377,7 +377,7 @@ public class UploadController extends BaseController {
         if(checkDuplicate){
             FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
             if(duplicateFile != null){
-                if("I".equals(duplicateFile.getIndexState())){
+                if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
                     documentIndexer.deleteDocument(
                             FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
                 }
@@ -388,7 +388,7 @@ public class UploadController extends BaseController {
         if(keepSingleIndexByShowpath ){
             FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
             if(duplicateFile != null){
-                if("I".equals(duplicateFile.getIndexState())){
+                if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
                     documentIndexer.deleteDocument(
                             FileDocument.ES_DOCUMENT_TYPE, duplicateFile.getFileId());
                 }
