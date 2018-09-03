@@ -35,15 +35,12 @@ public class ServiceConfig {
 
     @Bean
     public FileStore fileStore(){
-
         String baseHome = env.getProperty("os.file.base.dir");
         if(StringUtils.isBlank(baseHome)) {
             baseHome = SysParametersUtils.getUploadHome();
         }
-
         return new OsFileStore(baseHome);
     }
-
 
     @Bean
     public NotificationCenter notificationCenter() {
