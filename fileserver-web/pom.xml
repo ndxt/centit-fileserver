@@ -45,6 +45,11 @@
 
         <dependency>
             <groupId>com.centit.framework</groupId>
+            <artifactId>framework-core-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-hibernate-config</artifactId>
         </dependency>
 

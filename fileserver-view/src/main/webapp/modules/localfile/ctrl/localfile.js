@@ -42,7 +42,7 @@ define(function(require) {
             new watchDetail('watchDetail')
         ]);
         //topUrl
-        var topUrl = '/service/local/catalog';
+        var topUrl = 'service/local/catalog';
         //模式选择
         this.IMGVIEW = 1;
         this.LISTVIEW = 2;
