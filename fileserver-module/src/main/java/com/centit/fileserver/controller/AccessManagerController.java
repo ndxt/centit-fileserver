@@ -45,14 +45,13 @@ public class AccessManagerController extends BaseController {
 					"文件不存："+fileId);
 		}
 		String ar = accessLog.getAccessRight();
-		if(StringUtils.isBlank(ar))
-			ar ="A";
-		//accessLog.setFileId(fileId);
+		if(StringUtils.isBlank(ar)) {
+            ar = "A";
+            accessLog.setAccessRight(ar);
+        }
 		accessLog.setAccessToken( UuidOpt.getUuidAsString32());
 		accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
-		accessLog.setAccessRight(ar);
-		accessLog.setAccessTimes(0);
-		fileStoreInfo.addDownloadTimes();		
+		fileStoreInfo.addDownloadTimes();
 		fileAccessLogManager.saveNewAccessLog(accessLog);
 		fileStoreInfoManager.updateObject(fileStoreInfo);
 		return ResponseSingleData.makeResponseData(accessLog);

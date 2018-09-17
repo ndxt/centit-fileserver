@@ -5,7 +5,7 @@
       "userName": "管理员",
       "isValid": "T",
       "loginName": "admin",
-      "userPin": "d92ec26dec6234c5c79dfae76d375736"
+      "userPin": "$2a$11$DbyFNhHeCES5CKoMuM5sXepY7GM35sZkUSqQbjYJnFTzJ2GDIYGLK"
     },
     {
       "userCode": "u0000001",
@@ -155,6 +155,14 @@
     }
   ],
   "userUnits": [
+    {
+      "UserUnitId": "1",
+      "unitCode": "d0000000",
+      "userCode": "u0000000",
+      "isPrimary": "T",
+      "userStation": "管理员",
+      "userRank": "部门经理"
+    },
     {
       "UserUnitId": "1",
       "unitCode": "d0000000",

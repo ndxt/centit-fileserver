@@ -63,7 +63,7 @@ public class FileAccessLog implements Serializable {
 		}
 		if(tokenExpireTime!=null &&  DatetimeOpt.currentUtilDate().after(tokenExpireTime))
 			return false;
-		if( accessTimes != null || accessTimes <= 0)
+		if( accessTimes != null && accessTimes <= 0)
 			return false;
 		return true;
 	}
