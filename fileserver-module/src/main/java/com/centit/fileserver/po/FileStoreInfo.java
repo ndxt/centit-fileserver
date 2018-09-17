@@ -12,9 +12,6 @@ import java.util.Date;
 @Table(name= "FILE_STORE_INFO")
 public class FileStoreInfo implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id
