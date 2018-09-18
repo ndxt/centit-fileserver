@@ -30,37 +30,37 @@ import org.slf4j.LoggerFactory;
  */
 public class AddFolder {
 
-	private Logger logger = LoggerFactory.getLogger(AddFolder.class);
-	
-	public AddFolder() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFolder.zip");
-			
-			// Folder to add
-			String folderToAdd = "c:\\FolderToAdd";
-			
-			// Initiate Zip Parameters which define various properties such
-			// as compression method, etc.
-			ZipParameters parameters = new ZipParameters();
-			
-			// set compression method to store compression
-			parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-			
-			// Set the compression level
-			parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-			
-			// Add folder to the zip file
-			zipFile.addFolder(folderToAdd, parameters);
-			
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-	
-	public static void main(String[] args) {
-		new AddFolder();
-	}
-	
+    private Logger logger = LoggerFactory.getLogger(AddFolder.class);
+
+    public AddFolder() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFolder.zip");
+
+            // Folder to add
+            String folderToAdd = "c:\\FolderToAdd";
+
+            // Initiate Zip Parameters which define various properties such
+            // as compression method, etc.
+            ZipParameters parameters = new ZipParameters();
+
+            // set compression method to store compression
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+
+            // Set the compression level
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+
+            // Add folder to the zip file
+            zipFile.addFolder(folderToAdd, parameters);
+
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public static void main(String[] args) {
+        new AddFolder();
+    }
+
 }

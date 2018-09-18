@@ -34,42 +34,42 @@ import java.util.List;
 
 public class ExtractByLoopAllFiles {
 
-	private Logger logger = LoggerFactory.getLogger(ExtractByLoopAllFiles.class);
+    private Logger logger = LoggerFactory.getLogger(ExtractByLoopAllFiles.class);
 
-	public ExtractByLoopAllFiles() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\ExtractByLoopAllFiles.zip");
-			
-			// Check to see if the zip file is password protected 
-			if (zipFile.isEncrypted()) {
-				// if yes, then set the password for the zip file
-				zipFile.setPassword("test123!");
-			}
-			
-			// Get the list of file headers from the zip file
-			List fileHeaderList = zipFile.getFileHeaders();
-			
-			// Loop through the file headers
-			for (int i = 0; i < fileHeaderList.size(); i++) {
-				FileHeader fileHeader = (FileHeader)fileHeaderList.get(i);
-				// Extract the file to the specified destination
-				zipFile.extractFile(fileHeader, "c:\\ZipTest\\");
-			}
-			
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new ExtractByLoopAllFiles();
+    public ExtractByLoopAllFiles() {
 
-	}
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\ExtractByLoopAllFiles.zip");
+
+            // Check to see if the zip file is password protected
+            if (zipFile.isEncrypted()) {
+                // if yes, then set the password for the zip file
+                zipFile.setPassword("test123!");
+            }
+
+            // Get the list of file headers from the zip file
+            List fileHeaderList = zipFile.getFileHeaders();
+
+            // Loop through the file headers
+            for (int i = 0; i < fileHeaderList.size(); i++) {
+                FileHeader fileHeader = (FileHeader)fileHeaderList.get(i);
+                // Extract the file to the specified destination
+                zipFile.extractFile(fileHeader, "c:\\ZipTest\\");
+            }
+
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new ExtractByLoopAllFiles();
+
+    }
 
 }

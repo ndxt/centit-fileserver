@@ -29,28 +29,28 @@ import org.slf4j.LoggerFactory;
  */
 public class CheckZipFileSplitArchive {
 
-	private Logger logger = LoggerFactory.getLogger(CheckZipFileSplitArchive.class);
-	
-	public CheckZipFileSplitArchive() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\CheckZipFileSplitArchive.zip");
-			
-			// Check if the zip file is a split archive
-			System.out.println("Is this zip file a split archive? " + zipFile.isSplitArchive());
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new CheckZipFileSplitArchive();
+    private Logger logger = LoggerFactory.getLogger(CheckZipFileSplitArchive.class);
 
-	}
+    public CheckZipFileSplitArchive() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\CheckZipFileSplitArchive.zip");
+
+            // Check if the zip file is a split archive
+            System.out.println("Is this zip file a split archive? " + zipFile.isSplitArchive());
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new CheckZipFileSplitArchive();
+
+    }
 
 }

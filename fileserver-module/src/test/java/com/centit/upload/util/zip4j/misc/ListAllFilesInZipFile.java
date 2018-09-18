@@ -31,43 +31,43 @@ import java.util.List;
  */
 public class ListAllFilesInZipFile {
 
-	private Logger logger = LoggerFactory.getLogger(ListAllFilesInZipFile.class);
+    private Logger logger = LoggerFactory.getLogger(ListAllFilesInZipFile.class);
 
-	public ListAllFilesInZipFile() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\ListAllFilesInZipFile.zip");
-			
-			// Get the list of file headers from the zip file
-			List fileHeaderList = zipFile.getFileHeaders();
-			
-			// Loop through the file headers
-			for (int i = 0; i < fileHeaderList.size(); i++) {
-				FileHeader fileHeader = (FileHeader)fileHeaderList.get(i);
-				// FileHeader contains all the properties of the file
-				System.out.println("****File Details for: " + fileHeader.getFileName() + "*****");
-				System.out.println("Name: " + fileHeader.getFileName());
-				System.out.println("Compressed Size: " + fileHeader.getCompressedSize());
-				System.out.println("Uncompressed Size: " + fileHeader.getUncompressedSize());
-				System.out.println("CRC: " + fileHeader.getCrc32());
-				System.out.println("************************************************************");
-				
-				// Various other properties are available in FileHeader. Please have a look at FileHeader
-				// class to see all the properties
-			}
-			
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new ListAllFilesInZipFile();
-	}
+    public ListAllFilesInZipFile() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\ListAllFilesInZipFile.zip");
+
+            // Get the list of file headers from the zip file
+            List fileHeaderList = zipFile.getFileHeaders();
+
+            // Loop through the file headers
+            for (int i = 0; i < fileHeaderList.size(); i++) {
+                FileHeader fileHeader = (FileHeader)fileHeaderList.get(i);
+                // FileHeader contains all the properties of the file
+                System.out.println("****File Details for: " + fileHeader.getFileName() + "*****");
+                System.out.println("Name: " + fileHeader.getFileName());
+                System.out.println("Compressed Size: " + fileHeader.getCompressedSize());
+                System.out.println("Uncompressed Size: " + fileHeader.getUncompressedSize());
+                System.out.println("CRC: " + fileHeader.getCrc32());
+                System.out.println("************************************************************");
+
+                // Various other properties are available in FileHeader. Please have a look at FileHeader
+                // class to see all the properties
+            }
+
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new ListAllFilesInZipFile();
+    }
 
 }

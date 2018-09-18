@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface FileAccessLogManager extends BaseEntityManager<FileAccessLog, String> {
-	void saveNewAccessLog(FileAccessLog fileAccessLog);
-		
-	List<String> saveAllNewLogs(List<FileAccessLog> fileAccessLogList);
+    void saveNewAccessLog(FileAccessLog fileAccessLog);
+
+    List<String> saveAllNewLogs(List<FileAccessLog> fileAccessLogList);
 
 
-	void deleteObjectsByFileId(String fileId);
-	
-	JSONArray listAccessLog(Map<String,Object>queryParamsMap,
-			PageDesc pageDesc);
+    void deleteObjectsByFileId(String fileId);
+
+    JSONArray listAccessLog(Map<String,Object>queryParamsMap,
+            PageDesc pageDesc);
 }

@@ -29,28 +29,28 @@ import org.slf4j.LoggerFactory;
  */
 public class ExtractAllFiles {
 
-	private Logger logger = LoggerFactory.getLogger(ExtractAllFiles.class);
-	
-	public ExtractAllFiles() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\ExtractAllFiles.zip");
-			
-			// Extracts all files to the path specified
-			zipFile.extractAll("c:\\ZipTest");
-			
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-	}
+    private Logger logger = LoggerFactory.getLogger(ExtractAllFiles.class);
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new ExtractAllFiles();
-	}
+    public ExtractAllFiles() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\ExtractAllFiles.zip");
+
+            // Extracts all files to the path specified
+            zipFile.extractAll("c:\\ZipTest");
+
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new ExtractAllFiles();
+    }
 
 }

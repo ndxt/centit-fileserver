@@ -43,57 +43,57 @@ import java.io.InputStream;
  */
 public class AddStreamToZip {
 
-	private Logger logger = LoggerFactory.getLogger(AddStreamToZip.class);
-	
-	public AddStreamToZip() {
-		
-		InputStream is = null;
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			// Zip file may not necessarily exist. If zip file exists, then 
-			// all these files are added to the zip file. If zip file does not
-			// exist, then a new zip file is created with the files mentioned
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddStreamToZip.zip");
-			
-			// Initiate Zip Parameters which define various properties such
-			// as compression method, etc. More parameters are explained in other
-			// examples
-			ZipParameters parameters = new ZipParameters();
-			parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-			
-			// below two parameters have to be set for adding content to a zip file 
-			// directly from a stream
-			
-			// this would be the name of the file for this entry in the zip file
-			parameters.setFileNameInZip("yourfilename.txt");
-			
-			// we set this flag to true. If this flag is true, Zip4j identifies that
-			// the data will not be from a file but directly from a stream
-			parameters.setSourceExternalStream(true);
-			
-			// For this example I use a FileInputStream but in practise this can be 
-			// any inputstream
-			is = new FileInputStream("filetoadd.txt");
-			
-			// Creates a new entry in the zip file and adds the content to the zip file
-			zipFile.addStream(is, parameters);
-			
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-	}
-	
-	public static void main(String[] args) {
-		new AddStreamToZip();
-	}
-	
+    private Logger logger = LoggerFactory.getLogger(AddStreamToZip.class);
+
+    public AddStreamToZip() {
+
+        InputStream is = null;
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            // Zip file may not necessarily exist. If zip file exists, then
+            // all these files are added to the zip file. If zip file does not
+            // exist, then a new zip file is created with the files mentioned
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddStreamToZip.zip");
+
+            // Initiate Zip Parameters which define various properties such
+            // as compression method, etc. More parameters are explained in other
+            // examples
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+
+            // below two parameters have to be set for adding content to a zip file
+            // directly from a stream
+
+            // this would be the name of the file for this entry in the zip file
+            parameters.setFileNameInZip("yourfilename.txt");
+
+            // we set this flag to true. If this flag is true, Zip4j identifies that
+            // the data will not be from a file but directly from a stream
+            parameters.setSourceExternalStream(true);
+
+            // For this example I use a FileInputStream but in practise this can be
+            // any inputstream
+            is = new FileInputStream("filetoadd.txt");
+
+            // Creates a new entry in the zip file and adds the content to the zip file
+            zipFile.addStream(is, parameters);
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new AddStreamToZip();
+    }
+
 }

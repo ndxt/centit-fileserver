@@ -30,42 +30,42 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoveFileFromZipFile {
 
-	private Logger logger = LoggerFactory.getLogger(RemoveFileFromZipFile.class);
-	
-	public RemoveFileFromZipFile() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file.
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesWithAESZipEncryption.zip");
-			
-			// Note: If this zip file is a split file then this method throws an exception as
-			// Zip Format Specification does not allow updating split zip files
-			
-			// Please make sure that this zip file has more than one file to completely test
-			// this example
-			
-			// Removal of a file from a zip file can be done in two ways:
-			// 1. Specify the name of the relative file to the removed
-			zipFile.removeFile("myvideo.avi");
-			
-			// 2. With the FileHeader
-			if (zipFile.getFileHeaders() != null && zipFile.getFileHeaders().size() > 0) {
-				zipFile.removeFile((FileHeader)zipFile.getFileHeaders().get(0));
-			} else {
-				System.out.println("This cannot be demonstrated as zip file does not have any files left");
-			}
-			
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new RemoveFileFromZipFile();
-	}
+    private Logger logger = LoggerFactory.getLogger(RemoveFileFromZipFile.class);
+
+    public RemoveFileFromZipFile() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file.
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesWithAESZipEncryption.zip");
+
+            // Note: If this zip file is a split file then this method throws an exception as
+            // Zip Format Specification does not allow updating split zip files
+
+            // Please make sure that this zip file has more than one file to completely test
+            // this example
+
+            // Removal of a file from a zip file can be done in two ways:
+            // 1. Specify the name of the relative file to the removed
+            zipFile.removeFile("myvideo.avi");
+
+            // 2. With the FileHeader
+            if (zipFile.getFileHeaders() != null && zipFile.getFileHeaders().size() > 0) {
+                zipFile.removeFile((FileHeader)zipFile.getFileHeaders().get(0));
+            } else {
+                System.out.println("This cannot be demonstrated as zip file does not have any files left");
+            }
+
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new RemoveFileFromZipFile();
+    }
 
 }

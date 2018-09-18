@@ -25,50 +25,50 @@ import java.util.Map;
 public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLog, String, FileAccessLogDao> 
  implements FileAccessLogManager {
 
-	@Resource(name ="fileAccessLogDao")
-	@NotNull
-	@Override
-	protected void setBaseDao(FileAccessLogDao baseDao) {
-		super.baseDao = baseDao;
-	}
-	
-	@Override
-	public void saveNewAccessLog(FileAccessLog fileAccessLog) {
-		if(fileAccessLog.getTokenExpireTime()==null)
-			fileAccessLog.setTokenExpireTime(DatetimeOpt.addHours(DatetimeOpt.currentUtilDate(),1));
-		baseDao.saveNewObject(fileAccessLog);
-	}
-	
-	@Override
-	public List<String> saveAllNewLogs(List<FileAccessLog> fileAccessLogList) {
-		return baseDao.saveNewObjects(fileAccessLogList);
-	}
+    @Resource(name ="fileAccessLogDao")
+    @NotNull
+    @Override
+    protected void setBaseDao(FileAccessLogDao baseDao) {
+        super.baseDao = baseDao;
+    }
 
-	@Override
-	@Transactional
-	public void deleteObjectsByFileId(String fileId) {
-		String sql="delete from file_access_log t where t.file_id=?";
-		DatabaseOptUtils.doExecuteSql(baseDao, sql, new Object[]{fileId});
-	}
+    @Override
+    public void saveNewAccessLog(FileAccessLog fileAccessLog) {
+        if(fileAccessLog.getTokenExpireTime()==null)
+            fileAccessLog.setTokenExpireTime(DatetimeOpt.addHours(DatetimeOpt.currentUtilDate(),1));
+        baseDao.saveNewObject(fileAccessLog);
+    }
 
-	@Override
-	public JSONArray listAccessLog(Map<String, Object> queryParamsMap, PageDesc pageDesc) {
-		String queryStatement = 
-				"select a.ACCESS_TOKEN, a.FILE_ID, a.AUTH_TIME, a.ACCESS_USERCODE, a.ACCESS_USENAME,"
-				+ " a.ACCESS_RIGHT, a.TOKEN_EXPIRE_TIME, a.ACCESS_TIMES, a.LAST_ACCESS_TIME, a.LAST_ACCESS_HOST,"
-				+ " b.FILE_NAME  "
-				+ " from FILE_ACCESS_LOG a join FILE_STORE_INFO b on (a.FILE_ID=b.FILE_ID) where 1=1 "
-				+ " [ :osId | and b.OS_ID = :osId ]"
-				+ " [ :(like)fileName | and b.FILE_NAME like :fileName] "
-				+ " [ :optId | and b.OPT_ID = :optId ]"
-				+ " [ :userCode | and a.ACCESS_USERCODE = :userCode ]"
-				+ " [ :beginDate | and a.AUTH_TIME >= :beginDate ]"
-				+ " [ :endDate | and a.AUTH_TIME < :endDate ]"
-				+ " order by a.AUTH_TIME desc";
+    @Override
+    public List<String> saveAllNewLogs(List<FileAccessLog> fileAccessLogList) {
+        return baseDao.saveNewObjects(fileAccessLogList);
+    }
 
-		QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
-		JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSONBySql(
-				baseDao,qap.getQuery(), qap.getParams(), pageDesc));
-		return dataList;
-	}
+    @Override
+    @Transactional
+    public void deleteObjectsByFileId(String fileId) {
+        String sql="delete from file_access_log t where t.file_id=?";
+        DatabaseOptUtils.doExecuteSql(baseDao, sql, new Object[]{fileId});
+    }
+
+    @Override
+    public JSONArray listAccessLog(Map<String, Object> queryParamsMap, PageDesc pageDesc) {
+        String queryStatement =
+                "select a.ACCESS_TOKEN, a.FILE_ID, a.AUTH_TIME, a.ACCESS_USERCODE, a.ACCESS_USENAME,"
+                + " a.ACCESS_RIGHT, a.TOKEN_EXPIRE_TIME, a.ACCESS_TIMES, a.LAST_ACCESS_TIME, a.LAST_ACCESS_HOST,"
+                + " b.FILE_NAME  "
+                + " from FILE_ACCESS_LOG a join FILE_STORE_INFO b on (a.FILE_ID=b.FILE_ID) where 1=1 "
+                + " [ :osId | and b.OS_ID = :osId ]"
+                + " [ :(like)fileName | and b.FILE_NAME like :fileName] "
+                + " [ :optId | and b.OPT_ID = :optId ]"
+                + " [ :userCode | and a.ACCESS_USERCODE = :userCode ]"
+                + " [ :beginDate | and a.AUTH_TIME >= :beginDate ]"
+                + " [ :endDate | and a.AUTH_TIME < :endDate ]"
+                + " order by a.AUTH_TIME desc";
+
+        QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
+        JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSONBySql(
+                baseDao,qap.getQuery(), qap.getParams(), pageDesc));
+        return dataList;
+    }
 }

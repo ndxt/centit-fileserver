@@ -35,46 +35,46 @@ import java.util.ArrayList;
  */
 public class AddFilesStoreComp {
 
-	private Logger logger = LoggerFactory.getLogger(AddFilesStoreComp.class);
+    private Logger logger = LoggerFactory.getLogger(AddFilesStoreComp.class);
 
-	public AddFilesStoreComp() {
-		
-		try {
-			// Initiate ZipFile object with the path/name of the zip file
-			// Zip file may not necessarily exist. If zip file exists, then 
-			// all these files are added to the zip file. If zip file does not
-			// exist, then a new zip file is created with the files mentioned
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesStoreComp.zip"); 
-			
-			// Build the list of files to be added in the array list
-			// Objects of type File have to be added to the ArrayList
-			ArrayList filesToAdd = new ArrayList();
-			filesToAdd.add(new File("c:\\ZipTest\\sample.txt"));
-			filesToAdd.add(new File("c:\\ZipTest\\myvideo.avi"));
-			filesToAdd.add(new File("c:\\ZipTest\\mysong.mp3"));
-			
-			// Initiate Zip Parameters which define various properties such
-			// as compression method, etc. More parameters are explained in other
-			// examples
-			ZipParameters parameters = new ZipParameters();
-			parameters.setCompressionMethod(Zip4jConstants.COMP_STORE); // set compression method to store compression
-			
-			// Now add files to the zip file
-			// Note: To add a single file, the method addFile can be used
-			// Note: If the zip file already exists and if this zip file is a split file
-			// then this method throws an exception as Zip Format Specification does not 
-			// allow updating split zip files
-			zipFile.addFiles(filesToAdd, parameters);
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new AddFilesStoreComp();
-	}
+    public AddFilesStoreComp() {
+
+        try {
+            // Initiate ZipFile object with the path/name of the zip file
+            // Zip file may not necessarily exist. If zip file exists, then
+            // all these files are added to the zip file. If zip file does not
+            // exist, then a new zip file is created with the files mentioned
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesStoreComp.zip");
+
+            // Build the list of files to be added in the array list
+            // Objects of type File have to be added to the ArrayList
+            ArrayList filesToAdd = new ArrayList();
+            filesToAdd.add(new File("c:\\ZipTest\\sample.txt"));
+            filesToAdd.add(new File("c:\\ZipTest\\myvideo.avi"));
+            filesToAdd.add(new File("c:\\ZipTest\\mysong.mp3"));
+
+            // Initiate Zip Parameters which define various properties such
+            // as compression method, etc. More parameters are explained in other
+            // examples
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_STORE); // set compression method to store compression
+
+            // Now add files to the zip file
+            // Note: To add a single file, the method addFile can be used
+            // Note: If the zip file already exists and if this zip file is a split file
+            // then this method throws an exception as Zip Format Specification does not
+            // allow updating split zip files
+            zipFile.addFiles(filesToAdd, parameters);
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new AddFilesStoreComp();
+    }
 
 }

@@ -17,158 +17,158 @@ import java.io.Serializable;
  */
 public class PretreatInfo implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String fileId;
-	private String fileMd5;
-	private Long fileSize;
-	private Boolean isIndex;
-	private String encryptType;
-	private String encryptPassword;
-	private Boolean addPdf;
-	private String watermark;
-	private Boolean addThumbnail;
-	private Integer thumbnailWidth;
-	private Integer thumbnailHeight;
-	private Boolean isUnzip;
-	
-	public PretreatInfo(){
-		isIndex = false;
-		addPdf = false;
-		addThumbnail=false;
-	}
+    private String fileId;
+    private String fileMd5;
+    private Long fileSize;
+    private Boolean isIndex;
+    private String encryptType;
+    private String encryptPassword;
+    private Boolean addPdf;
+    private String watermark;
+    private Boolean addThumbnail;
+    private Integer thumbnailWidth;
+    private Integer thumbnailHeight;
+    private Boolean isUnzip;
 
-	public boolean needPretreat(){
-		return this.getIsIndex() || this.getAddPdf()
-				|| this.getAddThumbnail() ||
-				!"N".equals(this.getEncryptType());
-	}
-	
-	public String getFileId() {
-		return fileId;
-	}
+    public PretreatInfo(){
+        isIndex = false;
+        addPdf = false;
+        addThumbnail=false;
+    }
 
-	public void setFileId(String fileId) {
-		this.fileId = fileId;
-	}
+    public boolean needPretreat(){
+        return this.getIsIndex() || this.getAddPdf()
+                || this.getAddThumbnail() ||
+                !"N".equals(this.getEncryptType());
+    }
 
-	public String getFileMd5() {
-		return fileMd5;
-	}
+    public String getFileId() {
+        return fileId;
+    }
 
-	public void setFileMd5(String fileMd5) {
-		this.fileMd5 = fileMd5;
-	}
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
 
-	public Long getFileSize() {
-		return fileSize;
-	}
+    public String getFileMd5() {
+        return fileMd5;
+    }
 
-	public void setFileSize(Long fileSize) {
-		this.fileSize = fileSize;
-	}
+    public void setFileMd5(String fileMd5) {
+        this.fileMd5 = fileMd5;
+    }
 
-	public Boolean getIsUnzip() {
-		return isUnzip==null?false:isUnzip;
-	}
+    public Long getFileSize() {
+        return fileSize;
+    }
 
-	public void setIsIsUnzip(Boolean isUnzip) {
-		this.isUnzip = isUnzip;
-	}
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
 
-	public Boolean getIsIndex() {
-		return isIndex==null?false:isIndex;
-	}
+    public Boolean getIsUnzip() {
+        return isUnzip==null?false:isUnzip;
+    }
 
-	public void setIsIndex(Boolean isIndex) {
-		this.isIndex = isIndex;
-	}
-	/**
-	 *  加密方式 N : 没有加密 Z：zipFile D:DES加密 //A:AES加密 AES 暂未实现
-	 * @return encryptType
-	 */
-	public String getEncryptType() {
-		return encryptType==null?"N":encryptType;
-	}
-	/**
-	 *  加密方式 N : 没有加密 Z：zipFile D:DES加密  //A:AES加密 AES 暂未实现
-	 * @param encryptType  加密方式
-	 */
-	public void setEncryptType(String encryptType) {
-		this.encryptType = encryptType;
-	}
+    public void setIsIsUnzip(Boolean isUnzip) {
+        this.isUnzip = isUnzip;
+    }
 
-	public String getEncryptPassword() {
-		return encryptPassword;
-	}
+    public Boolean getIsIndex() {
+        return isIndex==null?false:isIndex;
+    }
 
-	public void setEncryptPassword(String encryptPassword) {
-		this.encryptPassword = encryptPassword;
-	}
+    public void setIsIndex(Boolean isIndex) {
+        this.isIndex = isIndex;
+    }
+    /**
+     *  加密方式 N : 没有加密 Z：zipFile D:DES加密 //A:AES加密 AES 暂未实现
+     * @return encryptType
+     */
+    public String getEncryptType() {
+        return encryptType==null?"N":encryptType;
+    }
+    /**
+     *  加密方式 N : 没有加密 Z：zipFile D:DES加密  //A:AES加密 AES 暂未实现
+     * @param encryptType  加密方式
+     */
+    public void setEncryptType(String encryptType) {
+        this.encryptType = encryptType;
+    }
 
-	public Boolean getAddPdf() {
-		
-		return addPdf==null?false:addPdf;
-	}	
+    public String getEncryptPassword() {
+        return encryptPassword;
+    }
 
-	public void setAddPdf(Boolean addPdf) {
-		this.addPdf = addPdf;
-	}
+    public void setEncryptPassword(String encryptPassword) {
+        this.encryptPassword = encryptPassword;
+    }
 
-	public String getWatermark() {
-		return watermark;
-	}
+    public Boolean getAddPdf() {
 
-	public void setWatermark(String watermark) {
-		this.watermark = watermark;
-	}
+        return addPdf==null?false:addPdf;
+    }
 
-	public Boolean getAddThumbnail() {
-		return addThumbnail==null?false:addThumbnail;
-	}
+    public void setAddPdf(Boolean addPdf) {
+        this.addPdf = addPdf;
+    }
 
-	public void setAddThumbnail(Boolean addThumbnail) {
-		this.addThumbnail = addThumbnail;
-	}
+    public String getWatermark() {
+        return watermark;
+    }
 
-	public Integer getThumbnailWidth() {
-		return thumbnailWidth;
-	}
+    public void setWatermark(String watermark) {
+        this.watermark = watermark;
+    }
 
-	public void setThumbnailWidth(Integer thumbnailWidth) {
-		this.thumbnailWidth = thumbnailWidth;
-	}
+    public Boolean getAddThumbnail() {
+        return addThumbnail==null?false:addThumbnail;
+    }
 
-	public Integer getThumbnailHeight() {
-		return thumbnailHeight;
-	}
+    public void setAddThumbnail(Boolean addThumbnail) {
+        this.addThumbnail = addThumbnail;
+    }
 
-	public void setThumbnailHeight(Integer thumbnailHeight) {
-		this.thumbnailHeight = thumbnailHeight;
-	}
+    public Integer getThumbnailWidth() {
+        return thumbnailWidth;
+    }
 
-	public void copyNotNullProperty(PretreatInfo other){
-		if(StringUtils.isNotBlank(other.getFileId()))
-			this.fileId = other.getFileId();
-		if(StringUtils.isNotBlank(other.getFileMd5()))
-			this.fileMd5 = other.getFileMd5();
-		if(StringUtils.isNotBlank(other.getEncryptType()))
-			this.encryptType = other.getFileMd5();
-		if(StringUtils.isNotBlank(other.getEncryptPassword()))
-			this.encryptPassword = other.getEncryptPassword();
-		if(StringUtils.isNotBlank(other.getWatermark()))
-			this.watermark = other.getWatermark();
-		if(other.getFileSize()!=null)
-			this.fileSize = other.getFileSize();
-		if(other.getIsIndex()!=null)
-			this.isIndex = other.getIsIndex();
-		if(other.getAddPdf()!=null)
-			this.addPdf = other.getAddPdf();
-		if(other.getAddThumbnail()!=null)
-			this.addThumbnail = other.getAddThumbnail();
-		if(other.getThumbnailWidth()!=null)
-			this.thumbnailWidth = other.getThumbnailWidth();
-		if(other.getThumbnailHeight()!=null)
-			this.thumbnailHeight = other.getThumbnailHeight();
-	}
+    public void setThumbnailWidth(Integer thumbnailWidth) {
+        this.thumbnailWidth = thumbnailWidth;
+    }
+
+    public Integer getThumbnailHeight() {
+        return thumbnailHeight;
+    }
+
+    public void setThumbnailHeight(Integer thumbnailHeight) {
+        this.thumbnailHeight = thumbnailHeight;
+    }
+
+    public void copyNotNullProperty(PretreatInfo other){
+        if(StringUtils.isNotBlank(other.getFileId()))
+            this.fileId = other.getFileId();
+        if(StringUtils.isNotBlank(other.getFileMd5()))
+            this.fileMd5 = other.getFileMd5();
+        if(StringUtils.isNotBlank(other.getEncryptType()))
+            this.encryptType = other.getFileMd5();
+        if(StringUtils.isNotBlank(other.getEncryptPassword()))
+            this.encryptPassword = other.getEncryptPassword();
+        if(StringUtils.isNotBlank(other.getWatermark()))
+            this.watermark = other.getWatermark();
+        if(other.getFileSize()!=null)
+            this.fileSize = other.getFileSize();
+        if(other.getIsIndex()!=null)
+            this.isIndex = other.getIsIndex();
+        if(other.getAddPdf()!=null)
+            this.addPdf = other.getAddPdf();
+        if(other.getAddThumbnail()!=null)
+            this.addThumbnail = other.getAddThumbnail();
+        if(other.getThumbnailWidth()!=null)
+            this.thumbnailWidth = other.getThumbnailWidth();
+        if(other.getThumbnailHeight()!=null)
+            this.thumbnailHeight = other.getThumbnailHeight();
+    }
 }

@@ -148,7 +148,7 @@ public class UploadFileController extends BaseController {
 
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
-//		MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> map = multiRequest.getFileMap();
         InputStream fis = null;
 

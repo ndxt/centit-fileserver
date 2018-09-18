@@ -33,45 +33,45 @@ import java.util.ArrayList;
  */
 public class AddFilesToFolderInZip {
 
-	private Logger logger = LoggerFactory.getLogger(AddFilesToFolderInZip.class);
+    private Logger logger = LoggerFactory.getLogger(AddFilesToFolderInZip.class);
 
-	public AddFilesToFolderInZip() {
-		try {
-			ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesDeflateComp.zip");
-			
-			// Build the list of files to be added in the array list
-			ArrayList filesToAdd = new ArrayList();
-			filesToAdd.add(new File("c:\\ZipTest\\sample.txt"));
-			filesToAdd.add(new File("c:\\ZipTest\\myvideo.avi"));
-			filesToAdd.add(new File("c:\\ZipTest\\mysong.mp3"));
-			
-			// Initiate Zip Parameters 
-			ZipParameters parameters = new ZipParameters();
-			parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE); // set compression method to deflate compression
-			
-			// Set the compression level.
-			parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
-			
-			// Sets the folder in the zip file to which these new files will be added.
-			// In this example, test2 is the folder to which these files will be added.
-			// Another example: if files were to be added to a directory test2/test3, then
-			// below statement should be parameters.setRootFolderInZip("test2/test3/");
-			parameters.setRootFolderInZip("test2/");
-			
-			// Now add files to the zip file
-			zipFile.addFiles(filesToAdd, parameters);
-		} catch (ZipException e) {
-			logger.error(e.getMessage(), e);
-		} 
-		
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		new AddFilesToFolderInZip();
-	}
+    public AddFilesToFolderInZip() {
+        try {
+            ZipFile zipFile = new ZipFile("c:\\ZipTest\\AddFilesDeflateComp.zip");
+
+            // Build the list of files to be added in the array list
+            ArrayList filesToAdd = new ArrayList();
+            filesToAdd.add(new File("c:\\ZipTest\\sample.txt"));
+            filesToAdd.add(new File("c:\\ZipTest\\myvideo.avi"));
+            filesToAdd.add(new File("c:\\ZipTest\\mysong.mp3"));
+
+            // Initiate Zip Parameters
+            ZipParameters parameters = new ZipParameters();
+            parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE); // set compression method to deflate compression
+
+            // Set the compression level.
+            parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+
+            // Sets the folder in the zip file to which these new files will be added.
+            // In this example, test2 is the folder to which these files will be added.
+            // Another example: if files were to be added to a directory test2/test3, then
+            // below statement should be parameters.setRootFolderInZip("test2/test3/");
+            parameters.setRootFolderInZip("test2/");
+
+            // Now add files to the zip file
+            zipFile.addFiles(filesToAdd, parameters);
+        } catch (ZipException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        new AddFilesToFolderInZip();
+    }
 
 }

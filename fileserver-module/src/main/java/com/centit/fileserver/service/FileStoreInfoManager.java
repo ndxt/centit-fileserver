@@ -8,34 +8,34 @@ import com.centit.framework.hibernate.service.BaseEntityManager;
 import java.util.Map;
 
 public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String> {
-	/**
-	 * @param originalFile 原始文件
-	 */
-	void saveNewFile(FileStoreInfo originalFile);
-	
-	/**
-	 * 删除文件
-	 * @param originalFile 原始文件
-	 */
-	void deleteFile(FileStoreInfo originalFile);
+    /**
+     * @param originalFile 原始文件
+     */
+    void saveNewFile(FileStoreInfo originalFile);
 
-	FileStoreInfo getDuplicateFile(FileStoreInfo originalFile);
+    /**
+     * 删除文件
+     * @param originalFile 原始文件
+     */
+    void deleteFile(FileStoreInfo originalFile);
 
-	FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile);
-	//String owner, String unit, String fileMd5, long fileSize, String fileId)
-	/**
-	 * @param queryParamsMap Map &lt; String,Object &gt;
-	 * @param pageDesc PageDesc
-	 * @return JSONArray 文件
-	 */
-	JSONArray listStoredFiles(Map<String,Object> queryParamsMap,
-			PageDesc pageDesc);
-	
-	//void saveSynFile(FileStoreInfo file,String filePath) throws Exception;
+    FileStoreInfo getDuplicateFile(FileStoreInfo originalFile);
 
-	JSONArray listOptsByOs(String osId);
+    FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile);
+    //String owner, String unit, String fileMd5, long fileSize, String fileId)
+    /**
+     * @param queryParamsMap Map &lt; String,Object &gt;
+     * @param pageDesc PageDesc
+     * @return JSONArray 文件
+     */
+    JSONArray listStoredFiles(Map<String,Object> queryParamsMap,
+            PageDesc pageDesc);
 
-	JSONArray listFileOwners(String osId,String optId);
+    //void saveSynFile(FileStoreInfo file,String filePath) throws Exception;
 
-	JSONArray listFilesByOwner(String osId, String optId,String owner);
+    JSONArray listOptsByOs(String osId);
+
+    JSONArray listFileOwners(String osId,String optId);
+
+    JSONArray listFilesByOwner(String osId, String optId,String owner);
 }

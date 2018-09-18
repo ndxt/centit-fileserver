@@ -11,14 +11,14 @@ import java.util.Map;
 
 @Repository
 public class FileUploadAuthorizedDao extends BaseDaoImpl<FileUploadAuthorized, String> {
-	
-	public Map<String, String> getFilterField() {
-		if( filterField == null){
-			filterField = new HashMap<String, String>();
 
-			filterField.put("fileId" , CodeBook.EQUAL_HQL_ID);
-		}
-		return filterField;
-	}
+    public Map<String, String> getFilterField() {
+        if( filterField == null){
+            filterField = new HashMap<String, String>();
+
+            filterField.put("fileId" , CodeBook.EQUAL_HQL_ID);
+        }
+        return filterField;
+    }
 
 }

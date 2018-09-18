@@ -32,212 +32,212 @@ import java.io.*;
 @RequestMapping("/download")
 public class DownloadController extends BaseController {
 
-	private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
-	@Resource
-	private FileStoreInfoManager fileStoreInfoManager;
-	@Resource
-	private FileAccessLogManager fileAccessLogManager;
+    @Resource
+    private FileStoreInfoManager fileStoreInfoManager;
+    @Resource
+    private FileAccessLogManager fileAccessLogManager;
 
-	@Autowired
-	protected FileStore fileStore;
+    @Autowired
+    protected FileStore fileStore;
 
-	private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-			InputStream inputStream,long fSize, String fileName)
-			throws IOException {
-		 UploadDownloadUtils.downFileRange(request, response,
-				 inputStream, fSize, fileName);
-	}
+    private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
+            InputStream inputStream,long fSize, String fileName)
+            throws IOException {
+         UploadDownloadUtils.downFileRange(request, response,
+                 inputStream, fSize, fileName);
+    }
 
-	public static void downloadFile(FileStore fileStore, FileStoreInfo stroeInfo, HttpServletRequest request,
-							 HttpServletResponse response) throws IOException {
-		if (null != stroeInfo) {
+    public static void downloadFile(FileStore fileStore, FileStoreInfo stroeInfo, HttpServletRequest request,
+                             HttpServletResponse response) throws IOException {
+        if (null != stroeInfo) {
 
-			//对加密的进行特殊处理，ZIP加密的无需处理
-			String password = request.getParameter("password");
-			if("D".equals(stroeInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
-				String tmpFilePath = SystemTempFileUtils.getTempFilePath(stroeInfo.getFileMd5(),stroeInfo.getFileSize() );
-				File tmpFile = new File(tmpFilePath);
-				try(InputStream downFile = fileStore.loadFileStream(stroeInfo.getFileStorePath());
-					OutputStream diminationFile = new FileOutputStream(tmpFile)	){
-					FileEncryptWithAes.decrypt(downFile, diminationFile, password);
-				}catch (Exception e) {
-					logger.error(e.getMessage(), e);
-					JsonResultUtils.writeAjaxErrorMessage(
-							FileServerConstant.ERROR_FILE_ENCRYPT,
-							"解码文件失败："+e.getMessage(),
-							response);
-					return;
-				}
-				try(InputStream inputStream = new FileInputStream(tmpFile)){
-					downFileRange(request, response,
-							inputStream,tmpFile.length(), stroeInfo.getFileName());
-				}
+            //对加密的进行特殊处理，ZIP加密的无需处理
+            String password = request.getParameter("password");
+            if("D".equals(stroeInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
+                String tmpFilePath = SystemTempFileUtils.getTempFilePath(stroeInfo.getFileMd5(),stroeInfo.getFileSize() );
+                File tmpFile = new File(tmpFilePath);
+                try(InputStream downFile = fileStore.loadFileStream(stroeInfo.getFileStorePath());
+                    OutputStream diminationFile = new FileOutputStream(tmpFile)    ){
+                    FileEncryptWithAes.decrypt(downFile, diminationFile, password);
+                }catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                    JsonResultUtils.writeAjaxErrorMessage(
+                            FileServerConstant.ERROR_FILE_ENCRYPT,
+                            "解码文件失败："+e.getMessage(),
+                            response);
+                    return;
+                }
+                try(InputStream inputStream = new FileInputStream(tmpFile)){
+                    downFileRange(request, response,
+                            inputStream,tmpFile.length(), stroeInfo.getFileName());
+                }
 
-				FileSystemOpt.deleteFile(tmpFile);
-			}else{
-				downFileRange(request, response,
-						fileStore.loadFileStream(stroeInfo.getFileStorePath()),
-						stroeInfo.getFileSize(), stroeInfo.getFileName());
-			}
-		} else {
-			JsonResultUtils.writeAjaxErrorMessage(
-					FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
-		}
-	}
+                FileSystemOpt.deleteFile(tmpFile);
+            }else{
+                downFileRange(request, response,
+                        fileStore.loadFileStream(stroeInfo.getFileStorePath()),
+                        stroeInfo.getFileSize(), stroeInfo.getFileName());
+            }
+        } else {
+            JsonResultUtils.writeAjaxErrorMessage(
+                    FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
+        }
+    }
 
 
-	/**
-	 * 根据文件的id下载附属文件
-	 * 这个需要权限 控制 用于内部服务之间文件传输
-	 * @param fileId 文件ID
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @throws IOException 异常
-	 */
-	@RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
-	public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,
-							   HttpServletResponse response) throws IOException {
+    /**
+     * 根据文件的id下载附属文件
+     * 这个需要权限 控制 用于内部服务之间文件传输
+     * @param fileId 文件ID
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException 异常
+     */
+    @RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
+    public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,
+                               HttpServletResponse response) throws IOException {
 
-		FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
+        FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
 
-		if (null != stroeInfo) {
-			String at = stroeInfo.getAttachedType();
-			if("N".equals(at)){
-				JsonResultUtils.writeAjaxErrorMessage(
-						FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
-				return ;
-			}
-			String fileName = stroeInfo.getFileName();
-			if("P".equals(at)){
-				if (fileName.lastIndexOf(".") != -1){
-					fileName = fileName.substring(0,fileName.lastIndexOf("."))+".pdf" ;
-				}
-			}
+        if (null != stroeInfo) {
+            String at = stroeInfo.getAttachedType();
+            if("N".equals(at)){
+                JsonResultUtils.writeAjaxErrorMessage(
+                        FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
+                return ;
+            }
+            String fileName = stroeInfo.getFileName();
+            if("P".equals(at)){
+                if (fileName.lastIndexOf(".") != -1){
+                    fileName = fileName.substring(0,fileName.lastIndexOf("."))+".pdf" ;
+                }
+            }
 
-			downFileRange(request, response,
-					fileStore.loadFileStream(stroeInfo.getAttachedStorePath()),
-					fileStore.getFileSize(stroeInfo.getAttachedStorePath()),fileName );
-		} else {
-			JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-					"找不到该文件", response);
-		}
-	}
-	// 文件目录 = 配置目录 + file.getFileStorePath()
+            downFileRange(request, response,
+                    fileStore.loadFileStream(stroeInfo.getAttachedStorePath()),
+                    fileStore.getFileSize(stroeInfo.getAttachedStorePath()),fileName );
+        } else {
+            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+                    "找不到该文件", response);
+        }
+    }
+    // 文件目录 = 配置目录 + file.getFileStorePath()
 
-	/**
-	 * 根据文件的id下载文件
-	 * 这个需要权限 控制 用于内部服务之间文件传输
-	 * @param fileId 文件ID
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @throws IOException IOException
-	 */
-	@RequestMapping(value= "/pfile/{fileId}", method=RequestMethod.GET)
-	public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		
-		FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
+    /**
+     * 根据文件的id下载文件
+     * 这个需要权限 控制 用于内部服务之间文件传输
+     * @param fileId 文件ID
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @RequestMapping(value= "/pfile/{fileId}", method=RequestMethod.GET)
+    public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
 
-		downloadFile(fileStore, stroeInfo, request, response);
-	}
+        FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
 
-	/**
-	 * 根据文件的 access_token 下载文件
-	 * @param token token
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @throws IOException IOException
-	 */
-	@RequestMapping(value= "/file/{token}", method=RequestMethod.GET)
-	public void downloadByAccessToken(
-			@PathVariable("token") String token, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		// 根据访问日志的id和授权的token查看是否已经被授权
-		FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
-		if(fileAccessLog!=null){
-			if(fileAccessLog.checkValid(false)){
-				FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileAccessLog.getFileId());
-				downloadFile(fileStore, stroeInfo, request ,response);
-				// 记录访问日志
-				fileAccessLog.chargeAccessTimes();
-				fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
-				fileAccessLog.setLastAccessHost(request.getLocalAddr());
-				fileAccessLogManager.updateObject(fileAccessLog);
-			}else{
-				JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-						"没有权限访问该文件或者访问授权已过期！", response);
-			}
-		}else{
-			JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-					"找不到该文件或者您没有权限访问该文件！", response);
-		}
-	}
+        downloadFile(fileStore, stroeInfo, request, response);
+    }
 
-	/**
-	 * 根据access_token下载附属文件
-	 * @param token token
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @throws IOException IOException
-	 */
-	@RequestMapping(value= "/attach/{token}", method=RequestMethod.GET)
-	public void downloadAttachByAccessToken(
-			@PathVariable("token") String token, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		// 根据访问日志的id和授权的token查看是否已经被授权
-		FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
-		// 判断权限
-		if(fileAccessLog!=null){
-			if(fileAccessLog.checkValid(true)){
-				downloadAttach( fileAccessLog.getFileId(), request ,response);
-				// 记录访问日志
-				fileAccessLog.chargeAccessTimes();
-				fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
-				fileAccessLog.setLastAccessHost(request.getLocalAddr());
-				fileAccessLogManager.updateObject(fileAccessLog);
-			}else{
-				JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-						"没有权限访问该文件或者访问授权已过期！", response);
-			}
-		}else{
-			JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-					"找不到该文件或者您没有权限访问该文件！", response);
-		}
-	}
+    /**
+     * 根据文件的 access_token 下载文件
+     * @param token token
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @RequestMapping(value= "/file/{token}", method=RequestMethod.GET)
+    public void downloadByAccessToken(
+            @PathVariable("token") String token, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        // 根据访问日志的id和授权的token查看是否已经被授权
+        FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
+        if(fileAccessLog!=null){
+            if(fileAccessLog.checkValid(false)){
+                FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileAccessLog.getFileId());
+                downloadFile(fileStore, stroeInfo, request ,response);
+                // 记录访问日志
+                fileAccessLog.chargeAccessTimes();
+                fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
+                fileAccessLog.setLastAccessHost(request.getLocalAddr());
+                fileAccessLogManager.updateObject(fileAccessLog);
+            }else{
+                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
+                        "没有权限访问该文件或者访问授权已过期！", response);
+            }
+        }else{
+            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+                    "找不到该文件或者您没有权限访问该文件！", response);
+        }
+    }
 
-	/**
-	 * 根据文件的 MD5码 下载不受保护的文件，不需要访问文件记录
-	 * 如果是通过 store 上传的需要指定 extName 扩展名
-	 * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
-	 * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
-	 * @param request HttpServletRequest
-	 * @param response HttpServletResponse
-	 * @throws IOException IOException
-	 */
-	@RequestMapping(value= "/unprotected/{md5SizeExt}", method=RequestMethod.GET)
-	public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,
-								 String fileName,
-								 HttpServletRequest request,
-								 HttpServletResponse response) throws IOException {
-		//FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(md5);
-		//downloadFile(stroeInfo,request,response);
-		String uri = request.getRequestURI();
-		String [] urips = uri.split("/");
-		int n=urips.length;
-		if(StringUtils.isBlank(fileName)){
-			fileName = urips[n-1];
-		}
-		String fileMd5 =  md5SizeExt.substring(0,32);
-		int pos = md5SizeExt.indexOf('.');
-		//String extName = md5SizeExt.substring(pos);
-		long fileSize = pos<0?NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
-							:NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
+    /**
+     * 根据access_token下载附属文件
+     * @param token token
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @RequestMapping(value= "/attach/{token}", method=RequestMethod.GET)
+    public void downloadAttachByAccessToken(
+            @PathVariable("token") String token, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        // 根据访问日志的id和授权的token查看是否已经被授权
+        FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
+        // 判断权限
+        if(fileAccessLog!=null){
+            if(fileAccessLog.checkValid(true)){
+                downloadAttach( fileAccessLog.getFileId(), request ,response);
+                // 记录访问日志
+                fileAccessLog.chargeAccessTimes();
+                fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
+                fileAccessLog.setLastAccessHost(request.getLocalAddr());
+                fileAccessLogManager.updateObject(fileAccessLog);
+            }else{
+                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
+                        "没有权限访问该文件或者访问授权已过期！", response);
+            }
+        }else{
+            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+                    "找不到该文件或者您没有权限访问该文件！", response);
+        }
+    }
 
-		String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
-		InputStream inputStream = fileStore.loadFileStream(filePath);
-		downFileRange(request,  response,
-				inputStream, fileSize,
-				fileName);
-	}
+    /**
+     * 根据文件的 MD5码 下载不受保护的文件，不需要访问文件记录
+     * 如果是通过 store 上传的需要指定 extName 扩展名
+     * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
+     * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @RequestMapping(value= "/unprotected/{md5SizeExt}", method=RequestMethod.GET)
+    public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,
+                                 String fileName,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response) throws IOException {
+        //FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(md5);
+        //downloadFile(stroeInfo,request,response);
+        String uri = request.getRequestURI();
+        String [] urips = uri.split("/");
+        int n=urips.length;
+        if(StringUtils.isBlank(fileName)){
+            fileName = urips[n-1];
+        }
+        String fileMd5 =  md5SizeExt.substring(0,32);
+        int pos = md5SizeExt.indexOf('.');
+        //String extName = md5SizeExt.substring(pos);
+        long fileSize = pos<0?NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
+                            :NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
+
+        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
+        InputStream inputStream = fileStore.loadFileStream(filePath);
+        downFileRange(request,  response,
+                inputStream, fileSize,
+                fileName);
+    }
 }
