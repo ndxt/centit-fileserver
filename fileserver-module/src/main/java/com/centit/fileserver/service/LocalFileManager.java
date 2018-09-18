@@ -13,6 +13,12 @@ public interface LocalFileManager{
 
     Set<IUnitInfo> listUserUnit(String userCode);
 
+    /**
+     * 获取用户文件列表
+     * @param userCode 用户代码
+     * @param fileShowPath 文件目录
+     * @return 文件列表
+     */
     List<FileShowInfo> listUserFiles(String userCode,String fileShowPath);
 
     List<FileShowInfo> listUnitFiles(String unitCode,String fileShowPath);
