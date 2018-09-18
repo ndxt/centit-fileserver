@@ -44,13 +44,12 @@ public class AccessManagerController extends BaseController {
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存："+fileId);
         }
-        String ar = accessLog.getAccessRight();
-        if(StringUtils.isBlank(ar))
-            ar ="A";
+        if(StringUtils.isBlank(accessLog.getAccessRight())) {
+            accessLog.setAccessRight("A");
+        }
         //accessLog.setFileId(fileId);
         accessLog.setAccessToken( UuidOpt.getUuidAsString32());
         accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
-        accessLog.setAccessRight(ar);
         accessLog.setAccessTimes(0);
         fileStoreInfo.addDownloadTimes();
         fileAccessLogManager.saveNewAccessLog(accessLog);
