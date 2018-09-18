@@ -12,9 +12,6 @@ import java.util.Date;
 @Table(name= "FILE_STORE_INFO")
 public class FileStoreInfo implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -378,7 +375,7 @@ public class FileStoreInfo implements Serializable {
     }
 
     public void copyNotNullProperty(FileStoreInfo other){
-  
+
         if(StringUtils.isNotBlank(other.getFileName()))
             this.fileName = other.getFileName();
 

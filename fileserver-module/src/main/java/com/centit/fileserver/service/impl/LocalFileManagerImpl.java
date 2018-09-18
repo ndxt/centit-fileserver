@@ -29,6 +29,12 @@ public class LocalFileManagerImpl implements LocalFileManager {
         return CodeRepositoryUtil.getUserUnits(userCode);
     }
 
+    /**
+     * 获取用户文件列表
+     * @param userCode 用户代码
+     * @param fileShowPath 文件目录
+     * @return 文件列表
+     */
     @Override
     public List<FileShowInfo> listUserFiles(String userCode, String fileShowPath) {
         List<FileShowInfo> files = fileStoreInfoDao.listUserFiles(userCode,fileShowPath);

@@ -103,9 +103,9 @@ public class LocalFileController extends BaseController {
         int n = urips.length;
         if (n < URI_START_PARAM + 1)
             return null;
-        if (n == URI_START_PARAM + 1)
+        if (n == URI_START_PARAM + 1) {
             return new ImmutablePair<>(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"), "");
-
+        }
         StringBuilder sb = new StringBuilder(URLDecoder.decode(urips[URI_START_PARAM + 1], "UTF-8"));
         for (int i = URI_START_PARAM + 2; i < n; i++)
             sb.append(LocalFileManager.FILE_PATH_SPLIT).append(URLDecoder.decode(urips[i], "UTF-8"));

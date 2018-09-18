@@ -50,7 +50,6 @@ public class AccessManagerController extends BaseController {
         //accessLog.setFileId(fileId);
         accessLog.setAccessToken( UuidOpt.getUuidAsString32());
         accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
-        accessLog.setAccessTimes(0);
         fileStoreInfo.addDownloadTimes();
         fileAccessLogManager.saveNewAccessLog(accessLog);
         fileStoreInfoManager.updateObject(fileStoreInfo);
