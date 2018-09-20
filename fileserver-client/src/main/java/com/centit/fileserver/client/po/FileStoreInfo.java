@@ -1,12 +1,11 @@
 package com.centit.fileserver.client.po;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileType;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.Date;
 
 public class FileStoreInfo implements Serializable {
 

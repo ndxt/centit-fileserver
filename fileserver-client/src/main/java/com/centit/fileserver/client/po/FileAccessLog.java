@@ -1,9 +1,9 @@
 package com.centit.fileserver.client.po;
 
+import com.centit.support.algorithm.DatetimeOpt;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import com.centit.support.algorithm.DatetimeOpt;
 
 public class FileAccessLog implements Serializable {
 
