@@ -2,7 +2,7 @@ package com.centit.fileserver.service;
 
 
 import com.centit.fileserver.po.FileUploadAuthorized;
-import com.centit.framework.hibernate.service.BaseEntityManager;
+import com.centit.framework.jdbc.service.BaseEntityManager;
 
 public interface FileUploadAuthorizedManager extends BaseEntityManager<FileUploadAuthorized, String> {
 

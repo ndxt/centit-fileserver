@@ -103,7 +103,7 @@ public class AccessManagerController extends BaseController {
         Map<String, Object> filterMap = convertSearchColumn(request);
         filterMap.put("fileId", fileId);
 
-        List<FileAccessLog> listObjects = fileAccessLogManager.listObjects(filterMap, pageDesc);
+        JSONArray listObjects = fileAccessLogManager.listObjectsAsJson(filterMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();
         resData.addResponseData(OBJLIST, listObjects);
         resData.addResponseData(PAGE_DESC, pageDesc);

@@ -65,9 +65,9 @@ public class LocalFileController extends BaseController {
     /**
      * 返回当前访问目录，顶级目录时返回null
      * fixme-zouwy URL如果没有项目名或service时 长度 != URI_START_PARAM = 5
-     * @param uri
-     * @return
-     * @throws UnsupportedEncodingException
+     * @param uri 文件url
+     * @return 当前路径
+     * @throws UnsupportedEncodingException 编码异常
      */
     public static String fetchUserShowPath(String uri) throws UnsupportedEncodingException {
         String[] urips = uri.split("/");

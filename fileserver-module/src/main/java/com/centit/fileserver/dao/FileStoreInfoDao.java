@@ -4,8 +4,8 @@ import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.core.dao.CodeBook;
-import com.centit.framework.hibernate.dao.BaseDaoImpl;
-import com.centit.framework.hibernate.dao.DatabaseOptUtils;
+import com.centit.framework.jdbc.dao.BaseDaoImpl;
+import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
@@ -61,7 +61,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "from FILE_STORE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
-            objects = DatabaseOptUtils.findObjectsBySql(this,
+            objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
                     QueryUtils.createSqlParamsMap("uc",userCode));
         } else {
@@ -76,7 +76,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "from FILE_STORE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
-            objects = DatabaseOptUtils.findObjectsBySql(this,
+            objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
                     QueryUtils.createSqlParamsMap(
                             "fsp",fsp,//".",
@@ -110,7 +110,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "from FILE_STORE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
-            objects = DatabaseOptUtils.findObjectsBySql(this,
+            objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
                     QueryUtils.createSqlParamsMap("uc",unitCode));
         } else {
@@ -125,7 +125,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "from FILE_STORE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
-            objects = DatabaseOptUtils.findObjectsBySql(this,
+            objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
                     QueryUtils.createSqlParamsMap(
                             "fsp",fsp,// ".",
@@ -153,7 +153,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",userCode));
         }else{
@@ -165,7 +165,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",userCode,
                             "fsp",fsp,
@@ -202,7 +202,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",unitCode));
         }else{
@@ -214,7 +214,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",unitCode,
                             "fsp",fsp,
@@ -249,7 +249,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",userCode,
                             "fn",fileName));
@@ -259,7 +259,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",userCode,
                             "fsp",fileShowPath,
@@ -294,7 +294,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",unitCode,
                             "fn",fileName));
@@ -304,7 +304,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
-            objects = (List<Object[]>)DatabaseOptUtils.findObjectsBySql(this,
+            objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, QueryUtils.createSqlParamsMap(
                             "uc",unitCode,
                             "fsp",fileShowPath,
@@ -336,14 +336,12 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
     public List<FileStoreInfo> listFileStoreInfo(String fileShowPath,String fileName) {
         List<FileStoreInfo> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String hqlsen = "from FileStoreInfo " +
-                    "where (fileShowPath is null or fileShowPath='' or fileShowPath='/') " +
-                    "and fileName=?";
-            objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsByHql(this,hqlsen,new Object[]{fileName});
+            String hqlsen =  "where (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
+                    "and FILE_NAME = ?";
+            objects =  this.listObjectsByFilter(hqlsen,new Object[]{fileName});
         }else{
-            String hqlsen = "from FileStoreInfo " +
-                    "where  fileShowPath=? and fileName=?";
-            objects = (List<FileStoreInfo>) DatabaseOptUtils.findObjectsByHql(this,hqlsen,new Object[]{fileShowPath,fileName});
+            String hqlsen = "where  FILE_SHOW_PATH = ? and FILE_NAME = ?";
+            objects = this.listObjectsByFilter(hqlsen,new Object[]{fileShowPath,fileName});
         }
         return objects;
     }

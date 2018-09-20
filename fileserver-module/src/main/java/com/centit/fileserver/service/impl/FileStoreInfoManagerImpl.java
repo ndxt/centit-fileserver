@@ -6,8 +6,8 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.support.database.utils.PageDesc;
-import com.centit.framework.hibernate.dao.DatabaseOptUtils;
-import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
+import com.centit.framework.jdbc.dao.DatabaseOptUtils;
+import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.QueryAndNamedParams;
 import com.centit.support.database.utils.QueryUtils;
@@ -80,22 +80,20 @@ public class FileStoreInfoManagerImpl
                 + " [ :beginDate | and a.CREATE_TIME >= :beginDate ]"
                 + " [ :endDate | and a.CREATE_TIME < :endDate ]"
                 + " order by a.CREATE_TIME desc";
-
-        QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
         //System.out.println(qap.getQuery());
-        JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(
-                DatabaseOptUtils.findObjectsAsJSONBySql(baseDao,
-                qap.getQuery(), qap.getParams(), pageDesc));
+        JSONArray dataList = DictionaryMapUtils.mapJsonArray(
+                DatabaseOptUtils.listObjectsByParamsDriverSqlAsJson(baseDao,
+                    queryStatement,queryParamsMap , pageDesc), FileStoreInfo.class );
         return dataList;
     }
 
     @Override
     public FileStoreInfo getDuplicateFile(FileStoreInfo originalFile){
-        String queryStatement = " From FileStoreInfo " +
-                " where fileId <> ? and fileMd5 = ?  and fileSize = ?" +
-                " and ( fileOwner = ? or fileUnit= ? )";
+        String queryStatement =
+                " where FILE_ID <> ? and FILE_MD5 = ?  and FILE_SIZE = ?" +
+                " and ( FILE_OWNER = ? or FILE_UNIT= ? )";
         List<FileStoreInfo> duplicateFiles =
-                baseDao.listObjects(queryStatement, new Object[]
+                baseDao.listObjectsByFilter( queryStatement, new Object[]
                 {originalFile.getFileId(),originalFile.getFileMd5(),originalFile.getFileSize(),
                         originalFile.getFileOwner(),originalFile.getFileUnit()});
         if(duplicateFiles!=null && duplicateFiles.size()>0)
@@ -106,21 +104,19 @@ public class FileStoreInfoManagerImpl
     @Override
     public FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile){
         if (StringUtils.isBlank(originalFile.getFileShowPath())){
-            String queryStatement2 = " From FileStoreInfo " +
-                    " where fileId <> ? and fileShowPath is null " +
-                    " and fileName = ? and ( fileOwner = ? or fileUnit= ? )";
+            String queryStatement2 = " where FILE_ID <> ? and FILE_SHOW_PATH is null " +
+                    " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
             List<FileStoreInfo> duplicateFiles =
-                    baseDao.listObjects(queryStatement2, new Object[]
+                    baseDao.listObjectsByFilter(queryStatement2, new Object[]
                             {originalFile.getFileId(),originalFile.getFileName(),
                                     originalFile.getFileOwner(),originalFile.getFileUnit()});
             if(duplicateFiles!=null && duplicateFiles.size()>0)
                 return duplicateFiles.get(0);
         }else {
-            String queryStatement = " From FileStoreInfo " +
-                    " where fileId <> ? and fileShowPath = ? " +
-                    " and fileName = ? and ( fileOwner = ? or fileUnit= ? )";
+            String queryStatement = " where FILE_ID <> ? and FILE_SHOW_PATH = ? " +
+                    " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
             List<FileStoreInfo> duplicateFiles =
-                    baseDao.listObjects(queryStatement, new Object[]
+                    baseDao.listObjectsByFilter(queryStatement, new Object[]
                             {originalFile.getFileId(),originalFile.getFileShowPath(),originalFile.getFileName(),
                                     originalFile.getFileOwner(),originalFile.getFileUnit()});
             if(duplicateFiles!=null && duplicateFiles.size()>0)
@@ -141,8 +137,8 @@ public class FileStoreInfoManagerImpl
                         "from FILE_STORE_INFO " +
                         "where OS_ID = ? " +
                         "group by OPT_ID";
-        JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
-                baseDao,queryStatement,new Object[]{osId},null);
+        JSONArray dataList = DatabaseOptUtils.listObjectsBySqlAsJson(
+                baseDao,queryStatement,new Object[]{osId});
         return dataList;
     }
 
@@ -163,8 +159,8 @@ public class FileStoreInfoManagerImpl
                     "where OS_ID = ? and OPT_ID = ? " +
                     "group by nvl(FILE_OWNER,FILE_UNIT) ";
         }
-        JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
-                baseDao,queryStatement,new Object[]{osId,optId},null);
+        JSONArray dataList = DatabaseOptUtils.listObjectsBySqlAsJson(
+                baseDao,queryStatement,new Object[]{osId,optId});
         return dataList;
     }
 
@@ -179,8 +175,8 @@ public class FileStoreInfoManagerImpl
                         + "where a.OS_ID=? and a.OPT_ID = ? " +
                             "and (a.FILE_OWNER = ? or a.FILE_UNIT = ?) ";
 
-        JSONArray dataList = DatabaseOptUtils.findObjectsAsJSONBySql(
-                baseDao,queryStatement,new Object[]{osId,optId,owner,owner},null);
+        JSONArray dataList = DatabaseOptUtils.listObjectsBySqlAsJson(
+                baseDao,queryStatement,new Object[]{osId,optId,owner,owner});
         return dataList;
     }
 

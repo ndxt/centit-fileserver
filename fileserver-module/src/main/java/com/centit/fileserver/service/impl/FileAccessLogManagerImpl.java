@@ -7,8 +7,8 @@ import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.support.database.utils.PageDesc;
-import com.centit.framework.hibernate.dao.DatabaseOptUtils;
-import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
+import com.centit.framework.jdbc.dao.DatabaseOptUtils;
+import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.utils.QueryAndNamedParams;
 import com.centit.support.database.utils.QueryUtils;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLog, String, FileAccessLogDao> 
+public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLog, String, FileAccessLogDao>
  implements FileAccessLogManager {
 
     @Resource(name ="fileAccessLogDao")
@@ -40,8 +40,8 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
     }
 
     @Override
-    public List<String> saveAllNewLogs(List<FileAccessLog> fileAccessLogList) {
-        return baseDao.saveNewObjects(fileAccessLogList);
+    public int saveAllNewLogs(List<FileAccessLog> fileAccessLogList) {
+        return DatabaseOptUtils.batchSaveNewObjects(baseDao, fileAccessLogList);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
                 + " [ :endDate | and a.AUTH_TIME < :endDate ]"
                 + " order by a.AUTH_TIME desc";
 
-        QueryAndNamedParams qap = QueryUtils.translateQuery(queryStatement,queryParamsMap);
-        JSONArray dataList = DictionaryMapUtils.objectsToJSONArray(DatabaseOptUtils.findObjectsAsJSONBySql(
-                baseDao,qap.getQuery(), qap.getParams(), pageDesc));
+        JSONArray dataList = DictionaryMapUtils.mapJsonArray(
+            DatabaseOptUtils.listObjectsByParamsDriverSqlAsJson(
+                baseDao,queryStatement, queryParamsMap, pageDesc),FileAccessLog.class);
         return dataList;
     }
 }

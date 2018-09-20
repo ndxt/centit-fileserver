@@ -4,7 +4,7 @@ package com.centit.fileserver.service.impl;
 import com.centit.fileserver.dao.FileUploadAuthorizedDao;
 import com.centit.fileserver.po.FileUploadAuthorized;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
-import com.centit.framework.hibernate.service.BaseEntityManagerImpl;
+import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import org.apache.commons.lang.StringUtils;

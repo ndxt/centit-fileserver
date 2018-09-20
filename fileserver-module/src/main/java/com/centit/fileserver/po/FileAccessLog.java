@@ -1,9 +1,13 @@
 package com.centit.fileserver.po;
 
 import com.centit.support.algorithm.DatetimeOpt;
-import org.hibernate.annotations.GenericGenerator;
+import com.centit.support.database.orm.GeneratorType;
+import com.centit.support.database.orm.ValueGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 @Entity
@@ -14,8 +18,7 @@ public class FileAccessLog implements Serializable {
 
     @Id
     @Column(name ="ACCESS_TOKEN")
-    @GenericGenerator(name = "fileUuid", strategy = "uuid")
-    @GeneratedValue(generator = "fileUuid")
+    @ValueGenerator(strategy = GeneratorType.UUID)
     private String accessToken;
 
     @Column(name="FILE_ID")

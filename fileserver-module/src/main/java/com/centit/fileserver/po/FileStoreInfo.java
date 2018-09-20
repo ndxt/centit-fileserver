@@ -1,11 +1,15 @@
 package com.centit.fileserver.po;
 
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.database.orm.GeneratorType;
+import com.centit.support.database.orm.ValueGenerator;
 import com.centit.support.file.FileType;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 @Entity
@@ -16,8 +20,7 @@ public class FileStoreInfo implements Serializable {
 
     @Id
     @Column(name ="FILE_ID")
-    @GenericGenerator(name = "fileUuid", strategy = "uuid")
-    @GeneratedValue(generator = "fileUuid")
+    @ValueGenerator(strategy = GeneratorType.UUID)
     private String fileId;
 
     @Column(name="FILE_MD5")

@@ -8,8 +8,8 @@ import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
 import com.centit.framework.config.SpringSecurityDaoConfig;
 import com.centit.framework.core.config.DataSourceConfig;
-import com.centit.framework.hibernate.config.HibernateConfig;
 import com.centit.framework.ip.app.config.IPOrStaticAppSystemBeanConfig;
+import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.search.document.FileDocument;
@@ -30,7 +30,7 @@ import org.springframework.core.env.Environment;
 @Import({SpringSecurityDaoConfig.class,
         IPOrStaticAppSystemBeanConfig.class,
         DataSourceConfig.class,
-        HibernateConfig.class})
+        JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class ServiceConfig {
     /* @Bean
