@@ -155,6 +155,37 @@ public class FileClientImpl implements FileClient {
         return url;
     }
 
+    public String getAttachFileUrlLimitTimes(CloseableHttpClient httpClient, String fileId, int downloadTime) throws IOException {
+        FileAccessLog aacessLog = new FileAccessLog();
+        aacessLog.setFileId(fileId);
+        aacessLog.setAccessRight("T");
+        aacessLog.setAccessTimes(downloadTime);
+        return getFileUrl(httpClient, aacessLog);
+
+    }
+
+    public String getFileUrlLimitTimes(CloseableHttpClient httpClient, String fileId, int downloadTime) throws IOException {
+        FileAccessLog aacessLog = new FileAccessLog();
+        aacessLog.setFileId(fileId);
+        aacessLog.setAccessRight("A");
+        aacessLog.setAccessTimes(downloadTime);
+        return getFileUrl(httpClient, aacessLog);
+    }
+
+    public String getAttachFileUrlLimitTimes(String fileId, int downloadTime) throws IOException {
+        CloseableHttpClient httpClient = getHttpClient();
+        String url = getAttachFileUrlLimitTimes(httpClient, fileId, downloadTime);
+        releaseHttpClient(httpClient);
+        return url;
+    }
+
+    public String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException {
+        CloseableHttpClient httpClient = getHttpClient();
+        String url = getFileUrlLimitTimes(httpClient, fileId, downloadTime);
+        releaseHttpClient(httpClient);
+        return url;
+    }
+
 
     public FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
         appSession.checkAccessToken(httpClient);

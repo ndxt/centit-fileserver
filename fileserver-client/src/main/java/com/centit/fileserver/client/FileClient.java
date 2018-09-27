@@ -68,6 +68,44 @@ public interface FileClient {
      */
     String getAttachFileUrl(CloseableHttpClient httpClient, String fileId, int expireTime) throws IOException;
 
+    /**
+     * 附属文件下载url 不限制时间，限制下载次数
+     * @param httpClient CloseableHttpClient
+     * @param fileId 文档ID
+     * @param downloadTime 下载次数
+     * @return 附属文件下载url
+     * @throws IOException IOException
+     */
+    String getAttachFileUrlLimitTimes(CloseableHttpClient httpClient, String fileId, int downloadTime) throws IOException;
+
+    /**
+     * 文件下载url 不限制时间，限制下载次数
+     * @param httpClient CloseableHttpClient
+     * @param fileId 文档ID
+     * @param downloadTime 下载次数
+     * @return 附属文件下载url
+     * @throws IOException IOException
+     */
+    String getFileUrlLimitTimes(CloseableHttpClient httpClient, String fileId, int downloadTime) throws IOException;
+
+    /**
+     * 附属文件下载url 不限制时间，限制下载次数
+     * @param fileId 文档ID
+     * @param downloadTime 下载次数
+     * @return 附属文件下载url
+     * @throws IOException IOException
+     */
+    String getAttachFileUrlLimitTimes(String fileId, int downloadTime) throws IOException ;
+
+    /**
+     * 文件下载url 不限制时间，限制下载次数
+     * @param fileId 文档ID
+     * @param downloadTime 下载次数
+     * @return 附属文件下载url
+     * @throws IOException IOException
+     */
+    String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException ;
+
     FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException;
 
     boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws IOException;
