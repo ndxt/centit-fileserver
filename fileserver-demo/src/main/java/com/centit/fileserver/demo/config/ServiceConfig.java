@@ -5,12 +5,11 @@ import com.centit.fileserver.utils.OsFileStore;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
-import com.centit.framework.config.H2SessionPersistenceConfig;
-import com.centit.framework.config.RedisSessionPersistenceConfig;
-import com.centit.framework.model.adapter.NotificationCenter;
-import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
+import com.centit.framework.model.adapter.NotificationCenter;
+import com.centit.framework.model.adapter.OperationLogWriter;
+import com.centit.framework.session.jdbc.JdbcSessionPersistenceConfig;
 import com.centit.framework.staticsystem.config.StaticSystemBeanConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,7 @@ import org.springframework.core.env.Environment;
 @Configuration
 @ComponentScan(basePackages = "com.centit",
         excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
-@Import({RedisSessionPersistenceConfig.class,
-        H2SessionPersistenceConfig.class,
+@Import({JdbcSessionPersistenceConfig.class,
         SpringSecurityDaoConfig.class,
         SpringSecurityCasConfig.class,
         StaticSystemBeanConfig.class})
