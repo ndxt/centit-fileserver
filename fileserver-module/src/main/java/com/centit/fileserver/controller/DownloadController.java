@@ -63,7 +63,7 @@ public class DownloadController extends BaseController {
                     FileEncryptWithAes.decrypt(downFile, diminationFile, password);
                 }catch (Exception e) {
                     logger.error(e.getMessage(), e);
-                    JsonResultUtils.writeAjaxErrorMessage(
+                    JsonResultUtils.writeHttpErrorMessage(
                             FileServerConstant.ERROR_FILE_ENCRYPT,
                             "解码文件失败："+e.getMessage(),
                             response);
@@ -81,7 +81,7 @@ public class DownloadController extends BaseController {
                         stroeInfo.getFileSize(), stroeInfo.getFileName());
             }
         } else {
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
         }
     }
@@ -104,7 +104,7 @@ public class DownloadController extends BaseController {
         if (null != stroeInfo) {
             String at = stroeInfo.getAttachedType();
             if("N".equals(at)){
-                JsonResultUtils.writeAjaxErrorMessage(
+                JsonResultUtils.writeHttpErrorMessage(
                         FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
                 return ;
             }
@@ -119,7 +119,7 @@ public class DownloadController extends BaseController {
                     fileStore.loadFileStream(stroeInfo.getAttachedStorePath()),
                     fileStore.getFileSize(stroeInfo.getAttachedStorePath()),fileName );
         } else {
-            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+            JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件", response);
         }
     }
@@ -165,11 +165,11 @@ public class DownloadController extends BaseController {
                 fileAccessLog.setLastAccessHost(request.getLocalAddr());
                 fileAccessLogManager.updateObject(fileAccessLog);
             }else{
-                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
+                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
                         "没有权限访问该文件或者访问授权已过期！", response);
             }
         }else{
-            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+            JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件或者您没有权限访问该文件！", response);
         }
     }
@@ -197,11 +197,11 @@ public class DownloadController extends BaseController {
                 fileAccessLog.setLastAccessHost(request.getLocalAddr());
                 fileAccessLogManager.updateObject(fileAccessLog);
             }else{
-                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
+                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
                         "没有权限访问该文件或者访问授权已过期！", response);
             }
         }else{
-            JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
+            JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件或者您没有权限访问该文件！", response);
         }
     }
