@@ -161,7 +161,7 @@ public class StoreFileController extends BaseController {
                 return;
             }
         }
-        JsonResultUtils.writeAjaxErrorMessage(
+        JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存在无法实现秒传，MD5："+token, response);
     }
@@ -197,7 +197,7 @@ public class StoreFileController extends BaseController {
 
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
-                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
+                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
                         "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
                 return;
             }
@@ -208,7 +208,7 @@ public class StoreFileController extends BaseController {
                     new File(tempFilePath), true)) {
                 int length = FileIOOpt.writeInputStreamToOutputStream(fis, out);
                 if (length != range.getPartSize()) {
-                    JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
+                    JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
                             "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
                     return;
                 }
@@ -223,7 +223,7 @@ public class StoreFileController extends BaseController {
             if(StringUtils.equals(fileMd5,token)) {
                 completedFileStore(token,size,  response);
             }else{
-                JsonResultUtils.writeAjaxErrorMessage(FileServerConstant.ERROR_FILE_MD5_ERROR,
+                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_MD5_ERROR,
                         "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR+" 文件MD5计算错误。", response);
             }
             FileSystemOpt.deleteFile(tempFilePath);

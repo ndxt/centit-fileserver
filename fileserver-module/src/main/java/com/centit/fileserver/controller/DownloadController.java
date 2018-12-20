@@ -12,8 +12,11 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
+import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
+import com.centit.support.security.Md5Encoder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.zip.ZipOutputStream;
 
 @Controller
 @RequestMapping("/download")
@@ -239,5 +243,105 @@ public class DownloadController extends BaseController {
         downFileRange(request,  response,
                 inputStream, fileSize,
                 fileName);
+    }
+
+    private static void compressFiles(String zipFilePathName, String[] srcPathNames, String[] fileNames, int len) {
+        try {
+            File zipFile = new File(zipFilePathName);
+            FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
+
+            ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream);
+            // new ZipOutputStream(cos);
+            String basedir = "";
+
+            for(int i=0; i<len; i++){
+                File file = new File(srcPathNames[i]);
+                if (file.exists()) {
+                    ZipCompressor.compressFile(file,fileNames[i], out, basedir);
+                }
+            }
+            out.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 批量下载文件
+     * @param fileIds 批量下载文件列表
+     * @param fileName 文件名
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException 异常
+     */
+    @RequestMapping(value= "/batchdownload", method=RequestMethod.GET)
+    public void batchDownloadFile(String[] fileIds,
+                                        String fileName,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) throws IOException {
+        if(fileIds == null || fileIds.length==0){
+            JsonResultUtils.writeMessageJson("请提供文件id列表",response);
+            return;
+        }
+        String fileMd5 ;
+        long fileSize;
+        if(fileIds.length == 1){
+            FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileIds[0]);
+            fileMd5 = stroeInfo.getFileMd5();
+            fileSize = stroeInfo.getFileSize();
+        } else {
+            StringBuilder fileIdSb = new StringBuilder();
+            for(String fid : fileIds){
+                fileIdSb.append(fid);
+            }
+            String fileId = Md5Encoder.encode(fileIdSb.toString());
+            FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
+            if(stroeInfo==null) {
+                stroeInfo = new FileStoreInfo();
+                stroeInfo.setFileId(fileId);
+                int len = fileIds.length;
+                String[] srcPathNames = new String[len];
+                String[] fileNames = new String[len];
+                int j=0;
+                for(int i=0; i<len; i++){
+                    FileStoreInfo si = fileStoreInfoManager.getObjectById(fileIds[i]);
+                    if(si != null){
+                        String filePath = fileStore.getFileStoreUrl(si.getFileMd5(), si.getFileSize());
+                        srcPathNames[j] = filePath;
+                        fileNames[j] = si.getFileName();
+                        j++;
+                    }
+                }
+                if(j ==0){
+                    JsonResultUtils.writeMessageJson("请提供文件id列表",response);
+                    return;
+                }
+                String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 12345678);
+                compressFiles(tempFilePath, srcPathNames, fileNames, j);
+                File file = new File(tempFilePath);
+                fileMd5 = FileMD5Maker.makeFileMD5(file);
+                fileSize = file.length();
+                String realPath = fileStore.saveFile(tempFilePath, fileMd5, fileSize);
+
+                stroeInfo.setFileMd5(fileMd5);
+                stroeInfo.setFileSize(fileSize);
+                stroeInfo.setFileStorePath(realPath);
+                stroeInfo.setFileName(fileName);
+                stroeInfo.setFileType("zip");
+                stroeInfo.setFileState("N");
+                stroeInfo.setFileDesc("配量下载文件：" + fileIdSb.toString());
+                fileStoreInfoManager.saveNewObject(stroeInfo);
+
+            }else {
+                fileMd5 = stroeInfo.getFileMd5();
+                fileSize = stroeInfo.getFileSize();
+            }
+        }
+
+        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
+        InputStream inputStream = fileStore.loadFileStream(filePath);
+        downFileRange(request,  response,
+            inputStream, fileSize,
+            fileName);
     }
 }

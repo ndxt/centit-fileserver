@@ -277,7 +277,7 @@ public class UploadController extends BaseController {
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
         }
@@ -433,7 +433,7 @@ public class UploadController extends BaseController {
             completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
             return;
         } else {
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存在无法实现秒传，MD5：" + token, response);
         }
@@ -443,7 +443,7 @@ public class UploadController extends BaseController {
 
         String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
         if( fileUploadAuthorizedManager.checkAuthorization(uploadToken)<1){
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_FORBIDDEN,
                     "没有权限上传文件,请检查参数:" + UPLOAD_FILE_TOKEN_NAME, response);
             return false;
@@ -499,7 +499,7 @@ public class UploadController extends BaseController {
             }
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);
-            JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
+            JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
 
@@ -561,14 +561,14 @@ public class UploadController extends BaseController {
             fileInfo.put("fileId", fileId);
             fileInfo.put("token", fileMd5);
             fileInfo.put("name", fileName);
-            
+
             JSONObject json = new JSONObject();
             json.put("start", size);
             json.put("name", fileName);
             json.put("token", fileMd5);
             json.put("success", true);
             json.put("fileId", fileId);
-           
+
             json.put(ResponseData.RES_CODE_FILED, 0);
             json.put(ResponseData.RES_MSG_FILED, "上传成功");
             json.put(ResponseData.RES_DATA_FILED, fileInfo);
@@ -576,7 +576,7 @@ public class UploadController extends BaseController {
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
         }
@@ -678,7 +678,7 @@ public class UploadController extends BaseController {
 
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);
-            JsonResultUtils.writeAjaxErrorMessage(e.getExceptionCode(),
+            JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),
                     e.getMessage(), response);
         }
     }

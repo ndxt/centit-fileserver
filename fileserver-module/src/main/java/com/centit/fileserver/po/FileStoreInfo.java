@@ -1,6 +1,7 @@
 package com.centit.fileserver.po;
 
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
 import com.centit.support.file.FileType;
@@ -20,7 +21,7 @@ public class FileStoreInfo implements Serializable {
 
     @Id
     @Column(name ="FILE_ID")
-    @ValueGenerator(strategy = GeneratorType.UUID)
+    @ValueGenerator(strategy = GeneratorType.UUID, condition = GeneratorCondition.IFNULL)
     private String fileId;
 
     @Column(name="FILE_MD5")
