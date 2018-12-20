@@ -264,7 +264,7 @@ public class LocalFileController extends BaseController {
 
         FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
         if (stroeInfo == null) {
-            JsonResultUtils.writeAjaxErrorMessage(
+            JsonResultUtils.writeHttpErrorMessage(
                 FileServerConstant.ERROR_FILE_NOT_EXIST,
                 "文件不存：" + fileId, response);
             return;
