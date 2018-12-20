@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Arrays;
 import java.util.zip.ZipOutputStream;
 
 @Controller
@@ -291,6 +292,7 @@ public class DownloadController extends BaseController {
             fileSize = stroeInfo.getFileSize();
         } else {
             StringBuilder fileIdSb = new StringBuilder();
+            Arrays.sort(fileIds, String::compareTo);
             for(String fid : fileIds){
                 fileIdSb.append(fid);
             }
