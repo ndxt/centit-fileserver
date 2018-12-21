@@ -246,7 +246,7 @@ public class DownloadController extends BaseController {
                 fileName);
     }
 
-    private static void compressFiles(String zipFilePathName, String[] srcPathNames, String[] fileNames, int len) {
+    private void compressFiles(String zipFilePathName, String[] fileUrls, String[] fileNames, int len) {
         try {
             File zipFile = new File(zipFilePathName);
             FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
@@ -256,9 +256,10 @@ public class DownloadController extends BaseController {
             String basedir = "";
 
             for(int i=0; i<len; i++){
-                File file = new File(srcPathNames[i]);
-                if (file.exists()) {
-                    ZipCompressor.compressFile(file,fileNames[i], out, basedir);
+                try(InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
+                    ZipCompressor.compressFile(fis, fileNames[i], out, basedir);
+                }catch (Exception e) {
+                    logger.info("获取文件"+ fileUrls[i] +"出错！");
                 }
             }
             out.close();
@@ -284,64 +285,52 @@ public class DownloadController extends BaseController {
             JsonResultUtils.writeMessageJson("请提供文件id列表",response);
             return;
         }
-        String fileMd5 ;
-        long fileSize;
+
+        InputStream inputStream = null;
+        long fileSize ;
+        // 如果只下载一个文件则 不压缩
         if(fileIds.length == 1){
             FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileIds[0]);
-            fileMd5 = stroeInfo.getFileMd5();
             fileSize = stroeInfo.getFileSize();
+            String filePath = fileStore.getFileStoreUrl(stroeInfo.getFileMd5(), fileSize);
+            inputStream = fileStore.loadFileStream(filePath);
         } else {
             StringBuilder fileIdSb = new StringBuilder();
             Arrays.sort(fileIds, String::compareTo);
             for(String fid : fileIds){
                 fileIdSb.append(fid);
             }
+            // 用所有的fileid（排序）的md5 作为文件名保存在临时目录中
+            // 如果临时目录中已经有对应的文件直接下载，如果没有 打包下载
             String fileId = Md5Encoder.encode(fileIdSb.toString());
-            FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
-            if(stroeInfo==null) {
-                stroeInfo = new FileStoreInfo();
-                stroeInfo.setFileId(fileId);
+            String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 1024);
+            File file = new File(tempFilePath);
+            if(! file.exists()) {
+
                 int len = fileIds.length;
-                String[] srcPathNames = new String[len];
+                String[] fileUrls = new String[len];
                 String[] fileNames = new String[len];
-                int j=0;
-                for(int i=0; i<len; i++){
+                int j = 0;
+                for (int i = 0; i < len; i++) {
                     FileStoreInfo si = fileStoreInfoManager.getObjectById(fileIds[i]);
-                    if(si != null){
-                        String filePath = fileStore.getFileStoreUrl(si.getFileMd5(), si.getFileSize());
-                        srcPathNames[j] = filePath;
+                    if (si != null) {
+                        fileUrls[j] = fileStore.getFileStoreUrl(si.getFileMd5(), si.getFileSize());
                         fileNames[j] = si.getFileName();
                         j++;
                     }
                 }
-                if(j ==0){
-                    JsonResultUtils.writeMessageJson("请提供文件id列表",response);
+                if (j == 0) {
+                    JsonResultUtils.writeMessageJson("请提供文件id列表", response);
                     return;
                 }
-                String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 12345678);
-                compressFiles(tempFilePath, srcPathNames, fileNames, j);
-                File file = new File(tempFilePath);
-                fileMd5 = FileMD5Maker.makeFileMD5(file);
-                fileSize = file.length();
-                String realPath = fileStore.saveFile(tempFilePath, fileMd5, fileSize);
 
-                stroeInfo.setFileMd5(fileMd5);
-                stroeInfo.setFileSize(fileSize);
-                stroeInfo.setFileStorePath(realPath);
-                stroeInfo.setFileName(fileName);
-                stroeInfo.setFileType("zip");
-                stroeInfo.setFileState("N");
-                stroeInfo.setFileDesc("配量下载文件：" + fileIdSb.toString());
-                fileStoreInfoManager.saveNewObject(stroeInfo);
-
-            }else {
-                fileMd5 = stroeInfo.getFileMd5();
-                fileSize = stroeInfo.getFileSize();
+                compressFiles(tempFilePath, fileUrls, fileNames, j);
             }
+            file = new File(tempFilePath);
+            fileSize = file.length();
+            inputStream = new FileInputStream(file);
         }
 
-        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
-        InputStream inputStream = fileStore.loadFileStream(filePath);
         downFileRange(request,  response,
             inputStream, fileSize,
             fileName);
