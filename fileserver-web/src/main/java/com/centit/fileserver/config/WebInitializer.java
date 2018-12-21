@@ -75,9 +75,9 @@ public class WebInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.register(NormalSpringMvcConfig.class);
         ServletRegistration.Dynamic system  = servletContext.addServlet("service", new DispatcherServlet(context));
-        String servletName = SysParametersUtils.getStringValue("app.servlet.name","service");
-        system.addMapping("/"+ servletName+"/*");
-        //system.addMapping("/service/*");
+        //String servletName = SysParametersUtils.getStringValue("app.servlet.name","service");
+        //system.addMapping("/"+ servletName+"/*");
+        system.addMapping("/service/*");
         system.setLoadOnStartup(1);
         system.setAsyncSupported(true);
     }
