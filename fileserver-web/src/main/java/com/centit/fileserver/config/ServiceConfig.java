@@ -21,6 +21,7 @@ import com.centit.search.service.Searcher;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 
@@ -35,6 +36,9 @@ import org.springframework.core.env.Environment;
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class ServiceConfig {
+
+    @Value("${app.home:./}")
+    private String appHome;
     /* @Bean
     @Lazy(value = false)
     public IntegrationEnvironment integrationEnvironment() {
@@ -99,6 +103,7 @@ public class ServiceConfig {
     @Lazy(value = false)
     public OperationLogWriter operationLogWriter() {
         TextOperationLogWriterImpl operationLog = new TextOperationLogWriterImpl();
+        operationLog.setOptLogHomePath(appHome+"/logs");
         operationLog.init();
         return operationLog;
     }
