@@ -1,6 +1,5 @@
 package com.centit.fileserver.config;
 
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
 import com.centit.support.file.PropertiesReader;
