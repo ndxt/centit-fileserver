@@ -12,6 +12,8 @@ import com.centit.framework.ip.app.config.IPOrStaticAppSystemBeanConfig;
 import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
+import com.centit.framework.security.model.StandardPasswordEncoderImpl;
+import com.centit.framework.session.jdbc.JdbcSessionPersistenceConfig;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;
 import com.centit.search.service.IndexerSearcherFactory;
@@ -27,9 +29,9 @@ import org.springframework.core.env.Environment;
  */
 @ComponentScan(basePackages = "com.centit",
         excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
-@Import({SpringSecurityDaoConfig.class,
+@Import({JdbcSessionPersistenceConfig.class,
+        SpringSecurityDaoConfig.class,
         IPOrStaticAppSystemBeanConfig.class,
-        DataSourceConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class ServiceConfig {
@@ -105,5 +107,16 @@ public class ServiceConfig {
     public InstantiationServiceBeanPostProcessor instantiationServiceBeanPostProcessor() {
         return new InstantiationServiceBeanPostProcessor();
     }
+
+    /**
+     * 这个bean必须要有
+     * @return CentitPasswordEncoder 密码加密算法
+     */
+    @Bean("passwordEncoder")
+    public StandardPasswordEncoderImpl passwordEncoder() {
+        return  new StandardPasswordEncoderImpl();
+    }
+    //这个bean必须要有 可以配置不同策略的session保存方案
+
 }
 

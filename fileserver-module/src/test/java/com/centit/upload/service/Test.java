@@ -1,6 +1,6 @@
 package com.centit.upload.service;
 
-import com.centit.support.database.utils.QueryUtils;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.network.HttpExecutor;
 import com.centit.support.network.HttpExecutorContext;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class Test {
             String path="http://localhost:8080/product-uploader/service/formdata?http://localhost:8080/product-uploader/singleUploader.jsp";
             String response = HttpExecutor.formPostWithFileUpload(
                     HttpExecutorContext.create(HttpExecutor.createHttpClient()),
-                    path, QueryUtils.createSqlParamsMap("filename","11"),
+                    path, CollectionsOpt.createHashMap("filename","11"),
                     files);
 
 

@@ -40,6 +40,11 @@
 
         <dependency>
             <groupId>com.centit.framework</groupId>
+            <artifactId>framework-session</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
             <artifactId>framework-config</artifactId>
         </dependency>
 

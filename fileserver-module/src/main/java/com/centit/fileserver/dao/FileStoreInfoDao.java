@@ -6,10 +6,10 @@ import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
-import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -63,7 +63,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
-                    QueryUtils.createSqlParamsMap("uc",userCode));
+                    CollectionsOpt.createHashMap("uc",userCode));
         } else {
             String fsp = trimFilePath(fileShowPath)+ LocalFileManager.FILE_PATH_SPLIT;
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
@@ -78,7 +78,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH like :fspmatch";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
-                    QueryUtils.createSqlParamsMap(
+                    CollectionsOpt.createHashMap(
                             "fsp",fsp,//".",
                             "uc",userCode,
                             "fspmatch",fsp+"%"));
@@ -112,7 +112,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
-                    QueryUtils.createSqlParamsMap("uc",unitCode));
+                    CollectionsOpt.createHashMap("uc",unitCode));
         } else {
             String fsp = trimFilePath(fileShowPath)+ LocalFileManager.FILE_PATH_SPLIT;
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
@@ -127,7 +127,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH like :fspmatch";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
                     dbt==DBType.MySql?sqlsenMysql:sqlsenOralce,
-                    QueryUtils.createSqlParamsMap(
+                    CollectionsOpt.createHashMap(
                             "fsp",fsp,// ".",
                             "uc",unitCode,
                             "fspmatch",fsp+"%"));
@@ -154,7 +154,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",userCode));
         }else{
             String fsp = trimFilePath(fileShowPath);//+ LocalFileManager.FILE_PATH_SPLIT;
@@ -166,7 +166,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",userCode,
                             "fsp",fsp,
                             "fsp2",fsp + LocalFileManager.FILE_PATH_SPLIT));
@@ -203,7 +203,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",unitCode));
         }else{
             String fsp = trimFilePath(fileShowPath);//+ LocalFileManager.FILE_PATH_SPLIT;
@@ -215,7 +215,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",unitCode,
                             "fsp",fsp,
                             "fsp2",fsp + LocalFileManager.FILE_PATH_SPLIT));
@@ -250,7 +250,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",userCode,
                             "fn",fileName));
         }else{
@@ -260,7 +260,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",userCode,
                             "fsp",fileShowPath,
                             "fn",fileName));
@@ -295,7 +295,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",unitCode,
                             "fn",fileName));
         }else{
@@ -305,7 +305,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
-                    sqlsen, QueryUtils.createSqlParamsMap(
+                    sqlsen, CollectionsOpt.createHashMap(
                             "uc",unitCode,
                             "fsp",fileShowPath,
                             "fn",fileName));
