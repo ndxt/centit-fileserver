@@ -1,5 +1,6 @@
 package com.centit.fileserver.config;
 
+import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
 import com.centit.support.file.PropertiesReader;
@@ -74,7 +75,9 @@ public class WebInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.register(NormalSpringMvcConfig.class);
         ServletRegistration.Dynamic system  = servletContext.addServlet("service", new DispatcherServlet(context));
-        system.addMapping("/service/*");
+        String servletName = SysParametersUtils.getStringValue("app.servlet.name","service");
+        system.addMapping("/"+ servletName+"/*");
+        //system.addMapping("/service/*");
         system.setLoadOnStartup(1);
         system.setAsyncSupported(true);
     }
