@@ -6,7 +6,7 @@ import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileStoreInfo;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.common.ObjectException;
-import com.centit.framework.common.ResponseJSON;
+import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -80,7 +80,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/access/japply"), aacessLog);
-        ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
+        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
 
         if (resJson.getCode() != 0) {
             throw new ObjectException(aacessLog, resJson.getMessage());
@@ -105,7 +105,7 @@ public class FileClientImpl implements FileClient {
 
         String jsonStr = HttpExecutor.formPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/access/applyUpload/" + maxUploadFiles), null);
-        ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
+        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if (resJson.getCode() != 0) {
             throw new ObjectException(resJson.getMessage());
         }
@@ -191,7 +191,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/files/" + fileId));
-        ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
+        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
 
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
@@ -203,7 +203,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/service/files/j/" + fsi.getFileId()), fsi);
-        ResponseJSON resJson = ResponseJSON.valueOfJson(jsonStr);
+        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if (resJson == null) {
             throw new ObjectException(fsi, ERROR_MESSAGE);
         }
@@ -226,9 +226,9 @@ public class FileClientImpl implements FileClient {
                 JSON.parseObject(JSON.toJSONString(fsi) ),
                 file);
 
-        ResponseJSON resJson = null;
+        HttpReceiveJSON resJson = null;
         try {
-            resJson = ResponseJSON.valueOfJson(jsonStr);
+            resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         }catch(Exception e){
             logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
@@ -337,9 +337,9 @@ public class FileClientImpl implements FileClient {
 
         String jsonStr = HttpExecutor.httpExecute(
                 HttpExecutorContext.create(httpClient), httpPost);
-        ResponseJSON resJson = null;
+        HttpReceiveJSON resJson = null;
         try {
-            resJson = ResponseJSON.valueOfJson(jsonStr);
+            resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         }catch(Exception e){
             logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
