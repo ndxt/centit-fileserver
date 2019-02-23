@@ -11,10 +11,10 @@ define(function(require) {
 		var i;
 		//各类参数
 		var osId,optId,owner;
-		var ossUrl = 'service/files/oss';
-		var osIdUrl = 'service/files/optids/';
-		var optIdUrl = 'service/files/owner/';
-		var watchDetailUrl = "service/files/";
+		var ossUrl = 'fileserver/files/oss';
+		var osIdUrl = 'fileserver/files/optids/';
+		var optIdUrl = 'fileserver/files/owner/';
+		var watchDetailUrl = "fileserver/files/";
 		var openInformation = 'modules/fileAccessLog/fileAccessLog.fileInformation.html';
 		//第一层下拉框
 		this.selectOss;
@@ -120,6 +120,6 @@ define(function(require) {
 		}
 
 	});
-	
+
 	return FileAccessLog;
 });

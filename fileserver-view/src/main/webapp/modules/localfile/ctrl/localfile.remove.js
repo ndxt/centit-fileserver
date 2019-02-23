@@ -4,7 +4,7 @@ define(function(){
 
 	var FilemanagerRemove = Page.extend(function(){
 		this.submit= function(table,data){
-			Core.ajax('service/files/'+data.fileId,{
+			Core.ajax('fileserver/files/'+data.fileId,{
 				method:"delete"
 			}).then(function(){
 				table.datagrid('reload');

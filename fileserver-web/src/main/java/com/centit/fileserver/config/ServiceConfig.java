@@ -7,7 +7,6 @@ import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
 import com.centit.framework.config.SpringSecurityDaoConfig;
-import com.centit.framework.core.config.DataSourceConfig;
 import com.centit.framework.ip.app.config.IPOrStaticAppSystemBeanConfig;
 import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;

@@ -7,8 +7,8 @@ define(function(require) {
     return Page.extend(function() {
 
         var vm;
-        var watchDetail = "service/files/";
-        var downLisrUrl = 'service/access/list/';
+        var watchDetail = "fileserver/files/";
+        var downLisrUrl = 'fileserver/access/list/';
         this.load = function (panel) {
             vm = this;
             vm.tableInfo = panel.find('#file_detail');

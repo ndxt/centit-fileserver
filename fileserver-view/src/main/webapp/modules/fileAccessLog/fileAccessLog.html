@@ -1,7 +1,7 @@
 <div class="easyui-layout" id="userinfo_panel">
 
 	<div >
-	
+
 		<div class="easyui-panel search-body" cls="search" style="width: 100%;">
 			<form class="clearFromValue">
 				<div class="search-item">
@@ -31,12 +31,12 @@
 				</a>
 			</form>
 		</div>
-		
-		<table url="service/access/list"
+
+		<table url="fileserver/access/list"
 			width="98%"
 			bottom="0"
 			search=".search"
-			layoutH="65"	
+			layoutH="65"
 			>
 			<thead>
 				<tr>
@@ -44,7 +44,7 @@
 					<th data-options="field:'accessUsename'" width="19%" sortable="true">授权人员姓名</th>
 					<th data-options="field:'accessRight'" width="19%" sortable="true">授权类别</th>
 					<th data-options="field:'authTime'" format="Unit" width="19%">授权时间</th>
-				
+
 				</tr>
 			</thead>
 		</table>
@@ -52,7 +52,7 @@
 </div>
 
 <script>
-	
+
 	$.parser.onComplete = function(panel) {
 		$.parser.onComplete = $.noop;
 		requirejs([

@@ -4,7 +4,7 @@ define(function(require) {
     //点击下载
     var clickDown = Page.extend(function() {
         this.submit = function() {
-            var downUrl = Config.ContextPath+"service/local/download/";
+            var downUrl = Config.ContextPath+"fileserver/local/download/";
             var href;
             var field = this.parent.field;
             if(field.encrypt) {

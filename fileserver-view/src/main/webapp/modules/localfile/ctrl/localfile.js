@@ -13,7 +13,7 @@ define(function(require) {
 	// 角色信息列表
 	return Page.extend(function() {
 	    //大的表格
-        var url= "service/local/userdir";
+        var url= "fileserver/local/userdir";
         //保存当前文件数据
         var fileData ;
         //文件路径
@@ -42,7 +42,7 @@ define(function(require) {
             new watchDetail('watchDetail')
         ]);
         //topUrl
-        var topUrl = 'service/local/catalog';
+        var topUrl = 'fileserver/local/catalog';
         //模式选择
         this.IMGVIEW = 1;
         this.LISTVIEW = 2;
@@ -245,12 +245,12 @@ define(function(require) {
             if (this.isInTop) {
                 this.showPath = "";
                 if (field.value) {
-                    url = "service/local/unitdir/" + field.value + this.showPath;
+                    url = "fileserver/local/unitdir/" + field.value + this.showPath;
                     this.userCode = "";
                     this.unitCode = field.value;
                 }
                 else {
-                    url = "service/local/userdir";
+                    url = "fileserver/local/userdir";
                     this.userCode = GLOBAL_IDENTIFY.userCode;
                     this.unitCode = "";
                 }

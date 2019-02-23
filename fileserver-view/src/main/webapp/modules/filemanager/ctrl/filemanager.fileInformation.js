@@ -5,7 +5,7 @@ define(function(require) {
     // 角色信息列表
     return Page.extend(function() {
         //文件列表
-        var fileList = 'service/access/list/';
+        var fileList = 'fileserver/access/list/';
         var vm;
         this.load = function (panel,data) {
             vm = this;

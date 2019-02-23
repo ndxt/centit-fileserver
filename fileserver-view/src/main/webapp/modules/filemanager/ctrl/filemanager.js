@@ -35,10 +35,10 @@ define(function(require) {
         var openFileDetail = 'modules/filemanager/filemanager.fileInformation.html';
 
         //各层url
-        var topUrl = 'service/files/oss';
-        var classUrl = 'service/files/optids/';
-        var ownerUrl = 'service/files/owner/';
-        var fileUrl = 'service/files/files/';
+        var topUrl = 'fileserver/files/oss';
+        var classUrl = 'fileserver/files/optids/';
+        var ownerUrl = 'fileserver/files/owner/';
+        var fileUrl = 'fileserver/files/files/';
         this.load = function (panel) {
             this.TOPSTATE = 1;
             this.CLASSSTATE = 2;

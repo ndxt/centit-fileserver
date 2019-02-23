@@ -9,9 +9,9 @@ define(function(require) {
     // 角色信息列表
     return Page.extend(function() {
         //下载地址
-        var downUrl =  Config.ContextPath+"service/local/download/";
+        var downUrl =  Config.ContextPath+"fileserver/local/download/";
         //请求文件信息地址
-        var fileUrl =   'service/local/';
+        var fileUrl =   'fileserver/local/';
         //保存下载accessToken
         this.field = null;
         this.injecte([

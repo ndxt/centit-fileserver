@@ -16,13 +16,10 @@ import java.util.Properties;
 /**
  * Created by zou_wy on 2017/3/29.
  */
-
 public class WebInitializer implements WebApplicationInitializer {
-
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-
         initializeSpringConfig(servletContext);
         initializeSystemSpringMvcConfig(servletContext);
         initializeSpringMvcConfig(servletContext);
@@ -73,12 +70,12 @@ public class WebInitializer implements WebApplicationInitializer {
     private void initializeSpringMvcConfig(ServletContext servletContext) {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
         context.register(NormalSpringMvcConfig.class);
-        ServletRegistration.Dynamic system  = servletContext.addServlet("service", new DispatcherServlet(context));
+        ServletRegistration.Dynamic fileserver  = servletContext.addServlet("fileserver", new DispatcherServlet(context));
         //String servletName = SysParametersUtils.getStringValue("app.servlet.name","service");
         //system.addMapping("/"+ servletName+"/*");
-        system.addMapping("/service/*");
-        system.setLoadOnStartup(1);
-        system.setAsyncSupported(true);
+        fileserver.addMapping("/fileserver/*");
+        fileserver.setLoadOnStartup(1);
+        fileserver.setAsyncSupported(true);
     }
 
  }
