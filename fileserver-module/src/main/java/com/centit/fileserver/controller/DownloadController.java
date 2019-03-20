@@ -14,7 +14,6 @@ import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
-import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.security.Md5Encoder;
 import org.apache.commons.lang3.StringUtils;
