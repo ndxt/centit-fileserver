@@ -41,17 +41,19 @@ public class FileClientImpl implements FileClient {
 
     /**
      *   #文件服务器
-     * @param appServerUrl fileserver.url = http://codefanbook:8180/product-uploader
+     * @param appServerUrl fileserver.url = http://codefanbook:8180/product-uploader/fileserver
+     * @param appServerLoginUrl fileserver.login.url = http://codefanbook:8180/product-uploader/system
      * @param userCode  fileserver.userCode =u0000000
      * @param password fileserver.password =000000
      * @param appServerExportUrl  # 文件服务器对外url 这个和 fileserver.url 不一定一样 fileserver.url 是内容文件服务器url
      *                            # fileserver.export.url 是对外的url，由于可能存在 nginx反向代理所以可能不一样
      *                            # fileserver.export.url = http://codefanbook:8180/product-uploader
      */
-    public void init(String appServerUrl, String userCode,
+    public void init(String appServerUrl,String appServerLoginUrl, String userCode,
                      String password, String appServerExportUrl){
         appSession = new AppSession(
                 appServerUrl,false,userCode,password);
+        appSession.setAppLoginUrl(appServerLoginUrl);
         this.fileServerExportUrl = appServerExportUrl;
     }
 
@@ -79,7 +81,7 @@ public class FileClientImpl implements FileClient {
     public String/*文件下载url */getFileUrl(CloseableHttpClient httpClient, FileAccessLog aacessLog) throws IOException {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/service/access/japply"), aacessLog);
+                appSession.completeQueryUrl("/access/japply"), aacessLog);
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
 
         if (resJson.getCode() != 0) {
@@ -87,8 +89,8 @@ public class FileClientImpl implements FileClient {
         }
         FileAccessLog acclog = resJson.getDataAsObject(FileAccessLog.class);
         return StringUtils.equals("T", aacessLog.getAccessRight())
-                ? fileServerExportUrl + "/service/download/attach/" + acclog.getAccessToken()
-                : fileServerExportUrl + "/service/download/file/" + acclog.getAccessToken();
+                ? fileServerExportUrl + "/download/attach/" + acclog.getAccessToken()
+                : fileServerExportUrl + "/download/file/" + acclog.getAccessToken();
     }
 
     public String/*文件下载url */getFileUrl(FileAccessLog aacessLog) throws IOException {
@@ -104,7 +106,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
 
         String jsonStr = HttpExecutor.formPost(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/service/access/applyUpload/" + maxUploadFiles), null);
+                appSession.completeQueryUrl("/access/applyUpload/" + maxUploadFiles), null);
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if (resJson.getCode() != 0) {
             throw new ObjectException(resJson.getMessage());
@@ -190,7 +192,7 @@ public class FileClientImpl implements FileClient {
     public FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/service/files/" + fileId));
+                appSession.completeQueryUrl("/files/" + fileId));
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
 
         if (resJson.getCode() != 0) {
@@ -202,7 +204,7 @@ public class FileClientImpl implements FileClient {
     public boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws IOException {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/service/files/j/" + fsi.getFileId()), fsi);
+                appSession.completeQueryUrl("/files/j/" + fsi.getFileId()), fsi);
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if (resJson == null) {
             throw new ObjectException(fsi, ERROR_MESSAGE);
@@ -222,7 +224,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
 
         String jsonStr = HttpExecutor.fileUpload(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/service/upload/file"),
+                appSession.completeQueryUrl("/upload/file"),
                 JSON.parseObject(JSON.toJSONString(fsi) ),
                 file);
 
@@ -248,7 +250,7 @@ public class FileClientImpl implements FileClient {
 
     public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException{
         String uri =  appSession.completeQueryUrl(
-                "/service/upload/range?token="+fileMd5+"&size="+fileSize);
+                "/upload/range?token="+fileMd5+"&size="+fileSize);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),uri);
         long rangeStart = -1;
 
@@ -290,7 +292,7 @@ public class FileClientImpl implements FileClient {
         long fileSize = file.length();
 
         String uri =  appSession.completeQueryUrl(
-                "/service/upload/range?token="+fileMd5+"&size="+fileSize);
+                "/upload/range?token="+fileMd5+"&size="+fileSize);
         List<NameValuePair> params = HttpExecutor.makeRequectParams(fsi, "");
 
         String paramsUrl1 = EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
@@ -371,7 +373,7 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
 
         HttpGet httpGet = new HttpGet(
-                appSession.completeQueryUrl("/service/download/pfile/" + fileId));
+                appSession.completeQueryUrl("/download/pfile/" + fileId));
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             if (offset > -1 && lenght > 0) {
