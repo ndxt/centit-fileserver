@@ -312,26 +312,26 @@ public class FileClientImpl implements FileClient {
                 String.valueOf(rangeStart)+"-"+String.valueOf(rangeEnd)+"/"+String.valueOf(fileSize));
         //httpPost.addHeader("type","file");
         ByteArrayOutputStream bos = new ByteArrayOutputStream((int) (rangeSize));
-        FileInputStream fin = new FileInputStream(file);
-        int gotlen=0;
-        int read1;
-        byte[] bytes = new byte[10240];
-        long num;
-        if(rangeStart>0)
-            num = fin.skip(rangeStart);
-        while(gotlen < postFileSize) {
-            read1 = fin.read(bytes);
-            if(read1 + gotlen < postFileSize) {
-                bos.write(bytes, 0, read1);
-            }else{
-                read1 = postFileSize-gotlen;
-                if(read1>0)
-                    bos.write(bytes, 0, read1);
-                break;
+        try(FileInputStream fin = new FileInputStream(file)) {
+            int gotlen = 0;
+            int read1;
+            byte[] bytes = new byte[10240];
+            if (rangeStart > 0) {
+                fin.skip(rangeStart);
             }
-            gotlen += read1;
+            while (gotlen < postFileSize) {
+                read1 = fin.read(bytes);
+                if (read1 + gotlen < postFileSize) {
+                    bos.write(bytes, 0, read1);
+                } else {
+                    read1 = postFileSize - gotlen;
+                    if (read1 > 0)
+                        bos.write(bytes, 0, read1);
+                    break;
+                }
+                gotlen += read1;
+            }
         }
-        fin.close();
         //File tempfile = new File("/D/Projects/RunData/file_home/temp/tem.data");
         //FileIOOpt.writeInputStreamToFile(new ByteArrayInputStream(bos.toByteArray()),tempfile);
         ByteArrayEntity entity = new ByteArrayEntity(bos.toByteArray());
@@ -339,18 +339,13 @@ public class FileClientImpl implements FileClient {
 
         String jsonStr = HttpExecutor.httpExecute(
                 HttpExecutorContext.create(httpClient), httpPost);
-        HttpReceiveJSON resJson = null;
         try {
-            resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            return resJson.getDataAsObject(FileStoreInfo.class);
         }catch(Exception e){
             logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
-        if (resJson == null) {
-            throw new ObjectException(jsonStr, ERROR_MESSAGE);
-        }
-        return resJson.getDataAsObject(FileStoreInfo.class);
-
     }
 
     public FileStoreInfo uploadFileRange(FileStoreInfo fsi,File file,long rangeStart,long rangeSize) throws IOException{
