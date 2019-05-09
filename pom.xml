@@ -65,6 +65,7 @@
         <module>fileserver-demo</module>
         <module>fileserver-view</module>
         <module>fileserver-module</module>
+        <module>fileserver-boot</module>
     </modules>
 
     <build>
