@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fileserver-web
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 18000
+  selector:
+    app: fileserver-web
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fileserver-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fileserver-web
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: fileserver-web
+    spec:
+      containers:
+      - name: fileserver-web
+        image: 172.29.0.13:8082/fileserver-web:<BUILD_TAG>
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: time-zone
+          mountPath: /etc/localtime
+        - name: tomcat-logs
+          mountPath: /usr/local/tomcat/logs
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: registry-secret
+      volumes:
+      - name: time-zone
+        hostPath:
+          path: /etc/localtime
+      - name: tomcat-logs
+        hostPath:
+          path: /data/tomcat/logs
