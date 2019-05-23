@@ -69,6 +69,18 @@
         </dependency>
 
         <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-store-oss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-store-cos-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-app</artifactId>
             <version>${centit.ip.version}</version>

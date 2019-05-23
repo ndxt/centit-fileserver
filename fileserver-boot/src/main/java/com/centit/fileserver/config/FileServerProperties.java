@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class FileServerProperties {
     public static final String PREFIX = "fileserver";
 
-    private RobotConfig robot;
     private FileStoreConfig fileStore;
     private SmsConfig sms;
     private NotifyConfig notify;
@@ -17,16 +16,10 @@ public class FileServerProperties {
     private boolean fulltextIndexEnable;
 
     @Data
-    public static class RobotConfig {
-        private String type;
-        private int maxAnswer;
-    }
-
-    @Data
     public static class FileStoreConfig {
-        private String type;
         private OsConfig os;
         private OssConfig oss;
+        private CosConfig cos;
 
         @Data
         public static class OsConfig {
@@ -38,6 +31,15 @@ public class FileServerProperties {
             private String endPoint;
             private String accessKeyId;
             private String secretAccessKey;
+            private String bucketName;
+        }
+
+        @Data
+        public static class CosConfig {
+            private String region;
+            private String appId;
+            private String secretId;
+            private String secretKey;
             private String bucketName;
         }
     }

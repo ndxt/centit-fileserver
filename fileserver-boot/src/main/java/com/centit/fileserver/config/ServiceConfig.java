@@ -1,6 +1,7 @@
 package com.centit.fileserver.config;
 
-import com.centit.fileserver.fileaccess.AliyunOssStore;
+import com.centit.fileserver.store.plugin.AliyunOssStore;
+import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.framework.components.impl.NotificationCenterImpl;
@@ -42,28 +43,61 @@ public class ServiceConfig {
     @Autowired
     FileServerProperties fileServerProperties;
 
+//    @Bean
+//    public FileStore fileStore(){
+//        String fileStoreType= fileServerProperties.getFileStore().getType();
+//
+//        if("oss".equals(fileStoreType)){//ali-oss
+//            AliyunOssStore fs = new AliyunOssStore();
+//            fs.setEndPoint(fileServerProperties.getFileStore().getOss().getEndPoint());
+//            fs.setAccessKeyId(fileServerProperties.getFileStore().getOss().getAccessKeyId());
+//            fs.setSecretAccessKey(fileServerProperties.getFileStore().getOss().getSecretAccessKey());
+//            fs.setBucketName(fileServerProperties.getFileStore().getOss().getBucketName());
+//            return fs;
+//        }else /*if("os".equals(fileStoreType))*/{
+//
+//            String baseHome = fileServerProperties.getFileStore().getOs().getBaseDir();
+//            if(StringUtils.isBlank(baseHome)) {
+//                baseHome = appHome + "/upload";
+//            }
+//            return new OsFileStore(baseHome);
+//        }
+//
+//    }
+
     @Bean
-    @ConditionalOnProperty()
-    public FileStore fileStore(){
-        String fileStoreType= fileServerProperties.getFileStore().getType();
-
-        if("oss".equals(fileStoreType)){//ali-oss
-            AliyunOssStore fs = new AliyunOssStore();
-            fs.setEndPoint(fileServerProperties.getFileStore().getOss().getEndPoint());
-            fs.setAccessKeyId(fileServerProperties.getFileStore().getOss().getAccessKeyId());
-            fs.setSecretAccessKey(fileServerProperties.getFileStore().getOss().getSecretAccessKey());
-            fs.setBucketName(fileServerProperties.getFileStore().getOss().getBucketName());
-            return fs;
-        }else /*if("os".equals(fileStoreType))*/{
-
-            String baseHome = fileServerProperties.getFileStore().getOs().getBaseDir();
-            if(StringUtils.isBlank(baseHome)) {
-                baseHome = appHome + "/upload";
-            }
-            return new OsFileStore(baseHome);
+    @ConditionalOnProperty(prefix = "fileserver.file-store.os", name = "enabled")
+    public FileStore osFileStore() {
+        String baseHome = fileServerProperties.getFileStore().getOs().getBaseDir();
+        if (StringUtils.isBlank(baseHome)) {
+            baseHome = appHome + "/upload";
         }
-
+        return new OsFileStore(baseHome);
     }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "fileserver.file-store.oss", name = "enabled")
+    public FileStore ossFileStore() {
+        AliyunOssStore fs = new AliyunOssStore();
+        fs.setEndPoint(fileServerProperties.getFileStore().getOss().getEndPoint());
+        fs.setAccessKeyId(fileServerProperties.getFileStore().getOss().getAccessKeyId());
+        fs.setSecretAccessKey(fileServerProperties.getFileStore().getOss().getSecretAccessKey());
+        fs.setBucketName(fileServerProperties.getFileStore().getOss().getBucketName());
+        return fs;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "fileserver.file-store.cos", name = "enabled")
+    public FileStore cosFileStore() {
+        TxyunCosStore cosStore = new TxyunCosStore();
+        cosStore.setRegion(fileServerProperties.getFileStore().getCos().getRegion());
+        cosStore.setAppId(fileServerProperties.getFileStore().getCos().getAppId());
+        cosStore.setSecretId(fileServerProperties.getFileStore().getCos().getSecretId());
+        cosStore.setSecretKey(fileServerProperties.getFileStore().getCos().getSecretKey());
+        cosStore.setBucketName(fileServerProperties.getFileStore().getCos().getBucketName());
+        return cosStore;
+    }
+
 
     @Bean
     public Indexer documentIndexer(){
