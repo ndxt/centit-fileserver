@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>centit-fileserver</artifactId>
+        <groupId>com.centit.product</groupId>
+        <version>2.3-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>fileserver-store-cos-plugin</artifactId>
+    <name>com.centit.product:fileserver-store-cos-plugin</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.support</groupId>
+            <artifactId>centit-utils</artifactId>
+        </dependency>
+
+        <!-- 腾讯云 COS 客户端 -->
+        <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>cos_api</artifactId>
+            <version>${txyun-sdk-cos.version}</version>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

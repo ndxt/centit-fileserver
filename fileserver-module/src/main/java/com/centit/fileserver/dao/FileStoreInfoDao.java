@@ -19,9 +19,6 @@ import java.util.*;
 @Repository
 public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 
-    @Value("${jdbc.dialect}")
-    protected String jdbcDialect;
-
     public Map<String, String> getFilterField() {
         if( filterField == null){
             filterField = new HashMap<>();
@@ -50,7 +47,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         //StringUtils.indexOf(DatabaseOptUtils.getDialectName(),"Oracle")>=0
         //这个地方需要根据不同的数据库编写不同的sql语句
         Set<String> dirs = new HashSet<>();
-        DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
+        DBType dbt = DBType.mapDBType(this.getConnection());
         List<?> objects = null;
         if (StringUtils.isBlank(fileShowPath)) {
             String sqlsenOralce = "select distinct subStr( CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
@@ -99,7 +96,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         //StringUtils.indexOf(DatabaseOptUtils.getDialectName(),"Oracle")>=0
         //这个地方需要根据不同的数据库编写不同的sql语句
         Set<String> dirs = new HashSet<>();
-        DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
+        DBType dbt = DBType.mapDBType(this.getConnection());
         List<?> objects = null;
         if (StringUtils.isBlank(fileShowPath)) {
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +

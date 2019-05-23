@@ -1,11 +1,11 @@
-package com.centit.test.oss;
-
-import java.io.File;
-import java.io.IOException;
+package com.centit.fileserver.store.plugin.test;
 
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;
 import com.centit.support.file.FileIOOpt;
+
+import java.io.File;
+import java.io.IOException;
 
 public class OssTest {
 
