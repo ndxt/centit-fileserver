@@ -8,10 +8,14 @@ import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.model.basedata.IUserInfo;
 import com.centit.framework.security.model.CentitUserDetails;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.slf4j.Logger;
@@ -58,7 +62,7 @@ public class LocalFileController extends BaseController {
      */
     @RequestMapping(value = "/catalog", method = RequestMethod.GET)
     public void getFileCatalog(HttpServletRequest request, HttpServletResponse response) {
-        String userCode = super.getLoginUserCode(request);
+        String userCode = WebOptUtils.getCurrentUserCode(request);
         JsonResultUtils.writeSingleDataJson(localFileManager.listUserUnit(userCode), response);
     }
 
@@ -138,7 +142,7 @@ public class LocalFileController extends BaseController {
     @RequestMapping(value = "/userdir/**", method = RequestMethod.GET)
     public void listUserFiles(HttpServletRequest request,
                               HttpServletResponse response) {
-        String userCode = super.getLoginUserCode(request);
+        String userCode = WebOptUtils.getCurrentUserCode(request);
         String uri = request.getRequestURI();
         try {
             JsonResultUtils.writeSingleDataJson(
@@ -185,7 +189,7 @@ public class LocalFileController extends BaseController {
     @RequestMapping(value = "/userfile/**", method = RequestMethod.GET)
     public void listUserFileVersion(HttpServletRequest request, HttpServletResponse response) {
         try {
-            String userCode = super.getLoginUserCode(request);
+            String userCode = WebOptUtils.getCurrentUserCode(request);
             String uri = request.getRequestURI();
             ImmutablePair<String, String> p = fetchUserFilePath(uri);
             if (p == null) {
@@ -239,10 +243,14 @@ public class LocalFileController extends BaseController {
         //accessLog.chargeAccessTimes();
         accessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
         accessLog.setLastAccessHost(request.getLocalAddr());
-        CentitUserDetails ud = this.getLoginUser(request);
-        if (ud != null) {
-            accessLog.setAccessUsercode(ud.getUserCode());
-            accessLog.setAccessUsename(ud.getUserInfo().getString("userName"));
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+
+        if (StringUtils.isNotBlank(userCode)) {
+            accessLog.setAccessUsercode(userCode);
+            IUserInfo user = CodeRepositoryUtil.getUserInfoByCode(userCode);
+            if(user!=null) {
+                accessLog.setAccessUsename(user.getUserName());
+            }
         }
         fileStoreInfo.addDownloadTimes();
 

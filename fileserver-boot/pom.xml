@@ -14,15 +14,14 @@
     <artifactId>fileserver-boot</artifactId>
     <name>com.centit.product:fileserver-boot</name>
     <version>2.3-SNAPSHOT</version>
-    <packaging>war</packaging>
-    <description></description>
 
     <properties>
         <centit.framework.version>4.5-SNAPSHOT</centit.framework.version>
         <centit.persistence.version>1.2-SNAPSHOT</centit.persistence.version>
-        <centit.commons.version>2.2.1901</centit.commons.version>
+        <centit.commons.version>2.2-SNAPSHOT</centit.commons.version>
         <centit.ip.version>2.0-SNAPSHOT</centit.ip.version>
         <centit.ui.version>3.1.1809</centit.ui.version>
+        <jdk.version>1.8</jdk.version>
     </properties>
 
     <dependencies>

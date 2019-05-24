@@ -1,10 +1,12 @@
 package com.centit.fileserver.config;
 
 import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.framework.components.CodeRepositoryCache;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.adapter.MessageSender;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
+import com.centit.framework.model.adapter.PlatformEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -30,12 +32,16 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
     @Autowired(required = false)
     private MessageSender innerMessageManager;
 
+    @Autowired
+    protected PlatformEnvironment platformEnvironment;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event)
     {
         SystemTempFileUtils.setTempFileDirectory(
             appHome + File.separatorChar );
+
+        CodeRepositoryCache.setPlatformEnvironment(platformEnvironment);
 
         if(innerMessageManager!=null) {
             notificationCenter.registerMessageSender("innerMsg", innerMessageManager);
