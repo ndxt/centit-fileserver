@@ -66,7 +66,7 @@ public class FilePretreatment {
                             logger.error(e.getMessage(), e);
                        }
                    }
-                 
+
                }
            }, 30, 10, TimeUnit.SECONDS);
        //默认执行时间间隔为10秒
@@ -288,7 +288,7 @@ public class FilePretreatment {
 
             if("D".equals(pretreatInfo.getEncryptType())){
                 if(StringUtils.isBlank(pretreatInfo.getEncryptPassword()))
-                    logger.error("设置DES加密时请同时设置密码！"+ fileStoreInfo.getFileMd5());
+                    logger.error("设置AES加密时请同时设置密码！"+ fileStoreInfo.getFileMd5());
                 if(encryptFile(sourceFilePath,
                         outFilename,pretreatInfo.getEncryptPassword())){
 
@@ -302,7 +302,7 @@ public class FilePretreatment {
                     fileStoreInfo.setEncryptType("D");
                     //fs.deleteFile(oldFileStorePath);
                 }else
-                    logger.error("DES加密文件时出错！"+ fileStoreInfo.getFileMd5());
+                    logger.error("AES加密文件时出错！"+ fileStoreInfo.getFileMd5());
             }else if("Z".equals(pretreatInfo.getEncryptType())){
                 if(StringUtils.isBlank(pretreatInfo.getEncryptPassword())){
 
