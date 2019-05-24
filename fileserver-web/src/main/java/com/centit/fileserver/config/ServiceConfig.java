@@ -1,6 +1,7 @@
 package com.centit.fileserver.config;
 
-import com.centit.fileserver.fileaccess.AliyunOssStore;
+import com.centit.fileserver.store.plugin.AliyunOssStore;
+import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.framework.common.SysParametersUtils;
@@ -57,15 +58,22 @@ public class ServiceConfig {
             fs.setSecretAccessKey(env.getProperty("oos.secretAccessKey"));
             fs.setBucketName(env.getProperty("oos.bucketName"));
             return fs;
-        }else /*if("os".equals(fileStoreType))*/{
+        }else if("os".equals(fileStoreType)){
 
             String baseHome = env.getProperty("os.file.base.dir");
             if(StringUtils.isBlank(baseHome)) {
                 baseHome = env.getProperty("app.home") + "/upload";
             }
             return new OsFileStore(baseHome);
+        }else {
+            TxyunCosStore cosStore = new TxyunCosStore();
+            cosStore.setRegion(env.getProperty("cos.region"));
+            cosStore.setAppId(env.getProperty("cos.appId"));
+            cosStore.setSecretId(env.getProperty("cos.secretId"));
+            cosStore.setSecretKey(env.getProperty("cos.secretKey"));
+            cosStore.setBucketName(env.getProperty("cos.bucketName"));
+            return cosStore;
         }
-
     }
 
     @Bean

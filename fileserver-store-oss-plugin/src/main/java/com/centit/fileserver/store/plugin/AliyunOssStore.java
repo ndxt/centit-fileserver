@@ -1,4 +1,4 @@
-package com.centit.fileserver.fileaccess;
+package com.centit.fileserver.store.plugin;
 
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;

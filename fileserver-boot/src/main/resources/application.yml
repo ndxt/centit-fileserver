@@ -1,0 +1,73 @@
+server:
+  port: 10086
+  servlet:
+   contextPath: /fileserver
+
+spring:
+  application:
+    name: FILESERVER
+  datasource:
+    type: org.apache.commons.dbcp2.BasicDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.134.7:3306:3306/file_server?useUnicode=true&characterEncoding=utf-8
+    username: filesvr
+    password: filesvr
+    dbcp2:
+      max-wait-millis: 10000
+      max-idle: 15
+      initial-size: 10
+      validation-query: SELECT 1
+      connection-properties: characterEncoding=utf8
+  flyway:
+    enabled: false
+    locations: classpath:migration/mysql
+
+framework:
+  app:
+    home: /D/Projects/RunData/file_home
+  ip:
+    enable: false
+    topoptid: FILE_SVR
+    home: http://product.centit.com:8080/product-ip/service
+    auth-enable: false
+    usercode: admin
+    password: 000000
+
+fileserver:
+  elastic-search:
+    os-id: FILE_SVR
+    server-host-ip: 192.168.132.110
+    server-host-port: 9300
+    cluster-name: elasticsearch_zgd
+    min-score: 0.5
+  fulltext-index-enable: true
+  file-store:
+    os:
+      enabled: false
+      base-dir: /D/Projects/RunData/file_home/upload/
+    oss:
+      enabled: false
+      endPoint: oss-cn-shanghai.aliyuncs.com
+      accessKeyId: LTAI9QEcfHf7VrSE
+      secretAccessKey: fYHyfoehaUS48tv53XEh3tihHx4hsN
+      bucketName: centit-pub
+    cos:
+      enabled: true
+      region: ap-shanghai
+      appId: 1259276167
+      secretId: AKID30Qk1EkhzNells9lhzlgV8lJgQfrpr01
+      secretKey: 98ZIwTAi8gBEi6d3216StvZGt5kWUmS1
+      bucketName: filesave-${fileserver.file-store.cos.appId}
+  sms:
+    send-url: http://218.94.123.217:8998/service/sendMsg
+  notify:
+    type: none
+
+session:
+  persistence:
+    db:
+      type: redis
+  redis:
+    host: 192.168.134.9
+    port: 6379
+

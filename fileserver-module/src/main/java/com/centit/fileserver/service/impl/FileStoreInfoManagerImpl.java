@@ -12,6 +12,7 @@ import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.QueryAndNamedParams;
 import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +28,8 @@ public class FileStoreInfoManagerImpl
         extends BaseEntityManagerImpl<FileStoreInfo, String, FileStoreInfoDao>
      implements FileStoreInfoManager {
 
-    @Value("${jdbc.dialect}")
-    protected String jdbcDialect;
+    @Value("${spring.datasource.url}")
+    private String connUrl;
 
     @Resource(name ="fileStoreInfoDao")
     @NotNull
@@ -145,7 +146,7 @@ public class FileStoreInfoManagerImpl
     @Override
     public JSONArray listFileOwners(String osId, String optId) {
         String queryStatement;
-        DBType dbt = DBType.mapDialectToDBType(jdbcDialect);
+        DBType dbt = DBType.mapDBType(connUrl);
         if(dbt==DBType.MySql){
             queryStatement = "select ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') as FILE_OWNER, " +
                     "count(1) as FILE_COUNT " +
