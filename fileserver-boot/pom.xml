@@ -13,7 +13,7 @@
 
     <artifactId>fileserver-boot</artifactId>
     <name>com.centit.product:fileserver-boot</name>
-    <version>2.3-SNAPSHOT</version>
+    <version>3.0-SNAPSHOT</version>
 
     <properties>
         <centit.framework.version>4.5-SNAPSHOT</centit.framework.version>
