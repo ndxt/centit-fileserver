@@ -17,6 +17,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.SocketException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by codefan on 17-7-19.
@@ -34,18 +40,47 @@ public abstract class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
 
+
+    public static Pair<String, InputStream> fetchInputStreamFromMultipartResolver(HttpServletRequest request) throws IOException {
+        String fileName = request.getParameter("name");
+        if(StringUtils.isBlank(fileName))
+            fileName = request.getParameter("fileName");
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart)
+            return new ImmutablePair<>(fileName, request.getInputStream());
+
+        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
+//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> map = multiRequest.getFileMap();
+        InputStream fis = null;
+
+        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
+            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
+            FileItem fi = cMultipartFile.getFileItem();
+            if (! fi.isFormField())  {
+                fileName = fi.getName();
+                fis = fi.getInputStream();
+                if(fis!=null)
+                    break;
+            }
+        }
+        return  new ImmutablePair<>(fileName, fis);
+    }
+
+    @Deprecated
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request)
             throws IOException, FileUploadException {
 
-        String fileName = null;
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
-            fileName = request.getParameter("name");
+            String fileName = request.getParameter("name");
             if(StringUtils.isBlank(fileName))
                 fileName = request.getParameter("fileName");
             return new ImmutablePair<>(fileName, request.getInputStream());
         }
 
+        String fileName = null;
         ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
         List<FileItem> fileItems =  servletFileUpload.parseRequest(request);
         InputStream fis = null;

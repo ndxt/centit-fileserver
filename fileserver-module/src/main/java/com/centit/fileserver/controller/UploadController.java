@@ -581,32 +581,6 @@ public class UploadController extends BaseController {
     }
 
 
-    private Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
-        String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName))
-            fileName = request.getParameter("fileName");
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if (!isMultipart)
-            return new ImmutablePair<String, InputStream>(fileName, request.getInputStream());
-
-        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
-        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
-//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-        Map<String, MultipartFile> map = multiRequest.getFileMap();
-        InputStream fis = null;
-
-        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
-            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
-            FileItem fi = cMultipartFile.getFileItem();
-            if (! fi.isFormField())  {
-                fileName = fi.getName();
-                fis = fi.getInputStream();
-            }
-        }
-        return  new ImmutablePair<>(fileName, fis);
-    }
-
-
     /**
      * 获取文件 断点位置，前端根据断点位置续传
      *
@@ -622,7 +596,7 @@ public class UploadController extends BaseController {
                                HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
-        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
+        Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
 
         long tempFileSize = 0;
         // 如果文件已经存在则完成秒传，无需再传
@@ -656,7 +630,7 @@ public class UploadController extends BaseController {
             String token, long size,
             HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
+        Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
@@ -694,7 +668,7 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try {
-            Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
+            Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
             int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight() , tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
 
