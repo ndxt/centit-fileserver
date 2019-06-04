@@ -1,9 +1,9 @@
 package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileAccessLog;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
@@ -39,7 +39,7 @@ public class DownloadController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
     @Resource
-    private FileStoreInfoManager fileStoreInfoManager;
+    private FileInfoManager fileInfoManager;
     @Resource
     private FileAccessLogManager fileAccessLogManager;
 
@@ -53,16 +53,16 @@ public class DownloadController extends BaseController {
                  inputStream, fSize, fileName);
     }
 
-    public static void downloadFile(FileStore fileStore, FileStoreInfo stroeInfo, HttpServletRequest request,
+    public static void downloadFile(FileStore fileStore, FileInfo fileInfo, HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
-        if (null != stroeInfo) {
+        if (null != fileInfo) {
 
             //对加密的进行特殊处理，ZIP加密的无需处理
             String password = request.getParameter("password");
-            if("D".equals(stroeInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
-                String tmpFilePath = SystemTempFileUtils.getTempFilePath(stroeInfo.getFileMd5(),stroeInfo.getFileSize() );
+            if("D".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
+                String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(),fileInfo.getFileSize() );
                 File tmpFile = new File(tmpFilePath);
-                try(InputStream downFile = fileStore.loadFileStream(stroeInfo.getFileStorePath());
+                try(InputStream downFile = fileStore.loadFileStream(fileInfo.getFileStorePath());
                     OutputStream diminationFile = new FileOutputStream(tmpFile)    ){
                     FileEncryptWithAes.decrypt(downFile, diminationFile, password);
                 }catch (Exception e) {
@@ -75,14 +75,14 @@ public class DownloadController extends BaseController {
                 }
                 try(InputStream inputStream = new FileInputStream(tmpFile)){
                     downFileRange(request, response,
-                            inputStream,tmpFile.length(), stroeInfo.getFileName());
+                            inputStream,tmpFile.length(), fileInfo.getFileName());
                 }
 
                 FileSystemOpt.deleteFile(tmpFile);
             }else{
                 downFileRange(request, response,
-                        fileStore.loadFileStream(stroeInfo.getFileStorePath()),
-                        stroeInfo.getFileSize(), stroeInfo.getFileName());
+                        fileStore.loadFileStream(fileInfo.getFileStorePath()),
+                        fileInfo.getFileSize(), fileInfo.getFileName());
             }
         } else {
             JsonResultUtils.writeHttpErrorMessage(
@@ -103,16 +103,16 @@ public class DownloadController extends BaseController {
     public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
 
-        FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
 
-        if (null != stroeInfo) {
-            String at = stroeInfo.getAttachedType();
+        if (null != fileInfo) {
+            String at = fileInfo.getAttachedType();
             if("N".equals(at)){
                 JsonResultUtils.writeHttpErrorMessage(
                         FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
                 return ;
             }
-            String fileName = stroeInfo.getFileName();
+            String fileName = fileInfo.getFileName();
             if("P".equals(at)){
                 if (fileName.lastIndexOf(".") != -1){
                     fileName = fileName.substring(0,fileName.lastIndexOf("."))+".pdf" ;
@@ -120,8 +120,8 @@ public class DownloadController extends BaseController {
             }
 
             downFileRange(request, response,
-                    fileStore.loadFileStream(stroeInfo.getAttachedStorePath()),
-                    fileStore.getFileSize(stroeInfo.getAttachedStorePath()),fileName );
+                    fileStore.loadFileStream(fileInfo.getAttachedStorePath()),
+                    fileStore.getFileSize(fileInfo.getAttachedStorePath()),fileName );
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件", response);
@@ -141,9 +141,9 @@ public class DownloadController extends BaseController {
     public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
-        FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
 
-        downloadFile(fileStore, stroeInfo, request, response);
+        downloadFile(fileStore, fileInfo, request, response);
     }
 
     /**
@@ -161,8 +161,8 @@ public class DownloadController extends BaseController {
         FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
         if(fileAccessLog!=null){
             if(fileAccessLog.checkValid(false)){
-                FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileAccessLog.getFileId());
-                downloadFile(fileStore, stroeInfo, request ,response);
+                FileInfo fileInfo = fileInfoManager.getObjectById(fileAccessLog.getFileId());
+                downloadFile(fileStore, fileInfo, request ,response);
                 // 记录访问日志
                 fileAccessLog.chargeAccessTimes();
                 fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
@@ -289,9 +289,9 @@ public class DownloadController extends BaseController {
         long fileSize ;
         // 如果只下载一个文件则 不压缩
         if(fileIds.length == 1){
-            FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileIds[0]);
-            fileSize = stroeInfo.getFileSize();
-            String filePath = fileStore.getFileStoreUrl(stroeInfo.getFileMd5(), fileSize);
+            FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
+            fileSize = fileInfo.getFileSize();
+            String filePath = fileStore.getFileStoreUrl(fileInfo.getFileMd5(), fileSize);
             inputStream = fileStore.loadFileStream(filePath);
         } else {
             StringBuilder fileIdSb = new StringBuilder();
@@ -311,7 +311,7 @@ public class DownloadController extends BaseController {
                 String[] fileNames = new String[len];
                 int j = 0;
                 for (int i = 0; i < len; i++) {
-                    FileStoreInfo si = fileStoreInfoManager.getObjectById(fileIds[i]);
+                    FileInfo si = fileInfoManager.getObjectById(fileIds[i]);
                     if (si != null) {
                         fileUrls[j] = fileStore.getFileStoreUrl(si.getFileMd5(), si.getFileSize());
                         fileNames[j] = si.getFileName();

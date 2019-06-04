@@ -1,9 +1,9 @@
 package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileAccessLog;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -12,7 +12,6 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.model.basedata.IUserInfo;
-import com.centit.framework.security.model.CentitUserDetails;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +44,7 @@ public class LocalFileController extends BaseController {
     private LocalFileManager localFileManager;
 
     @Resource
-    private FileStoreInfoManager fileStoreInfoManager;
+    private FileInfoManager fileInfoManager;
 
     @Resource
     private FileAccessLogManager fileAccessLogManager;
@@ -231,11 +230,11 @@ public class LocalFileController extends BaseController {
     }
 
 
-    private void writeDownloadFileLog(FileStoreInfo fileStoreInfo, HttpServletRequest request) {
+    private void writeDownloadFileLog(FileInfo fileInfo, HttpServletRequest request) {
 
         FileAccessLog accessLog = new FileAccessLog();
         String ar = "A";
-        accessLog.setFileId(fileStoreInfo.getFileId());
+        accessLog.setFileId(fileInfo.getFileId());
         accessLog.setAccessToken(UuidOpt.getUuidAsString32());
         accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
         accessLog.setAccessRight(ar);
@@ -252,10 +251,10 @@ public class LocalFileController extends BaseController {
                 accessLog.setAccessUsename(user.getUserName());
             }
         }
-        fileStoreInfo.addDownloadTimes();
+        fileInfo.addDownloadTimes();
 
         fileAccessLogManager.saveNewAccessLog(accessLog);
-        fileStoreInfoManager.updateObject(fileStoreInfo);
+        fileInfoManager.updateObject(fileInfo);
     }
 
     /**
@@ -270,14 +269,14 @@ public class LocalFileController extends BaseController {
     public void downloadFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
 
-        FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(fileId);
-        if (stroeInfo == null) {
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if (fileInfo == null) {
             JsonResultUtils.writeHttpErrorMessage(
                 FileServerConstant.ERROR_FILE_NOT_EXIST,
                 "文件不存：" + fileId, response);
             return;
         }
-        writeDownloadFileLog(stroeInfo, request);
-        DownloadController.downloadFile(fileStore, stroeInfo, request, response);
+        writeDownloadFileLog(fileInfo, request);
+        DownloadController.downloadFile(fileStore, fileInfo, request, response);
     }
 }

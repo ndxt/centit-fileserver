@@ -14,8 +14,8 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 @Entity
-@Table(name= "FILE_STORE_INFO")
-public class FileStoreInfo implements Serializable {
+@Table(name= "FILE_INFO")
+public class FileInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -100,7 +100,7 @@ public class FileStoreInfo implements Serializable {
     private String attachedType;
 
 
-    public FileStoreInfo(){
+    public FileInfo(){
         indexState = "N";
         encryptType = "N";
         fileState = "N";
@@ -332,7 +332,7 @@ public class FileStoreInfo implements Serializable {
         this.attachedType = attachedType;
     }
 
-    public void copy(FileStoreInfo other){
+    public void copy(FileInfo other){
         this.fileName = other.getFileName();
 
         this.fileShowPath=other.getFileShowPath();
@@ -378,7 +378,7 @@ public class FileStoreInfo implements Serializable {
         //this.attachedType = other.getAttachedType();
     }
 
-    public void copyNotNullProperty(FileStoreInfo other){
+    public void copyNotNullProperty(FileInfo other){
 
         if(StringUtils.isNotBlank(other.getFileName()))
             this.fileName = other.getFileName();
