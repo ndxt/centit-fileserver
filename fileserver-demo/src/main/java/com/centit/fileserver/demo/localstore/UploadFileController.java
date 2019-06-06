@@ -195,7 +195,8 @@ public class UploadFileController extends BaseController {
         request.setCharacterEncoding("utf8");
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try {
-            Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
+            Pair<String, InputStream> fileInfo =
+                UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
             int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight() , tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             //FileStore fs = FileStoreFactory.createDefaultFileStore();
@@ -220,13 +221,12 @@ public class UploadFileController extends BaseController {
 
     @WrapUpResponseBody
     @RequestMapping(value = "/qiniuUploadfile",  method = RequestMethod.POST)
-    public Map<String, Object> qiniuUploadfile(@RequestParam(value = "upfile", required = true)
+    public void uploadfileSimple(@RequestParam(value = "upfile", required = true)
                                        MultipartFile[] upfile, HttpServletResponse response) throws Exception {
-        Map<String, Object> map = new HashMap<>();
+
         if (upfile != null && upfile.length > 0) {
             // 循环获取file数组中得文件
-            for (int i = 0; i < upfile.length; i++) {
-                MultipartFile uploadFile = upfile[i];
+            for (MultipartFile uploadFile : upfile) {
                 String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
                 String fileName = uploadFile.getOriginalFilename();
                 File source = new File(tempFilePath);// 文件
@@ -237,14 +237,8 @@ public class UploadFileController extends BaseController {
                 fileStore.saveFile(tempFilePath);
                 completedStoreFile(fileStore, fileMd5, uploadFile.getSize(), fileName, response);
                 FileSystemOpt.deleteFile(tempFilePath);
-
-                map.put( "name", fileName );
-                map.put( "size", uploadFile.getSize());
-                map.put( "fileMd5", fileMd5 );
-                map.put( "tempFilePath", tempFilePath );
                 break;
             }
         }
-        return map;
     }
 }
