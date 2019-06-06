@@ -9,6 +9,7 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -22,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
@@ -101,7 +99,8 @@ public class UploadFileController extends BaseController {
 
 
     /*
-     * 保存文件
+     * 断点续传，文件上传成功后的处理方法：
+     * 保存文件；或者做其他 文件处理工作
      */
 
     private void completedStoreFile(FileStore fs, String fileMd5, long size,
@@ -217,5 +216,35 @@ public class UploadFileController extends BaseController {
     @RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
     public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
         JsonResultUtils.writeSuccessJson(response);
+    }
+
+    @WrapUpResponseBody
+    @RequestMapping(value = "/qiniuUploadfile",  method = RequestMethod.POST)
+    public Map<String, Object> qiniuUploadfile(@RequestParam(value = "upfile", required = true)
+                                       MultipartFile[] upfile, HttpServletResponse response) throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        if (upfile != null && upfile.length > 0) {
+            // 循环获取file数组中得文件
+            for (int i = 0; i < upfile.length; i++) {
+                MultipartFile uploadFile = upfile[i];
+                String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+                String fileName = uploadFile.getOriginalFilename();
+                File source = new File(tempFilePath);// 文件
+                uploadFile.transferTo(source);//MultipartFile 转file
+
+                String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+                //FileStore fs = FileStoreFactory.createDefaultFileStore();
+                fileStore.saveFile(tempFilePath);
+                completedStoreFile(fileStore, fileMd5, uploadFile.getSize(), fileName, response);
+                FileSystemOpt.deleteFile(tempFilePath);
+
+                map.put( "name", fileName );
+                map.put( "size", uploadFile.getSize());
+                map.put( "fileMd5", fileMd5 );
+                map.put( "tempFilePath", tempFilePath );
+                break;
+            }
+        }
+        return map;
     }
 }
