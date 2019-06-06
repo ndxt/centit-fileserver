@@ -220,7 +220,7 @@ public class UploadFileController extends BaseController {
     }
 
     @WrapUpResponseBody
-    @RequestMapping(value = "/qiniuUploadfile",  method = RequestMethod.POST)
+    @RequestMapping(value = "/uploadfile",  method = RequestMethod.POST)
     public void uploadfileSimple(@RequestParam(value = "upfile", required = true)
                                        MultipartFile[] upfile, HttpServletResponse response) throws Exception {
 
