@@ -1,27 +1,27 @@
 package com.centit.fileserver.service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 
 import java.util.Map;
 
-public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String> {
+public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
     /**
      * @param originalFile 原始文件
      */
-    void saveNewFile(FileStoreInfo originalFile);
+    void saveNewFile(FileInfo originalFile);
 
     /**
      * 删除文件
      * @param originalFile 原始文件
      */
-    void deleteFile(FileStoreInfo originalFile);
+    void deleteFile(FileInfo originalFile);
 
-    FileStoreInfo getDuplicateFile(FileStoreInfo originalFile);
+    FileInfo getDuplicateFile(FileInfo originalFile);
 
-    FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile);
+    FileInfo getDuplicateFileByShowPath(FileInfo originalFile);
     //String owner, String unit, String fileMd5, long fileSize, String fileId)
     /**
      * @param queryParamsMap Map &lt; String,Object &gt;

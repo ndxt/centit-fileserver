@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.fileaccess.FilePretreatment;
 import com.centit.fileserver.fileaccess.PretreatInfo;
-import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -75,15 +75,15 @@ public class UploadController extends BaseController {
     protected Indexer documentIndexer;
 
     @Resource
-    protected FileStoreInfoManager fileStoreInfoManager;
+    protected FileInfoManager fileInfoManager;
 
     @Resource
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
 
 
-    private static FileStoreInfo fetchFileInfoFromRequest(HttpServletRequest request){
+    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request){
 
-        FileStoreInfo fileInfo = new FileStoreInfo();
+        FileInfo fileInfo = new FileInfo();
 
         fileInfo.setFileMd5(request.getParameter("token"));
         Long fileSize = NumberBaseOpt.parseLong(
@@ -190,7 +190,7 @@ public class UploadController extends BaseController {
         // 如果文件已经存在则完成秒传，无需再传
         if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
-            FileStoreInfo fileInfo = fetchFileInfoFromRequest(request);
+            FileInfo fileInfo = fetchFileInfoFromRequest(request);
             if (StringUtils.isNotBlank(fileInfo.getFileName()) &&
                     StringUtils.isNotBlank(fileInfo.getOsId()) &&
                     StringUtils.isNotBlank(fileInfo.getOptId())) {
@@ -210,9 +210,9 @@ public class UploadController extends BaseController {
                 makeRangeUploadJson(tempFileSize).toJSONString(), response);
     }
 
-    private Triple<FileStoreInfo, PretreatInfo, InputStream>
+    private Triple<FileInfo, PretreatInfo, InputStream>
     fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
-        FileStoreInfo fileInfo = fetchFileInfoFromRequest(request);
+        FileInfo fileInfo = fetchFileInfoFromRequest(request);
         PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart)
@@ -233,7 +233,7 @@ public class UploadController extends BaseController {
             if (fi.isFormField()) {
                 if (StringUtils.equals("fileInfo", fi.getFieldName())) {
                     try {
-                        FileStoreInfo fsi = JSON.parseObject(fi.getString(), FileStoreInfo.class);
+                        FileInfo fsi = JSON.parseObject(fi.getString(), FileInfo.class);
                         fileInfo.copyNotNullProperty(fsi);
                     } catch (Exception e) {
                         logger.error(e.getMessage(),e);
@@ -265,7 +265,7 @@ public class UploadController extends BaseController {
      * @param response HttpServletResponse
      */
     private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
-                                      FileStoreInfo fileInfo, PretreatInfo pretreatInfo,
+                                      FileInfo fileInfo, PretreatInfo pretreatInfo,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
         try {
@@ -286,16 +286,16 @@ public class UploadController extends BaseController {
     /**
      * 解压缩文件
      * @param fs 文件的物理存储接口
-     * @param fileStoreInfo 文件对象
+     * @param fileInfo 文件对象
      * @param pretreatInfo  PretreatInfo
      * @param rootPath 根路径
      * @throws Exception Exception
      */
-    private void unzip(FileStore fs, FileStoreInfo fileStoreInfo, PretreatInfo pretreatInfo, String rootPath) {
+    private void unzip(FileStore fs, FileInfo fileInfo, PretreatInfo pretreatInfo, String rootPath) {
 
         File zipFile = null;
         try {
-            zipFile = fs.getFile(fileStoreInfo.getFileStorePath());
+            zipFile = fs.getFile(fileInfo.getFileStorePath());
         }catch (IOException e){
             throw new ObjectException(e);
         }
@@ -319,11 +319,11 @@ public class UploadController extends BaseController {
                 String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
                 fileStore.saveFile(tempFilePath, token, size);
 
-                FileStoreInfo fileStoreInfoTemp = new FileStoreInfo();
-                fileStoreInfoTemp.copyNotNullProperty(fileStoreInfo);
-                fileStoreInfoTemp.setFileMd5(token);
-                fileStoreInfoTemp.setFileName(name.substring(di + 1));
-                fileStoreInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
+                FileInfo fileInfoTemp = new FileInfo();
+                fileInfoTemp.copyNotNullProperty(fileInfo);
+                fileInfoTemp.setFileMd5(token);
+                fileInfoTemp.setFileName(name.substring(di + 1));
+                fileInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
 
                 // ① name: test/4.东航国际运输条件.docx && showPath: null =========> showPath: null
                 // ② name: test/4.东航国际运输条件.docx && showPath: a =========> showPath: a
@@ -331,19 +331,19 @@ public class UploadController extends BaseController {
                 // ④ name: test/b/4.东航国际运输条件.docx && showPath: a =========> showPath: a/b
                 if (fi == di) {
                     // 情况 ① ②
-                    fileStoreInfoTemp.setFileShowPath(rootPath);
+                    fileInfoTemp.setFileShowPath(rootPath);
                 } else {
                     // 情况 ③ ④
-                    fileStoreInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)));
+                    fileInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)));
                 }
 
-                fileStoreInfoTemp.setFileStorePath(fileStore.getFileStoreUrl(token, size));
+                fileInfoTemp.setFileStorePath(fileStore.getFileStoreUrl(token, size));
 
                 PretreatInfo pretreatInfoTemp = new PretreatInfo();
                 pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
                 pretreatInfoTemp.setIsIsUnzip(false);
 
-                storeAndPretreatFile(fileStore, token, size, fileStoreInfoTemp, pretreatInfoTemp);
+                storeAndPretreatFile(fileStore, token, size, fileInfoTemp, pretreatInfoTemp);
 
                 FileSystemOpt.deleteFile(tempFilePath);
             }
@@ -353,13 +353,13 @@ public class UploadController extends BaseController {
     }
 
     private JSONObject storeAndPretreatFile(FileStore fs, String fileMd5, long size,
-                                            FileStoreInfo fileInfo, PretreatInfo pretreatInfo)  {
+                                            FileInfo fileInfo, PretreatInfo pretreatInfo)  {
 
         fileInfo.setFileMd5(fileMd5);
         fileInfo.setFileSize(size);
         fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
 
-        fileStoreInfoManager.saveNewObject(fileInfo);
+        fileInfoManager.saveNewObject(fileInfo);
         String fileId = fileInfo.getFileId();
         try {
             if (pretreatInfo.needPretreat()) {
@@ -375,17 +375,17 @@ public class UploadController extends BaseController {
         }
 
         if(checkDuplicate){
-            FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFile(fileInfo);
+            FileInfo duplicateFile = fileInfoManager.getDuplicateFile(fileInfo);
             if(duplicateFile != null){
                 if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
                     documentIndexer.deleteDocument(duplicateFile.getFileId());
                 }
-                fileStoreInfoManager.deleteFile(duplicateFile);
+                fileInfoManager.deleteFile(duplicateFile);
             }
         }
 
         if(keepSingleIndexByShowpath ){
-            FileStoreInfo duplicateFile = fileStoreInfoManager.getDuplicateFileByShowPath(fileInfo);
+            FileInfo duplicateFile = fileInfoManager.getDuplicateFileByShowPath(fileInfo);
             if(duplicateFile != null){
                 if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
                     documentIndexer.deleteDocument(duplicateFile.getFileId());
@@ -393,7 +393,7 @@ public class UploadController extends BaseController {
             }
         }
 
-        fileStoreInfoManager.updateObject(fileInfo);
+        fileInfoManager.updateObject(fileInfo);
         // 返回响应
         JSONObject json = new JSONObject();
         json.put("start", size);
@@ -426,7 +426,7 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            Triple<FileStoreInfo, PretreatInfo, InputStream> formData
+            Triple<FileInfo, PretreatInfo, InputStream> formData
                     = fetchUploadFormFromRequest(request);
             completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
             return;
@@ -468,7 +468,7 @@ public class UploadController extends BaseController {
             return;
         }
 
-        Triple<FileStoreInfo, PretreatInfo, InputStream> formData
+        Triple<FileInfo, PretreatInfo, InputStream> formData
                 = fetchUploadFormFromRequest(request);
 
 
@@ -490,7 +490,7 @@ public class UploadController extends BaseController {
 
             }else if( uploadSize>0){
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize);
-                FileStoreInfo fileInfo = new FileStoreInfo();
+                FileInfo fileInfo = new FileInfo();
                 fileInfo.setFileSize(uploadSize);
                 json.put(ResponseData.RES_DATA_FILED, fileInfo);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
@@ -519,7 +519,7 @@ public class UploadController extends BaseController {
             return;
         }
         request.setCharacterEncoding("utf8");
-        Triple<FileStoreInfo, PretreatInfo, InputStream> formData
+        Triple<FileInfo, PretreatInfo, InputStream> formData
                 = fetchUploadFormFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try {

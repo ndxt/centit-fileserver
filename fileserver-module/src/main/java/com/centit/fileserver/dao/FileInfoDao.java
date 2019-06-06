@@ -1,7 +1,7 @@
 package com.centit.fileserver.dao;
 
 import com.centit.fileserver.po.FileShowInfo;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;
@@ -11,13 +11,12 @@ import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 @Repository
-public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
+public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
 
     public Map<String, String> getFilterField() {
         if( filterField == null){
@@ -51,11 +50,11 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         List<?> objects = null;
         if (StringUtils.isBlank(fileShowPath)) {
             String sqlsenOralce = "select distinct subStr( CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'/'";
             String sqlsenMysql= "select distinct subString( CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -65,12 +64,12 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String fsp = trimFilePath(fileShowPath)+ LocalFileManager.FILE_PATH_SPLIT;
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
                     "instr( subStr(CONCAT(FILE_SHOW_PATH,'/'),length(:fsp)+1),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
             String sqlsenMysql = "select distinct subString(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
                     "instr( subString(CONCAT(FILE_SHOW_PATH,'/'),length(:fsp)+1),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -100,11 +99,11 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         List<?> objects = null;
         if (StringUtils.isBlank(fileShowPath)) {
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'/'";
             String sqlsenMysql = "select distinct subString(CONCAT(FILE_SHOW_PATH,'/'), 1,instr( CONCAT(FILE_SHOW_PATH,'/'),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH is not null and FILE_SHOW_PATH<>'' and FILE_SHOW_PATH<>'/'";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -114,12 +113,12 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String fsp = trimFilePath(fileShowPath)+ LocalFileManager.FILE_PATH_SPLIT;
             String sqlsenOralce = "select distinct subStr(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
                     "instr( subStr(CONCAT(FILE_SHOW_PATH,'/'),length(:fsp)+1),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
             String sqlsenMysql = "select distinct subString(CONCAT(FILE_SHOW_PATH,'/'), length(:fsp)+1, " +
                     "instr( subString(CONCAT(FILE_SHOW_PATH,'/'),length(:fsp)+1),'/')-1) " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH like :fspmatch";
             objects = DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -146,7 +145,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
                     "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
                     "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
@@ -158,7 +157,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
                     "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
                     "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
@@ -195,7 +194,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
                     "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
                     "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
@@ -207,7 +206,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
             String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
                     "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
                     "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
@@ -242,7 +241,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
             String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
@@ -252,7 +251,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                             "fn",fileName));
         }else{
             String sqlsen = "select FILE_ID ,ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
@@ -287,7 +286,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
             String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
@@ -297,7 +296,7 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
                             "fn",fileName));
         }else{
             String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
@@ -330,8 +329,8 @@ public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
         return files;
     }
 
-    public List<FileStoreInfo> listFileStoreInfo(String fileShowPath,String fileName) {
-        List<FileStoreInfo> objects = null;
+    public List<FileInfo> listFileStoreInfo(String fileShowPath,String fileName) {
+        List<FileInfo> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
             String hqlsen =  "where (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME = ?";

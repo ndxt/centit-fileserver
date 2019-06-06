@@ -1,8 +1,8 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
-import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
@@ -33,7 +33,7 @@ public class FileManagerController extends BaseController {
     private Logger logger = LoggerFactory.getLogger(FileManagerController.class);
 
     @Resource
-    private FileStoreInfoManager fileStoreInfoManager;
+    private FileInfoManager fileInfoManager;
 
     @Resource
     private IntegrationEnvironment integrationEnvironment;
@@ -48,10 +48,10 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
     public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
-        FileStoreInfo storeInfo =fileStoreInfoManager.getObjectById(fileId);
-        if(storeInfo !=null){
-            storeInfo.setFileState("D");
-            fileStoreInfoManager.updateObject(storeInfo);
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(fileInfo !=null){
+            fileInfo.setFileState("D");
+            fileInfoManager.updateObject(fileInfo);
             JsonResultUtils.writeSuccessJson(response);
         }else{
             JsonResultUtils.writeErrorMessageJson(
@@ -67,9 +67,9 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/force/{fileId}",method = RequestMethod.DELETE)
     public void deleteForce(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
-        FileStoreInfo storeInfo =fileStoreInfoManager.getObjectById(fileId);
-        if(storeInfo !=null){
-            String path= storeInfo.getFileStorePath();
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(fileInfo !=null){
+            String path= fileInfo.getFileStorePath();
 
             try {
                 fileStore.deleteFile(path);
@@ -79,8 +79,8 @@ public class FileManagerController extends BaseController {
                         e.getMessage(), response);
                 return;
             }
-            storeInfo.setFileState("D");
-            fileStoreInfoManager.updateObject(storeInfo);
+            fileInfo.setFileState("D");
+            fileInfoManager.updateObject(fileInfo);
             JsonResultUtils.writeSuccessJson(response);
         }else{
             JsonResultUtils.writeErrorMessageJson(
@@ -97,9 +97,9 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/{fileId}",method = RequestMethod.GET)
     public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
-        FileStoreInfo storeInfo =fileStoreInfoManager.getObjectById(fileId);
-        if(storeInfo !=null){
-            JsonResultUtils.writeSingleDataJson(storeInfo, response);
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(fileInfo !=null){
+            JsonResultUtils.writeSingleDataJson(fileInfo, response);
         }else{
             JsonResultUtils.writeErrorMessageJson(
                     "文件不存在："+fileId, response);
@@ -108,47 +108,47 @@ public class FileManagerController extends BaseController {
 
     /**
      * 更新文件存储信息
-     * @param storeInfo 文件对象
+     * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
 
-    private void updateFileStoreInfo(FileStoreInfo storeInfo, HttpServletResponse response){
-        FileStoreInfo dbstoreInfo =fileStoreInfoManager.getObjectById(storeInfo.getFileId());
+    private void updateFileStoreInfo(FileInfo fileInfo, HttpServletResponse response){
+        FileInfo dbFileInfo = fileInfoManager.getObjectById(fileInfo.getFileId());
 
-        if(dbstoreInfo !=null){
-            dbstoreInfo.copyNotNullProperty(storeInfo);
-            fileStoreInfoManager.updateObject(dbstoreInfo);
-            JsonResultUtils.writeSingleDataJson(storeInfo, response);
+        if(dbFileInfo !=null){
+            dbFileInfo.copyNotNullProperty(fileInfo);
+            fileInfoManager.updateObject(dbFileInfo);
+            JsonResultUtils.writeSingleDataJson(fileInfo, response);
         }else{
             JsonResultUtils.writeErrorMessageJson(
-                    "文件不存在："+storeInfo.getFileId(), response);
+                    "文件不存在："+fileInfo.getFileId(), response);
         }
     }
 
     /**
      * 根据文件的id修改文件存储信息，文件春粗信息按照表单的形式传送
      * @param fileId 文件ID
-     * @param storeInfo 文件对象
+     * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/{fileId}",method = RequestMethod.POST)
     public void postFileStoreInfo(@PathVariable("fileId") String fileId,
-            @Valid FileStoreInfo storeInfo, HttpServletResponse response){
-        storeInfo.setFileId(fileId);
-        updateFileStoreInfo(storeInfo,response);
+            @Valid FileInfo fileInfo, HttpServletResponse response){
+        fileInfo.setFileId(fileId);
+        updateFileStoreInfo(fileInfo,response);
     }
 
     /**
      * 根据文件的id修改文件存储信息，文件存储信息按照json的格式传送
      * @param fileId 文件ID
-     * @param storeInfo 文件对象
+     * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/j/{fileId}",method = RequestMethod.POST)
     public void jsonpostFileStoreInfo(@PathVariable("fileId") String fileId,
-            @RequestBody FileStoreInfo storeInfo, HttpServletResponse response){
-        storeInfo.setFileId(fileId);
-        updateFileStoreInfo(storeInfo,response);
+            @RequestBody FileInfo fileInfo, HttpServletResponse response){
+        fileInfo.setFileId(fileId);
+        updateFileStoreInfo(fileInfo,response);
     }
 
     /**
@@ -163,7 +163,7 @@ public class FileManagerController extends BaseController {
 
         Map<String, Object> queryParamsMap = convertSearchColumn(request);
 
-        JSONArray listObjects = fileStoreInfoManager.listStoredFiles(queryParamsMap, pageDesc);
+        JSONArray listObjects = fileInfoManager.listStoredFiles(queryParamsMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();
         resData.addResponseData(OBJLIST, listObjects);
         resData.addResponseData(PAGE_DESC, pageDesc);
@@ -192,7 +192,7 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/optids/{osId}",method = RequestMethod.GET)
     public void listOptsByOs(@PathVariable("osId") String osId,
                              HttpServletResponse response) {
-        JSONArray listObjects = fileStoreInfoManager.listOptsByOs(osId);
+        JSONArray listObjects = fileInfoManager.listOptsByOs(osId);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
 
@@ -207,7 +207,7 @@ public class FileManagerController extends BaseController {
     public void listFileOwners(@PathVariable("osId") String osId,
                              @PathVariable("optId") String optId,
                              HttpServletResponse response) {
-        JSONArray listObjects = fileStoreInfoManager.listFileOwners(osId,optId);
+        JSONArray listObjects = fileInfoManager.listFileOwners(osId,optId);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
 
@@ -224,7 +224,7 @@ public class FileManagerController extends BaseController {
                                  @PathVariable("owner") String owner,
                                HttpServletResponse response) {
 
-        JSONArray listObjects = fileStoreInfoManager.listFilesByOwner(osId,optId,owner);
+        JSONArray listObjects = fileInfoManager.listFilesByOwner(osId,optId,owner);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
 }

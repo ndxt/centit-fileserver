@@ -1,6 +1,6 @@
 package com.centit.fileserver.fileaccess;
 
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
@@ -91,7 +91,8 @@ public class FilePretreatment {
     }
 
     public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) {
-        return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
+//        return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
+        return OfficeToPdf.office2Pdf(suffix, "D:" + inputFile, "D:" + pdfFile);
     }
 
     /**
@@ -212,121 +213,121 @@ public class FilePretreatment {
             FileSystemOpt.deleteFile(filePath);
     }
 
-    public static FileStoreInfo pretreatment(FileStore fs,Indexer indexer,
-                                             FileStoreInfo fileStoreInfo,
+    public static FileInfo pretreatment(FileStore fs,Indexer indexer,
+                                             FileInfo fileInfo,
                                              PretreatInfo pretreatInfo)
     throws IOException{
         if(! pretreatInfo.needPretreat())
-            return fileStoreInfo;
+            return fileInfo;
 
         //FileStore fs = FileStoreFactory.createDefaultFileStore();
-        String sourceFilePath = fs.getFile( fileStoreInfo.getFileStorePath()).getPath();
+        String sourceFilePath = fs.getFile( fileInfo.getFileStorePath()).getPath();
 
         if(indexer != null && pretreatInfo.getIsIndex()){
             /*Indexer indexer = IndexerSearcherFactory.obtainIndexer(
                 IndexerSearcherFactory.loadESServerConfigFormProperties(
                         "" *//*SysParametersUtils.loadProperties()*//*), FileDocument.class) ;*/
             FileDocument fileDoc = new FileDocument();
-            fileDoc.setFileId(fileStoreInfo.getFileId() );
-            fileDoc.setOsId( fileStoreInfo.getOsId());
-            fileDoc.setOptId( fileStoreInfo.getOptId());
-            fileDoc.setOptMethod( fileStoreInfo.getOptMethod());
-            fileDoc.setOptTag( fileStoreInfo.getOptTag());
-            fileDoc.setFileMD5( fileStoreInfo.getFileMd5());
-            fileDoc.setFileName( fileStoreInfo.getFileName());
-            fileDoc.setFileSummary( fileStoreInfo.getFileDesc());
-            fileDoc.setOptUrl( fileStoreInfo.getFileShowPath());
-            fileDoc.setUserCode( fileStoreInfo.getFileOwner());
-            fileDoc.setUnitCode(fileStoreInfo.getFileUnit());
+            fileDoc.setFileId(fileInfo.getFileId() );
+            fileDoc.setOsId( fileInfo.getOsId());
+            fileDoc.setOptId( fileInfo.getOptId());
+            fileDoc.setOptMethod( fileInfo.getOptMethod());
+            fileDoc.setOptTag( fileInfo.getOptTag());
+            fileDoc.setFileMD5( fileInfo.getFileMd5());
+            fileDoc.setFileName( fileInfo.getFileName());
+            fileDoc.setFileSummary( fileInfo.getFileDesc());
+            fileDoc.setOptUrl( fileInfo.getFileShowPath());
+            fileDoc.setUserCode( fileInfo.getFileOwner());
+            fileDoc.setUnitCode(fileInfo.getFileUnit());
             //获取文件的文本信息
             try {
                 fileDoc.setContent(TikaTextExtractor.extractInputStreamText(
-                        fs.loadFileStream(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize())));
+                        fs.loadFileStream(fileInfo.getFileMd5(), fileInfo.getFileSize())));
             }catch (TikaException te){
                 logger.error(te.getMessage(), te);
             }catch (SAXException se){
                 logger.error(se.getMessage(), se);
             }
-            fileDoc.setCreateTime(fileStoreInfo.getCreateTime() );
+            fileDoc.setCreateTime(fileInfo.getCreateTime() );
             indexer.saveNewDocument(fileDoc);
-            fileStoreInfo.setIndexState("I");
+            fileInfo.setIndexState("I");
         }
 
         if(pretreatInfo.getAddPdf()){
-            String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.pdf";
+            String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5()+"1.pdf";
             boolean createPdf =
-                    office2Pdf(fileStoreInfo.getFileType(),sourceFilePath , pdfTmpFile );
+                    office2Pdf(fileInfo.getFileType(),sourceFilePath , pdfTmpFile );
 
             if(createPdf){
-                fileStoreInfo.setAttachedType("P");
+                fileInfo.setAttachedType("P");
                 if(StringUtils.isBlank(pretreatInfo.getWatermark())){
-                    String pdfTmpFile2 =  SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"2.pdf";
+                    String pdfTmpFile2 =  SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5()+"2.pdf";
                     if( addWatermarkForPdf(pdfTmpFile , pdfTmpFile2, pretreatInfo.getWatermark())){
-                        fileStoreInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile2));
+                        fileInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile2));
                     }else
-                        logger.error("给PDF添加水印出错！"+ fileStoreInfo.getFileMd5());
+                        logger.error("给PDF添加水印出错！"+ fileInfo.getFileMd5());
                 }else
-                    fileStoreInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile));
+                    fileInfo.setAttachedStorePath(fs.saveFile(pdfTmpFile));
             }else
-                logger.error("生产PDF文件出错！"+ fileStoreInfo.getFileMd5());
+                logger.error("生成PDF文件出错！"+ fileInfo.getFileMd5());
         }
 
         if(pretreatInfo.getAddThumbnail()){
-            String outFilename =  SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.jpf";
+            String outFilename =  SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5()+"1.jpf";
             if(createImageThumbnail(sourceFilePath,
                     pretreatInfo.getThumbnailWidth(), pretreatInfo.getThumbnailHeight(), 100,
                     outFilename)){
-                fileStoreInfo.setAttachedType("T");
-                fileStoreInfo.setAttachedStorePath(fs.saveFile(outFilename));
+                fileInfo.setAttachedType("T");
+                fileInfo.setAttachedStorePath(fs.saveFile(outFilename));
             }else
-                logger.error("生产缩略图出错！"+ fileStoreInfo.getFileMd5());
+                logger.error("生产缩略图出错！"+ fileInfo.getFileMd5());
         }
         //String oldFileStorePath = fileStoreInfo.getFileStorePath();
         if(!"N".equals(pretreatInfo.getEncryptType())){
 
-            String outFilename = SystemTempFileUtils.getTempDirectory() + fileStoreInfo.getFileMd5()+"1.ent";
+            String outFilename = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5()+"1.ent";
 
             if("D".equals(pretreatInfo.getEncryptType())){
                 if(StringUtils.isBlank(pretreatInfo.getEncryptPassword()))
-                    logger.error("设置AES加密时请同时设置密码！"+ fileStoreInfo.getFileMd5());
+                    logger.error("设置AES加密时请同时设置密码！"+ fileInfo.getFileMd5());
                 if(encryptFile(sourceFilePath,
                         outFilename,pretreatInfo.getEncryptPassword())){
 
                     File file = new File(outFilename);
                     String fileMd5 = FileMD5Maker.makeFileMD5(file);
                     long fileSize = file.length();
-                    fileStoreInfo.setFileStorePath(
+                    fileInfo.setFileStorePath(
                             fs.saveFile(outFilename,fileMd5,fileSize));
-                    fileStoreInfo.setFileMd5(fileMd5);
-                    fileStoreInfo.setFileSize(fileSize);
-                    fileStoreInfo.setEncryptType("D");
+                    fileInfo.setFileMd5(fileMd5);
+                    fileInfo.setFileSize(fileSize);
+                    fileInfo.setEncryptType("D");
                     //fs.deleteFile(oldFileStorePath);
                 }else
-                    logger.error("AES加密文件时出错！"+ fileStoreInfo.getFileMd5());
+                    logger.error("AES加密文件时出错！"+ fileInfo.getFileMd5());
             }else if("Z".equals(pretreatInfo.getEncryptType())){
                 if(StringUtils.isBlank(pretreatInfo.getEncryptPassword())){
 
-                     if(zipFile(sourceFilePath, fileStoreInfo.getFileName(), outFilename)){
+                     if(zipFile(sourceFilePath, fileInfo.getFileName(), outFilename)){
                         File file = new File(outFilename);
                         String fileMd5 = FileMD5Maker.makeFileMD5(file);
                         long fileSize = file.length();
-                        fileStoreInfo.setFileStorePath(
+                         fileInfo.setFileStorePath(
                                 fs.saveFile(outFilename,fileMd5,fileSize));
-                        fileStoreInfo.setFileMd5(fileMd5);
-                        fileStoreInfo.setFileSize(fileSize);
-                        fileStoreInfo.setEncryptType("Z");
-                        fileStoreInfo.setFileName(
-                                FileType.truncateFileExtName(fileStoreInfo.getFileName())
+                         fileInfo.setFileMd5(fileMd5);
+                         fileInfo.setFileSize(fileSize);
+                         fileInfo.setEncryptType("Z");
+                         fileInfo.setFileName(
+                                FileType.truncateFileExtName(fileInfo.getFileName())
                                 +".zip");
-                        fileStoreInfo.setFileType("zip");
+                         fileInfo.setFileType("zip");
                         //fs.deleteFile(oldFileStorePath);
                      }else
-                         logger.error("Zip压缩文件时出错！"+ fileStoreInfo.getFileMd5());
+                         logger.error("Zip压缩文件时出错！"+ fileInfo.getFileMd5());
                 }else{
                     String entFileDir = SystemTempFileUtils.getTempDirectory()
-                            + fileStoreInfo.getFileMd5();
+                            + fileInfo.getFileMd5();
                     FileSystemOpt.createDirect(entFileDir);
-                    String entFilePath = entFileDir + File.separatorChar + fileStoreInfo.getFileName();
+                    String entFilePath = entFileDir + File.separatorChar + fileInfo.getFileName();
 
                     FileSystemOpt.fileCopy(sourceFilePath, entFilePath);
 
@@ -335,15 +336,15 @@ public class FilePretreatment {
                         File file = new File(outFilename);
                         String fileMd5 = FileMD5Maker.makeFileMD5(file);
                         long fileSize = file.length();
-                        fileStoreInfo.setFileStorePath(
+                        fileInfo.setFileStorePath(
                                 fs.saveFile(outFilename,fileMd5,fileSize));
-                        fileStoreInfo.setFileMd5(fileMd5);
-                        fileStoreInfo.setFileSize(fileSize);
-                        fileStoreInfo.setEncryptType("Z");
-                        fileStoreInfo.setFileName(
-                                FileType.truncateFileExtName(fileStoreInfo.getFileName())
+                        fileInfo.setFileMd5(fileMd5);
+                        fileInfo.setFileSize(fileSize);
+                        fileInfo.setEncryptType("Z");
+                        fileInfo.setFileName(
+                                FileType.truncateFileExtName(fileInfo.getFileName())
                                 +".zip");
-                        fileStoreInfo.setFileType("zip");
+                        fileInfo.setFileType("zip");
                         //删除临时文件
                         FileSystemOpt.deleteFile(entFilePath);
                         FileSystemOpt.deleteDirect(entFileDir);
@@ -351,7 +352,7 @@ public class FilePretreatment {
                     }else{
                         FileSystemOpt.deleteFile(entFilePath);
                         FileSystemOpt.deleteDirect(entFileDir);
-                        logger.error("zipFileAndEncrypt 压缩文件时出错！"+ fileStoreInfo.getFileMd5());
+                        logger.error("zipFileAndEncrypt 压缩文件时出错！"+ fileInfo.getFileMd5());
                     }
                 }
             }
@@ -359,7 +360,7 @@ public class FilePretreatment {
             FileSystemOpt.deleteFile(outFilename);
         }
         deleteFileIfTempFile(sourceFilePath);
-        return fileStoreInfo;
+        return fileInfo;
     }
 
 }

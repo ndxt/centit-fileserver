@@ -2,10 +2,10 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileAccessLog;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileUploadAuthorized;
 import com.centit.fileserver.service.FileAccessLogManager;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.common.JsonResultUtils;
@@ -22,7 +22,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -31,15 +30,15 @@ public class AccessManagerController extends BaseController {
     @Resource
     private FileAccessLogManager fileAccessLogManager;
     @Resource
-    private FileStoreInfoManager fileStoreInfoManager;
+    private FileInfoManager fileInfoManager;
     @Resource
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
 
 
     private ResponseSingleData applyAccess(FileAccessLog accessLog) {
         String fileId = accessLog.getFileId();
-        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileId);
-        if(fileStoreInfo==null){
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(fileInfo==null){
             return new ResponseSingleData(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存："+fileId);
@@ -50,9 +49,9 @@ public class AccessManagerController extends BaseController {
         //accessLog.setFileId(fileId);
         accessLog.setAccessToken( UuidOpt.getUuidAsString32());
         accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
-        fileStoreInfo.addDownloadTimes();
+        fileInfo.addDownloadTimes();
         fileAccessLogManager.saveNewAccessLog(accessLog);
-        fileStoreInfoManager.updateObject(fileStoreInfo);
+        fileInfoManager.updateObject(fileInfo);
         return ResponseSingleData.makeResponseData(accessLog);
     }
 

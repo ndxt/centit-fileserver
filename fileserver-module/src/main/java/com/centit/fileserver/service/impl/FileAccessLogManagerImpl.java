@@ -57,7 +57,7 @@ public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLo
                 "select a.ACCESS_TOKEN, a.FILE_ID, a.AUTH_TIME, a.ACCESS_USERCODE, a.ACCESS_USENAME,"
                 + " a.ACCESS_RIGHT, a.TOKEN_EXPIRE_TIME, a.ACCESS_TIMES, a.LAST_ACCESS_TIME, a.LAST_ACCESS_HOST,"
                 + " b.FILE_NAME  "
-                + " from FILE_ACCESS_LOG a join FILE_STORE_INFO b on (a.FILE_ID=b.FILE_ID) where 1=1 "
+                + " from FILE_ACCESS_LOG a join FILE_INFO b on (a.FILE_ID=b.FILE_ID) where 1=1 "
                 + " [ :osId | and b.OS_ID = :osId ]"
                 + " [ :(like)fileName | and b.FILE_NAME like :fileName] "
                 + " [ :optId | and b.OPT_ID = :optId ]"

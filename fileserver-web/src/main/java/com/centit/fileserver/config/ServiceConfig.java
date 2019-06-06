@@ -3,7 +3,9 @@ package com.centit.fileserver.config;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.utils.LinkedBlockingQueueFileStoreTaskPool;
 import com.centit.fileserver.utils.OsFileStore;
+import com.centit.fileserver.utils.FileStoreTaskPool;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
@@ -74,6 +76,11 @@ public class ServiceConfig {
             cosStore.setBucketName(env.getProperty("cos.bucketName"));
             return cosStore;
         }
+    }
+
+    @Bean
+    public FileStoreTaskPool taskStore() throws Exception {
+        return new LinkedBlockingQueueFileStoreTaskPool("/D/Projects/RunData/file_home/task/");
     }
 
     @Bean

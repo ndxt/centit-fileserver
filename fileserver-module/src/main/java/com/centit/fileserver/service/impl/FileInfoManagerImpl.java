@@ -1,9 +1,9 @@
 package com.centit.fileserver.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.centit.fileserver.dao.FileStoreInfoDao;
-import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.dao.FileInfoDao;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.service.FileInfoManager;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
@@ -22,24 +22,24 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-@Service("fileStoreInfoManager")
+@Service("fileInfoManager")
 @Transactional
-public class FileStoreInfoManagerImpl
-        extends BaseEntityManagerImpl<FileStoreInfo, String, FileStoreInfoDao>
-     implements FileStoreInfoManager {
+public class FileInfoManagerImpl
+        extends BaseEntityManagerImpl<FileInfo, String, FileInfoDao>
+     implements FileInfoManager {
 
     @Value("${spring.datasource.url}")
     private String connUrl;
 
-    @Resource(name ="fileStoreInfoDao")
+    @Resource(name ="fileInfoDao")
     @NotNull
     @Override
-    protected void setBaseDao(FileStoreInfoDao baseDao) {
+    protected void setBaseDao(FileInfoDao baseDao) {
         super.baseDao = baseDao;
     }
 
     @Override
-    public void saveNewObject(FileStoreInfo originalFile){
+    public void saveNewObject(FileInfo originalFile){
 
         if(StringUtils.isBlank(originalFile.getOsId()))
             originalFile.setOsId("NOTSET");
@@ -52,12 +52,12 @@ public class FileStoreInfoManagerImpl
 
 
     @Override
-    public void saveNewFile(FileStoreInfo originalFile){
+    public void saveNewFile(FileInfo originalFile){
          saveNewObject(originalFile);
     }
 
     @Override
-    public void deleteFile(FileStoreInfo originalFile){
+    public void deleteFile(FileInfo originalFile){
 
         originalFile.setFileState("D");
         this.baseDao.mergeObject(originalFile);
@@ -70,7 +70,7 @@ public class FileStoreInfoManagerImpl
                 + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
                 + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, FILE_SIZE,"
                 + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_STORE_PATH"
-                + " from FILE_STORE_INFO a where 1=1 "
+                + " from FILE_INFO a where 1=1 "
                 + " [ :files | and a.FILE_ID in (:files) ] "
                         //:(SPLITFORIN)files 这个地方files如果不是数组而是逗号分隔的就需要添加这个预处理
                 + " [ :(like)fileName | and a.FILE_NAME like :fileName] "
@@ -84,16 +84,16 @@ public class FileStoreInfoManagerImpl
         //System.out.println(qap.getQuery());
         JSONArray dataList = DictionaryMapUtils.mapJsonArray(
                 DatabaseOptUtils.listObjectsByParamsDriverSqlAsJson(baseDao,
-                    queryStatement,queryParamsMap , pageDesc), FileStoreInfo.class );
+                    queryStatement,queryParamsMap , pageDesc), FileInfo.class );
         return dataList;
     }
 
     @Override
-    public FileStoreInfo getDuplicateFile(FileStoreInfo originalFile){
+    public FileInfo getDuplicateFile(FileInfo originalFile){
         String queryStatement =
                 " where FILE_ID <> ? and FILE_MD5 = ?  and FILE_SIZE = ?" +
                 " and ( FILE_OWNER = ? or FILE_UNIT= ? )";
-        List<FileStoreInfo> duplicateFiles =
+        List<FileInfo> duplicateFiles =
                 baseDao.listObjectsByFilter( queryStatement, new Object[]
                 {originalFile.getFileId(),originalFile.getFileMd5(),originalFile.getFileSize(),
                         originalFile.getFileOwner(),originalFile.getFileUnit()});
@@ -103,11 +103,11 @@ public class FileStoreInfoManagerImpl
     }
 
     @Override
-    public FileStoreInfo getDuplicateFileByShowPath(FileStoreInfo originalFile){
+    public FileInfo getDuplicateFileByShowPath(FileInfo originalFile){
         if (StringUtils.isBlank(originalFile.getFileShowPath())){
             String queryStatement2 = " where FILE_ID <> ? and FILE_SHOW_PATH is null " +
                     " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
-            List<FileStoreInfo> duplicateFiles =
+            List<FileInfo> duplicateFiles =
                     baseDao.listObjectsByFilter(queryStatement2, new Object[]
                             {originalFile.getFileId(),originalFile.getFileName(),
                                     originalFile.getFileOwner(),originalFile.getFileUnit()});
@@ -116,7 +116,7 @@ public class FileStoreInfoManagerImpl
         }else {
             String queryStatement = " where FILE_ID <> ? and FILE_SHOW_PATH = ? " +
                     " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
-            List<FileStoreInfo> duplicateFiles =
+            List<FileInfo> duplicateFiles =
                     baseDao.listObjectsByFilter(queryStatement, new Object[]
                             {originalFile.getFileId(),originalFile.getFileShowPath(),originalFile.getFileName(),
                                     originalFile.getFileOwner(),originalFile.getFileUnit()});
@@ -135,7 +135,7 @@ public class FileStoreInfoManagerImpl
     public JSONArray listOptsByOs(String osId) {
         String queryStatement =
                 "select OPT_ID , count(1) as FILE_COUNT " +
-                        "from FILE_STORE_INFO " +
+                        "from FILE_INFO " +
                         "where OS_ID = ? " +
                         "group by OPT_ID";
         JSONArray dataList = DatabaseOptUtils.listObjectsBySqlAsJson(
@@ -150,13 +150,13 @@ public class FileStoreInfoManagerImpl
         if(dbt==DBType.MySql){
             queryStatement = "select ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') as FILE_OWNER, " +
                     "count(1) as FILE_COUNT " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where OS_ID = ? and OPT_ID = ? " +
                     "group by ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') ";
         }else {
             queryStatement = "select nvl(FILE_OWNER,FILE_UNIT) as FILE_OWNER, " +
                         "count(1) as FILE_COUNT " +
-                    "from FILE_STORE_INFO " +
+                    "from FILE_INFO " +
                     "where OS_ID = ? and OPT_ID = ? " +
                     "group by nvl(FILE_OWNER,FILE_UNIT) ";
         }
@@ -172,7 +172,7 @@ public class FileStoreInfoManagerImpl
                         + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
                         + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, a.FILE_SIZE,"
                         + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_STORE_PATH "
-                        + " from FILE_STORE_INFO a "
+                        + " from FILE_INFO a "
                         + "where a.OS_ID=? and a.OPT_ID = ? " +
                             "and (a.FILE_OWNER = ? or a.FILE_UNIT = ?) ";
 

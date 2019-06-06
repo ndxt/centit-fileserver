@@ -1,6 +1,6 @@
 package com.centit.fileserver.service.impl;
 
-import com.centit.fileserver.dao.FileStoreInfoDao;
+import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.components.CodeRepositoryUtil;
@@ -20,9 +20,9 @@ import java.util.Set;
 @Transactional
 public class LocalFileManagerImpl implements LocalFileManager {
 
-    @Resource(name ="fileStoreInfoDao")
+    @Resource(name ="fileInfoDao")
     @NotNull
-    protected FileStoreInfoDao fileStoreInfoDao;
+    protected FileInfoDao fileInfoDao;
 
     @Override
     public Set<IUnitInfo> listUserUnit(String userCode) {
@@ -37,8 +37,8 @@ public class LocalFileManagerImpl implements LocalFileManager {
      */
     @Override
     public List<FileShowInfo> listUserFiles(String userCode, String fileShowPath) {
-        List<FileShowInfo> files = fileStoreInfoDao.listUserFiles(userCode,fileShowPath);
-        Set<String> dirs = fileStoreInfoDao.listUserDirectories(userCode,fileShowPath);
+        List<FileShowInfo> files = fileInfoDao.listUserFiles(userCode,fileShowPath);
+        Set<String> dirs = fileInfoDao.listUserDirectories(userCode,fileShowPath);
         if(dirs !=null){
             for(String dir : dirs) {
                 FileShowInfo file = new FileShowInfo();
@@ -54,8 +54,8 @@ public class LocalFileManagerImpl implements LocalFileManager {
 
     @Override
     public List<FileShowInfo> listUnitFiles(String unitCode, String fileShowPath) {
-        List<FileShowInfo> files = fileStoreInfoDao.listUnitFiles(unitCode,fileShowPath);
-        Set<String> dirs = fileStoreInfoDao.listUnitDirectories(unitCode,fileShowPath);
+        List<FileShowInfo> files = fileInfoDao.listUnitFiles(unitCode,fileShowPath);
+        Set<String> dirs = fileInfoDao.listUnitDirectories(unitCode,fileShowPath);
         if(dirs !=null){
             for(String dir : dirs) {
                 FileShowInfo file = new FileShowInfo();
@@ -71,12 +71,12 @@ public class LocalFileManagerImpl implements LocalFileManager {
 
     @Override
     public List<FileShowInfo> listUserFileVersions(String userCode, String fileShowPath, String fileName) {
-        return fileStoreInfoDao.listUserFileVersions(userCode, fileShowPath, fileName);
+        return fileInfoDao.listUserFileVersions(userCode, fileShowPath, fileName);
     }
 
     @Override
     public List<FileShowInfo> listUnitFileVersions(String unitCode, String fileShowPath, String fileName) {
-        return fileStoreInfoDao.listUnitFileVersions(unitCode, fileShowPath, fileName);
+        return fileInfoDao.listUnitFileVersions(unitCode, fileShowPath, fileName);
     }
 
 }

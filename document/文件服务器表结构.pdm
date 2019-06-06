@@ -1830,7 +1830,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Table Id="o21">
 <a:ObjectID>56F54D6F-FFE3-4F7C-B46B-D577A1B005A6</a:ObjectID>
 <a:Name>文件存储目录信息</a:Name>
-<a:Code>FILE_STORE_INFO</a:Code>
+<a:Code>FILE_INFO</a:Code>
 <a:CreationDate>1421222730</a:CreationDate>
 <a:Creator>codefan</a:Creator>
 <a:ModificationDate>1484622694</a:ModificationDate>
