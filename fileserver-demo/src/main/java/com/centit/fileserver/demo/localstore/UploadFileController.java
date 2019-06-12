@@ -14,20 +14,14 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
@@ -219,13 +213,23 @@ public class UploadFileController extends BaseController {
         JsonResultUtils.writeSuccessJson(response);
     }
 
+/*
+//    使用MultipartFile首先要配置MultipartResolver:
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+        multipartResolver.setDefaultEncoding("UTF-8");
+        multipartResolver.setMaxUploadSize(5400000L);
+        return multipartResolver;
+    }
+
     @WrapUpResponseBody
     @RequestMapping(value = "/uploadfile",  method = RequestMethod.POST)
     public void uploadfileSimple(@RequestParam(value = "upfile", required = true)
-                                       MultipartFile[] upfile, HttpServletResponse response) throws Exception {
+                                     MultipartFile[] upfile, HttpServletResponse response) throws Exception {
 
         if (upfile != null && upfile.length > 0) {
-            // 循环获取file数组中得文件
+            // 循环获取file数组中的文件
             for (MultipartFile uploadFile : upfile) {
                 String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
                 String fileName = uploadFile.getOriginalFilename();
@@ -240,5 +244,6 @@ public class UploadFileController extends BaseController {
                 break;
             }
         }
-    }
+    }*/
+
 }
