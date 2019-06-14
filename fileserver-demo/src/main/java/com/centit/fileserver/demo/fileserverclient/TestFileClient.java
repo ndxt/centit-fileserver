@@ -3,7 +3,7 @@ package com.centit.fileserver.demo.fileserverclient;
 import com.alibaba.fastjson.JSON;
 import com.centit.fileserver.client.DefaultFileClient;
 import com.centit.fileserver.client.po.FileAccessLog;
-import com.centit.fileserver.client.po.FileStoreInfo;
+import com.centit.fileserver.client.po.FileInfo;
 import com.centit.framework.appclient.AppSession;
 import com.centit.support.algorithm.DatetimeOpt;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -37,44 +37,44 @@ public class TestFileClient {
     }
 
     public static void testUploadFileRange() {
-        FileStoreInfo fsi = new FileStoreInfo();
-        fsi.setOsId("FILE_SVR");
-        fsi.setOptId("LOCAL_FILE");
-        fsi.setFileName("node-v6.9.5-linux-x64.tar.xz");
-        fsi.setFileStorePath("codefan/temp");
-        fsi.setFileOwner("u0000000");
-        fsi.setFileDesc("测试文件断点上传！"+DatetimeOpt.currentDatetime());
+        FileInfo fi = new FileInfo();
+        fi.setOsId("FILE_SVR");
+        fi.setOptId("LOCAL_FILE");
+        fi.setFileName("node-v6.9.5-linux-x64.tar.xz");
+//        fsi.setFileStorePath("codefan/temp");
+        fi.setFileOwner("u0000000");
+        fi.setFileDesc("测试文件断点上传！"+DatetimeOpt.currentDatetime());
         File file = new File("/home/codefan/node-v6.9.5-linux-x64.tar.xz");
         long fileLen = file.length();
         long upload = 0;
 
         while(upload < fileLen) {
-            FileStoreInfo ftemp = null;
+            FileInfo ftemp = null;
             try {
-                ftemp = fileClient.uploadFileRange(fsi, file, upload, 102400);
+                ftemp = fileClient.uploadFileRange(fi, file, upload, 102400);
             }catch (Exception e){
                 logger.error(e.getMessage(), e);
             }
             if(ftemp != null) {
-                upload = ftemp.getFileSize();
+//                upload = ftemp.getFileSize();
             }
             System.out.println(JSON.toJSONString(ftemp));
         }
     }
 
     public static void testUploadFile() {
-        FileStoreInfo fsi = new FileStoreInfo();
-        fsi.setOsId("FILE_SVR");
-        fsi.setOptId("LOCAL_FILE");
-        fsi.setFileName("server-productsvr.cer");
-        fsi.setFileStorePath("codefan/temp");
-        fsi.setFileDesc("文件存储信息已被修改！"+DatetimeOpt.currentDatetime());
+        FileInfo fi = new FileInfo();
+        fi.setOsId("FILE_SVR");
+        fi.setOptId("LOCAL_FILE");
+        fi.setFileName("server-productsvr.cer");
+//        fi.setFileStorePath("codefan/temp");
+        fi.setFileDesc("文件存储信息已被修改！"+DatetimeOpt.currentDatetime());
         try {
-            fsi = fileClient.uploadFile(fsi, new File("/home/codefan/temp/server-productsvr.cer"));
+            fi = fileClient.uploadFile(fi, new File("/home/codefan/temp/server-productsvr.cer"));
         }catch(Exception e){
             logger.error(e.getMessage(), e);
         }
-        System.out.println(JSON.toJSONString(fsi));
+        System.out.println(JSON.toJSONString(fi));
     }
 
     public static void testGetAccessToken() {
@@ -93,9 +93,9 @@ public class TestFileClient {
 
     public static void testUpdateFileInfo() {
         try {
-            FileStoreInfo fsi = fileClient.getFileStoreInfo(fileId);
-            fsi.setFileDesc("文件存储信息已被修改！" + DatetimeOpt.currentDatetime());
-            fileClient.updateFileStoreInfo(fsi);
+            FileInfo fi = fileClient.getFileInfo(fileId);
+            fi.setFileDesc("文件存储信息已被修改！" + DatetimeOpt.currentDatetime());
+            fileClient.updateFileInfo(fi);
         }catch (Exception e){
             logger.error(e.getMessage(), e);
         }

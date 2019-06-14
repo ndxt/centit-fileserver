@@ -1,7 +1,7 @@
 package com.centit.fileserver.client;
 
 import com.centit.fileserver.client.po.FileAccessLog;
-import com.centit.fileserver.client.po.FileStoreInfo;
+import com.centit.fileserver.client.po.FileInfo;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;
@@ -106,19 +106,19 @@ public interface FileClient {
      */
     String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException ;
 
-    FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException;
+    FileInfo getFileInfo(CloseableHttpClient httpClient, String fileId) throws IOException;
 
-    boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws IOException;
-
-
-    FileStoreInfo getFileStoreInfo(String fileId) throws IOException;
-
-    boolean updateFileStoreInfo(FileStoreInfo fsi) throws IOException;
+    boolean updateFileInfo(CloseableHttpClient httpClient, FileInfo fi) throws IOException;
 
 
-    FileStoreInfo uploadFile(CloseableHttpClient httpClient, FileStoreInfo fsi,File file) throws IOException;
+    FileInfo getFileInfo(String fileId) throws IOException;
 
-    FileStoreInfo uploadFile(FileStoreInfo fsi,File file) throws IOException;
+    boolean updateFileInfo(FileInfo fi) throws IOException;
+
+
+    FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, File file) throws IOException;
+
+    FileInfo uploadFile(FileInfo fi, File file) throws IOException;
 
     long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException;
 
@@ -129,11 +129,11 @@ public interface FileClient {
     long getFileRangeStart(File file) throws IOException;
 
 
-    FileStoreInfo uploadFileRange(CloseableHttpClient httpClient, FileStoreInfo fsi,
-                                         File file,long rangeStart,long rangeSize) throws IOException;
+    FileInfo uploadFileRange(CloseableHttpClient httpClient, FileInfo fi,
+                                         File file, long rangeStart, long rangeSize) throws IOException;
 
-    FileStoreInfo uploadFileRange(FileStoreInfo fsi,
-                                         File file,long rangeStart,long rangeSize) throws IOException;
+    FileInfo uploadFileRange(FileInfo fi,
+                                         File file, long rangeStart, long rangeSize) throws IOException;
 
 
     void downloadFileRange(CloseableHttpClient httpClient,

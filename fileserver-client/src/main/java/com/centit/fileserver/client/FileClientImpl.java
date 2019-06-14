@@ -3,7 +3,7 @@ package com.centit.fileserver.client;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
-import com.centit.fileserver.client.po.FileStoreInfo;
+import com.centit.fileserver.client.po.FileInfo;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.framework.common.ObjectException;
@@ -189,7 +189,7 @@ public class FileClientImpl implements FileClient {
     }
 
 
-    public FileStoreInfo getFileStoreInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
+    public FileInfo getFileInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/files/" + fileId));
@@ -198,34 +198,34 @@ public class FileClientImpl implements FileClient {
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
         }
-        return resJson.getDataAsObject(FileStoreInfo.class);
+        return resJson.getDataAsObject(FileInfo.class);
     }
 
-    public boolean updateFileStoreInfo(CloseableHttpClient httpClient, FileStoreInfo fsi) throws IOException {
+    public boolean updateFileInfo(CloseableHttpClient httpClient, FileInfo fi) throws IOException {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/files/j/" + fsi.getFileId()), fsi);
+                appSession.completeQueryUrl("/files/j/" + fi.getFileId()), fi);
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if (resJson == null) {
-            throw new ObjectException(fsi, ERROR_MESSAGE);
+            throw new ObjectException(fi, ERROR_MESSAGE);
         }
         return resJson.getCode() == 0;
     }
 
-    public boolean updateFileStoreInfo(FileStoreInfo fsi) throws IOException {
+    public boolean updateFileInfo(FileInfo fi) throws IOException {
         CloseableHttpClient httpClient = getHttpClient();
-        boolean upres = updateFileStoreInfo(httpClient, fsi);
+        boolean upres = updateFileInfo(httpClient, fi);
         releaseHttpClient(httpClient);
         return upres;
     }
 
 
-    public FileStoreInfo uploadFile(CloseableHttpClient httpClient, FileStoreInfo fsi,File file) throws IOException {
+    public FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, File file) throws IOException {
         appSession.checkAccessToken(httpClient);
 
         String jsonStr = HttpExecutor.fileUpload(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/upload/file"),
-                JSON.parseObject(JSON.toJSONString(fsi) ),
+                JSON.parseObject(JSON.toJSONString(fi) ),
                 file);
 
         HttpReceiveJSON resJson = null;
@@ -238,17 +238,17 @@ public class FileClientImpl implements FileClient {
         if (resJson == null) {
             throw new ObjectException(jsonStr, ERROR_MESSAGE);
         }
-        return resJson.getDataAsObject(FileStoreInfo.class);
+        return resJson.getDataAsObject(FileInfo.class);
     }
 
-    public FileStoreInfo uploadFile(FileStoreInfo fsi,File file) throws IOException {
+    public FileInfo uploadFile(FileInfo fi, File file) throws IOException {
         CloseableHttpClient httpClient = getHttpClient();
-        FileStoreInfo upres = uploadFile(httpClient, fsi,file);
+        FileInfo upres = uploadFile(httpClient, fi, file);
         releaseHttpClient(httpClient);
         return upres;
     }
 
-    public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException{
+    public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5, long fileSize) throws IOException{
         String uri =  appSession.completeQueryUrl(
                 "/upload/range?token="+fileMd5+"&size="+fileSize);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),uri);
@@ -265,7 +265,7 @@ public class FileClientImpl implements FileClient {
         return rangeStart;
     }
 
-    public long getFileRangeStart(String fileMd5,long fileSize) throws IOException{
+    public long getFileRangeStart(String fileMd5, long fileSize) throws IOException{
         CloseableHttpClient httpClient = getHttpClient();
         long rs = getFileRangeStart(httpClient,fileMd5,fileSize);
         releaseHttpClient(httpClient);
@@ -285,15 +285,15 @@ public class FileClientImpl implements FileClient {
         return rs;
     }
 
-    public FileStoreInfo uploadFileRange(CloseableHttpClient httpClient, FileStoreInfo fsi,
-                                         File file,long rangeStart,long rangeSize) throws IOException{
+    public FileInfo uploadFileRange(CloseableHttpClient httpClient, FileInfo fi,
+                                         File file, long rangeStart, long rangeSize) throws IOException{
 
         String fileMd5 = FileMD5Maker.makeFileMD5(file);
         long fileSize = file.length();
 
         String uri =  appSession.completeQueryUrl(
                 "/upload/range?token="+fileMd5+"&size="+fileSize);
-        List<NameValuePair> params = HttpExecutor.makeRequectParams(fsi, "");
+        List<NameValuePair> params = HttpExecutor.makeRequectParams(fi, "");
 
         String paramsUrl1 = EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
         HttpPost httpPost = new HttpPost(UrlOptUtils.appendParamToUrl(uri, paramsUrl1));
@@ -341,29 +341,29 @@ public class FileClientImpl implements FileClient {
                 HttpExecutorContext.create(httpClient), httpPost);
         try {
             HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
-            return resJson.getDataAsObject(FileStoreInfo.class);
+            return resJson.getDataAsObject(FileInfo.class);
         }catch(Exception e){
             logger.error("解析返回json串失败",e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
     }
 
-    public FileStoreInfo uploadFileRange(FileStoreInfo fsi,File file,long rangeStart,long rangeSize) throws IOException{
+    public FileInfo uploadFileRange(FileInfo fi, File file, long rangeStart, long rangeSize) throws IOException{
         CloseableHttpClient httpClient = getHttpClient();
-        FileStoreInfo upres = uploadFileRange(httpClient, fsi,file,rangeStart,rangeSize);
+        FileInfo upres = uploadFileRange(httpClient, fi, file, rangeStart, rangeSize);
         releaseHttpClient(httpClient);
         return upres;
     }
 
-    public FileStoreInfo getFileStoreInfo(String fileId) throws IOException {
+    public FileInfo getFileInfo(String fileId) throws IOException {
         CloseableHttpClient httpClient = getHttpClient();
-        FileStoreInfo fileStoreInfo = getFileStoreInfo(httpClient, fileId);
+        FileInfo fileInfo = getFileInfo(httpClient, fileId);
         releaseHttpClient(httpClient);
-        return fileStoreInfo;
+        return fileInfo;
     }
 
     public void downloadFileRange(CloseableHttpClient httpClient,
-                                  String fileId, int offset, int lenght, String filePath) throws IOException {
+                                  String fileId, int offset, int length, String filePath) throws IOException {
         //CloseableHttpClient httpClient = appSession.getHttpClient();
         appSession.checkAccessToken(httpClient);
 
@@ -371,8 +371,8 @@ public class FileClientImpl implements FileClient {
                 appSession.completeQueryUrl("/download/pfile/" + fileId));
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-            if (offset > -1 && lenght > 0) {
-                httpGet.setHeader("Range", "bytes=" + offset + "-" + String.valueOf(offset + lenght - 1));
+            if (offset > -1 && length > 0) {
+                httpGet.setHeader("Range", "bytes=" + offset + "-" + String.valueOf(offset + length - 1));
             }
             Header[] contentTypeHeader = response.getHeaders("Content-Type");
             if (contentTypeHeader == null || contentTypeHeader.length < 1 ||
@@ -392,9 +392,9 @@ public class FileClientImpl implements FileClient {
     }
 
 
-    public void downloadFileRange(String fileId, int offset, int lenght, String filePath) throws IOException {
+    public void downloadFileRange(String fileId, int offset, int length, String filePath) throws IOException {
         CloseableHttpClient httpClient = getHttpClient();
-        downloadFileRange(httpClient, fileId, offset, lenght, filePath);
+        downloadFileRange(httpClient, fileId, offset, length, filePath);
         releaseHttpClient(httpClient);
     }
 

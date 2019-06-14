@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.util.Date;
 
-public class FileStoreInfo implements Serializable {
+public class FileInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,7 +17,7 @@ public class FileStoreInfo implements Serializable {
 
     private String fileName;
 
-    private String fileStorePath;
+//    private String fileStorePath;
 
     private String fileType;
 
@@ -44,7 +44,7 @@ public class FileStoreInfo implements Serializable {
 
     private Date createTime;
 
-    private Long fileSize;
+//    private Long fileSize;
 
     //加密算法
     private String encryptType;
@@ -53,7 +53,8 @@ public class FileStoreInfo implements Serializable {
 
     private String fileUnit;
 
-    private String attachedStorePath;
+//    private String attachedStorePath;
+    private String attachedFileMd5;
 
     /**
      * 附属文件类别： T：缩略图  P： pdf只读文件
@@ -61,7 +62,7 @@ public class FileStoreInfo implements Serializable {
     private String attachedType;
 
 
-    public FileStoreInfo() {
+    public FileInfo() {
         indexState = "N";
         encryptType = "N";
         fileState = "N";
@@ -103,13 +104,13 @@ public class FileStoreInfo implements Serializable {
             fileType = FileType.getFileExtName(fileName);
     }
 
-    public String getFileStorePath() {
-        return fileStorePath;
-    }
-
-    public void setFileStorePath(String fileStorePath) {
-        this.fileStorePath = fileStorePath;
-    }
+//    public String getFileStorePath() {
+//        return fileStorePath;
+//    }
+//
+//    public void setFileStorePath(String fileStorePath) {
+//        this.fileStorePath = fileStorePath;
+//    }
 
     public String getFileType() {
         return fileType;
@@ -252,20 +253,29 @@ public class FileStoreInfo implements Serializable {
         this.fileUnit = fileUnit;
     }
 
-    public Long getFileSize() {
-        return fileSize;
+//    public Long getFileSize() {
+//        return fileSize;
+//    }
+//
+//    public void setFileSize(Long fileSize) {
+//        this.fileSize = fileSize;
+//    }
+//
+//    public String getAttachedStorePath() {
+//        return attachedStorePath;
+//    }
+//
+//    public void setAttachedStorePath(String attachedStorePath) {
+//        this.attachedStorePath = attachedStorePath;
+//    }
+
+
+    public String getAttachedFileMd5() {
+        return attachedFileMd5;
     }
 
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public String getAttachedStorePath() {
-        return attachedStorePath;
-    }
-
-    public void setAttachedStorePath(String attachedStorePath) {
-        this.attachedStorePath = attachedStorePath;
+    public void setAttachedFileMd5(String attachedFileMd5) {
+        this.attachedFileMd5 = attachedFileMd5;
     }
 
     /**
