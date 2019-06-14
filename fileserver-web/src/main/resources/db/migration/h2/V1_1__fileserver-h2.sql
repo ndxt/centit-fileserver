@@ -24,17 +24,15 @@ create table FILE_UPLOAD_AUTHORIZED  (
 
 
 CREATE TABLE FILE_INFO  (
-  FILE_ID              VARCHAR(36)                    NOT NULL,
-  FILE_MD5             VARCHAR(36) COMMENT '文件MD5编码' ,
+  FILE_ID            VARCHAR(36)                    NOT NULL,
+  FILE_MD5           VARCHAR(36) COMMENT '文件MD5编码' ,
   FILE_NAME          VARCHAR(200) COMMENT '原始文件名称',
   FILE_SHOW_PATH     VARCHAR(1000),
-  FILE_STORE_PATH    VARCHAR(200),
   FILE_TYPE          VARCHAR(8) COMMENT '文件后缀名',
   FILE_DESC          VARCHAR(200),
   FILE_STATE         CHAR COMMENT 'C : 正在上传  N : 正常 Z:空文件 F:文件上传失败',
-  FILE_SIZE          DECIMAL(20),
   DOWNLOAD_TIMES     DECIMAL(6),
-  OS_ID                VARCHAR(20),
+  OS_ID              VARCHAR(20),
   OPT_ID             VARCHAR(64)                    NOT NULL COMMENT '模块，或者表',
   OPT_METHOD         VARCHAR(64)  COMMENT '方法，或者字段',
   OPT_TAG            VARCHAR(200) COMMENT '一般用于关联到业务主体',
@@ -44,11 +42,18 @@ CREATE TABLE FILE_INFO  (
   ENCRYPT_TYPE       CHAR COMMENT 'N : 没有加密   Z：ZIPFILE    D:DES加密',
   FILE_OWNER         VARCHAR(32),
   FILE_UNIT          VARCHAR(32),
-  ATTACHED_STORE_PATH VARCHAR(200),
+  ATTACHED_FILE_MD5  VARCHAR(36),
   ATTACHED_TYPE      VARCHAR(1) COMMENT '附属文件类别：N :   没有  T：缩略图  P： PDF只读文件',
   PRIMARY KEY (FILE_ID)
 );
 
+CREATE TABLE FILE_STORE_INFO (
+  FILE_MD5              VARCHAR(36) NOT NULL COMMENT '文件MD5编码' ,
+  FILE_STORE_PATH       VARCHAR(200),
+  FILE_SIZE             DECIMAL(20),
+  FILE_REFERENCE_COUNT  DECIMAL(6),
+  PRIMARY KEY (FILE_MD5)
+);
 
 CREATE INDEX INDEX_FILE_MD5 ON FILE_INFO (
   FILE_MD5 ASC

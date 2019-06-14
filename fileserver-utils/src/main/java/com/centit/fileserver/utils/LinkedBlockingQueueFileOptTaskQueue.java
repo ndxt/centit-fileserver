@@ -6,13 +6,13 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LinkedBlockingQueueFileStoreTaskPool implements FileStoreTaskPool {
-    private static final Logger logger = LoggerFactory.getLogger(LinkedBlockingQueueFileStoreTaskPool.class);
+public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
+    private static final Logger logger = LoggerFactory.getLogger(LinkedBlockingQueueFileOptTaskQueue.class);
 
     private File taskFile;
-    private LinkedBlockingQueue<FileStoreTaskInfo> taskQueue;
+    private LinkedBlockingQueue<FileOptTaskInfo> taskQueue;
 
-    public LinkedBlockingQueueFileStoreTaskPool(String taskFileRoot) throws Exception {
+    public LinkedBlockingQueueFileOptTaskQueue(String taskFileRoot) throws Exception {
         if (taskFileRoot.endsWith(String.valueOf(File.separatorChar))) {
             taskFile = new File(taskFileRoot + "task.dat");
         } else {
@@ -29,15 +29,15 @@ public class LinkedBlockingQueueFileStoreTaskPool implements FileStoreTaskPool {
     }
 
     @Override
-    public boolean add(FileStoreTaskInfo task) {
+    public boolean add(FileOptTaskInfo task) {
         taskQueue.offer(task);
         saveTasksToDisk();
         return true;
     }
 
     @Override
-    public FileStoreTaskInfo get() {
-        FileStoreTaskInfo task = taskQueue.poll();
+    public FileOptTaskInfo get() {
+        FileOptTaskInfo task = taskQueue.poll();
         if (null != task) {
             saveTasksToDisk();
         }

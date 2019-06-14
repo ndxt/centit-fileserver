@@ -142,10 +142,10 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUserFiles(String userCode, String fileShowPath) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
-                    "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
-                    "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
+                    "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
+                    "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
@@ -154,10 +154,10 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "uc",userCode));
         }else{
             String fsp = trimFilePath(fileShowPath);//+ LocalFileManager.FILE_PATH_SPLIT;
-            String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
-                    "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
-                    "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
+                    "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
+                    "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
@@ -191,10 +191,10 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUnitFiles(String unitCode, String fileShowPath) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,"/")) {
-            String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
-                    "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
-                    "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID ," +
+                    "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
+                    "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "group by FILE_NAME";
@@ -203,10 +203,10 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "uc",unitCode));
         }else{
             String fsp = trimFilePath(fileShowPath);//+ LocalFileManager.FILE_PATH_SPLIT;
-            String sqlsen = "select FILE_NAME,max(FILE_ID) as FILE_ID ," +
-                    "count(1) as FILE_SUM, min(ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
-                    "max(CREATE_TIME) as CREATE_TIME, max(FILE_SIZE) as FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID ," +
+                    "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
+                    "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH=:fsp or FILE_SHOW_PATH=:fsp2) " +
                     "group by FILE_NAME";
@@ -240,8 +240,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUserFileVersions(String userCode, String fileShowPath,String fileName) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
@@ -250,8 +250,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "uc",userCode,
                             "fn",fileName));
         }else{
-            String sqlsen = "select FILE_ID ,ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
@@ -285,8 +285,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUnitFileVersions(String unitCode, String fileShowPath,String fileName) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";
@@ -295,8 +295,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "uc",unitCode,
                             "fn",fileName));
         }else{
-            String sqlsen = "select FILE_ID, ENCRYPT_TYPE, CREATE_TIME, FILE_SIZE " +
-                    "from FILE_INFO " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+                    "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_UNIT = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn and FILE_STATE='A'";

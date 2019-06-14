@@ -9,10 +9,7 @@ import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.DBType;
-import com.centit.support.database.utils.QueryAndNamedParams;
-import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,9 +65,9 @@ public class FileInfoManagerImpl
         String queryStatement =
                 "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, a.FILE_STORE_PATH, a.FILE_TYPE,"
                 + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
-                + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, FILE_SIZE,"
+                + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, b.FILE_SIZE,"
                 + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_STORE_PATH"
-                + " from FILE_INFO a where 1=1 "
+                + " from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 where 1=1 "
                 + " [ :files | and a.FILE_ID in (:files) ] "
                         //:(SPLITFORIN)files 这个地方files如果不是数组而是逗号分隔的就需要添加这个预处理
                 + " [ :(like)fileName | and a.FILE_NAME like :fileName] "
@@ -91,11 +88,11 @@ public class FileInfoManagerImpl
     @Override
     public FileInfo getDuplicateFile(FileInfo originalFile){
         String queryStatement =
-                " where FILE_ID <> ? and FILE_MD5 = ?  and FILE_SIZE = ?" +
+                " where FILE_ID <> ? and FILE_MD5 = ?" +
                 " and ( FILE_OWNER = ? or FILE_UNIT= ? )";
         List<FileInfo> duplicateFiles =
                 baseDao.listObjectsByFilter( queryStatement, new Object[]
-                {originalFile.getFileId(),originalFile.getFileMd5(),originalFile.getFileSize(),
+                {originalFile.getFileId(),originalFile.getFileMd5(),/*originalFile.getFileSize(),*/
                         originalFile.getFileOwner(),originalFile.getFileUnit()});
         if(duplicateFiles!=null && duplicateFiles.size()>0)
             return duplicateFiles.get(0);
@@ -168,11 +165,11 @@ public class FileInfoManagerImpl
     @Override
     public JSONArray listFilesByOwner(String osId, String optId, String owner) {
         String queryStatement =
-                "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, a.FILE_STORE_PATH, a.FILE_TYPE,"
+                "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, b.FILE_STORE_PATH, a.FILE_TYPE,"
                         + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
-                        + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, a.FILE_SIZE,"
-                        + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_STORE_PATH "
-                        + " from FILE_INFO a "
+                        + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, b.FILE_SIZE,"
+                        + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_FILE_MD5 " // a.ATTACHED_STORE_PATH
+                        + " from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "
                         + "where a.OS_ID=? and a.OPT_ID = ? " +
                             "and (a.FILE_OWNER = ? or a.FILE_UNIT = ?) ";
 

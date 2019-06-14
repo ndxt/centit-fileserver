@@ -3,9 +3,9 @@ package com.centit.fileserver.config;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.utils.FileStore;
-import com.centit.fileserver.utils.LinkedBlockingQueueFileStoreTaskPool;
+import com.centit.fileserver.utils.LinkedBlockingQueueFileOptTaskQueue;
 import com.centit.fileserver.utils.OsFileStore;
-import com.centit.fileserver.utils.FileStoreTaskPool;
+import com.centit.fileserver.utils.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
@@ -79,8 +79,8 @@ public class ServiceConfig {
     }
 
     @Bean
-    public FileStoreTaskPool taskStore() throws Exception {
-        return new LinkedBlockingQueueFileStoreTaskPool("/D/Projects/RunData/file_home/task/");
+    public FileOptTaskQueue taskStore() throws Exception {
+        return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
     }
 
     @Bean

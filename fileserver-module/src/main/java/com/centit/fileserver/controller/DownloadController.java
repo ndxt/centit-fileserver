@@ -2,8 +2,10 @@ package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
@@ -19,7 +21,6 @@ import com.centit.support.security.Md5Encoder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,10 +41,14 @@ public class DownloadController extends BaseController {
 
     @Resource
     private FileInfoManager fileInfoManager;
+
+    @Resource
+    private FileStoreInfoManager fileStoreInfoManager;
+
     @Resource
     private FileAccessLogManager fileAccessLogManager;
 
-    @Autowired
+    @Resource
     protected FileStore fileStore;
 
     private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
@@ -53,16 +58,16 @@ public class DownloadController extends BaseController {
                  inputStream, fSize, fileName);
     }
 
-    public static void downloadFile(FileStore fileStore, FileInfo fileInfo, HttpServletRequest request,
-                             HttpServletResponse response) throws IOException {
+    public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
+                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo) {
 
             //对加密的进行特殊处理，ZIP加密的无需处理
             String password = request.getParameter("password");
-            if("D".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
-                String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(),fileInfo.getFileSize() );
+            if("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
+                String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
-                try(InputStream downFile = fileStore.loadFileStream(fileInfo.getFileStorePath());
+                try(InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                     OutputStream diminationFile = new FileOutputStream(tmpFile)    ){
                     FileEncryptWithAes.decrypt(downFile, diminationFile, password);
                 }catch (Exception e) {
@@ -81,8 +86,8 @@ public class DownloadController extends BaseController {
                 FileSystemOpt.deleteFile(tmpFile);
             }else{
                 downFileRange(request, response,
-                        fileStore.loadFileStream(fileInfo.getFileStorePath()),
-                        fileInfo.getFileSize(), fileInfo.getFileName());
+                        fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName());
             }
         } else {
             JsonResultUtils.writeHttpErrorMessage(
@@ -119,9 +124,10 @@ public class DownloadController extends BaseController {
                 }
             }
 
+            FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
             downFileRange(request, response,
-                    fileStore.loadFileStream(fileInfo.getAttachedStorePath()),
-                    fileStore.getFileSize(fileInfo.getAttachedStorePath()),fileName );
+                    fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
+                    fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName);
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件", response);
@@ -142,8 +148,9 @@ public class DownloadController extends BaseController {
             HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
-        downloadFile(fileStore, fileInfo, request, response);
+        downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
     }
 
     /**
@@ -162,7 +169,8 @@ public class DownloadController extends BaseController {
         if(fileAccessLog!=null){
             if(fileAccessLog.checkValid(false)){
                 FileInfo fileInfo = fileInfoManager.getObjectById(fileAccessLog.getFileId());
-                downloadFile(fileStore, fileInfo, request ,response);
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                downloadFile(fileStore, fileInfo, fileStoreInfo, request ,response);
                 // 记录访问日志
                 fileAccessLog.chargeAccessTimes();
                 fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
@@ -290,7 +298,8 @@ public class DownloadController extends BaseController {
         // 如果只下载一个文件则 不压缩
         if(fileIds.length == 1){
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
-            fileSize = fileInfo.getFileSize();
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            fileSize = fileStoreInfo.getFileSize();
             String filePath = fileStore.getFileStoreUrl(fileInfo.getFileMd5(), fileSize);
             inputStream = fileStore.loadFileStream(filePath);
         } else {
@@ -312,8 +321,9 @@ public class DownloadController extends BaseController {
                 int j = 0;
                 for (int i = 0; i < len; i++) {
                     FileInfo si = fileInfoManager.getObjectById(fileIds[i]);
+                    FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(si.getFileMd5());
                     if (si != null) {
-                        fileUrls[j] = fileStore.getFileStoreUrl(si.getFileMd5(), si.getFileSize());
+                        fileUrls[j] = fileStore.getFileStoreUrl(si.getFileMd5(), fileStoreInfo.getFileSize());
                         fileNames[j] = si.getFileName();
                         j++;
                     }

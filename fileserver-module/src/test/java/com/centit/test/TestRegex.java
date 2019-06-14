@@ -1,6 +1,6 @@
 package com.centit.test;
 
-import com.centit.fileserver.fileaccess.FilePretreatment;
+import com.centit.fileserver.fileaccess.FilePretreatUtils;
 import com.centit.support.file.FileMD5Maker;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class TestRegex {
     public static void main(String[] args) throws IOException {
 
         for(int i=0;i<10;i++){
-            FilePretreatment.zipFileAndEncrypt("D:\\WorkDoc\\研发中心建设\\组织结构\\项目评估方案——草案.doc",
+            FilePretreatUtils.zipFileAndEncrypt("D:\\WorkDoc\\研发中心建设\\组织结构\\项目评估方案——草案.doc",
                 "C:\\Users\\codefan\\Downloads\\项目评估方案——草案"+i+".zip","123456");
 
             System.out.println(FileMD5Maker.makeFileMD5(

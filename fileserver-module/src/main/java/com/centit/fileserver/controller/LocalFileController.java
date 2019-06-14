@@ -2,8 +2,10 @@ package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -45,6 +47,9 @@ public class LocalFileController extends BaseController {
 
     @Resource
     private FileInfoManager fileInfoManager;
+
+    @Resource
+    private FileStoreInfoManager fileStoreInfoManager;
 
     @Resource
     private FileAccessLogManager fileAccessLogManager;
@@ -276,7 +281,8 @@ public class LocalFileController extends BaseController {
                 "文件不存：" + fileId, response);
             return;
         }
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
         writeDownloadFileLog(fileInfo, request);
-        DownloadController.downloadFile(fileStore, fileInfo, request, response);
+        DownloadController.downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
     }
 }

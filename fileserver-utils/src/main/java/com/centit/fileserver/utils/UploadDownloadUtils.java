@@ -196,7 +196,7 @@ public abstract class UploadDownloadUtils {
      * @throws ObjectException ObjectException
      */
     public static long uploadRange(String tempFilePath,
-                                    InputStream fileInputStream,String token,
+                                    InputStream fileInputStream, String token,
                                     long size, HttpServletRequest request )
             throws IOException, ObjectException {
 

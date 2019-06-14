@@ -5,6 +5,7 @@ import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
 import com.centit.support.file.FileType;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.Column;
@@ -13,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
+
+@Data
 @Entity
 @Table(name= "FILE_INFO")
 public class FileInfo implements Serializable {
@@ -35,8 +38,8 @@ public class FileInfo implements Serializable {
     @Column(name="FILE_SHOW_PATH")
     private  String fileShowPath;
 
-    @Column(name="FILE_STORE_PATH")
-    private String fileStorePath;
+//    @Column(name="FILE_STORE_PATH")
+//    private String fileStorePath;
     /**
      * 文件的后缀明 ext file name
      */
@@ -76,8 +79,8 @@ public class FileInfo implements Serializable {
     @Column(name="CREATE_TIME")
     private Date createTime;
 
-    @Column(name="FILE_SIZE")
-    private Long fileSize;
+//    @Column(name="FILE_SIZE")
+//    private Long fileSize;
 
     //加密算法
     @Column(name="ENCRYPT_TYPE")
@@ -90,11 +93,12 @@ public class FileInfo implements Serializable {
     private String fileUnit;
 
 
-    @Column(name="ATTACHED_STORE_PATH")
-    private String attachedStorePath;
+    @Column(name="ATTACHED_FILE_MD5")
+    private String attachedFileMd5;
 
     /**
      * 附属文件类别： T：缩略图  P： pdf只读文件
+     * 预处理生成新文件，将原文件作为附属文件（缩略图除外）
      */
     @Column(name="ATTACHED_TYPE")
     private String attachedType;
@@ -108,46 +112,11 @@ public class FileInfo implements Serializable {
         downloadTimes = 0l;
     }
 
-    public String getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
-    }
-
-    public String getFileMd5() {
-        return fileMd5;
-    }
-
-    public void setFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-    }
-
-    public String getOsId() {
-        return osId;
-    }
-
-    public void setOsId(String osId) {
-        this.osId = osId;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
         if(StringUtils.isNoneBlank(fileName) && StringUtils.isBlank(fileType))
             fileType = FileType.getFileExtName(fileName);
-    }
-
-    public String getFileStorePath() {
-        return fileStorePath;
-    }
-
-    public void setFileStorePath(String fileStorePath) {
-        this.fileStorePath = fileStorePath;
     }
 
     /**
@@ -164,14 +133,6 @@ public class FileInfo implements Serializable {
      */
     public void setFileShowPath(String fileShowPath) {
         this.fileShowPath = fileShowPath;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
     }
 
     /**
@@ -271,14 +232,14 @@ public class FileInfo implements Serializable {
     }
 
     /**
-     * N : 没有加密   Z：zipFile    D:DES加密
+     * N : 没有加密   Z：zipFile    D:DES加密   A:AES加密
      * @return String
      */
     public String getEncryptType() {
         return encryptType;
     }
     /**
-     * N : 没有加密   Z：zipFile    D:DES加密
+     * N : 没有加密   Z：zipFile    D:DES加密   A:AES加密
      * @param encryptType String
      */
     public void setEncryptType(String encryptType) {
@@ -301,20 +262,20 @@ public class FileInfo implements Serializable {
         this.fileUnit = fileUnit;
     }
 
-    public Long getFileSize() {
-        return fileSize;
+//    public Long getFileSize() {
+//        return fileSize;
+//    }
+
+//    public void setFileSize(Long fileSize) {
+//        this.fileSize = fileSize;
+//    }
+
+    public String getAttachedFileMd5() {
+        return attachedFileMd5;
     }
 
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public String getAttachedStorePath() {
-        return attachedStorePath;
-    }
-
-    public void setAttachedStorePath(String attachedStorePath) {
-        this.attachedStorePath = attachedStorePath;
+    public void setAttachedFileMd5(String attachedFileMd5) {
+        this.attachedFileMd5 = attachedFileMd5;
     }
 
     /**

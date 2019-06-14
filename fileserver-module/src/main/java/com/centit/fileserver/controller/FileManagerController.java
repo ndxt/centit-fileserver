@@ -2,7 +2,9 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
@@ -34,6 +36,9 @@ public class FileManagerController extends BaseController {
 
     @Resource
     private FileInfoManager fileInfoManager;
+
+    @Resource
+    private FileStoreInfoManager fileStoreInfoManager;
 
     @Resource
     private IntegrationEnvironment integrationEnvironment;
@@ -69,7 +74,8 @@ public class FileManagerController extends BaseController {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if(fileInfo !=null){
-            String path= fileInfo.getFileStorePath();
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            String path = fileStoreInfo.getFileStorePath();
 
             try {
                 fileStore.deleteFile(path);

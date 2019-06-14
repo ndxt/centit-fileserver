@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 /**
  *  a：is_index 是否加入全文检索 
-    b：encrypt_type 加密方式 N : 没有加密 Z：zipFile D:DES加密 
+    b：encrypt_type 加密方式 N: 没有加密 Z: zipFile A: AES加密
     c：encrypt_password, 如果加密密码 
     e：add_pdf ； P 添加pdf 副本 
     f：watermark； 如果添加pdf副本 是否需要加水印，水印 文字 
@@ -30,7 +30,7 @@ public class PretreatInfo implements Serializable {
     private Boolean addThumbnail;
     private Integer thumbnailWidth;
     private Integer thumbnailHeight;
-    private Boolean isUnzip;
+//    private Boolean isUnzip;
 
     public PretreatInfo(){
         isIndex = false;
@@ -40,6 +40,7 @@ public class PretreatInfo implements Serializable {
 
     public boolean needPretreat(){
         return this.getIsIndex() || this.getAddPdf()
+                || !StringUtils.isBlank(watermark)
                 || this.getAddThumbnail() ||
                 !"N".equals(this.getEncryptType());
     }
@@ -68,13 +69,13 @@ public class PretreatInfo implements Serializable {
         this.fileSize = fileSize;
     }
 
-    public Boolean getIsUnzip() {
+    /*public Boolean getIsUnzip() {
         return isUnzip==null?false:isUnzip;
     }
 
     public void setIsIsUnzip(Boolean isUnzip) {
         this.isUnzip = isUnzip;
-    }
+    }*/
 
     public Boolean getIsIndex() {
         return isIndex==null?false:isIndex;
@@ -84,14 +85,14 @@ public class PretreatInfo implements Serializable {
         this.isIndex = isIndex;
     }
     /**
-     *  加密方式 N : 没有加密 Z：zipFile D:DES加密 //A:AES加密 AES 暂未实现
+     *  加密方式 N: 没有加密 Z: zipFile A: AES加密
      * @return encryptType
      */
     public String getEncryptType() {
         return encryptType==null?"N":encryptType;
     }
     /**
-     *  加密方式 N : 没有加密 Z：zipFile D:DES加密  //A:AES加密 AES 暂未实现
+     *  加密方式 N: 没有加密 Z: zipFile A: AES加密
      * @param encryptType  加密方式
      */
     public void setEncryptType(String encryptType) {

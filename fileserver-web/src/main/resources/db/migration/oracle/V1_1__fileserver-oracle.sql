@@ -31,11 +31,9 @@ create table FILE_INFO  (
    FILE_MD5             VARCHAR(36),
    file_name          varchar2(200),
    file_Show_path     varchar2(1000),
-   file_Store_path    varchar2(200),
    file_type          varchar2(8),
    file_Desc          varchar2(200),
    file_state         CHAR,
-   file_size          NUMBER(20),
    download_times     NUMBER(6),
    OS_ID                varchar2(20),
    Opt_ID             varchar2(64)                    not null,
@@ -47,9 +45,17 @@ create table FILE_INFO  (
    encrypt_type       CHAR,
    file_owner         VARCHAR(32),
    file_unit          VARCHAR(32),
-   attached_Store_path varchar2(200),
+   attached_file_md5 varchar2(200),
    attached_type      varchar2(1),
    constraint PK_FILE_INFO primary key (FILE_ID)
+);
+
+create table FILE_INFO  (
+   FILE_MD5              VARCHAR(36) not null ,
+   FILE_STORE_PATH       varchar2(200),
+   FILE_SIZE             NUMBER(20),
+   FILE_REFERENCE_COUNT  NUMBER(6),
+   constraint PK_FILE_STORE_INFO primary key (FILE_MD5)
 );
 
 comment on table FILE_INFO is
