@@ -378,13 +378,14 @@ public class UploadController extends BaseController {
                     fileOptTaskQueue.add(addPdfTaskInfo);
                 }
 
-                if (!StringUtils.isBlank(pretreatInfo.getWatermark())) {
-                    FileOptTaskInfo pdfWatermarkTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_PDF_WATERMARK);
-                    pdfWatermarkTaskInfo.setTaskOptParam("fileId", fileId);
-                    pdfWatermarkTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
-                    pdfWatermarkTaskInfo.setTaskOptParam("watermark", pretreatInfo.getWatermark());
-                    fileOptTaskQueue.add(pdfWatermarkTaskInfo);
-                }
+                // 生成水印函数有问题，先注释掉
+//                if (!StringUtils.isBlank(pretreatInfo.getWatermark())) {
+//                    FileOptTaskInfo pdfWatermarkTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_PDF_WATERMARK);
+//                    pdfWatermarkTaskInfo.setTaskOptParam("fileId", fileId);
+//                    pdfWatermarkTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
+//                    pdfWatermarkTaskInfo.setTaskOptParam("watermark", pretreatInfo.getWatermark());
+//                    fileOptTaskQueue.add(pdfWatermarkTaskInfo);
+//                }
 
                 if (pretreatInfo.getAddThumbnail()) {
                     FileOptTaskInfo thumbnailTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ADD_THUMBNAIL);
