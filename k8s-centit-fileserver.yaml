@@ -15,7 +15,7 @@ kind: Deployment
 metadata:
   name: fileserver-web
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: fileserver-web
