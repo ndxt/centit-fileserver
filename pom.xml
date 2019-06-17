@@ -61,7 +61,7 @@
 
     <modules>
         <module>fileserver-utils</module>
-        <!--<module>fileserver-web</module>-->
+        <module>fileserver-web</module>
         <module>fileserver-client</module>
         <!--<module>fileserver-demo</module>-->
         <module>fileserver-view</module>
