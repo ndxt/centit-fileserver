@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.fileaccess.PretreatInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
@@ -124,36 +123,36 @@ public class UploadController extends BaseController {
         return fileInfo;
     }
 
-    private static PretreatInfo fetchPretreatInfoFromRequest(HttpServletRequest request){
-        PretreatInfo pretreatInfo = new PretreatInfo();
-        pretreatInfo.setFileId(request.getParameter("fileId") );
-        pretreatInfo.setFileMd5(request.getParameter("token"));
+    private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request){
+        Map<String, Object> pretreatInfo = new HashMap<>();
+        pretreatInfo.put("fileId", request.getParameter("fileId") );
+        pretreatInfo.put("fileMd5", request.getParameter("token"));
         Long fileSize = NumberBaseOpt.parseLong(
                 request.getParameter("size"), -1l);
         if(fileSize<1){
             fileSize= NumberBaseOpt.parseLong(
                     request.getParameter("fileSize"), -1l);
         }
-        pretreatInfo.setFileSize(fileSize);
-        pretreatInfo.setIsIndex(StringRegularOpt.isTrue(request.getParameter("index")));
+        pretreatInfo.put("fileSize", fileSize);
+        pretreatInfo.put("index", StringRegularOpt.isTrue(request.getParameter("index")));
 //        pretreatInfo.setIsIsUnzip(StringRegularOpt.isTrue(request.getParameter("unzip")));
-        pretreatInfo.setAddPdf(StringRegularOpt.isTrue(request.getParameter("pdf")));
-        pretreatInfo.setWatermark(request.getParameter("watermark"));
-        pretreatInfo.setAddThumbnail(StringRegularOpt.isTrue(request.getParameter("thumbnail")));
-        pretreatInfo.setThumbnailHeight(NumberBaseOpt.parseLong(
+        pretreatInfo.put("pdf", StringRegularOpt.isTrue(request.getParameter("pdf")));
+        pretreatInfo.put("watermark", request.getParameter("watermark"));
+        pretreatInfo.put("thumbnail", StringRegularOpt.isTrue(request.getParameter("thumbnail")));
+        pretreatInfo.put("height", NumberBaseOpt.parseLong(
                 request.getParameter("height"), 200l).intValue());
-        pretreatInfo.setThumbnailWidth(NumberBaseOpt.parseLong(
+        pretreatInfo.put("width", NumberBaseOpt.parseLong(
                 request.getParameter("width"), 300l).intValue());
         //encryptType 加密方式 N : 没有加密 Z：zipFile D: DES加密
         String encryptType = request.getParameter("encryptType");
         if("zip".equalsIgnoreCase(encryptType) || "Z".equals(encryptType))
-            pretreatInfo.setEncryptType("Z");
+            pretreatInfo.put("encryptType", "Z");
         if("des".equalsIgnoreCase(encryptType) || "D".equals(encryptType)) // 待删除
-            pretreatInfo.setEncryptType("A");
+            pretreatInfo.put("encryptType", "A");
         //AES 暂未实现
         if("aes".equalsIgnoreCase(encryptType) || "A".equals(encryptType))
-            pretreatInfo.setEncryptType("A");
-        pretreatInfo.setEncryptPassword(request.getParameter("password"));
+            pretreatInfo.put("encryptType", "A");
+        pretreatInfo.put("password", request.getParameter("password"));
 
         return pretreatInfo;
     }
@@ -215,10 +214,10 @@ public class UploadController extends BaseController {
                 makeRangeUploadJson(tempFileSize).toJSONString(), response);
     }
 
-    private Triple<FileInfo, PretreatInfo, InputStream>
+    private Triple<FileInfo, Map<String, Object>, InputStream>
     fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
-        PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
+        Map<String, Object> pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart)
             return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
@@ -245,8 +244,8 @@ public class UploadController extends BaseController {
                     }
                 } else if (StringUtils.equals("pretreatInfo", fi.getFieldName())) {
                     try {
-                        PretreatInfo pi = JSON.parseObject(fi.getString(), PretreatInfo.class);
-                        pretreatInfo.copyNotNullProperty(pi);
+//                        PretreatInfo pi = JSON.parseObject(fi.getString(), PretreatInfo.class);
+//                        pretreatInfo.copyNotNullProperty(pi);
                     } catch (Exception e) {
                         logger.error(e.getMessage(),e);
                     }
@@ -270,7 +269,7 @@ public class UploadController extends BaseController {
      * @param response HttpServletResponse
      */
     private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
-                                      FileInfo fileInfo, PretreatInfo pretreatInfo,
+                                      FileInfo fileInfo, Map<String, Object> pretreatInfo,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
         try {
@@ -359,7 +358,7 @@ public class UploadController extends BaseController {
     }*/
 
     private JSONObject storeAndPretreatFile(FileStore fs, String fileMd5, long size,
-                                            FileInfo fileInfo, PretreatInfo pretreatInfo)  {
+                                            FileInfo fileInfo, Map<String, Object> pretreatInfo)  {
 
         fileInfo.setFileMd5(fileMd5);
 //        fileInfo.setFileSize(size);
@@ -369,61 +368,60 @@ public class UploadController extends BaseController {
         fileStoreInfoManager.increaseFileReferenceCount(fileMd5);
         String fileId = fileInfo.getFileId();
         try {
-            if (pretreatInfo.needPretreat()) {
+//            if (pretreatInfo.needPretreat()) {
 //                fileInfo = FilePretreatment.pretreatment(fs,documentIndexer, fileInfo, pretreatInfo);
-                if (pretreatInfo.getIsIndex()) {
+                if ((boolean) pretreatInfo.get("index")) {
                     FileOptTaskInfo indexTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_DOCUMENT_INDEX);
-                    indexTaskInfo.setTaskOptParam("fileId", fileId);
-                    indexTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
+                    indexTaskInfo.setFileId(fileId);
+                    indexTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                     fileOptTaskQueue.add(indexTaskInfo);
                 }
 
-                if (pretreatInfo.getAddPdf()) {
+                if ((boolean) pretreatInfo.get("pdf")) {
                     FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
-                    addPdfTaskInfo.setTaskOptParam("fileId", fileId);
-                    addPdfTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
+                    addPdfTaskInfo.setFileId(fileId);
+                    addPdfTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                     fileOptTaskQueue.add(addPdfTaskInfo);
                 }
 
-                // 生成水印函数有问题，先注释掉
-//                if (!StringUtils.isBlank(pretreatInfo.getWatermark())) {
-//                    FileOptTaskInfo pdfWatermarkTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_PDF_WATERMARK);
-//                    pdfWatermarkTaskInfo.setTaskOptParam("fileId", fileId);
-//                    pdfWatermarkTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
-//                    pdfWatermarkTaskInfo.setTaskOptParam("watermark", pretreatInfo.getWatermark());
-//                    fileOptTaskQueue.add(pdfWatermarkTaskInfo);
-//                }
+                if (pretreatInfo.get("watermark") != null) {
+                    FileOptTaskInfo pdfWatermarkTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_PDF_WATERMARK);
+                    pdfWatermarkTaskInfo.setFileId(fileId);
+                    pdfWatermarkTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
+                    pdfWatermarkTaskInfo.setTaskOptParam("watermark", pretreatInfo.get("watermark"));
+                    fileOptTaskQueue.add(pdfWatermarkTaskInfo);
+                }
 
-                if (pretreatInfo.getAddThumbnail()) {
+                if ((boolean) pretreatInfo.get("thumbnail")) {
                     FileOptTaskInfo thumbnailTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ADD_THUMBNAIL);
-                    thumbnailTaskInfo.setTaskOptParam("fileId", fileId);
-                    thumbnailTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
-                    thumbnailTaskInfo.setTaskOptParam("width", pretreatInfo.getThumbnailWidth());
-                    thumbnailTaskInfo.setTaskOptParam("height", pretreatInfo.getThumbnailHeight());
+                    thumbnailTaskInfo.setFileId(fileId);
+                    thumbnailTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
+                    thumbnailTaskInfo.setTaskOptParam("width", pretreatInfo.get("width"));
+                    thumbnailTaskInfo.setTaskOptParam("height", pretreatInfo.get("height"));
                     fileOptTaskQueue.add(thumbnailTaskInfo);
                 }
 
-                if ("A".equals(pretreatInfo.getEncryptType())) {
+                if ("A".equals(pretreatInfo.get("encryptType"))) {
                     FileOptTaskInfo aesEncryptTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_AES_ENCRYPT);
-                    aesEncryptTaskInfo.setTaskOptParam("fileId", fileId);
-                    aesEncryptTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
-                    aesEncryptTaskInfo.setTaskOptParam("password", pretreatInfo.getEncryptPassword());
+                    aesEncryptTaskInfo.setFileId(fileId);
+                    aesEncryptTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
+                    aesEncryptTaskInfo.setTaskOptParam("password", pretreatInfo.get("password"));
                     fileOptTaskQueue.add(aesEncryptTaskInfo);
-                } else if ("Z".equals(pretreatInfo.getEncryptType())) {
-                    if(StringUtils.isBlank(pretreatInfo.getEncryptPassword())) {
+                } else if ("Z".equals(pretreatInfo.get("encryptType"))) {
+                    if(pretreatInfo.get("password") == null) {
                         FileOptTaskInfo zipTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ZIP);
-                        zipTaskInfo.setTaskOptParam("fileId", fileId);
-                        zipTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
+                        zipTaskInfo.setFileId(fileId);
+                        zipTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                         fileOptTaskQueue.add(zipTaskInfo);
                     } else {
                         FileOptTaskInfo encryptZipTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ENCRYPT_ZIP);
-                        encryptZipTaskInfo.setTaskOptParam("fileId", fileId);
-                        encryptZipTaskInfo.setTaskOptParam("fileSize", pretreatInfo.getFileSize());
-                        encryptZipTaskInfo.setTaskOptParam("password", pretreatInfo.getEncryptPassword());
+                        encryptZipTaskInfo.setFileId(fileId);
+                        encryptZipTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
+                        encryptZipTaskInfo.setTaskOptParam("password", pretreatInfo.get("password"));
                         fileOptTaskQueue.add(encryptZipTaskInfo);
                     }
                 }
-            }
+//            }
 
             // 只有zip文件才需要解压
             /*if (pretreatInfo.getIsUnzip() && "zip".equals(fileInfo.getFileType())) {
@@ -485,7 +483,7 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            Triple<FileInfo, PretreatInfo, InputStream> formData
+            Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
             completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
             return;
@@ -527,7 +525,7 @@ public class UploadController extends BaseController {
             return;
         }
 
-        Triple<FileInfo, PretreatInfo, InputStream> formData
+        Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
 
 
@@ -544,11 +542,11 @@ public class UploadController extends BaseController {
             if (uploadSize==0) {
                 //上传到临时区成功
 //                fileStore.saveFile(tempFilePath, token, size);
-                PretreatInfo pretreatInfo = formData.getMiddle();
-                if ("N".equals(pretreatInfo.getEncryptType())) { // 不加密的文件保存到服务器
+                Map<String, Object> pretreatInfo = formData.getMiddle();
+                if (!pretreatInfo.containsKey("encryptType")) { // 不加密的文件保存到服务器
                     FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
-                    saveFileTaskInfo.setTaskOptParam("fileMd5", token);
-                    saveFileTaskInfo.setTaskOptParam("fileSize", size);
+                    saveFileTaskInfo.setFileMd5(token);
+                    saveFileTaskInfo.setFileSize(size);
                     fileOptTaskQueue.add(saveFileTaskInfo);
                 }
 
@@ -586,7 +584,7 @@ public class UploadController extends BaseController {
             return;
         }
         request.setCharacterEncoding("utf8");
-        Triple<FileInfo, PretreatInfo, InputStream> formData
+        Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try {
@@ -595,8 +593,8 @@ public class UploadController extends BaseController {
 
 //            fileStore.saveFile(tempFilePath);
             FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
-            saveFileTaskInfo.setTaskOptParam("fileMd5", fileMd5);
-            saveFileTaskInfo.setTaskOptParam("fileSize", fileSize);
+            saveFileTaskInfo.setFileMd5(fileMd5);
+            saveFileTaskInfo.setFileSize((long) fileSize);
             fileOptTaskQueue.add(saveFileTaskInfo);
 
             completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
@@ -746,8 +744,8 @@ public class UploadController extends BaseController {
 
 //            fileStore.saveFile(tempFilePath);
             FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
-            saveFileTaskInfo.setTaskOptParam("fileMd5", fileMd5);
-            saveFileTaskInfo.setTaskOptParam("fileSize", fileSize);
+            saveFileTaskInfo.setFileMd5(fileMd5);
+            saveFileTaskInfo.setFileSize((long) fileSize);
             fileOptTaskQueue.add(saveFileTaskInfo);
 
             completedStoreFile(fileStore, fileMd5, fileSize, fileInfo.getLeft(), response);

@@ -17,10 +17,10 @@ public class FileOptTaskInfo implements Serializable {
     public static final int OPT_DOCUMENT_INDEX = 8;
 
     private int taskType;
-    //TODO add fix fields
     private String fileId;
     private String fileMd5;
-    private String fileSize;
+    private Long fileSize;
+    // add other fixed fields
 
 
     private Map<String, Object> taskOptParams;
@@ -38,6 +38,30 @@ public class FileOptTaskInfo implements Serializable {
 
     public void setTaskType(int taskType) {
         this.taskType = taskType;
+    }
+
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
+
+    public String getFileMd5() {
+        return fileMd5;
+    }
+
+    public void setFileMd5(String fileMd5) {
+        this.fileMd5 = fileMd5;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 
     public Map<String, Object> getTaskOptParams() {

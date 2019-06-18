@@ -1,4 +1,4 @@
-package com.centit.fileserver.fileaccess;
+package com.centit.fileserver.pretreat;
 
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
@@ -7,8 +7,6 @@ import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.*;
 import com.centit.support.image.ImageOpt;
-import com.centit.support.office.OfficeToPdf;
-import com.centit.support.office.Watermark4Pdf;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -37,8 +35,8 @@ public class FilePretreatUtils {
     }
 
     public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) {
-//        return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
-        return OfficeToPdf.office2Pdf(suffix, "D:" + inputFile, "D:" + pdfFile); // for Windows
+        return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
+//        return OfficeToPdf.office2Pdf(suffix, "D:" + inputFile, "D:" + pdfFile); // for Windows
     }
 
     private static void updateCommonFileInfo(FileInfo fileInfo, String newFilePath) throws IOException {

@@ -1,9 +1,10 @@
 package com.centit.fileserver.config;
 
+import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.task.LinkedBlockingQueueFileOptTaskQueue;
+import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;
@@ -79,8 +80,31 @@ public class ServiceConfig {
     }
 
     @Bean
-    public FileOptTaskQueue taskStore() throws Exception {
+    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
         return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
+    }
+
+    @Bean
+    public FileOptTaskExecutor executor(FileOptTaskQueue fileOptTaskQueue,
+                                        SaveFileOpt saveFileOpt,
+                                        CreatePdfOpt createPdfOpt,
+                                        PdfWatermarkOpt pdfWatermarkOpt,
+                                        AddThumbnailOpt addThumbnailOpt,
+                                        ZipFileOpt zipFileOpt,
+                                        EncryptZipFileOpt encryptZipFileOpt,
+                                        EncryptFileWithAesOpt encryptFileWithAesOpt,
+                                        DocumentIndexOpt documentIndexOpt) {
+        FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
+        fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_SAVE_FILE, saveFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_CREATE_PDF, createPdfOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_PDF_WATERMARK, pdfWatermarkOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ADD_THUMBNAIL, addThumbnailOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ZIP, zipFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ENCRYPT_ZIP, encryptZipFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_AES_ENCRYPT, encryptFileWithAesOpt);
+        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_DOCUMENT_INDEX, documentIndexOpt);
+        return fileOptTaskExecutor;
     }
 
     @Bean
