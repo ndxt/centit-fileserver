@@ -3,7 +3,7 @@ package com.centit.fileserver.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseData;

@@ -1,7 +1,7 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.utils.FileOptTaskInfo;
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileStore;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

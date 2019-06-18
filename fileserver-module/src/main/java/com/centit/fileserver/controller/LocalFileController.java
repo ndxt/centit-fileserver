@@ -1,5 +1,6 @@
 package com.centit.fileserver.controller;
 
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
@@ -8,7 +9,6 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.fileserver.utils.FileServerConstant;
-import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;

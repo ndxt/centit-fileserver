@@ -1,5 +1,7 @@
 package com.centit.fileserver.task;
 
+import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileOptTaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,10 +2,10 @@ package com.centit.fileserver.config;
 
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.task.LinkedBlockingQueueFileOptTaskQueue;
 import com.centit.fileserver.utils.OsFileStore;
-import com.centit.fileserver.utils.FileOptTaskQueue;
+import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;

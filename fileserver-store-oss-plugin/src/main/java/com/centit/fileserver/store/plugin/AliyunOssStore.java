@@ -3,7 +3,7 @@ package com.centit.fileserver.store.plugin;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -170,7 +170,7 @@ public class AliyunOssStore implements FileStore {
         OSSObject oobj = ossc.getObject(bucketName, fileUrl);
         if(oobj==null)
             return null;
-        File file = new File( SystemTempFileUtils.getRandomTempFilePath());
+        File file = new File(SystemTempFileUtils.getRandomTempFilePath());
         FileIOOpt.writeInputStreamToFile( oobj.getObjectContent(), file);
         return file;
     }

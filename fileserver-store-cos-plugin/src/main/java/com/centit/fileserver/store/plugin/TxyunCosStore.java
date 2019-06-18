@@ -1,6 +1,6 @@
 package com.centit.fileserver.store.plugin;
 
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;

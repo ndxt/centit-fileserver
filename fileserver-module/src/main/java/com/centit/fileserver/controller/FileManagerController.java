@@ -1,11 +1,11 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
-import com.centit.fileserver.utils.FileStore;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.core.controller.BaseController;

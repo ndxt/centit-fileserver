@@ -2,12 +2,17 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.fileaccess.PretreatInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
-import com.centit.fileserver.utils.*;
+import com.centit.fileserver.utils.FileServerConstant;
+import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
@@ -40,7 +45,9 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -282,7 +289,7 @@ public class UploadController extends BaseController {
     }
 
 
-    /**
+    /*
      * 解压缩文件
      * @param fs 文件的物理存储接口
      * @param fileInfo 文件对象
