@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils;
+package com.centit.fileserver.common;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 /**
  * 文件的物理存储接口
- * 
+ *
  */
 public interface FileStore {
 

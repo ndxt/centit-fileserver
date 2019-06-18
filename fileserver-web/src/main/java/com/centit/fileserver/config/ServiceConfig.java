@@ -3,7 +3,7 @@ package com.centit.fileserver.config;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.utils.FileStore;
-import com.centit.fileserver.utils.LinkedBlockingQueueFileOptTaskQueue;
+import com.centit.fileserver.task.LinkedBlockingQueueFileOptTaskQueue;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.utils.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;

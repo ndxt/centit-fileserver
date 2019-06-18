@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils;
+package com.centit.fileserver.common;
 
 import java.io.Serializable;
 import java.util.HashMap;

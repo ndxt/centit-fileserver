@@ -1,5 +1,6 @@
 package com.centit.fileserver.utils;
 
+import com.centit.fileserver.common.FileStore;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;

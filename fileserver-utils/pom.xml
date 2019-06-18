@@ -13,6 +13,11 @@
     <name>com.centit.product:centit-fileserver-utils</name>
 
     <dependencies>
+        <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-adapter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.centit.support</groupId>

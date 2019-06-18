@@ -69,6 +69,7 @@
         <!--<module>fileserver-boot</module>-->
         <module>fileserver-store-oss-plugin</module>
         <module>fileserver-store-cos-plugin</module>
+        <module>fileserver-adapter</module>
     </modules>
 
     <build>

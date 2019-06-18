@@ -1,4 +1,4 @@
-package com.centit.fileserver.utils;
+package com.centit.fileserver.common;
 
 /**
  * 保存后台处理任务的接口
