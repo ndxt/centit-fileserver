@@ -4,17 +4,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 /**
- *  a：is_index 是否加入全文检索 
+ *  a：is_index 是否加入全文检索
     b：encrypt_type 加密方式 N: 没有加密 Z: zipFile A: AES加密
-    c：encrypt_password, 如果加密密码 
-    e：add_pdf ； P 添加pdf 副本 
-    f：watermark； 如果添加pdf副本 是否需要加水印，水印 文字 
-    g：add_Thumbnail ; 添加缩略图 
-    h：Thumbnail_width ；缩略图宽度 
-    i：Thumbnail_height ；缩略图高度 
+    c：encrypt_password, 如果加密密码
+    e：add_pdf ； P 添加pdf 副本
+    f：watermark； 如果添加pdf副本 是否需要加水印，水印 文字
+    g：add_Thumbnail ; 添加缩略图
+    h：Thumbnail_width ；缩略图宽度
+    i：Thumbnail_height ；缩略图高度
  * @author codefan
  *
  */
+@Deprecated
 public class PretreatInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;

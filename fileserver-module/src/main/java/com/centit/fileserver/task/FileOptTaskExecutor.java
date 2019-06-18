@@ -21,7 +21,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Component
 public class FileOptTaskExecutor {
@@ -43,7 +47,15 @@ public class FileOptTaskExecutor {
     @Resource
     private FileStoreInfoManager fileStoreInfoManager;
 
+    private Map<Integer, Consumer<FileOptTaskInfo>> fileOptList;
 
+    public FileOptTaskExecutor(){
+        fileOptList = new HashMap<>(20);
+    }
+
+    public void addFileOpt(int taskType, Consumer<FileOptTaskInfo> fileOpt){
+        fileOptList.put(taskType, fileOpt);
+    }
     /**
      * 保存文件至服务器
      * @param tempFilePath
@@ -218,6 +230,8 @@ public class FileOptTaskExecutor {
 
     @PostConstruct
     public void doTask() {
+        /*addFileOpt(FileOptTaskInfo.OPT_SAVE_FILE,
+            new SaveFileOpt());*/
         new Thread(new FileOptTask()).start();
     }
 
@@ -231,6 +245,9 @@ public class FileOptTaskExecutor {
                         Thread.sleep(5000);
                     } else {
                         int taskType = taskInfo.getTaskType();
+
+                        fileOptList.get(taskType).accept(taskInfo);
+                        /*
                         switch (taskType) {
                             case FileOptTaskInfo.OPT_SAVE_FILE:
                                 saveFile(taskInfo.getTaskOptParams());
@@ -256,7 +273,7 @@ public class FileOptTaskExecutor {
                             case FileOptTaskInfo.OPT_DOCUMENT_INDEX:
                                 index(taskInfo);
                                 break;
-                        }
+                        }*/
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

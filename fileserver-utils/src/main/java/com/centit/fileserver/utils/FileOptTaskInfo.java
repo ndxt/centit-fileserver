@@ -17,6 +17,11 @@ public class FileOptTaskInfo implements Serializable {
     public static final int OPT_DOCUMENT_INDEX = 8;
 
     private int taskType;
+    //TODO add fix fields
+    private String fileId;
+    private String fileMd5;
+    private String fileSize;
+
 
     private Map<String, Object> taskOptParams;
 
