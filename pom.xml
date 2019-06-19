@@ -78,6 +78,7 @@
         <module>fileserver-store-oss-plugin</module>
         <module>fileserver-store-cos-plugin</module>
         <module>fileserver-adapter</module>
+        <module>fileserver-task-redis-plugin</module>
     </modules>
 
     <build>
