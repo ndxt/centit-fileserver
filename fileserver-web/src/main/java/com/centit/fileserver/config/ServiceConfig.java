@@ -5,6 +5,7 @@ import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.task.*;
+import com.centit.fileserver.task.plugin.RedisFileOptTaskQueue;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;
@@ -79,21 +80,28 @@ public class ServiceConfig {
         }
     }
 
+//    @Bean
+//    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
+//        return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
+//    }
+
     @Bean
-    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
-        return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
+    public FileOptTaskQueue fileOptTaskQueue() {
+        return new RedisFileOptTaskQueue(env.getProperty("session.redis.host"),
+                                        env.getProperty("session.redis.port", Integer.class),
+                                        1);
     }
 
     @Bean
-    public FileOptTaskExecutor executor(FileOptTaskQueue fileOptTaskQueue,
-                                        SaveFileOpt saveFileOpt,
-                                        CreatePdfOpt createPdfOpt,
-                                        PdfWatermarkOpt pdfWatermarkOpt,
-                                        AddThumbnailOpt addThumbnailOpt,
-                                        ZipFileOpt zipFileOpt,
-                                        EncryptZipFileOpt encryptZipFileOpt,
-                                        EncryptFileWithAesOpt encryptFileWithAesOpt,
-                                        DocumentIndexOpt documentIndexOpt) {
+    public FileOptTaskExecutor fileOptTaskExecutor(@Autowired FileOptTaskQueue fileOptTaskQueue,
+                                        @Autowired SaveFileOpt saveFileOpt,
+                                        @Autowired CreatePdfOpt createPdfOpt,
+                                        @Autowired PdfWatermarkOpt pdfWatermarkOpt,
+                                        @Autowired AddThumbnailOpt addThumbnailOpt,
+                                        @Autowired ZipFileOpt zipFileOpt,
+                                        @Autowired EncryptZipFileOpt encryptZipFileOpt,
+                                        @Autowired EncryptFileWithAesOpt encryptFileWithAesOpt,
+                                        @Autowired DocumentIndexOpt documentIndexOpt) {
         FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
         fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
         fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_SAVE_FILE, saveFileOpt);
