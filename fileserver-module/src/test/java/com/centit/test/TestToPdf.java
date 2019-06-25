@@ -1,9 +1,6 @@
 package com.centit.test;
 
-import com.centit.fileserver.fileaccess.FilePretreatUtils;
-import com.centit.fileserver.po.FileInfo;
 import com.centit.support.file.FileMD5Maker;
-import com.centit.support.office.Watermark4Pdf;
 
 import java.io.File;
 import java.io.IOException;

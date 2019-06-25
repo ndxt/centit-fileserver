@@ -1,6 +1,6 @@
 package com.centit.test;
 
-import com.centit.fileserver.fileaccess.FilePretreatUtils;
+import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.support.file.FileMD5Maker;
 
 import java.io.File;
