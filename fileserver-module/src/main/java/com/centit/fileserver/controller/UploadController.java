@@ -220,8 +220,9 @@ public class UploadController extends BaseController {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Map<String, Object> pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if (!isMultipart)
+        if (!isMultipart) {
             return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
+        }
 
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
@@ -465,7 +466,7 @@ public class UploadController extends BaseController {
                     formData.getMiddle(), request, response);
             return;
         }
-
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
         try {

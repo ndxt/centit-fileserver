@@ -46,8 +46,9 @@ public abstract class UploadDownloadUtils {
         if(StringUtils.isBlank(fileName))
             fileName = request.getParameter("fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if (!isMultipart)
+        if (!isMultipart) {
             return new ImmutablePair<>(fileName, request.getInputStream());
+        }
 
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
@@ -75,8 +76,9 @@ public abstract class UploadDownloadUtils {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             String fileName = request.getParameter("name");
-            if(StringUtils.isBlank(fileName))
+            if(StringUtils.isBlank(fileName)) {
                 fileName = request.getParameter("fileName");
+            }
             return new ImmutablePair<>(fileName, request.getInputStream());
         }
 

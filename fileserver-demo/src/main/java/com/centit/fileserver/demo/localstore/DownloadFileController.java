@@ -1,6 +1,6 @@
 package com.centit.fileserver.demo.localstore;
 
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.NumberBaseOpt;

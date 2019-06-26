@@ -2,7 +2,7 @@ package com.centit.fileserver.demo.localstore;
 
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.utils.FileServerConstant;
-import com.centit.fileserver.utils.FileStore;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
