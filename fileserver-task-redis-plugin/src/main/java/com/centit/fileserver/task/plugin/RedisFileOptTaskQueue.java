@@ -4,10 +4,7 @@ import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileOptTaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializer;
 
 public class RedisFileOptTaskQueue implements FileOptTaskQueue {
 
@@ -17,17 +14,12 @@ public class RedisFileOptTaskQueue implements FileOptTaskQueue {
 
     private RedisTemplate redisTemplate;
 
+    public RedisFileOptTaskQueue() {
 
-    public RedisFileOptTaskQueue(String host, int port, int dbIndex) {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(host);
-        configuration.setPort(port);
-        configuration.setDatabase(dbIndex);
-        JedisConnectionFactory factory = new JedisConnectionFactory(configuration);
-        redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(factory);
-        redisTemplate.setKeySerializer(RedisSerializer.string());
-        redisTemplate.afterPropertiesSet();
+    }
+
+    public void setRedisTemplate(RedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
     @Override

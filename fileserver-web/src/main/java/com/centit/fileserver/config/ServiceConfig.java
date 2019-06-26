@@ -1,13 +1,12 @@
 package com.centit.fileserver.config;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
-import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.task.*;
-import com.centit.fileserver.task.plugin.RedisFileOptTaskQueue;
 import com.centit.fileserver.utils.OsFileStore;
-import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.components.impl.TextOperationLogWriterImpl;
@@ -80,17 +79,27 @@ public class ServiceConfig {
         }
     }
 
-//    @Bean
-//    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
-//        return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
-//    }
-
     @Bean
-    public FileOptTaskQueue fileOptTaskQueue() {
-        return new RedisFileOptTaskQueue(env.getProperty("session.redis.host"),
-                                        env.getProperty("session.redis.port", Integer.class),
-                                        1);
+    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
+        return new LinkedBlockingQueueFileOptTaskQueue("/D/Projects/RunData/file_home/task/");
     }
+
+    /*@Bean
+    public FileOptTaskQueue fileOptTaskQueue() {
+        RedisFileOptTaskQueue taskQueue = new RedisFileOptTaskQueue();
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName(env.getProperty("file.redis.host","127.0.0.1"));
+        configuration.setPort(env.getProperty("file.redis.port", Integer.class, 6379));
+        configuration.setDatabase(1);
+        JedisConnectionFactory factory = new JedisConnectionFactory(configuration);
+        RedisTemplate redisTemplate = new RedisTemplate();
+        redisTemplate.setConnectionFactory(factory);
+        redisTemplate.setKeySerializer(RedisSerializer.string());
+        redisTemplate.afterPropertiesSet();
+
+        taskQueue.setRedisTemplate(redisTemplate);
+        return taskQueue;
+    }*/
 
     @Bean
     public FileOptTaskExecutor fileOptTaskExecutor(@Autowired FileOptTaskQueue fileOptTaskQueue,
