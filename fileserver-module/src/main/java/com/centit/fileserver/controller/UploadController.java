@@ -17,6 +17,7 @@ import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.search.service.Indexer;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringRegularOpt;
@@ -287,76 +288,6 @@ public class UploadController extends BaseController {
         }
     }
 
-
-    /*
-     * 解压缩文件
-     * @param fs 文件的物理存储接口
-     * @param fileInfo 文件对象
-     * @param pretreatInfo  PretreatInfo
-     * @param rootPath 根路径
-     * @throws Exception Exception
-     */
-    /*
-    private void unzip(FileStore fs, FileInfo fileInfo, PretreatInfo pretreatInfo, String rootPath) {
-        File zipFile = null;
-        try {
-            zipFile = fs.getFile(fileInfo.getFileStorePath());
-        }catch (IOException e){
-            throw new ObjectException(e);
-        }
-
-        try(ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)))) {
-
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                System.out.println("Extracting: " + entry.getName());
-
-                if (entry.isDirectory()) {
-                    continue;
-                }
-
-                String name = entry.getName();
-                int fi = name.indexOf('/');
-                int di = name.lastIndexOf('/');
-
-                String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
-                int size = FileIOOpt.writeInputStreamToFile(zis, tempFilePath);
-                String token = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-                fileStore.saveFile(tempFilePath, token, size);
-
-                FileInfo fileInfoTemp = new FileInfo();
-                fileInfoTemp.copyNotNullProperty(fileInfo);
-                fileInfoTemp.setFileMd5(token);
-                fileInfoTemp.setFileName(name.substring(di + 1));
-                fileInfoTemp.setFileType(FileType.getFileExtName(name.substring(di + 1)));
-
-                // ① name: test/4.东航国际运输条件.docx && showPath: null =========> showPath: null
-                // ② name: test/4.东航国际运输条件.docx && showPath: a =========> showPath: a
-                // ③ name: test/b/4.东航国际运输条件.docx && showPath: null =========> showPath: b
-                // ④ name: test/b/4.东航国际运输条件.docx && showPath: a =========> showPath: a/b
-                if (fi == di) {
-                    // 情况 ① ②
-                    fileInfoTemp.setFileShowPath(rootPath);
-                } else {
-                    // 情况 ③ ④
-                    fileInfoTemp.setFileShowPath(rootPath == null ? name.substring(fi + 1, di) : (rootPath + name.substring(fi, di)));
-                }
-
-                fileInfoTemp.setFileStorePath(fileStore.getFileStoreUrl(token, size));
-
-                PretreatInfo pretreatInfoTemp = new PretreatInfo();
-                pretreatInfoTemp.copyNotNullProperty(pretreatInfo);
-                pretreatInfoTemp.setIsIsUnzip(false);
-
-                storeAndPretreatFile(fileStore, token, size, fileInfoTemp, pretreatInfoTemp);
-
-                FileSystemOpt.deleteFile(tempFilePath);
-            }
-        } catch (IOException ie){
-            throw new ObjectException(ie);
-        }
-    }*/
-
     private JSONObject storeAndPretreatFile(FileStore fs, String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo)  {
 
@@ -370,14 +301,14 @@ public class UploadController extends BaseController {
         try {
 //            if (pretreatInfo.needPretreat()) {
 //                fileInfo = FilePretreatment.pretreatment(fs,documentIndexer, fileInfo, pretreatInfo);
-                if ((boolean) pretreatInfo.get("index")) {
+                if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false)) {
                     FileOptTaskInfo indexTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_DOCUMENT_INDEX);
                     indexTaskInfo.setFileId(fileId);
                     indexTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                     fileOptTaskQueue.add(indexTaskInfo);
                 }
 
-                if ((boolean) pretreatInfo.get("pdf")) {
+                if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)) {
                     FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
                     addPdfTaskInfo.setFileId(fileId);
                     addPdfTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
@@ -392,7 +323,7 @@ public class UploadController extends BaseController {
                     fileOptTaskQueue.add(pdfWatermarkTaskInfo);
                 }
 
-                if ((boolean) pretreatInfo.get("thumbnail")) {
+                if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("thumbnail"),false)) {
                     FileOptTaskInfo thumbnailTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ADD_THUMBNAIL);
                     thumbnailTaskInfo.setFileId(fileId);
                     thumbnailTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
