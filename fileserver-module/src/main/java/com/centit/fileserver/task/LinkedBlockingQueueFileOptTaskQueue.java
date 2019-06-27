@@ -2,6 +2,7 @@ package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
     private LinkedBlockingQueue<FileOptTaskInfo> taskQueue;
 
     public LinkedBlockingQueueFileOptTaskQueue(String taskFileRoot) throws Exception {
+        FileSystemOpt.createDirect(taskFileRoot);
         if (taskFileRoot.endsWith(String.valueOf(File.separatorChar))) {
             taskFile = new File(taskFileRoot + "task.dat");
         } else {
