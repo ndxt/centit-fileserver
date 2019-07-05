@@ -16,11 +16,16 @@ metadata:
   name: fileserver-web
 spec:
   replicas: 1
+  revisionHistoryLimit: 2
+  minReadySeconds: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: fileserver-web
-  strategy:
-    type: RollingUpdate
   template:
     metadata:
       labels:
