@@ -1,9 +1,9 @@
 package com.centit.fileserver.service.impl;
 
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
-import com.centit.fileserver.common.FileStore;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

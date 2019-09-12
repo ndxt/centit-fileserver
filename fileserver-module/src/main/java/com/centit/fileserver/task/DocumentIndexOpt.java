@@ -1,8 +1,8 @@
 package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
-import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;

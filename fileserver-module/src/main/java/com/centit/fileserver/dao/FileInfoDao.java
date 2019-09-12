@@ -1,7 +1,7 @@
 package com.centit.fileserver.dao;
 
-import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;

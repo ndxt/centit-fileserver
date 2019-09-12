@@ -6,12 +6,10 @@ import com.centit.fileserver.dao.FileAccessLogDao;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.framework.core.dao.DictionaryMapUtils;
-import com.centit.support.database.utils.PageDesc;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.database.utils.QueryAndNamedParams;
-import com.centit.support.database.utils.QueryUtils;
+import com.centit.support.database.utils.PageDesc;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

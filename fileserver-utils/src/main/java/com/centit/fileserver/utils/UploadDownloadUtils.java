@@ -11,6 +11,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -253,4 +254,14 @@ public abstract class UploadDownloadUtils {
         json.put(ResponseData.RES_DATA_FILED, rangeFileSize);
         return json;
     }
+
+    public static void downloadFile(InputStream downloadFile, String downloadName, HttpServletResponse response)
+        throws IOException {
+        downloadName = new String(downloadName.getBytes("GBK"), "ISO8859-1");
+        response.setContentType("application/x-msdownload;");
+        response.setHeader("Content-disposition", "attachment; filename=" + downloadName);
+        response.setHeader("Content-Length", String.valueOf(downloadFile.available()));
+        IOUtils.copy(downloadFile, response.getOutputStream());
+    }
+
 }

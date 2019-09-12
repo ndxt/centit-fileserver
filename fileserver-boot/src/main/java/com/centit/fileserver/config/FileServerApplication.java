@@ -4,7 +4,6 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.centit.framework.core.controller.WrapUpResponseBodyReturnValueHandler;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
