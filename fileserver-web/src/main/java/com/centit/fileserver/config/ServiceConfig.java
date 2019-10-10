@@ -23,6 +23,8 @@ import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.search.service.Searcher;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
@@ -101,8 +103,11 @@ public class ServiceConfig {
         return taskQueue;
     }*/
 
+    /* 这个定时任务 不能用run来做，应该用一个 定时任务容器
+     */
     @Bean
-    public FileOptTaskExecutor fileOptTaskExecutor(@Autowired FileOptTaskQueue fileOptTaskQueue,
+    public FileOptTaskExecutor fileOptTaskExecutor(
+                                        @Autowired FileOptTaskQueue fileOptTaskQueue,
                                         @Autowired SaveFileOpt saveFileOpt,
                                         @Autowired CreatePdfOpt createPdfOpt,
                                         @Autowired PdfWatermarkOpt pdfWatermarkOpt,
@@ -122,6 +127,11 @@ public class ServiceConfig {
         fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_AES_ENCRYPT, encryptFileWithAesOpt);
         fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_DOCUMENT_INDEX, documentIndexOpt);
         return fileOptTaskExecutor;
+    }
+
+    @Bean
+    public SchedulerFactory schedulerFactory()  {
+        return new StdSchedulerFactory();
     }
 
     @Bean

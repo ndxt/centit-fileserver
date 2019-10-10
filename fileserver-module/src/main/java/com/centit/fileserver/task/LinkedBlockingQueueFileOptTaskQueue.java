@@ -24,9 +24,9 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
         }
 
         if (taskFile.exists()) {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(taskFile));
-            taskQueue = (LinkedBlockingQueue) ois.readObject();
-            ois.close();
+            try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(taskFile))) {
+                taskQueue = (LinkedBlockingQueue) ois.readObject();
+            }
         } else {
             taskQueue = new LinkedBlockingQueue();
         }

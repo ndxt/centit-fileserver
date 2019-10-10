@@ -5,7 +5,6 @@ import com.centit.fileserver.common.FileOptTaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -35,12 +34,21 @@ public class FileOptTaskExecutor {
         this.fileOptTaskQueue = fileOptTaskQueue;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void doTask() {
         new Thread(new FileOptTask()).start();
     }
+    */
+    public void doFileOptJob() {
+        FileOptTaskInfo taskInfo = fileOptTaskQueue.get();
+        while(taskInfo != null){
+            int taskType = taskInfo.getTaskType();
+            fileOptList.get(taskType).accept(taskInfo);
+            taskInfo = fileOptTaskQueue.get();
+        }
+    }
 
-    class FileOptTask implements Runnable {
+   /* class FileOptTask implements Runnable {
         @Override
         public void run() {
             while (true) {
@@ -53,9 +61,9 @@ public class FileOptTaskExecutor {
                         fileOptList.get(taskType).accept(taskInfo);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
-    }
+    }*/
 }

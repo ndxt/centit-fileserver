@@ -13,6 +13,7 @@
     <name>com.centit.product:centit-fileserver-module</name>
 
     <dependencies>
+
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-adapter</artifactId>
