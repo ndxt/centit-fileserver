@@ -6,7 +6,7 @@ import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
-import com.centit.framework.common.ObjectException;
+import com.centit.support.common.ObjectException;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
