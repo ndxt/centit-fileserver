@@ -167,7 +167,7 @@ public class FileManagerController extends BaseController {
     public void listStroedFiles( PageDesc pageDesc,
             HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> queryParamsMap = convertSearchColumn(request);
+        Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
 
         JSONArray listObjects = fileInfoManager.listStoredFiles(queryParamsMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();

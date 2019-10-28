@@ -88,7 +88,7 @@ public class AccessManagerController extends BaseController {
     public void listAccessLog( PageDesc pageDesc,
             HttpServletRequest request, HttpServletResponse response){
 
-        Map<String, Object> queryParamsMap = convertSearchColumn(request);
+        Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
 
         JSONArray listObjects = fileAccessLogManager.listAccessLog(queryParamsMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();
@@ -102,7 +102,7 @@ public class AccessManagerController extends BaseController {
     public void listAccessLogByFileId(@PathVariable("fileId") String fileId, PageDesc pageDesc,
             HttpServletRequest request, HttpServletResponse response){
 
-        Map<String, Object> filterMap = convertSearchColumn(request);
+        Map<String, Object> filterMap = BaseController.collectRequestParameters(request);
         filterMap.put("fileId", fileId);
 
         JSONArray listObjects = fileAccessLogManager.listObjectsAsJson(filterMap, pageDesc);
