@@ -206,7 +206,7 @@ public class StoreFileController extends BaseController {
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             try (FileOutputStream out = new FileOutputStream(
                     new File(tempFilePath), true)) {
-                int length = FileIOOpt.writeInputStreamToOutputStream(fis, out);
+                long length = FileIOOpt.writeInputStreamToOutputStream(fis, out);
                 if (length != range.getPartSize()) {
                     JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
                             "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
