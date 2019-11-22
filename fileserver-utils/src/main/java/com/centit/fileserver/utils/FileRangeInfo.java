@@ -8,13 +8,11 @@ import java.util.regex.Pattern;
 public class FileRangeInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    public static final long FILE_BLOCK_SIZE = 10*1024*1024L;
+    public static final long FILE_BLOCK_SIZE = 10 * 1024 * 1024;
 
-
-    private    long rangeStart;
+    private long rangeStart;
     private long rangeEnd;
     private long fileSize;
-
 
     //static final Pattern RANGE_PATTERN = Pattern.compile("bytes \\d+-\\d+/\\d+");
     /**
