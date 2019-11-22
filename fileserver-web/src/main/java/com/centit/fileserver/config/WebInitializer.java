@@ -20,11 +20,15 @@ public class WebInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        initializeSpringConfig(servletContext);
-        initializeSystemSpringMvcConfig(servletContext);
-        initializeSpringMvcConfig(servletContext);
-
         String [] servletUrlPatterns = {"/system/*","/fileserver/*"};
+        WebConfig.registerSpringConfig(servletContext, ServiceConfig.class);
+        WebConfig.registerServletConfig(servletContext, "system",
+            "/system/*",
+            SystemSpringMvcConfig.class,SwaggerConfig.class);
+        WebConfig.registerServletConfig(servletContext, "fileserver",
+            "/fileserver/*",
+            NormalSpringMvcConfig.class,SwaggerConfig.class);
+
 
         WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
