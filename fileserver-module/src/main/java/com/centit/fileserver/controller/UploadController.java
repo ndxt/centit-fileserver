@@ -297,7 +297,7 @@ public class UploadController extends BaseController {
 //        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
 
         fileInfoManager.saveNewObject(fileInfo);
-        fileStoreInfoManager.increaseFileReferenceCount(fileMd5);
+        fileStoreInfoManager.increaseFileReferenceCount(fileMd5,SystemTempFileUtils.getTempFilePath(fileMd5, size),size,true);
         String fileId = fileInfo.getFileId();
         try {
 //            if (pretreatInfo.needPretreat()) {

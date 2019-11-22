@@ -28,14 +28,23 @@ public class FileStoreInfo implements Serializable {
     // 文件的引用计数
     @Column(name = "FILE_REFERENCE_COUNT")
     private Long fileReferenceCount;
+    /**
+    是否临时文件，T：临时F；已持久化
+     */
+    @Column(name="IS_TEMP")
+    private Boolean isTemp;
 
 
     public FileStoreInfo() {}
 
-    public FileStoreInfo(String fileMd5, Long fileSize, String fileStorePath, Long fileReferenceCount) {
+    public FileStoreInfo(String fileMd5, Long fileSize, String fileStorePath, Long fileReferenceCount,Boolean isTemp) {
         this.fileMd5 = fileMd5;
         this.fileSize = fileSize;
         this.fileStorePath = fileStorePath;
         this.fileReferenceCount = fileReferenceCount;
+        this.isTemp =isTemp;
+    }
+    public Boolean isTemp(){
+        return isTemp!=null && isTemp;
     }
 }

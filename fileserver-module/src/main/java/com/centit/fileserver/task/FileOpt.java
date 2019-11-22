@@ -28,10 +28,10 @@ public class FileOpt {
         try {
             if (fileStoreInfoManager.getObjectById(fileMd5) == null) {
                 String fileStorePath = fileStore.saveFile(tempFilePath, fileMd5, fileSize);
-                FileStoreInfo fileStoreInfo = new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L);
+                FileStoreInfo fileStoreInfo = new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L,false);
                 fileStoreInfoManager.saveNewObject(fileStoreInfo);
             } else {
-                fileStoreInfoManager.increaseFileReferenceCount(fileMd5);
+                fileStoreInfoManager.increaseFileReferenceCount(fileMd5,tempFilePath,fileSize,false);
             }
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());
