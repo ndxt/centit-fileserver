@@ -375,9 +375,7 @@ public class FileClientImpl implements FileClient {
                 httpGet.setHeader("Range", "bytes=" + offset + "-" + String.valueOf(offset + length - 1));
             }
             Header[] contentTypeHeader = response.getHeaders("Content-Type");
-            if (contentTypeHeader == null || contentTypeHeader.length < 1 ||
-                    StringUtils.indexOf(
-                            contentTypeHeader[0].getValue(), "text/") >= 0
+            if (contentTypeHeader == null || contentTypeHeader.length < 1
                     ) {
                 String responseContent = Utf8ResponseHandler.INSTANCE
                         .handleResponse(response);
