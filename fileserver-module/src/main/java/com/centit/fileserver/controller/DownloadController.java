@@ -67,16 +67,18 @@ public class DownloadController extends BaseController {
             if("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
-                try(InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-                    OutputStream diminationFile = new FileOutputStream(tmpFile)    ){
-                    FileEncryptWithAes.decrypt(downFile, diminationFile, password);
-                }catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                    JsonResultUtils.writeHttpErrorMessage(
+                if (!fileStoreInfo.isTemp()){
+                    try (InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                         OutputStream diminationFile = new FileOutputStream(tmpFile)) {
+                        FileEncryptWithAes.decrypt(downFile, diminationFile, password);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                        JsonResultUtils.writeHttpErrorMessage(
                             FileServerConstant.ERROR_FILE_ENCRYPT,
-                            "解码文件失败："+e.getMessage(),
+                            "解码文件失败：" + e.getMessage(),
                             response);
-                    return;
+                        return;
+                    }
                 }
                 try(InputStream inputStream = new FileInputStream(tmpFile)){
                     downFileRange(request, response,
@@ -85,9 +87,15 @@ public class DownloadController extends BaseController {
 
                 FileSystemOpt.deleteFile(tmpFile);
             }else{
-                downFileRange(request, response,
+                if (fileStoreInfo.isTemp()){
+                    downFileRange(request, response,
+                        new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                } else {
+                    downFileRange(request, response,
                         fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                }
             }
         } else {
             JsonResultUtils.writeHttpErrorMessage(

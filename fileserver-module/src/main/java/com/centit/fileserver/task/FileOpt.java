@@ -26,12 +26,16 @@ public class FileOpt {
      */
     protected void save(String tempFilePath, String fileMd5, long fileSize) {
         try {
-            if (fileStoreInfoManager.getObjectById(fileMd5) == null) {
+            FileStoreInfo fileStoreInfo=fileStoreInfoManager.getObjectById(fileMd5);
+            if (fileStoreInfo == null) {
                 String fileStorePath = fileStore.saveFile(tempFilePath, fileMd5, fileSize);
-                FileStoreInfo fileStoreInfo = new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L,false);
+                fileStoreInfo = new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L,false);
                 fileStoreInfoManager.saveNewObject(fileStoreInfo);
             } else {
-                fileStoreInfoManager.increaseFileReferenceCount(fileMd5,tempFilePath,fileSize,false);
+                if(fileStoreInfo.isTemp()){
+                    fileStoreInfo.setFileStorePath(fileStore.saveFile(tempFilePath, fileMd5, fileSize));
+                }
+                fileStoreInfoManager.increaseFileReferenceCount(fileMd5,fileStoreInfo.getFileStorePath(),fileSize,false);
             }
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());
