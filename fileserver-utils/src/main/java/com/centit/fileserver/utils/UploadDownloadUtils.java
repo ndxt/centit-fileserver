@@ -246,6 +246,17 @@ public abstract class UploadDownloadUtils {
         return tempFileSize;
     }
 
+    public static JSONObject makeRangeUploadJson(long rangeFileSize,String FileId){
+        JSONObject jsonFile=new JSONObject();
+        jsonFile.put("FileSize",rangeFileSize);
+        jsonFile.put("FileId",FileId);
+        JSONObject json = new JSONObject();
+        json.put("start", rangeFileSize);
+        json.put(ResponseData.RES_CODE_FILED, 0);
+        json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功");
+        json.put(ResponseData.RES_DATA_FILED, jsonFile);
+        return json;
+    }
     public static JSONObject makeRangeUploadJson(long rangeFileSize){
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
