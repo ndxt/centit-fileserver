@@ -248,8 +248,8 @@ public abstract class UploadDownloadUtils {
 
     public static JSONObject makeRangeUploadJson(long rangeFileSize,String FileId){
         JSONObject jsonFile=new JSONObject();
-        jsonFile.put("FileSize",rangeFileSize);
-        jsonFile.put("FileId",FileId);
+        jsonFile.put("fileSize",rangeFileSize);
+        jsonFile.put("fileId",FileId);
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
         json.put(ResponseData.RES_CODE_FILED, 0);
