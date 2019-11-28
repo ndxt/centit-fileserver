@@ -210,9 +210,12 @@ public class UploadController extends BaseController {
             tempFileSize = SystemTempFileUtils.checkTempFileSize(
                     SystemTempFileUtils.getTempFilePath(token, size));
         }
-
-        JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                makeRangeUploadJson(tempFileSize).toJSONString(), response);
+        JSONObject jsonObject=UploadDownloadUtils.
+            makeRangeUploadJson(tempFileSize);
+        if (tempFileSize>0L){
+            jsonObject.put("fileId",fileInfoManager.getObjectByProperty("fileMd5",token).getFileId());
+        }
+        JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
     }
 
     private Triple<FileInfo, Map<String, Object>, InputStream>
