@@ -523,7 +523,16 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-        String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+//        String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+        String token = formData.getLeft().getFileMd5();
+        Long size = NumberBaseOpt.parseLong(
+            request.getParameter("size"), -1l);
+        if(size<1){
+            size= NumberBaseOpt.parseLong(
+                request.getParameter("fileSize"), -1l);
+        }
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
         try {
             int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
@@ -536,7 +545,7 @@ public class UploadController extends BaseController {
 
             completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
-            FileSystemOpt.deleteFile(tempFilePath);
+//            FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
@@ -686,7 +695,7 @@ public class UploadController extends BaseController {
             fileOptTaskQueue.add(saveFileTaskInfo);
 
             completedStoreFile(fileStore, fileMd5, fileSize, fileInfo.getLeft(), response);
-            FileSystemOpt.deleteFile(tempFilePath);
+//            FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
