@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class SystemTempFileUtils {
+public abstract class SystemTempFileUtils {
 
     private static Logger logger = LoggerFactory.getLogger(SystemTempFileUtils.class);
 
@@ -28,7 +28,7 @@ public class SystemTempFileUtils {
         return getTempDirectory() // SysParametersUtils.getTempHome() + File.separatorChar
                      + fileMd5 +"_"+size+".tmp";
     }
-    
+
     public static String getTempDirectory(){
         if(StringUtils.isBlank(TEMP_FILE_DIRECTORY)){
             setTempFileDirectory(System.getProperty("java.io.tmpdir"));
@@ -41,14 +41,14 @@ public class SystemTempFileUtils {
         return getTempDirectory() //SysParametersUtils.getTempHome()+ File.separatorChar
                      + UuidOpt.getUuidAsString32() +".tmp";
     }
-    
+
     public static long checkTempFileSize(String filePath){
         File f = new File(filePath);
         if(!f.exists())
             return 0;
         return f.length();
     }
-    
+
     public static boolean checkFileCompleted(String filePath, String fileMd5){
         try {
             return StringUtils.equals(fileMd5,
