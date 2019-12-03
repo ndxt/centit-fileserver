@@ -26,8 +26,6 @@ public class FileUploadAuthorizedManagerImpl extends BaseEntityManagerImpl<FileU
         super.baseDao = baseDao;
     }
 
-
-
     /**
      *
      * @param uploadToken token

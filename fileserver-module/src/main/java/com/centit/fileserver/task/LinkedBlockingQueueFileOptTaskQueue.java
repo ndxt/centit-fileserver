@@ -17,12 +17,7 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
 
     public LinkedBlockingQueueFileOptTaskQueue(String taskFileRoot) throws Exception {
         FileSystemOpt.createDirect(taskFileRoot);
-        if (taskFileRoot.endsWith(String.valueOf(File.separatorChar))) {
-            taskFile = new File(taskFileRoot + "task.dat");
-        } else {
-            taskFile = new File(taskFileRoot + File.separatorChar +  "task.dat");
-        }
-
+        taskFile = new File(FileSystemOpt.appendPath(taskFileRoot, "task.dat"));
         if (taskFile.exists()) {
             try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(taskFile))) {
                 taskQueue = (LinkedBlockingQueue) ois.readObject();
