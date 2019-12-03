@@ -83,7 +83,7 @@ public class ServiceConfig {
 
     @Bean
     public FileOptTaskQueue fileOptTaskQueue() throws Exception {
-        return new LinkedBlockingQueueFileOptTaskQueue(appHome + "/task/");
+        return new LinkedBlockingQueueFileOptTaskQueue(appHome + "/task");
     }
 
     /*@Bean
