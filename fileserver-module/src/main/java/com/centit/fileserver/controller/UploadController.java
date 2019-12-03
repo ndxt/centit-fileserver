@@ -538,14 +538,18 @@ public class UploadController extends BaseController {
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
 
 //            fileStore.saveFile(tempFilePath);
-            FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
-            saveFileTaskInfo.setFileMd5(fileMd5);
-            saveFileTaskInfo.setFileSize((long) fileSize);
-            fileOptTaskQueue.add(saveFileTaskInfo);
+            if (size == (long)fileSize && token.equals(fileMd5) && !StringUtils.isBlank(formData.getLeft().getFileName())) {
+                FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
+                saveFileTaskInfo.setFileMd5(fileMd5);
+                saveFileTaskInfo.setFileSize((long) fileSize);
+                fileOptTaskQueue.add(saveFileTaskInfo);
 
-            completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
+                completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
-//            FileSystemOpt.deleteFile(tempFilePath);
+            } else {
+                FileSystemOpt.deleteFile(tempFilePath);
+                JsonResultUtils.writeErrorMessageJson("文件上传出错，请检查fileName，token和size参数，并确认选择的文件！", response);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
