@@ -23,10 +23,11 @@ public class OsFileStore implements FileStore {
     }
 
     public void setFileRoot(String fileRoot){
-        if(fileRoot.endsWith(String.valueOf(File.separatorChar )))
+        if(fileRoot.endsWith("/") || fileRoot.endsWith("\\")) {
             this.fileRoot = fileRoot;
-        else
+        } else {
             this.fileRoot = fileRoot + File.separatorChar;
+        }
     }
     public String getFileRoot(){
         /*if(fileRoot==null)
