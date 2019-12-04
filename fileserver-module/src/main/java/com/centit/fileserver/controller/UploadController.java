@@ -523,22 +523,30 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-//        String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
         String token = formData.getLeft().getFileMd5();
+        boolean needCheck = !StringUtils.isBlank(token);
         Long size = NumberBaseOpt.parseLong(
             request.getParameter("size"), -1l);
         if(size<1){
             size= NumberBaseOpt.parseLong(
                 request.getParameter("fileSize"), -1l);
         }
-        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
+        String tempFilePath = needCheck ? SystemTempFileUtils.getTempFilePath(token, size) : SystemTempFileUtils.getRandomTempFilePath();
         try {
             int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
-            String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+            File tempFile = new File(tempFilePath);
+            String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
 
-//            fileStore.saveFile(tempFilePath);
-            if (size == (long)fileSize && token.equals(fileMd5) && !StringUtils.isBlank(formData.getLeft().getFileName())) {
+            boolean isValid = fileSize != 0;
+            if (needCheck) {
+                isValid = size == (long)fileSize && token.equals(fileMd5);
+            } else {
+                String renamePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
+                tempFile.renameTo(new File(renamePath));
+            }
+
+            if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
                 FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
                 saveFileTaskInfo.setFileMd5(fileMd5);
                 saveFileTaskInfo.setFileSize((long) fileSize);
@@ -547,8 +555,8 @@ public class UploadController extends BaseController {
                 completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
             } else {
-                FileSystemOpt.deleteFile(tempFilePath);
-                JsonResultUtils.writeErrorMessageJson("文件上传出错，请检查fileName，token和size参数，并确认选择的文件！", response);
+                FileSystemOpt.deleteFile(SystemTempFileUtils.getTempFilePath(fileMd5, fileSize));
+                JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
