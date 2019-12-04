@@ -13,7 +13,6 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.BooleanBaseOpt;
@@ -182,28 +181,16 @@ public class UploadController extends BaseController {
      *
      * @param token token
      * @param size 大小
-     * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
-    public void checkFileRange(String token, long size,
-                               HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public void checkFileRange(String token, long size, HttpServletResponse response){
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         long tempFileSize = 0;
         // 如果文件已经存在则完成秒传，无需再传
         if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
-            //添加完成 后 相关的处理  类似与 uploadRange
-            /*FileInfo fileInfo = fetchFileInfoFromRequest(request);
-            if (StringUtils.isNotBlank(fileInfo.getFileName()) &&
-                    StringUtils.isNotBlank(fileInfo.getOsId()) &&
-                    StringUtils.isNotBlank(fileInfo.getOptId())) {
-                PretreatInfo pretreatInfo = fetchPretreatInfoFromRequest(request);
-                completedFileStoreAndPretreat(fileStore, token, size, fileInfo, pretreatInfo, request, response);
-                return;
-            }*/
             tempFileSize = size;
         } else {
             //检查临时目录中的文件大小，返回文件的起始点
@@ -211,14 +198,16 @@ public class UploadController extends BaseController {
             tempFileSize = SystemTempFileUtils.checkTempFileSize(
                     SystemTempFileUtils.getTempFilePath(token, size));
         }
-        String fileId="";
-        if (tempFileSize>0L){
-           fileId= fileInfoManager.getObjectByProperty("fileMd5",token).getFileId();
+        String fileId= token+"_"+size;
+        if(tempFileSize == size){
+            JSONObject jsonObject = UploadDownloadUtils.
+                makeRangeUploadCompleteJson(token, size, fileId/*fileName*/, fileId);
+            JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
+        } else {
+            JSONObject jsonObject = UploadDownloadUtils.
+                makeRangeUploadJson(tempFileSize, token, fileId);
+            JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
         }
-        JSONObject jsonObject=UploadDownloadUtils.
-            makeRangeUploadJson(tempFileSize, size, fileId);
-
-        JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
     }
 
     private Triple<FileInfo, Map<String, Object>, InputStream>
@@ -297,7 +286,6 @@ public class UploadController extends BaseController {
 
     private JSONObject storeAndPretreatFile(String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo)  {
-
         fileInfo.setFileMd5(fileMd5);
 //        fileInfo.setFileSize(size);
 //        fileInfo.setFileStorePath(fs.getFileStoreUrl(fileMd5, size));
@@ -432,6 +420,7 @@ public class UploadController extends BaseController {
 
         return true;
     }
+
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
      * @param token token
@@ -446,15 +435,12 @@ public class UploadController extends BaseController {
             String token, long size,
             HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-
         if(checkUploadToken && !checkUploadAuthorization(request, response)){
             return;
         }
 
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-
-
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
@@ -480,7 +466,7 @@ public class UploadController extends BaseController {
                     pretreatInfo, request, response);
 
             } else if (uploadSize > 0) {
-                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, size, token);
+                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
         }catch (ObjectException e){
@@ -490,7 +476,6 @@ public class UploadController extends BaseController {
         }
 
     }
-
 
     /**
      * 上传整个文件适用于IE8
@@ -550,17 +535,15 @@ public class UploadController extends BaseController {
         }
     }
 
-
     /**
      * 保存文件
-     * @param fs 文件的物理存储接口
+     * param fs 文件的物理存储接口
      * @param fileMd5 加密
      * @param size 大小
      * @param fileName 文件名
      * @param response HttpServletResponse
      */
-
-    private void completedStoreFile(FileStore fs, String fileMd5, long size,
+    private void completedStoreFile(String fileMd5, long size,
                                     String fileName, HttpServletResponse response) {
         try {
 
@@ -568,14 +551,15 @@ public class UploadController extends BaseController {
                     FileType.getFileExtName(fileName);
             // 返回响应
 
-            Map<String,String> fileInfo= new HashMap<>();
+            Map<String,Object> fileInfo= new HashMap<>();
             fileInfo.put("src","/service/download/unprotected/"+fileId+"?fileName="+fileName);
             fileInfo.put("fileId", fileId);
-            fileInfo.put("token", fileMd5);
-            fileInfo.put("name", fileName);
+            fileInfo.put("fileMd5", fileMd5);
+            fileInfo.put("fileName", fileName);
+            fileInfo.put("fileSize", size);
 
             JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileName, fileId, fileInfo);
+                size, fileInfo);
 
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
@@ -585,7 +569,6 @@ public class UploadController extends BaseController {
                     "文件上传成功，但是在保存前：" + e.getMessage(), response);
         }
     }
-
 
     /**
      * 获取文件 断点位置，前端根据断点位置续传
@@ -603,24 +586,19 @@ public class UploadController extends BaseController {
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
-
-        long tempFileSize = 0;
         // 如果文件已经存在则完成秒传，无需再传
         if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
-            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
-            tempFileSize = size;
+            completedStoreFile(token, size, fileInfo.getLeft(), response);
         } else {
             //检查临时目录中的文件大小，返回文件的其实点
             //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
-            tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                    SystemTempFileUtils.getTempFilePath(token, size));
+            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
+                SystemTempFileUtils.getTempFilePath(token, size));
+            JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
+                makeRangeUploadJson(tempFileSize, token, token+"_"+size).toJSONString(), response);
         }
-
-        JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                makeRangeUploadJson(tempFileSize, size, token).toJSONString(), response);
     }
-
 
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
@@ -640,18 +618,17 @@ public class UploadController extends BaseController {
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
+            completedStoreFile(token, size, fileInfo.getLeft(), response);
             return;
         }
-
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, fileInfo.getRight(), token, size, request);
             if(uploadSize==0){
-                completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
+                completedStoreFile(token, size, fileInfo.getLeft(), response);
             }else if( uploadSize>0){
 
                 JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                        makeRangeUploadJson(uploadSize, size, token).toJSONString(), response);
+                        makeRangeUploadJson(uploadSize, token, token+"_"+size).toJSONString(), response);
             }
 
         }catch (ObjectException e){
@@ -660,6 +637,7 @@ public class UploadController extends BaseController {
                     e.getMessage(), response);
         }
     }
+
     /**
      * 仅仅保存文件不记录任何记录
      * 上传整个文件适用于IE8
@@ -677,14 +655,12 @@ public class UploadController extends BaseController {
             Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
             int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight() , tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-
 //            fileStore.saveFile(tempFilePath);
             FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
             saveFileTaskInfo.setFileMd5(fileMd5);
             saveFileTaskInfo.setFileSize((long) fileSize);
             fileOptTaskQueue.add(saveFileTaskInfo);
-
-            completedStoreFile(fileStore, fileMd5, fileSize, fileInfo.getLeft(), response);
+            completedStoreFile(fileMd5, fileSize, fileInfo.getLeft(), response);
 //            FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);

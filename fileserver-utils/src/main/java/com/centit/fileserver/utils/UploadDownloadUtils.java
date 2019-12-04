@@ -247,28 +247,24 @@ public abstract class UploadDownloadUtils {
         return tempFileSize;
     }
 
-    public static JSONObject makeRangeUploadJson(long rangeFileSize, long fileSize, String fileId){
-        JSONObject jsonFile=new JSONObject();
-        jsonFile.put("fileSize",rangeFileSize);
-        jsonFile.put("fileId",fileId);
+    public static JSONObject makeRangeUploadJson(long rangeFileSize, String fileMd5, String fileId){
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
+        json.put("signal", "continue");
         json.put(ResponseData.RES_CODE_FILED, 0);
         json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功!");
-        json.put(ResponseData.RES_DATA_FILED, jsonFile);
+        json.put(ResponseData.RES_DATA_FILED, CollectionsOpt.createHashMap(
+            "fileId",fileId ,
+            "fileMd5", fileMd5,
+            "fileSize", rangeFileSize));
         return json;
     }
 
-    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize,
-                                                         String fileName, String fileId,
+    public static JSONObject makeRangeUploadCompleteJson(long fileSize,
                                                          Object fileInfo){
         JSONObject json = new JSONObject();
         json.put("start", fileSize);
-        json.put("name", fileName);
-        json.put("token", fileMd5);
-        json.put("success", true);
-        json.put("fileId", fileId);
-        json.put("fileSize", fileSize);
+        json.put("signal", "complete");
         json.put(ResponseData.RES_CODE_FILED, 0);
         json.put(ResponseData.RES_MSG_FILED, "上传文件成功!");
         json.put(ResponseData.RES_DATA_FILED, fileInfo);
@@ -276,7 +272,7 @@ public abstract class UploadDownloadUtils {
     }
 
     public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId){
-        return makeRangeUploadCompleteJson(fileMd5, fileSize, fileName, fileId,
+        return makeRangeUploadCompleteJson(fileSize,
             CollectionsOpt.createHashMap("fileId", fileId,
                 "fileMd5", fileMd5, "fileSize", fileSize,
                 "fileName", fileName));
