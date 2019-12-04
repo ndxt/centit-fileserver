@@ -20,9 +20,9 @@ public class FileOpt {
 
     /**
      * 存储文件
-     * @param tempFilePath
-     * @param fileMd5
-     * @param fileSize
+     * @param tempFilePath 临时文件路劲
+     * @param fileMd5 md5编码
+     * @param fileSize 文件大小
      */
     protected void save(String tempFilePath, String fileMd5, long fileSize) {
         try {

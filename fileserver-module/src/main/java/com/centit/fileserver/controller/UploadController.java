@@ -182,7 +182,6 @@ public class UploadController extends BaseController {
      * @param token token
      * @param size 大小
      * @param response HttpServletResponse
-     * @throws IOException IOException
      */
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
