@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -56,7 +58,7 @@ import java.util.Map;
 
 public class UploadController extends BaseController {
     public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
-
+    protected Logger logger = LoggerFactory.getLogger(UploadController.class);
     @Value("${file.check.duplicate:true}")
     protected boolean checkDuplicate;
 
@@ -65,7 +67,6 @@ public class UploadController extends BaseController {
 
     @Value("${file.check.upload.token:false}")
     protected boolean checkUploadToken;
-
 
     @Resource
     protected FileStore fileStore;

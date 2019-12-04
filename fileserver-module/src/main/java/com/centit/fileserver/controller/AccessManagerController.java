@@ -18,6 +18,8 @@ import com.centit.support.algorithm.StringRegularOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,13 +32,14 @@ import java.util.Map;
 @Controller
 @RequestMapping("/access")
 public class AccessManagerController extends BaseController {
+    protected Logger logger = LoggerFactory.getLogger(AccessManagerController.class);
+
     @Resource
     private FileAccessLogManager fileAccessLogManager;
     @Resource
     private FileInfoManager fileInfoManager;
     @Resource
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
-
 
     private ResponseSingleData applyAccess(FileAccessLog accessLog) {
         String fileId = accessLog.getFileId();
