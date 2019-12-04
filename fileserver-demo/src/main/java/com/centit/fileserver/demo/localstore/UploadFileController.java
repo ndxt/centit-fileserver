@@ -87,7 +87,7 @@ public class UploadFileController extends BaseController {
                 SystemTempFileUtils.getTempFilePath(token, size));
 
         JsonResultUtils.writeOriginalJson(
-                UploadDownloadUtils.makeRangeUploadJson(tempFileSize).toJSONString(), response);
+                UploadDownloadUtils.makeRangeUploadJson(tempFileSize, size, token).toJSONString(), response);
     }
 
 
@@ -104,22 +104,15 @@ public class UploadFileController extends BaseController {
                     FileType.getFileExtName(fileName);
 //            String filePath = fs.getFileStoreUrl(fileMd5,size);
             // 返回响应
-            JSONObject json = new JSONObject();
-            json.put("start", size);
-            json.put("name", fileName);
-            json.put("token", fileMd5);
-            json.put("success", true);
-            json.put("fileId", fileId);
             Map<String,String> json1 = new HashMap<>();
             json1.put("src","service/file/download/"+fileId+"?fileName="+fileName);
             json1.put("fileId", fileId);
             json1.put("token", fileMd5);
             json1.put("size", String.valueOf(size));
             json1.put("name", fileName);
-            json.put(ResponseData.RES_CODE_FILED, 0);
-            json.put(ResponseData.RES_MSG_FILED, "上传成功");
-            json.put(ResponseData.RES_DATA_FILED, json1);
 
+            JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(
+                fileMd5, size, fileName, fileId, json1);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -165,7 +158,7 @@ public class UploadFileController extends BaseController {
             }else if( uploadSize>0){
 
                 JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                        makeRangeUploadJson(uploadSize).toJSONString(), response);
+                        makeRangeUploadJson(uploadSize, size, token).toJSONString(), response);
             }
 
         }catch (ObjectException e){

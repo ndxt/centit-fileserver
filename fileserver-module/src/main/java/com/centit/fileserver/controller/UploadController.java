@@ -211,12 +211,12 @@ public class UploadController extends BaseController {
             tempFileSize = SystemTempFileUtils.checkTempFileSize(
                     SystemTempFileUtils.getTempFilePath(token, size));
         }
-        String FileId="";
+        String fileId="";
         if (tempFileSize>0L){
-           FileId= fileInfoManager.getObjectByProperty("fileMd5",token).getFileId();
+           fileId= fileInfoManager.getObjectByProperty("fileMd5",token).getFileId();
         }
         JSONObject jsonObject=UploadDownloadUtils.
-            makeRangeUploadJson(tempFileSize,FileId);
+            makeRangeUploadJson(tempFileSize, size, fileId);
 
         JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
     }
@@ -281,7 +281,7 @@ public class UploadController extends BaseController {
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
         try {
-            JSONObject json = storeAndPretreatFile(fs, fileMd5, size, fileInfo, pretreatInfo);
+            JSONObject json = storeAndPretreatFile(fileMd5, size, fileInfo, pretreatInfo);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
             if(checkUploadToken){
                 String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
@@ -295,7 +295,7 @@ public class UploadController extends BaseController {
         }
     }
 
-    private JSONObject storeAndPretreatFile(FileStore fs, String fileMd5, long size,
+    private JSONObject storeAndPretreatFile(String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo)  {
 
         fileInfo.setFileMd5(fileMd5);
@@ -387,21 +387,9 @@ public class UploadController extends BaseController {
                 }
             }
         }
+        return UploadDownloadUtils.makeRangeUploadCompleteJson(
+            fileMd5, size, fileInfo.getFileName(), fileId);
 
-//        fileInfoManager.updateObject(fileInfo);
-        // 返回响应
-        JSONObject json = new JSONObject();
-        json.put("start", size);
-        json.put("name", fileInfo.getFileName());
-        json.put("token", fileMd5);
-        json.put("success", true);
-        json.put("fileId", fileId);
-
-        json.put(ResponseData.RES_CODE_FILED, 0);
-        json.put(ResponseData.RES_MSG_FILED, "上传成功");
-        json.put(ResponseData.RES_DATA_FILED, fileInfo);
-
-        return json;
     }
 
     /**
@@ -492,10 +480,7 @@ public class UploadController extends BaseController {
                     pretreatInfo, request, response);
 
             } else if (uploadSize > 0) {
-                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize);
-                FileInfo fileInfo = new FileInfo();
-                //fileInfo.setFileSize(uploadSize);
-                json.put(ResponseData.RES_DATA_FILED, fileInfo);
+                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, size, token);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
         }catch (ObjectException e){
@@ -589,16 +574,8 @@ public class UploadController extends BaseController {
             fileInfo.put("token", fileMd5);
             fileInfo.put("name", fileName);
 
-            JSONObject json = new JSONObject();
-            json.put("start", size);
-            json.put("name", fileName);
-            json.put("token", fileMd5);
-            json.put("success", true);
-            json.put("fileId", fileId);
-
-            json.put(ResponseData.RES_CODE_FILED, 0);
-            json.put(ResponseData.RES_MSG_FILED, "上传成功");
-            json.put(ResponseData.RES_DATA_FILED, fileInfo);
+            JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(
+                fileMd5, size, fileName, fileId, fileInfo);
 
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
@@ -641,7 +618,7 @@ public class UploadController extends BaseController {
         }
 
         JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                makeRangeUploadJson(tempFileSize).toJSONString(), response);
+                makeRangeUploadJson(tempFileSize, size, token).toJSONString(), response);
     }
 
 
@@ -674,7 +651,7 @@ public class UploadController extends BaseController {
             }else if( uploadSize>0){
 
                 JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                        makeRangeUploadJson(uploadSize).toJSONString(), response);
+                        makeRangeUploadJson(uploadSize, size, token).toJSONString(), response);
             }
 
         }catch (ObjectException e){

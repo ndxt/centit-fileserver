@@ -2,6 +2,7 @@ package com.centit.fileserver.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.centit.framework.common.ResponseData;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -246,24 +247,39 @@ public abstract class UploadDownloadUtils {
         return tempFileSize;
     }
 
-    public static JSONObject makeRangeUploadJson(long rangeFileSize,String FileId){
+    public static JSONObject makeRangeUploadJson(long rangeFileSize, long fileSize, String fileId){
         JSONObject jsonFile=new JSONObject();
         jsonFile.put("fileSize",rangeFileSize);
-        jsonFile.put("fileId",FileId);
+        jsonFile.put("fileId",fileId);
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
         json.put(ResponseData.RES_CODE_FILED, 0);
-        json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功");
+        json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功!");
         json.put(ResponseData.RES_DATA_FILED, jsonFile);
         return json;
     }
-    public static JSONObject makeRangeUploadJson(long rangeFileSize){
+
+    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize,
+                                                         String fileName, String fileId,
+                                                         Object fileInfo){
         JSONObject json = new JSONObject();
-        json.put("start", rangeFileSize);
+        json.put("start", fileSize);
+        json.put("name", fileName);
+        json.put("token", fileMd5);
+        json.put("success", true);
+        json.put("fileId", fileId);
+        json.put("fileSize", fileSize);
         json.put(ResponseData.RES_CODE_FILED, 0);
-        json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功");
-        json.put(ResponseData.RES_DATA_FILED, rangeFileSize);
+        json.put(ResponseData.RES_MSG_FILED, "上传文件成功!");
+        json.put(ResponseData.RES_DATA_FILED, fileInfo);
         return json;
+    }
+
+    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId){
+        return makeRangeUploadCompleteJson(fileMd5, fileSize, fileName, fileId,
+            CollectionsOpt.createHashMap("fileId", fileId,
+                "fileMd5", fileMd5, "fileSize", fileSize,
+                "fileName", fileName));
     }
 
     public static void downloadFile(InputStream downloadFile, String downloadName, HttpServletResponse response)
