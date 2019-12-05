@@ -22,11 +22,14 @@ public class WebInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
 
-        initializeSpringConfig(servletContext);
-        initializeSystemSpringMvcConfig(servletContext);
-        initializeSpringMvcConfig(servletContext);
-
         String [] servletUrlPatterns = {"/system/*","/service/*"};
+        WebConfig.registerSpringConfig(servletContext, ServiceConfig.class);
+        WebConfig.registerServletConfig(servletContext, "system",
+            "/system/*",
+            SystemSpringMvcConfig.class);
+        WebConfig.registerServletConfig(servletContext, "service",
+            "/service/*",
+            NormalSpringMvcConfig.class);
 
         WebConfig.registerSpringSessionRepositoryFilter(servletContext);
         WebConfig.registerRequestContextListener(servletContext);
@@ -49,29 +52,4 @@ public class WebInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(springContext));
     }
 
-    /**
-     * 加载Servlet 配置
-     * @param servletContext ServletContext
-     */
-    private void initializeSystemSpringMvcConfig(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SystemSpringMvcConfig.class);
-        Dynamic system  = servletContext.addServlet("system", new DispatcherServlet(context));
-        system.addMapping("/system/*");
-        system.setLoadOnStartup(1);
-        system.setAsyncSupported(true);
-    }
-
-    /**
-     * 加载Servlet 项目配置
-     * @param servletContext ServletContext
-     */
-    private void initializeSpringMvcConfig(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(NormalSpringMvcConfig.class);
-        ServletRegistration.Dynamic system  = servletContext.addServlet("service", new DispatcherServlet(context));
-        system.addMapping("/service/*");
-        system.setLoadOnStartup(1);
-        system.setAsyncSupported(true);
-    }
 }
