@@ -78,7 +78,7 @@ public class UploadFileController extends BaseController {
         // 如果文件已经存在则完成秒传，无需再传
         if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
-            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
+            completedStoreFile(token, size, fileInfo.getLeft(), response);
             return;
         }
         //检查临时目录中的文件大小，返回文件的其实点
@@ -87,7 +87,7 @@ public class UploadFileController extends BaseController {
                 SystemTempFileUtils.getTempFilePath(token, size));
 
         JsonResultUtils.writeOriginalJson(
-                UploadDownloadUtils.makeRangeUploadJson(tempFileSize, size, token).toJSONString(), response);
+                UploadDownloadUtils.makeRangeUploadJson(tempFileSize, token, token+"_"+size).toJSONString(), response);
     }
 
 
@@ -96,7 +96,7 @@ public class UploadFileController extends BaseController {
      * 保存文件；或者做其他 文件处理工作
      */
 
-    private void completedStoreFile(FileStore fs, String fileMd5, long size,
+    private void completedStoreFile(String fileMd5, long size,
                                     String fileName, HttpServletResponse response) {
         try {
 
@@ -107,12 +107,11 @@ public class UploadFileController extends BaseController {
             Map<String,String> json1 = new HashMap<>();
             json1.put("src","service/file/download/"+fileId+"?fileName="+fileName);
             json1.put("fileId", fileId);
-            json1.put("token", fileMd5);
-            json1.put("size", String.valueOf(size));
-            json1.put("name", fileName);
+            json1.put("fileMd5", fileMd5);
+            json1.put("fileSize", String.valueOf(size));
+            json1.put("fileName", fileName);
 
-            JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileName, fileId, json1);
+            JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(size, json1);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -143,7 +142,7 @@ public class UploadFileController extends BaseController {
 
         //FileStore fs = FileStoreFactory.createDefaultFileStore();
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
+            completedStoreFile(token, size, fileInfo.getLeft(), response);
             return;
         }
 
@@ -152,13 +151,13 @@ public class UploadFileController extends BaseController {
             if(uploadSize==0){
                 //上传到临时区成功
                 fileStore.saveFile(tempFilePath, token, size);
-                completedStoreFile(fileStore, token, size, fileInfo.getLeft(), response);
+                completedStoreFile(token, size, fileInfo.getLeft(), response);
                 FileSystemOpt.deleteFile(tempFilePath);
                 return;
             }else if( uploadSize>0){
 
                 JsonResultUtils.writeOriginalJson(UploadDownloadUtils.
-                        makeRangeUploadJson(uploadSize, size, token).toJSONString(), response);
+                        makeRangeUploadJson(uploadSize, token, token+"_"+size).toJSONString(), response);
             }
 
         }catch (ObjectException e){
@@ -187,7 +186,7 @@ public class UploadFileController extends BaseController {
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             //FileStore fs = FileStoreFactory.createDefaultFileStore();
             fileStore.saveFile(tempFilePath);
-            completedStoreFile(fileStore, fileMd5, fileSize, fileInfo.getLeft(), response);
+            completedStoreFile(fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
