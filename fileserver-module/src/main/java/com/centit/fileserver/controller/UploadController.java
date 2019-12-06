@@ -96,9 +96,9 @@ public class UploadController extends BaseController {
         }
 //        fileInfo.setFileSize(fileSize);
         String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName))
+        if(StringUtils.isBlank(fileName)) {
             fileName = request.getParameter("fileName");
-
+        }
         String fileState = request.getParameter("fileState");
         if(StringUtils.isNotBlank(fileState))
             fileInfo.setFileState(fileState);
@@ -222,8 +222,8 @@ public class UploadController extends BaseController {
             if (fi.isFormField()) {
                 if (StringUtils.equals("fileInfo", fi.getFieldName())) {
                     try {
-                        FileInfo fsi = JSON.parseObject(fi.getString(), FileInfo.class);
-                        fileInfo.copyNotNullProperty(fsi);
+                        FileInfo info = JSON.parseObject(fi.getString(), FileInfo.class);
+                        fileInfo.copyNotNullProperty(info);
                     } catch (Exception e) {
                         logger.error(e.getMessage(),e);
                     }
@@ -238,7 +238,10 @@ public class UploadController extends BaseController {
                     }
                 }
             } else {
-                fileName = fi.getName();
+                String fn = fi.getName();
+                if(StringUtils.isBlank(fileName) && StringUtils.isNotBlank(fn)){
+                    fileName = fn;
+                }
                 fis = fi.getInputStream();
             }
         }

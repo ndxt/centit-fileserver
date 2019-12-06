@@ -340,7 +340,6 @@ public class FileInfo implements Serializable {
     }
 
     public void copyNotNullProperty(FileInfo other){
-
         if(StringUtils.isNotBlank(other.getFileName()))
             this.fileName = other.getFileName();
 
@@ -349,7 +348,6 @@ public class FileInfo implements Serializable {
 
         if(StringUtils.isNotBlank(other.getFileType()))
             this.fileType = other.getFileType();
-
         /**
          * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
          */
@@ -358,9 +356,7 @@ public class FileInfo implements Serializable {
 
         if(StringUtils.isNotBlank(other.getFileDesc()))
             this.fileDesc = other.getFileDesc();
-
         //this.indexState = other.getIndexState();
-
         //this.downloadTimes = other.getDownloadTimes();
         if(StringUtils.isNotBlank(other.getOsId()))
             this.osId=other.getOsId();
@@ -372,24 +368,18 @@ public class FileInfo implements Serializable {
             this.optTag = other.getOptTag();
         if(other.getCreated()!=null)
             this.created = other.getCreated();
-
         if(other.getCreateTime()!=null)
             this.createTime = other.getCreateTime();
-
         //this.fileSize = other.getFileSize();
-
         //加密算法
         //this.encryptType=other.getEncryptType();
-
         if(StringUtils.isNotBlank(other.getFileOwner()))
             this.fileOwner=other.getFileOwner();
 
         if(StringUtils.isNotBlank(other.getFileUnit()))
             this.fileUnit=other.getFileUnit();
-
         //this.attachedStorePath=other.getAttachedStorePath();
-
-        /**
+        /*
          * 附属文件类别： T：缩略图  P： pdf只读文件
          */
         //this.attachedType = other.getAttachedType();

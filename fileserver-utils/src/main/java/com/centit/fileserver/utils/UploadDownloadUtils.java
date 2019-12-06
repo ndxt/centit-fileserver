@@ -131,6 +131,9 @@ public abstract class UploadDownloadUtils {
             throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);
+        if(StringUtils.isBlank(fileName)){
+            fileName = "attachment.dat";
+        }
         response.setContentType(FileType.getFileMimeType(fileName));
         //"application/octet-stream"); //application/x-download "multipart/form-data"
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
