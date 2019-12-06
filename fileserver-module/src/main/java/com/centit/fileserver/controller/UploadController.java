@@ -490,6 +490,9 @@ public class UploadController extends BaseController {
             SystemTempFileUtils.getTempFilePath(token, size) :
             SystemTempFileUtils.getRandomTempFilePath();
         try {
+            if (FileSystemOpt.existFile(tempFilePath)) {// 临时文件已存在
+                FileSystemOpt.deleteFile(tempFilePath);
+            }
             int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
             File tempFile = new File(tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
@@ -511,7 +514,7 @@ public class UploadController extends BaseController {
                 completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
             } else {
-                FileSystemOpt.deleteFile(SystemTempFileUtils.getTempFilePath(fileMd5, fileSize));
+                FileSystemOpt.deleteFile(tempFilePath);
                 JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
             }
         } catch (Exception e) {
