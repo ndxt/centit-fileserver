@@ -490,7 +490,8 @@ public class UploadController extends BaseController {
             SystemTempFileUtils.getTempFilePath(token, size) :
             SystemTempFileUtils.getRandomTempFilePath();
         try {
-            if (FileSystemOpt.existFile(tempFilePath)) {// 临时文件已存在
+            // 整体上传清除 残留文件
+            if(FileSystemOpt.existFile(tempFilePath)) {// 临时文件已存在
                 FileSystemOpt.deleteFile(tempFilePath);
             }
             int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
