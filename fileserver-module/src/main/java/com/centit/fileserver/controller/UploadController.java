@@ -15,14 +15,13 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.search.service.Indexer;
-import com.centit.support.algorithm.BooleanBaseOpt;
-import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.algorithm.StringRegularOpt;
+import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +51,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/upload")
-
+@Api(value = "文件断点上传，并且保存文件信息接口", tags = "文件断点上传，并且保存文件信息接口")
 public class UploadController extends BaseController {
     public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
     protected Logger logger = LoggerFactory.getLogger(UploadController.class);
@@ -163,6 +162,7 @@ public class UploadController extends BaseController {
      * @param size 大小
      * @param response HttpServletResponse
      */
+    @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
             allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
@@ -177,6 +177,7 @@ public class UploadController extends BaseController {
      * @param size 大小
      * @param response HttpServletResponse
      */
+    @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
     public void checkFileRange(String token, long size, HttpServletResponse response){
@@ -228,8 +229,10 @@ public class UploadController extends BaseController {
                     }
                 } else if (StringUtils.equals("pretreatInfo", fi.getFieldName())) {
                     try {
-//                        PretreatInfo pi = JSON.parseObject(fi.getString(), PretreatInfo.class);
-//                        pretreatInfo.copyNotNullProperty(pi);
+                        JSONObject pi = JSON.parseObject(fi.getString());
+                        if(pi instanceof JSONObject) {
+                            pretreatInfo = CollectionsOpt.unionTwoMap(pretreatInfo, pi);
+                        }
                     } catch (Exception e) {
                         logger.error(e.getMessage(),e);
                     }
@@ -245,14 +248,14 @@ public class UploadController extends BaseController {
 
     /**
      * 处理文件信息 并按照指令对文件进行加工
-     * @param fs 文件的物理存储接口
+     * param fs 文件的物理存储接口
      * @param fileMd5 加密
      * @param size 大小
      * @param fileInfo 文件对象
      * @param pretreatInfo PretreatInfo对象
      * @param response HttpServletResponse
      */
-    private void completedFileStoreAndPretreat(FileStore fs, String fileMd5, long size,
+    private void completedFileStoreAndPretreat(String fileMd5, long size,
                                       FileInfo fileInfo, Map<String, Object> pretreatInfo,
                                       HttpServletRequest request,
                                       HttpServletResponse response) {
@@ -374,6 +377,7 @@ public class UploadController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "文件秒传接口，需要post文件基本信息和预处理信息")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
     public void secondPass(String token, long size,
@@ -383,12 +387,23 @@ public class UploadController extends BaseController {
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
-            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
+            completedFileStoreAndPretreat(token, size, formData.getLeft(),
                 formData.getMiddle(), request, response);
         } else {
-            JsonResultUtils.writeHttpErrorMessage(
+            //临时文件大小相等 说明上传已完成，也可以秒传
+            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
+                SystemTempFileUtils.getTempFilePath(token, size));
+            if(tempFileSize == size){
+                Triple<FileInfo, Map<String, Object>, InputStream> formData
+                    = fetchUploadFormFromRequest(request);
+                completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                    formData.getMiddle(), request, response);
+            } else {
+                JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "文件不存在无法实现秒传，MD5：" + token, response);
+                    "文件不存在无法实现秒传，MD5(uploadedSize/fileSize)："
+                        + token+"("+tempFileSize+"/"+size+")", response);
+            }
         }
     }
 
@@ -412,6 +427,7 @@ public class UploadController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "断点续传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/range", method = {RequestMethod.POST})
     public void uploadFileRange(
@@ -425,7 +441,7 @@ public class UploadController extends BaseController {
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
+            completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
             return;
         }
@@ -445,7 +461,7 @@ public class UploadController extends BaseController {
                     fileOptTaskQueue.add(saveFileTaskInfo);
                 }
 
-                completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
+                completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     pretreatInfo, request, response);
 
             } else if (uploadSize > 0) {
@@ -466,6 +482,7 @@ public class UploadController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "文件整体上传结构，适用于IE8")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
@@ -512,7 +529,7 @@ public class UploadController extends BaseController {
                 saveFileTaskInfo.setFileSize((long) fileSize);
                 fileOptTaskQueue.add(saveFileTaskInfo);
 
-                completedFileStoreAndPretreat(fileStore, fileMd5, fileSize,
+                completedFileStoreAndPretreat(fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);

@@ -252,11 +252,13 @@ public abstract class UploadDownloadUtils {
         json.put("start", rangeFileSize);
         if(hasStored) {
             json.put("signal", "secondpass");
+            json.put(ResponseData.RES_MSG_FILED, "检查文件上传点, 请调用秒传(secondpass)接口!");
         } else { // 需要调用秒传接口
             json.put("signal", "continue");
+            json.put(ResponseData.RES_MSG_FILED, "检查文件上传点, 请调用续传(range)接口!");
         }
         json.put(ResponseData.RES_CODE_FILED, 0);
-        json.put(ResponseData.RES_MSG_FILED, "检查文件上传点!");
+
         json.put(ResponseData.RES_DATA_FILED, CollectionsOpt.createHashMap(
             "fileMd5", fileMd5,
             "fileSize", rangeFileSize));

@@ -12,6 +12,8 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +46,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/store")
+@Api(value = "文件断点上传，仅仅保存文件内容", tags = "文件断点上传，仅仅保存文件内容")
 public class StoreFileController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(StoreFileController.class);
@@ -56,6 +59,7 @@ public class StoreFileController extends BaseController {
      * @param size 大小
      * @param response HttpServletResponse
      */
+    @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,
             allowedHeaders="*", methods=RequestMethod.GET)
     @RequestMapping(value="/exists", method = RequestMethod.GET)
@@ -69,6 +73,7 @@ public class StoreFileController extends BaseController {
      * @param size 大小
      * @param response HttpServletResponse
      */
+    @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,methods=RequestMethod.GET)
     @RequestMapping(value="/range", method = { RequestMethod.GET })
     public void checkFileRange(String token, long size, HttpServletResponse response) {
@@ -149,6 +154,7 @@ public class StoreFileController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "文件秒传接口，在作为仅仅存储文件使用时，这个其实是没有必要的，可以不用调用")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST)
     @RequestMapping(value="/secondpass", method = RequestMethod.POST)
     public void secondPass(String  token,long size ,
@@ -185,14 +191,14 @@ public class StoreFileController extends BaseController {
      * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
-     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
      */
+    @ApiOperation(value = "断点续传接口")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST)
     @RequestMapping(value="/range", method = { RequestMethod.POST })
     public void uploadRange(
             String  token,long size ,
             HttpServletRequest request, HttpServletResponse response)
-            throws IOException, NoSuchAlgorithmException {
+            throws IOException {
 
         String fileName = request.getParameter("name");
         if(StringUtils.isBlank(fileName)) {
@@ -254,6 +260,7 @@ public class StoreFileController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "文件整体上传结构，适用于IE8")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST)
     @RequestMapping(value="/file", method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
