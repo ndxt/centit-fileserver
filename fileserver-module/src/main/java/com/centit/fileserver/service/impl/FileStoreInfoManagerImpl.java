@@ -35,7 +35,7 @@ public class FileStoreInfoManagerImpl
 
     @Override
     @Transactional
-    public void increaseFileReferenceCount(String fileMd5,String path,long size,Boolean isTemp) {
+    public void increaseFileReferenceCount(String fileMd5, String path, long size, Boolean isTemp) {
         if(StringUtils.isBlank(fileMd5)){
             return;
         }

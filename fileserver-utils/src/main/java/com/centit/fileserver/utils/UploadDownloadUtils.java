@@ -247,13 +247,13 @@ public abstract class UploadDownloadUtils {
         return tempFileSize;
     }
 
-    public static JSONObject makeRangeCheckJson(long rangeFileSize, long totalFileSize, String fileMd5){
+    public static JSONObject makeRangeCheckJson(long rangeFileSize, String fileMd5, boolean hasStored){
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
-        if(totalFileSize>rangeFileSize) {
-            json.put("signal", "continue");
-        } else { // 需要调用秒传接口
+        if(hasStored) {
             json.put("signal", "secondpass");
+        } else { // 需要调用秒传接口
+            json.put("signal", "continue");
         }
         json.put(ResponseData.RES_CODE_FILED, 0);
         json.put(ResponseData.RES_MSG_FILED, "检查文件上传点!");
