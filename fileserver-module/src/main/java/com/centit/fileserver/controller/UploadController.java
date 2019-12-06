@@ -197,16 +197,11 @@ public class UploadController extends BaseController {
             tempFileSize = SystemTempFileUtils.checkTempFileSize(
                     SystemTempFileUtils.getTempFilePath(token, size));
         }
-        String fileId= token+"_"+size;
-        if(tempFileSize == size){
-            JSONObject jsonObject = UploadDownloadUtils.
-                makeRangeUploadCompleteJson(token, size, fileId/*fileName*/, fileId);
-            JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
-        } else {
-            JSONObject jsonObject = UploadDownloadUtils.
-                makeRangeUploadJson(tempFileSize, token, fileId);
-            JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
-        }
+
+        JSONObject jsonObject = UploadDownloadUtils.
+            makeRangeCheckJson(tempFileSize, size, token);
+        JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
+
     }
 
     private Triple<FileInfo, Map<String, Object>, InputStream>
@@ -346,8 +341,7 @@ public class UploadController extends BaseController {
                         fileOptTaskQueue.add(encryptZipTaskInfo);
                     }
                 }
-//            }
-
+//          }
             // 只有zip文件才需要解压
             /*if (pretreatInfo.getIsUnzip() && "zip".equals(fileInfo.getFileType())) {
                 unzip(fs, fileInfo, pretreatInfo, fileInfo.getFileShowPath());
@@ -392,14 +386,12 @@ public class UploadController extends BaseController {
     public void secondPass(String token, long size,
                            HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-
         request.setCharacterEncoding("utf8");
-
         if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
-            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(), formData.getMiddle(), request, response);
-            return;
+            completedFileStoreAndPretreat(fileStore, token, size, formData.getLeft(),
+                formData.getMiddle(), request, response);
         } else {
             JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
@@ -416,7 +408,6 @@ public class UploadController extends BaseController {
                     "没有权限上传文件,请检查参数:" + UPLOAD_FILE_TOKEN_NAME, response);
             return false;
         }
-
         return true;
     }
 
@@ -601,6 +592,7 @@ public class UploadController extends BaseController {
 
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
+     * 这个也是仅仅保存文件
      * @param token token
      * @param size 大小
      * @param request HttpServletRequest
