@@ -6,7 +6,6 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.ResponseData;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
@@ -73,21 +72,20 @@ public class UploadFileController extends BaseController {
             throws IOException {
         //FileRangeInfo fr = new FileRangeInfo(token,size);
         Pair<String, InputStream> fileInfo = UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
-
-        long tempFileSize;
         // 如果文件已经存在则完成秒传，无需再传
         if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
             //添加完成 后 相关的处理  类似与 uploadRange
             completedStoreFile(token, size, fileInfo.getLeft(), response);
             return;
-        }
-        //检查临时目录中的文件大小，返回文件的其实点
-        //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
-        tempFileSize = SystemTempFileUtils.checkTempFileSize(
+        } else {
+            //检查临时目录中的文件大小，返回文件的其实点
+            //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
+            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
                 SystemTempFileUtils.getTempFilePath(token, size));
 
-        JsonResultUtils.writeOriginalJson(
-                UploadDownloadUtils.makeRangeUploadJson(tempFileSize, token, token+"_"+size).toJSONString(), response);
+            JsonResultUtils.writeOriginalJson(
+                UploadDownloadUtils.makeRangeUploadJson(tempFileSize, token, token + "_" + size).toJSONString(), response);
+        }
     }
 
 
