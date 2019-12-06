@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 public abstract class FileOpt {
 
@@ -18,6 +19,13 @@ public abstract class FileOpt {
     @Resource
     protected FileStore fileStore;
 
+    private String fetchOrSaveFile(String tempFilePath, String fileMd5, long fileSize)
+    throws IOException {
+        if(fileStore.checkFile(fileMd5, fileSize)){
+            return fileStore.getFileStoreUrl(fileMd5, fileSize);
+        }
+        return fileStore.saveFile(tempFilePath, fileMd5, fileSize);
+    }
     /**
      * 存储文件
      * @param tempFilePath 临时文件路劲
@@ -28,14 +36,14 @@ public abstract class FileOpt {
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileMd5);
             if (fileStoreInfo == null) {
-                String fileStorePath = fileStore.saveFile(tempFilePath, fileMd5, fileSize);
+                String fileStorePath = fetchOrSaveFile(tempFilePath, fileMd5, fileSize);
                 fileStoreInfo =
                     new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L,false);
                 fileStoreInfoManager.saveNewObject(fileStoreInfo);
             } else {
                 if(fileStoreInfo.isTemp()){
                     fileStoreInfo.setFileStorePath(
-                        fileStore.saveFile(tempFilePath, fileMd5, fileSize));
+                        fetchOrSaveFile(tempFilePath, fileMd5, fileSize));
                 }
                 fileStoreInfoManager.increaseFileReferenceCount(fileMd5,
                     fileStoreInfo.getFileStorePath(),

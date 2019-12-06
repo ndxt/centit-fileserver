@@ -67,7 +67,7 @@ public class DownloadController extends BaseController {
             if("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
-                if (!fileStoreInfo.isTemp()){
+                if (!fileStoreInfo.isTemp()){ //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
                     try (InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
                         FileEncryptWithAes.decrypt(downFile, diminationFile, password);
