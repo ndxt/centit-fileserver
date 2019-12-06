@@ -1,5 +1,6 @@
 package com.centit.fileserver.config;
 
+import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.CodeRepositoryCache;
 import com.centit.framework.components.OperationLogCenter;
@@ -7,6 +8,12 @@ import com.centit.framework.model.adapter.MessageSender;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.model.adapter.PlatformEnvironment;
+import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.quartz.JavaBeanJob;
+import com.centit.support.quartz.QuartzJobUtils;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -35,6 +42,12 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
     @Autowired
     protected PlatformEnvironment platformEnvironment;
 
+    @Autowired
+    protected FileOptTaskExecutor fileOptTaskExecutor;
+
+    @Autowired
+    protected SchedulerFactory schedulerFactory;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event)
     {
@@ -49,6 +62,20 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
         }
         if(optLogManager!=null) {
             OperationLogCenter.registerOperationLogWriter(optLogManager);
+        }
+
+        // 创建定时任务
+        try {
+            Scheduler scheduler = schedulerFactory.getScheduler();
+            QuartzJobUtils.registerJobType("bean", JavaBeanJob.class);
+            QuartzJobUtils.createOrReplaceSimpleJob(scheduler, "fileOptJob",
+                "default", "bean", 600,
+                CollectionsOpt.createHashMap("bean", fileOptTaskExecutor,
+                    "beanName", "fileOptTaskExecutor",
+                    "methodName", "doFileOptJob"));
+            scheduler.start();
+        } catch (SchedulerException e) {
+            e.printStackTrace();
         }
     }
 

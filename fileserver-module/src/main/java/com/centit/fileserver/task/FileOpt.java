@@ -35,7 +35,7 @@ public abstract class FileOpt {
     protected void save(String tempFilePath, String fileMd5, long fileSize) {
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileMd5);
-            if (fileStoreInfo == null) {
+            if (fileStoreInfo == null) { // 按道理永远运行不到这儿
                 String fileStorePath = fetchOrSaveFile(tempFilePath, fileMd5, fileSize);
                 fileStoreInfo =
                     new FileStoreInfo(fileMd5, fileSize, fileStorePath, 1L,false);
@@ -44,10 +44,9 @@ public abstract class FileOpt {
                 if(fileStoreInfo.isTemp()){
                     fileStoreInfo.setFileStorePath(
                         fetchOrSaveFile(tempFilePath, fileMd5, fileSize));
+                    fileStoreInfo.setIsTemp(false);
                 }
-                fileStoreInfoManager.increaseFileReferenceCount(fileMd5,
-                    fileStoreInfo.getFileStorePath(),
-                    fileSize,false);
+                fileStoreInfoManager.increaseFileReference(fileStoreInfo);
             }
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());

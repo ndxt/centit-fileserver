@@ -44,6 +44,7 @@ public class FileStoreInfo implements Serializable {
         this.fileReferenceCount = fileReferenceCount;
         this.isTemp =isTemp;
     }
+
     public Boolean isTemp(){
         return isTemp!=null && isTemp;
     }

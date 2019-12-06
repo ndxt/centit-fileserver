@@ -35,27 +35,34 @@ public class FileStoreInfoManagerImpl
 
     @Override
     @Transactional
-    public void increaseFileReferenceCount(String fileMd5, String path, long size, Boolean isTemp) {
+    public void saveTempFileInfo(String fileMd5, String tempFilePath, long size) {
         if(StringUtils.isBlank(fileMd5)){
             return;
         }
 
         FileStoreInfo fileStoreInfo = baseDao.getObjectById(fileMd5);
-        if(fileStoreInfo == null){
-            fileStoreInfo = new FileStoreInfo(fileMd5, size, path, 1L,isTemp);
-            baseDao.saveNewObject(fileStoreInfo);
+        if(fileStoreInfo != null){
             return;
         }
 
+        boolean isExist = fileStore.checkFile(fileMd5, size);
+        if(isExist){
+            tempFilePath = fileStore.getFileStoreUrl(fileMd5, size);
+        }
+        fileStoreInfo = new FileStoreInfo(fileMd5, size, tempFilePath, 0L, !isExist);
+        baseDao.saveNewObject(fileStoreInfo);
+    }
+
+    @Override
+    @Transactional
+    public void increaseFileReference(FileStoreInfo fileStoreInfo){
         fileStoreInfo.setFileReferenceCount(fileStoreInfo.getFileReferenceCount() + 1);
-        fileStoreInfo.setFileStorePath(path);
-        fileStoreInfo.setIsTemp(isTemp);
         baseDao.updateObject(fileStoreInfo);
     }
 
     @Override
     @Transactional
-    public void decreaseFileReferenceCount(String fileMd5) {
+    public void decreaseFileReference(String fileMd5) {
         if(StringUtils.isBlank(fileMd5)){
             return;
         }

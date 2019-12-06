@@ -4,6 +4,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 
 public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, String> {
-    void increaseFileReferenceCount(String fileMd5,String path,long size,Boolean isTemp);
-    void decreaseFileReferenceCount(String fileMd5);
+    void saveTempFileInfo(String fileMd5, String tempFilePath, long size);
+    void increaseFileReference(FileStoreInfo fileStoreInfo);
+    void decreaseFileReference(String fileMd5);
 }
