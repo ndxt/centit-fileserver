@@ -234,7 +234,7 @@ public abstract class FileController extends BaseController {
      */
     @ApiOperation(value = "文件整体上传结构，适用于IE8")
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400, methods = RequestMethod.POST)
-    @RequestMapping(value="/file", method = RequestMethod.POST)
+    @RequestMapping(value="/upload", method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         request.setCharacterEncoding("utf8");
@@ -270,8 +270,6 @@ public abstract class FileController extends BaseController {
                                         String fileName,
                                         HttpServletRequest request,
                                         HttpServletResponse response) throws IOException {
-        //FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(md5);
-        //downloadFile(stroeInfo,request,response);
         String uri = request.getRequestURI();
         String [] urips = uri.split("/");
         int n=urips.length;
