@@ -11,5 +11,10 @@
 
     <artifactId>fileserver-adapter</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.centit.support</groupId>
+            <artifactId>centit-utils</artifactId>
+        </dependency>
+    </dependencies>
 </project>

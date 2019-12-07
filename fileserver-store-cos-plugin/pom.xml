@@ -16,13 +16,8 @@
     <dependencies>
         <dependency>
             <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-utils</artifactId>
+            <artifactId>fileserver-adapter</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.support</groupId>
-            <artifactId>centit-utils</artifactId>
         </dependency>
 
         <!-- 腾讯云 COS 客户端 -->
