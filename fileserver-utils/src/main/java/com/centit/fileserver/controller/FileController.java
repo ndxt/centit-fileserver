@@ -46,6 +46,9 @@ public abstract class FileController extends BaseController {
 
     @Resource
     protected FileStore fileStore;
+
+    protected abstract void fileUploadCompleteOpt(String fileMd5, long size,
+                                                  JSONObject retJson);
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      * @param token token
@@ -87,6 +90,7 @@ public abstract class FileController extends BaseController {
                                     String fileName, HttpServletResponse response) {
         String fileId =  fileMd5 +"_"+String.valueOf(size)+"."+
             FileType.getFileExtName(fileName);
+
         // 返回响应
         Map<String,Object> fileInfo= new HashMap<>();
         fileInfo.put("src","/service/download/unprotected/"+fileId+"?fileName="+fileName);
@@ -94,9 +98,10 @@ public abstract class FileController extends BaseController {
         fileInfo.put("fileMd5", fileMd5);
         fileInfo.put("fileName", fileName);
         fileInfo.put("fileSize", size);
-        JSONObject json = UploadDownloadUtils.makeRangeUploadCompleteJson(
+        JSONObject retJson = UploadDownloadUtils.makeRangeUploadCompleteJson(
             size, fileInfo);
-        JsonResultUtils.writeOriginalJson(json.toString(), response);
+        fileUploadCompleteOpt(fileMd5, size, retJson);
+        JsonResultUtils.writeOriginalJson(retJson.toString(), response);
 
     }
     private InputStream fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
@@ -146,7 +151,7 @@ public abstract class FileController extends BaseController {
             long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
             if(tempFileSize == size) {
                 fileStore.saveFile(tempFilePath, token, size);
-                completedFileStore(token,size, fileName, response);
+                completedFileStore(token, size, fileName, response);
                 return;
             }
         }

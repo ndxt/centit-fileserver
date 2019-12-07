@@ -1,5 +1,6 @@
 package com.centit.fileserver.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import io.swagger.annotations.Api;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,4 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Api(value = "文件断点上传，仅仅保存文件内容", tags = "文件断点上传，仅仅保存文件内容")
 public class StoreFileController extends FileController {
 
+    @Override
+    protected void fileUploadCompleteOpt(String fileMd5, long size, JSONObject retJson) {
+
+    }
 }
