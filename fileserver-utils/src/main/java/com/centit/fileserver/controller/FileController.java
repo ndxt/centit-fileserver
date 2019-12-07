@@ -9,7 +9,6 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
-import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -18,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 public abstract class FileController extends BaseController {
 
-    private Logger logger = LoggerFactory.getLogger(FileController.class);
+    protected Logger logger = LoggerFactory.getLogger(FileController.class);
 
     @Resource
     protected FileStore fileStore;
@@ -277,16 +277,10 @@ public abstract class FileController extends BaseController {
             fileName = urips[n-1];
         }
 
-        String fileMd5 =  md5SizeExt.substring(0,32);
-        int pos = md5SizeExt.indexOf('.');
-        //String extName = md5SizeExt.substring(pos);
-        long fileSize = pos<0? NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
-            : NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-
-        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
-        InputStream inputStream = fileStore.loadFileStream(filePath);
+        Pair<String, Long> md5Size = UploadDownloadUtils.fetchMd5andSize(md5SizeExt);
+        InputStream inputStream = fileStore.loadFileStream(md5Size.getLeft(), md5Size.getRight());
         UploadDownloadUtils.downFileRange(request, response,
-            inputStream, fileSize, UploadDownloadUtils.encodeDownloadFilename(fileName));
+            inputStream,  md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName));
     }
 
 }
