@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -89,17 +90,7 @@ public class UploadController extends BaseController {
         FileInfo fileInfo = new FileInfo();
 
         fileInfo.setFileMd5(request.getParameter("token"));
-        Long fileSize = NumberBaseOpt.parseLong(
-                request.getParameter("size"), -1l);
-        if(fileSize<1){
-            fileSize= NumberBaseOpt.parseLong(
-                    request.getParameter("fileSize"), -1l);
-        }
-//        fileInfo.setFileSize(fileSize);
-        String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName)) {
-            fileName = request.getParameter("fileName");
-        }
+        String fileName =UploadDownloadUtils.getRequestFirstOneParameter(request,"name","fileName");
         String fileState = request.getParameter("fileState");
         if(StringUtils.isNotBlank(fileState))
             fileInfo.setFileState(fileState);
@@ -127,11 +118,8 @@ public class UploadController extends BaseController {
         pretreatInfo.put("fileId", request.getParameter("fileId") );
         pretreatInfo.put("fileMd5", request.getParameter("token"));
         Long fileSize = NumberBaseOpt.parseLong(
-                request.getParameter("size"), -1l);
-        if(fileSize<1){
-            fileSize= NumberBaseOpt.parseLong(
-                    request.getParameter("fileSize"), -1l);
-        }
+            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+
         pretreatInfo.put("fileSize", fileSize);
         pretreatInfo.put("index", StringRegularOpt.isTrue(request.getParameter("index")));
 //        pretreatInfo.setIsIsUnzip(StringRegularOpt.isTrue(request.getParameter("unzip")));
@@ -185,54 +173,74 @@ public class UploadController extends BaseController {
         return UploadDownloadUtils.checkFileRange(fileStore, token, size);
     }
 
-    private Triple<FileInfo, Map<String, Object>, InputStream>
-    fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
+    /*
+     * 这个是spring boot中无法正确运行，spring boot中不能获取 CommonsMultipartResolver
+     */
+    protected InputStream fetchISFromCommonsResolver(HttpServletRequest request, FileInfo fileInfo,Map<String, Object> pretreatInfo) throws IOException {
+        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
+        Map<String, MultipartFile> map = multiRequest.getFileMap();
+        InputStream fis = null;
+        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
+            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
+            FileItem fi = cMultipartFile.getFileItem();
+            if (fi.isFormField()) {
+                if (StringUtils.equals("fileInfo", fi.getFieldName())) {
+                    FileInfo info = JSON.parseObject(fi.getString(), FileInfo.class);
+                    fileInfo.copyNotNullProperty(info);
+                } else if (StringUtils.equals("pretreatInfo", fi.getFieldName())) {
+                    JSONObject pi = JSON.parseObject(fi.getString());
+                    pretreatInfo = CollectionsOpt.unionTwoMap(pretreatInfo, pi);
+                }
+            } else {
+                String fn = fi.getName();
+                if(StringUtils.isBlank(fileInfo.getFileName()) && StringUtils.isNotBlank(fn)){
+                    fileInfo.setFileName(fn);
+                }
+                fis = fi.getInputStream();
+            }
+        }
+        return fis;
+    }
+
+    protected InputStream fetchISFromStandardResolver(HttpServletRequest request, FileInfo fileInfo,Map<String, Object> pretreatInfo) throws IOException {
+        MultipartResolver resolver = new StandardServletMultipartResolver();
+        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
+        Map<String, MultipartFile> map = multiRequest.getFileMap();
+        InputStream fis = null;
+
+        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
+            MultipartFile cMultipartFile = entry.getValue();
+            org.springframework.core.io.Resource resource = cMultipartFile.getResource();
+            if(resource.isFile()) {
+                String fileName = resource.getFilename();
+                if(StringUtils.isNotBlank(fileName)){
+                    fileInfo.setFileName(fileName);
+                }
+                fis = cMultipartFile.getInputStream();
+            } else {
+                String resourceName = resource.getFilename();
+                if("fileInfo".equals(resourceName)){
+                    FileInfo info = JSON.parseObject(cMultipartFile.getInputStream(), FileInfo.class);
+                    fileInfo.copyNotNullProperty(info);
+                } else if ("pretreatInfo".equals(resourceName)) {
+                    JSONObject pi = JSON.parseObject(cMultipartFile.getInputStream(), JSONObject.class);
+                    pretreatInfo = CollectionsOpt.unionTwoMap(pretreatInfo, pi);
+                }
+            }
+        }
+        return fis;
+    }
+
+    protected Triple<FileInfo, Map<String, Object>, InputStream>
+        fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Map<String, Object> pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
         }
-
-        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
-        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
-//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-        Map<String, MultipartFile> map = multiRequest.getFileMap();
-        InputStream fis = null;
-        String fileName = fileInfo.getFileName();
-
-        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
-
-            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
-
-            FileItem fi = cMultipartFile.getFileItem();
-            if (fi.isFormField()) {
-                if (StringUtils.equals("fileInfo", fi.getFieldName())) {
-                    try {
-                        FileInfo info = JSON.parseObject(fi.getString(), FileInfo.class);
-                        fileInfo.copyNotNullProperty(info);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(),e);
-                    }
-                } else if (StringUtils.equals("pretreatInfo", fi.getFieldName())) {
-                    try {
-                        JSONObject pi = JSON.parseObject(fi.getString());
-                        if(pi instanceof JSONObject) {
-                            pretreatInfo = CollectionsOpt.unionTwoMap(pretreatInfo, pi);
-                        }
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(),e);
-                    }
-                }
-            } else {
-                String fn = fi.getName();
-                if(StringUtils.isBlank(fileName) && StringUtils.isNotBlank(fn)){
-                    fileName = fn;
-                }
-                fis = fi.getInputStream();
-            }
-        }
-        fileInfo.setFileName(fileName);
+        InputStream fis = fetchISFromStandardResolver(request, fileInfo, pretreatInfo);
         return new ImmutableTriple<>(fileInfo, pretreatInfo, fis);
     }
 
@@ -465,13 +473,14 @@ public class UploadController extends BaseController {
      */
     @ApiOperation(value = "文件整体上传结构，适用于IE8")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
-    @RequestMapping(value = "/file", method = RequestMethod.POST)
+    @RequestMapping(value = {"/file", "/upload"}, method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         if(checkUploadToken && !checkUploadAuthorization(request, response)){
             return;
         }
         request.setCharacterEncoding("utf8");
+
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
         FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());

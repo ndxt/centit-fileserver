@@ -14,8 +14,6 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -24,11 +22,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -47,8 +40,24 @@ public abstract class FileController extends BaseController {
     @Resource
     protected FileStore fileStore;
 
+    /**
+     * 文件上传后的处理工作，如果需要对文件处理或者返回特定的数据给前段可以在这个方法中做
+     * @param fileMd5 文件的md5 和 size可以确定文件的位置
+     * @param size 文件大小
+     * @param retJson 返回前段的json对象，可以在这个方法中修改
+     */
     protected abstract void fileUploadCompleteOpt(String fileMd5, long size,
                                                   JSONObject retJson);
+
+    /**
+     * 这个方法可能需要根据环境重载
+     * @param request 客户端请求
+     * @return 文件名和 文件流
+     * @throws IOException io 异常
+     */
+    protected Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
+        return UploadDownloadUtils.fetchInputStreamFromStandardResolver(request);
+    }
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      * @param token token
@@ -76,8 +85,6 @@ public abstract class FileController extends BaseController {
         return UploadDownloadUtils.checkFileRange(fileStore, token, size);
     }
 
-
-
     /**
      * 保存文件
      * param fs 文件的物理存储接口
@@ -104,26 +111,7 @@ public abstract class FileController extends BaseController {
         JsonResultUtils.writeOriginalJson(retJson.toString(), response);
 
     }
-    private InputStream fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if(!isMultipart)
-            return request.getInputStream();
 
-        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
-        MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
-//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-        Map<String, MultipartFile> map = multiRequest.getFileMap();
-
-        for (Map.Entry<String, MultipartFile> entry : map.entrySet())  {
-
-            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
-            FileItem fi = cMultipartFile.getFileItem();
-            if (!fi.isFormField()){
-                return fi.getInputStream();
-            }
-        }
-        return null;
-    }
     /**
      * 完成秒传，如果文件不存在会返回失败
      * @param token token
@@ -176,12 +164,9 @@ public abstract class FileController extends BaseController {
         HttpServletRequest request, HttpServletResponse response)
         throws IOException {
 
-        String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName)) {
-            fileName = request.getParameter("fileName");
-        }
+        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
         if(fileStore.checkFile(token, size)){// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStore(token, size, fileName, response);
+            completedFileStore(token, size, fileInfo.getLeft(), response);
             return;
         }
 
@@ -195,11 +180,11 @@ public abstract class FileController extends BaseController {
                     "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
                 return;
             }
-            InputStream    fis = fetchInputStreamFromRequest(request);
+
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             try (FileOutputStream out = new FileOutputStream(
                 new File(tempFilePath), true)) {
-                long length = FileIOOpt.writeInputStreamToOutputStream(fis, out);
+                long length = FileIOOpt.writeInputStreamToOutputStream(fileInfo.getRight(), out);
                 if (length != range.getPartSize()) {
                     JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
                         "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
@@ -214,7 +199,7 @@ public abstract class FileController extends BaseController {
             fileStore.saveFile(tempFilePath,token, size);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             if(StringUtils.equals(fileMd5,token)) {
-                completedFileStore(token, size, fileName, response);
+                completedFileStore(token, size, fileInfo.getLeft(), response);
             }else{
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_MD5_ERROR,
                     "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR+" 文件MD5计算错误。", response);
@@ -238,17 +223,13 @@ public abstract class FileController extends BaseController {
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         request.setCharacterEncoding("utf8");
-        InputStream    fis = fetchInputStreamFromRequest(request);
-        String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName)) {
-            fileName = request.getParameter("fileName");
-        }
+        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try{
-            int fileSize = FileIOOpt.writeInputStreamToFile(fis, tempFilePath);
+            int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight(), tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             fileStore.saveFile(tempFilePath, fileMd5, fileSize);
-            completedFileStore(fileMd5, fileSize, fileName, response);
+            completedFileStore(fileMd5, fileSize, fileInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);

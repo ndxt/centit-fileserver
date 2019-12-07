@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +44,15 @@ import java.util.Map;
 public abstract class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
-
+    public static String getRequestFirstOneParameter(HttpServletRequest request, String ...params) {
+        for(String p : params){
+            String value = request.getParameter(p);
+            if(StringUtils.isNotBlank(value)){
+                return value;
+            }
+        }
+        return null;
+    }
     public static JSONObject checkFileRange(FileStore fileStore, String token, long size) {
         JSONObject jsonObject;
         // 如果文件已经存在则完成秒传，无需再传
@@ -68,32 +77,47 @@ public abstract class UploadDownloadUtils {
         return Pair.of(fileMd5, fileSize);
     }
 
-    public static Pair<String, InputStream> fetchInputStreamFromMultipartResolver(HttpServletRequest request) throws IOException {
-        String fileName = request.getParameter("name");
-        if(StringUtils.isBlank(fileName))
-            fileName = request.getParameter("fileName");
+     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
+        String fileName = getRequestFirstOneParameter(request,"name","fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             return new ImmutablePair<>(fileName, request.getInputStream());
         }
 
-        MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+        MultipartResolver resolver = useCommonsReolver?
+            new CommonsMultipartResolver(request.getSession().getServletContext()) :
+            new StandardServletMultipartResolver();
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
-//        MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> map = multiRequest.getFileMap();
         InputStream fis = null;
-
-        for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
-            CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
-            FileItem fi = cMultipartFile.getFileItem();
-            if (! fi.isFormField())  {
-                fileName = fi.getName();
-                fis = fi.getInputStream();
-                if(fis!=null)
-                    break;
+        if(useCommonsReolver) {
+            for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
+                CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
+                FileItem fi = cMultipartFile.getFileItem();
+                if (!fi.isFormField()) {
+                    fileName = fi.getName();
+                    fis = fi.getInputStream();
+                    if (fis != null)
+                        break;
+                }
+            }
+        } else {
+            for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
+                MultipartFile cMultipartFile = entry.getValue();
+                fileName = cMultipartFile.getResource().getFilename();
+                fis = cMultipartFile.getInputStream();
             }
         }
         return  new ImmutablePair<>(fileName, fis);
+    }
+
+    public static Pair<String, InputStream> fetchInputStreamFromMultipartResolver(HttpServletRequest request) throws IOException {
+        return fetchInputStreamFromRequest(request, true);
+    }
+
+    //Springboot无法使用CommonsMultipartResolver，换成StandardServletMultipartResolver
+    public static Pair<String, InputStream> fetchInputStreamFromStandardResolver(HttpServletRequest request) throws IOException {
+        return fetchInputStreamFromRequest(request, false);
     }
 
     @Deprecated
@@ -111,7 +135,7 @@ public abstract class UploadDownloadUtils {
 
         String fileName = null;
         ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
-        List<FileItem> fileItems =  servletFileUpload.parseRequest(request);
+        List<FileItem> fileItems = servletFileUpload.parseRequest(request);
         InputStream fis = null;
         for (FileItem fi : fileItems) {
             if (! fi.isFormField())  {
