@@ -14,6 +14,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
@@ -175,27 +176,13 @@ public class UploadController extends BaseController {
      *
      * @param token token
      * @param size 大小
-     * @param response HttpServletResponse
      */
     @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
-    public void checkFileRange(String token, long size, HttpServletResponse response){
-        //FileRangeInfo fr = new FileRangeInfo(token,size);
-        JSONObject jsonObject;
-        // 如果文件已经存在则完成秒传，无需再传
-        if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
-            jsonObject = UploadDownloadUtils.
-                makeRangeCheckJson(size, token, true);
-        } else {
-            //检查临时目录中的文件大小，返回文件的起始点
-            //String tempFilePath = FileUploadUtils.getTempFilePath(token, size);
-            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                    SystemTempFileUtils.getTempFilePath(token, size));
-            jsonObject = UploadDownloadUtils.
-                makeRangeCheckJson(tempFileSize, token, false);
-        }
-        JsonResultUtils.writeOriginalJson(jsonObject.toJSONString(), response);
+    @WrapUpResponseBody
+    public JSONObject checkFileRange(String token, long size) {
+        return UploadDownloadUtils.checkFileRange(fileStore, token, size);
     }
 
     private Triple<FileInfo, Map<String, Object>, InputStream>

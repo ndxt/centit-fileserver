@@ -2,6 +2,7 @@ package com.centit.fileserver.po;
 
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.orm.GeneratorCondition;
+import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
 import com.centit.support.file.FileType;
@@ -77,6 +78,8 @@ public class FileInfo implements Serializable {
     private String created;
 
     @Column(name="CREATE_TIME")
+    @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW,
+    value="today()")
     private Date createTime;
 
 //    @Column(name="FILE_SIZE")

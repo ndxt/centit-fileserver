@@ -1,6 +1,7 @@
 package com.centit.fileserver.po;
 
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
 
@@ -24,6 +25,8 @@ public class FileAccessLog implements Serializable {
     @Column(name="FILE_ID")
     private String fileId;
 
+    @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW,
+        value="today()")
     @Column(name="AUTH_TIME")
     private Date authTime;
 

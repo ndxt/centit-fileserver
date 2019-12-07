@@ -44,11 +44,12 @@ public class OsFileStore implements FileStore {
     }
 
     private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
-        String pathname = String.valueOf(fileMd5.charAt(0))
+        return matchFileToStoreUrl(fileMd5, fileSize);
+        /*String pathname = String.valueOf(fileMd5.charAt(0))
                 + File.separatorChar + fileMd5.charAt(1)
                 + File.separatorChar + fileMd5.charAt(2);
         FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+"."+extName;
+        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+"."+extName;*/
     }
 
     @Override
@@ -56,7 +57,6 @@ public class OsFileStore implements FileStore {
             throws IOException {
         String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
         String filePath = getFileRoot() + fileStroeUrl;
-
         FileSystemOpt.createDirect(new File(filePath).getParent());
         FileIOOpt.writeInputStreamToFile(is, filePath);
 
@@ -67,20 +67,12 @@ public class OsFileStore implements FileStore {
         return fileStroeUrl;
     }
 
-    public String saveFileByMd5(String sourFilePath, String fileMd5, long fileSize)
-            throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize);
-        FileSystemOpt.createDirect(new File(getFileRoot() + filePath).getParent());
-        FileSystemOpt.fileCopy(sourFilePath,getFileRoot() + filePath);
-        return filePath;
-    }
-
     @Override
     public String saveFile(String sourFilePath, String fileMd5, long fileSize)
             throws IOException {
         /*if(!FileUploadUtils.checkFileCompleted(sourFilePath, fileMd5))
             throw new IOException("文件MD5校验出错："+fileMd5);*/
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
+        return saveFile(sourFilePath, fileMd5, fileSize, "dat");
     }
 
     @Override
@@ -96,7 +88,7 @@ public class OsFileStore implements FileStore {
         File file = new File(sourFilePath);
         String fileMd5 = FileMD5Maker.makeFileMD5(file);
         long fileSize = file.length();
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
+        return saveFile(sourFilePath, fileMd5, fileSize,"dat");
     }
 
     @Override

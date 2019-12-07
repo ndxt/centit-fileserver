@@ -13,7 +13,6 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
@@ -51,12 +50,6 @@ public class DownloadController extends BaseController {
     @Resource
     protected FileStore fileStore;
 
-    private static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-            InputStream inputStream,long fSize, String fileName)
-            throws IOException {
-         UploadDownloadUtils.downFileRange(request, response,
-                 inputStream, fSize, fileName);
-    }
 
     public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -81,18 +74,18 @@ public class DownloadController extends BaseController {
                     }
                 }
                 try(InputStream inputStream = new FileInputStream(tmpFile)){
-                    downFileRange(request, response,
-                            inputStream,tmpFile.length(), fileInfo.getFileName());
+                    UploadDownloadUtils.downFileRange(request, response,
+                        inputStream, tmpFile.length(), fileInfo.getFileName());
                 }
 
                 FileSystemOpt.deleteFile(tmpFile);
             }else{
                 if (fileStoreInfo.isTemp()){
-                    downFileRange(request, response,
+                    UploadDownloadUtils.downFileRange(request, response,
                         new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName());
                 } else {
-                    downFileRange(request, response,
+                    UploadDownloadUtils.downFileRange(request, response,
                         fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName());
                 }
@@ -133,9 +126,9 @@ public class DownloadController extends BaseController {
             }
 
             FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-            downFileRange(request, response,
-                    fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                    fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName);
+            UploadDownloadUtils.downFileRange(request, response,
+                fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName());
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件", response);
@@ -226,40 +219,6 @@ public class DownloadController extends BaseController {
         }
     }
 
-    /**
-     * 根据文件的 MD5码 下载不受保护的文件，不需要访问文件记录
-     * 如果是通过 store 上传的需要指定 extName 扩展名
-     * @param md5SizeExt 文件的Md5码和文件的大小 格式为 MD5_SIZE.EXT
-     * @param fileName 文件的名称包括扩展名，如果这个不为空， 上面的 md5SizeExt 可以没有 .Ext 扩展名
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @RequestMapping(value= "/unprotected/{md5SizeExt}", method=RequestMethod.GET)
-    public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,
-                                 String fileName,
-                                 HttpServletRequest request,
-                                 HttpServletResponse response) throws IOException {
-        //FileStoreInfo stroeInfo = fileStoreInfoManager.getObjectById(md5);
-        //downloadFile(stroeInfo,request,response);
-        String uri = request.getRequestURI();
-        String [] urips = uri.split("/");
-        int n=urips.length;
-        if(StringUtils.isBlank(fileName)){
-            fileName = urips[n-1];
-        }
-        String fileMd5 =  md5SizeExt.substring(0,32);
-        int pos = md5SizeExt.indexOf('.');
-        //String extName = md5SizeExt.substring(pos);
-        long fileSize = pos<0?NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
-                            :NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-
-        String filePath = fileStore.getFileStoreUrl(fileMd5, fileSize);
-        InputStream inputStream = fileStore.loadFileStream(filePath);
-        downFileRange(request,  response,
-                inputStream, fileSize,
-                fileName);
-    }
 
     private void compressFiles(String zipFilePathName, String[] fileUrls, String[] fileNames, int len) {
         try {
@@ -348,8 +307,8 @@ public class DownloadController extends BaseController {
             inputStream = new FileInputStream(file);
         }
 
-        downFileRange(request,  response,
-            inputStream, fileSize,
-            fileName);
+        UploadDownloadUtils.downFileRange(request, response,
+            inputStream,
+            fileSize, fileName);
     }
 }

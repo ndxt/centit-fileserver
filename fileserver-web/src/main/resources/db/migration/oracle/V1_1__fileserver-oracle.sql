@@ -24,37 +24,36 @@ create table FILE_UPLOAD_AUTHORIZED  (
    constraint PK_FILE_UPLOAD_AUTHORIZED primary key (UPLOAD_TOKEN)
 );
 
-
-
 create table FILE_INFO  (
-   FILE_ID              varchar2(36)                    not null,
+   FILE_ID              VARCHAR2(36)                    NOT NULL,
    FILE_MD5             VARCHAR(36),
-   file_name          varchar2(200),
-   file_Show_path     varchar2(1000),
-   file_type          varchar2(8),
-   file_Desc          varchar2(200),
-   file_state         CHAR,
-   download_times     NUMBER(6),
-   OS_ID                varchar2(20),
-   Opt_ID             varchar2(64)                    not null,
-   OPT_Method         varchar2(64),
-   opt_Tag            varchar2(200),
-   created            varchar2(8),
-   create_time        date,
-   index_state        CHAR,
-   encrypt_type       CHAR,
-   file_owner         VARCHAR(32),
-   file_unit          VARCHAR(32),
-   attached_file_md5 varchar2(200),
-   attached_type      varchar2(1),
+   FILE_NAME          VARCHAR2(200),
+   FILE_SHOW_PATH     VARCHAR2(1000),
+   FILE_TYPE          VARCHAR2(8),
+   FILE_DESC          VARCHAR2(200),
+   FILE_STATE         CHAR,
+   DOWNLOAD_TIMES     NUMBER(6),
+   OS_ID              VARCHAR2(20),
+   OPT_ID             VARCHAR2(64)                    NOT NULL,
+   OPT_METHOD         VARCHAR2(64),
+   OPT_TAG            VARCHAR2(200),
+   CREATED            VARCHAR2(8),
+   CREATE_TIME        DATE,
+   INDEX_STATE        CHAR,
+   ENCRYPT_TYPE       CHAR,
+   FILE_OWNER         VARCHAR(32),
+   FILE_UNIT          VARCHAR(32),
+   ATTACHED_FILE_MD5 VARCHAR2(200),
+   ATTACHED_TYPE      VARCHAR2(1),
    constraint PK_FILE_INFO primary key (FILE_ID)
 );
 
-create table FILE_INFO  (
+create table FILE_STORE_INFO  (
    FILE_MD5              VARCHAR(36) not null ,
    FILE_STORE_PATH       varchar2(200),
    FILE_SIZE             NUMBER(20),
    FILE_REFERENCE_COUNT  NUMBER(6),
+   CREATE_TIME        date,
    constraint PK_FILE_STORE_INFO primary key (FILE_MD5)
 );
 

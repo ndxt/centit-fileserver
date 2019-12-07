@@ -4,7 +4,7 @@ CREATE TABLE FILE_ACCESS_LOG (
    AUTH_TIME          DATETIME                            NOT NULL,
    ACCESS_USERCODE    VARCHAR(8),
    ACCESS_USENAME     VARCHAR(50),
-   ACCESS_RIGHT       VARCHAR(2)                     NOT NULL COMMENT 
+   ACCESS_RIGHT       VARCHAR(2)                     NOT NULL COMMENT
 'A： 所有权限  S: 下载源文件  T ：下载附属文件 ' ,
    TOKEN_EXPIRE_TIME  DATETIME                            NOT NULL,
    ACCESS_TIMES       DECIMAL(6)                      DEFAULT 0 NOT NULL,
@@ -51,6 +51,7 @@ CREATE TABLE FILE_STORE_INFO (
     FILE_STORE_PATH       VARCHAR(200),
     FILE_SIZE             DECIMAL(20),
     FILE_REFERENCE_COUNT  DECIMAL(6),
+    CREATE_TIME         DATETIME,
     IS_TEMP char(1) DEFAULT 'F',
     PRIMARY KEY (FILE_MD5)
 );

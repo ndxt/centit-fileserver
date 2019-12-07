@@ -1,5 +1,8 @@
 package com.centit.fileserver.po;
 
+import com.centit.support.database.orm.GeneratorTime;
+import com.centit.support.database.orm.GeneratorType;
+import com.centit.support.database.orm.ValueGenerator;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -7,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Date;
 
 @Data
 @Entity
@@ -34,6 +38,10 @@ public class FileStoreInfo implements Serializable {
     @Column(name="IS_TEMP")
     private Boolean isTemp;
 
+    @Column(name="CREATE_TIME")
+    @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW,
+        value="today()")
+    private Date createTime;
 
     public FileStoreInfo() {}
 
