@@ -13,6 +13,7 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -246,6 +247,11 @@ public abstract class FileController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
+    @ApiOperation(value = "文件下载，此接口支持文件断点续传")
+    @ApiImplicitParam(
+        name = "md5SizeExt", value="文件的Md5码_文件的大小.文件格式 MD5_SIZE.EXT，",
+        required = true, paramType = "path", dataType= "String"
+    )
     @RequestMapping(value= "/download/{md5SizeExt}", method=RequestMethod.GET)
     public void downloadUnprotectedFile(@PathVariable("md5SizeExt") String md5SizeExt,
                                         String fileName,
