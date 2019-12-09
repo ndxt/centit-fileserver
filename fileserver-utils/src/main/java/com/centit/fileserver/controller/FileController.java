@@ -98,10 +98,9 @@ public abstract class FileController extends BaseController {
                                     String fileName, HttpServletResponse response) {
         String fileId =  fileMd5 +"_"+String.valueOf(size)+"."+
             FileType.getFileExtName(fileName);
-
         // 返回响应
         Map<String,Object> fileInfo= new HashMap<>();
-        fileInfo.put("src","/file/download/"+fileId+"?fileName="+fileName);
+        fileInfo.put("src","file/download/"+fileId+"?fileName="+fileName);
         fileInfo.put("fileId", fileId);
         fileInfo.put("fileMd5", fileMd5);
         fileInfo.put("fileName", fileName);
@@ -110,7 +109,6 @@ public abstract class FileController extends BaseController {
             size, fileInfo);
         fileUploadCompleteOpt(fileMd5, size, retJson);
         JsonResultUtils.writeOriginalJson(retJson.toString(), response);
-
     }
 
     /**
