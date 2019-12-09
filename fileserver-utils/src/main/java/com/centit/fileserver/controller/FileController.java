@@ -101,7 +101,7 @@ public abstract class FileController extends BaseController {
 
         // 返回响应
         Map<String,Object> fileInfo= new HashMap<>();
-        fileInfo.put("src","/service/download/unprotected/"+fileId+"?fileName="+fileName);
+        fileInfo.put("src","/file/download/"+fileId+"?fileName="+fileName);
         fileInfo.put("fileId", fileId);
         fileInfo.put("fileMd5", fileMd5);
         fileInfo.put("fileName", fileName);
