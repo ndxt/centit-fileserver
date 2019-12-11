@@ -9,6 +9,7 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -51,13 +52,13 @@ public abstract class FileController extends BaseController {
                                                   JSONObject retJson);
 
     /**
-     * 这个方法可能需要根据环境重载
+     * 这个方法可能需要根据环境重载;
      * @param request 客户端请求
      * @return 文件名和 文件流
      * @throws IOException io 异常
      */
     protected Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
-        return UploadDownloadUtils.fetchInputStreamFromStandardResolver(request);
+        return UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
     }
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
@@ -232,7 +233,8 @@ public abstract class FileController extends BaseController {
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(),e);
-            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
+            JsonResultUtils.writeErrorMessageJson(
+                ObjectException.extortExceptionMessage(e), response);
         }
     }
 
