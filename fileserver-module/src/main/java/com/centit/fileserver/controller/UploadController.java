@@ -448,7 +448,7 @@ public class UploadController extends BaseController {
 
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
-            if (uploadSize==0) {
+            if (uploadSize == size) {
                 //上传到临时区成功
                 completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);

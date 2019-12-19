@@ -287,7 +287,7 @@ public abstract class UploadDownloadUtils {
             if (StringUtils.equals(fileMd5, token)) {
                 //FileSystemOpt.deleteFile(tempFilePath);
                 //成功上传到临时路径
-                return 0;
+                return size;
                 //completedStoreFile(fs, token, size, fileInfo.getLeft(), response);
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
