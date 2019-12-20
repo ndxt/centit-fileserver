@@ -453,7 +453,7 @@ public class UploadController extends BaseController {
                 completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
 
-            } else if (uploadSize > 0) {
+            } else /*if (uploadSize > 0)*/ {
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
