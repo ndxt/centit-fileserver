@@ -25,7 +25,6 @@ public class WebInitializer implements WebApplicationInitializer {
             "/fileserver/*",
             FileServerSpringMvcConfig.class,SwaggerConfig.class);
 
-
         WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
         //WebConfig.registerResponseCorsFilter(servletContext);
