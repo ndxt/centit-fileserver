@@ -8,9 +8,9 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileMD5Maker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -23,7 +23,7 @@ public class AddThumbnailOpt extends FileOpt implements Consumer<FileOptTaskInfo
 
     private static final Logger logger = LoggerFactory.getLogger(AddThumbnailOpt.class);
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
     @Override

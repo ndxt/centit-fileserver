@@ -14,13 +14,13 @@ import com.centit.framework.ip.service.IntegrationEnvironment;
 import com.centit.support.database.utils.PageDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -34,16 +34,16 @@ public class FileManagerController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(FileManagerController.class);
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
-    @Resource
+    @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
 
-    @Resource
+    @Autowired
     private IntegrationEnvironment integrationEnvironment;
 
-    @Resource
+    @Autowired
     protected FileStore fileStore;
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)

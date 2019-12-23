@@ -30,6 +30,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,7 +43,6 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -66,22 +66,22 @@ public class UploadController extends BaseController {
     @Value("${file.check.upload.token:false}")
     protected boolean checkUploadToken;
 
-    @Resource
+    @Autowired
     protected FileStore fileStore;
 
-    @Resource
+    @Autowired(required = false)
     protected Indexer documentIndexer;
 
-    @Resource
+    @Autowired
     private FileOptTaskQueue fileOptTaskQueue;
 
-    @Resource
+    @Autowired
     protected FileInfoManager fileInfoManager;
 
-    @Resource
+    @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
 
-    @Resource
+    @Autowired
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
 
 

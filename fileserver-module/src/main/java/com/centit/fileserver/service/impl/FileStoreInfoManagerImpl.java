@@ -6,11 +6,11 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -23,10 +23,10 @@ public class FileStoreInfoManagerImpl
     @Value("${spring.datasource.url}")
     private String connUrl;
 
-    @Resource
+    @Autowired
     private FileStore fileStore;
 
-    @Resource(name ="fileStoreInfoDao")
+    @Autowired//(name ="fileStoreInfoDao")
     @NotNull
     @Override
     protected void setBaseDao(FileStoreInfoDao baseDao) {

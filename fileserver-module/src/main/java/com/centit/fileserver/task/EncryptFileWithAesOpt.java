@@ -8,9 +8,9 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -22,7 +22,7 @@ public class EncryptFileWithAesOpt extends FileOpt implements Consumer<FileOptTa
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptFileWithAesOpt.class);
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
     @Override

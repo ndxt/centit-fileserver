@@ -9,9 +9,9 @@ import com.centit.search.document.FileDocument;
 import com.centit.search.service.Indexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.function.Consumer;
 
 /**
@@ -22,14 +22,17 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIndexOpt.class);
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
-    @Resource
+    @Autowired(required = false)
     private Indexer documentIndexer;
 
     @Override
     public void accept(FileOptTaskInfo fileOptTaskInfo) {
+        if(documentIndexer==null){
+            return;
+        }
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);

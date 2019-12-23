@@ -5,18 +5,18 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 
 public abstract class FileOpt {
 
     private static final Logger logger = LoggerFactory.getLogger(FileOpt.class);
 
-    @Resource
+    @Autowired
     protected FileStoreInfoManager fileStoreInfoManager;
 
-    @Resource
+    @Autowired
     protected FileStore fileStore;
 
     private String fetchOrSaveFile(String tempFilePath, String fileMd5, long fileSize)

@@ -7,9 +7,9 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -21,7 +21,7 @@ public class ZipFileOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(ZipFileOpt.class);
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
     @Override

@@ -21,12 +21,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -42,19 +42,19 @@ public class LocalFileController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(LocalFileController.class);
     private static final int URI_START_PARAM = 5;
-    @Resource
+    @Autowired
     private LocalFileManager localFileManager;
 
-    @Resource
+    @Autowired
     private FileInfoManager fileInfoManager;
 
-    @Resource
+    @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
 
-    @Resource
+    @Autowired
     private FileAccessLogManager fileAccessLogManager;
 
-    @Resource
+    @Autowired
     protected FileStore fileStore;
 
     /**

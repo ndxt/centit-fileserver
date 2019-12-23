@@ -10,10 +10,10 @@ import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.utils.PageDesc;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class FileAccessLogManagerImpl extends BaseEntityManagerImpl<FileAccessLog, String, FileAccessLogDao>
  implements FileAccessLogManager {
 
-    @Resource(name ="fileAccessLogDao")
+    @Autowired
     @NotNull
     @Override
     protected void setBaseDao(FileAccessLogDao baseDao) {

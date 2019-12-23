@@ -5,10 +5,10 @@ import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.model.basedata.IUnitInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +20,7 @@ import java.util.Set;
 @Transactional
 public class LocalFileManagerImpl implements LocalFileManager {
 
-    @Resource(name ="fileInfoDao")
+    @Autowired
     @NotNull
     protected FileInfoDao fileInfoDao;
 

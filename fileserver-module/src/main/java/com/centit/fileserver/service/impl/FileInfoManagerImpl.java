@@ -10,11 +10,11 @@ import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class FileInfoManagerImpl
     @Value("${spring.datasource.url}")
     private String connUrl;
 
-    @Resource(name ="fileInfoDao")
+    @Autowired//(name ="fileInfoDao")
     @NotNull
     @Override
     protected void setBaseDao(FileInfoDao baseDao) {
