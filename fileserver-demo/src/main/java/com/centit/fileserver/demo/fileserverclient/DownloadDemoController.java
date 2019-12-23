@@ -2,6 +2,7 @@ package com.centit.fileserver.demo.fileserverclient;
 
 import com.centit.fileserver.client.FileClient;
 import com.centit.framework.core.controller.BaseController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
