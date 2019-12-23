@@ -23,7 +23,7 @@ public class WebInitializer implements WebApplicationInitializer {
             SystemSpringMvcConfig.class,SwaggerConfig.class);
         WebConfig.registerServletConfig(servletContext, "fileserver",
             "/fileserver/*",
-            NormalSpringMvcConfig.class,SwaggerConfig.class);
+            FileServerSpringMvcConfig.class,SwaggerConfig.class);
 
 
         WebConfig.registerRequestContextListener(servletContext);

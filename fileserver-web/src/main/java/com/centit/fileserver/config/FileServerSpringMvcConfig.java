@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = {"com.centit.fileserver.controller"},
         includeFilters = {@ComponentScan.Filter(value= org.springframework.stereotype.Controller.class)},
         useDefaultFilters = false)
-public class NormalSpringMvcConfig extends BaseSpringMvcConfig {
+public class FileServerSpringMvcConfig extends BaseSpringMvcConfig {
 
 }
