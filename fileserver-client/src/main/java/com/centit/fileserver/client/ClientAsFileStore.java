@@ -1,6 +1,8 @@
 package com.centit.fileserver.client;
 
+import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,13 +178,19 @@ public class ClientAsFileStore implements FileStore {
     }
 
     /**
-     * @param fileUrl 文件的url md5SizeExt
+     * @param fileId 文件的url md5SizeExt
      * @return File
      * @throws IOException io异常
      */
     @Override
-    public File getFile(String fileUrl) throws IOException {
-        return fileClient.getFile(fileUrl);
+    public File getFile(String fileId) throws IOException {
+        if(SystemTempFileUtils.checkMd5AndSize(fileId)){
+            return fileClient.getFile(fileId);
+        }
+        //FileInfo fileInfo = fileClient.getFileInfo(fileUrl);
+        String filePath = SystemTempFileUtils.getTempFilePath(fileId);
+        fileClient.downloadFile(fileId, filePath);
+        return new File(filePath);
     }
 
     /**

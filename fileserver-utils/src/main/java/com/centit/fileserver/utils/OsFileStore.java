@@ -4,6 +4,7 @@ import com.centit.fileserver.common.FileStore;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -128,12 +129,17 @@ public class OsFileStore implements FileStore {
     @Override
     public InputStream loadFileStream(String fileMd5, long fileSize, String extName) throws IOException {
         return new FileInputStream(new File(getFileRoot() +
-                matchFileToStoreUrl(fileMd5,fileSize,extName)));
+            matchFileToStoreUrl(fileMd5,fileSize,extName)));
     }
 
     @Override
-    public File getFile(String fileUrl) throws IOException {
-        return new File(getFileRoot() + fileUrl);
+    public File getFile(String fileId) throws IOException {
+        if(SystemTempFileUtils.checkMd5AndSize(fileId)){
+            Pair<String, Long> pair = SystemTempFileUtils.fetchMd5AndSize(fileId);
+            return new File(getFileRoot() +
+                matchFileToStoreUrl(pair.getLeft(),pair.getRight()));
+        }
+        return new File(getFileRoot() + fileId);
     }
 
     @Override

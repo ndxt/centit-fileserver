@@ -112,11 +112,11 @@ public interface FileStore {
 
     /**
      *
-     * @param fileUrl 文件的url
+     * @param fileId 文件的id 或者 md5_size 或者本地文件的路径
      * @return File
      * @throws IOException io异常
      */
-    File getFile(String fileUrl) throws IOException;
+    File getFile(String fileId) throws IOException;
     /**
      * 删除文件
      * @param fileUrl 文件的url

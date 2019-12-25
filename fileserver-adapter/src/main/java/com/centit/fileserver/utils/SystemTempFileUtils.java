@@ -1,6 +1,7 @@
 package com.centit.fileserver.utils;
 
 import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.StringRegularOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileMD5Maker;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,11 @@ public abstract class SystemTempFileUtils {
                     //+ File.separatorChar ;
     }
 
+    public static String getTempFilePath(String fileId){
+        return getTempDirectory() //SysParametersUtils.getTempHome()+ File.separatorChar
+            + fileId +".tmp";
+    }
+
     public static String getRandomTempFilePath(){
         return getTempDirectory() //SysParametersUtils.getTempHome()+ File.separatorChar
                      + UuidOpt.getUuidAsString32() +".tmp";
@@ -59,6 +65,20 @@ public abstract class SystemTempFileUtils {
             logger.error(e.getMessage(), e);
             return false;
         }
+    }
+
+    public static boolean checkMd5AndSize(String md5SizeExt) {
+        int len = md5SizeExt.length();
+        if(len<34){
+            return false;
+        }
+        if(md5SizeExt.charAt(32) != '_'){
+            return false;
+        }
+        int pos = md5SizeExt.indexOf('.');
+        String fileSize = pos<0? md5SizeExt.substring(33)
+            : md5SizeExt.substring(33,pos);
+        return StringRegularOpt.isNumber(fileSize);
     }
 
     public static Pair<String, Long> fetchMd5AndSize(String md5SizeExt) {
