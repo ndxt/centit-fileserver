@@ -6,10 +6,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public interface FileClient {
 
-    CloseableHttpClient getHttpClient() ;
+    CloseableHttpClient allocHttpClient() ;
 
     void releaseHttpClient(CloseableHttpClient httpClient);
 
@@ -147,4 +148,10 @@ public interface FileClient {
 
     void downloadFile(String fileId,
                              String filePath) throws IOException;
+
+    String storeFile(InputStream file) throws IOException;
+
+    boolean checkFileExists(String fileMd5,long fileSize) throws IOException;
+
+    File getFile(String md5SizeExt) throws IOException;
 }

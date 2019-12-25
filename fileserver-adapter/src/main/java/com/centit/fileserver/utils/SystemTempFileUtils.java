@@ -1,8 +1,10 @@
 package com.centit.fileserver.utils;
 
+import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileMD5Maker;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,4 +61,12 @@ public abstract class SystemTempFileUtils {
         }
     }
 
+    public static Pair<String, Long> fetchMd5AndSize(String md5SizeExt) {
+        String fileMd5 =  md5SizeExt.substring(0,32);
+        int pos = md5SizeExt.indexOf('.');
+        //String extName = md5SizeExt.substring(pos);
+        long fileSize = pos<0? NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
+            : NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
+        return Pair.of(fileMd5, fileSize);
+    }
 }

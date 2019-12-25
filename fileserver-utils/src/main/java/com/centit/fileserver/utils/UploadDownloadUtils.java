@@ -68,15 +68,6 @@ public abstract class UploadDownloadUtils {
         return jsonObject;
     }
 
-    public static Pair<String, Long> fetchMd5andSize(String md5SizeExt) {
-        String fileMd5 =  md5SizeExt.substring(0,32);
-        int pos = md5SizeExt.indexOf('.');
-        //String extName = md5SizeExt.substring(pos);
-        long fileSize = pos<0? NumberBaseOpt.parseLong(md5SizeExt.substring(33),0l)
-            : NumberBaseOpt.parseLong(md5SizeExt.substring(33,pos),0l);
-        return Pair.of(fileMd5, fileSize);
-    }
-
      public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
         String fileName = getRequestFirstOneParameter(request,"name","fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);

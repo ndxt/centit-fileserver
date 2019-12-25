@@ -77,7 +77,7 @@ public class OsFileStore implements FileStore {
 
     @Override
     public String saveFile(String sourFilePath, String fileMd5, long fileSize, String extName) throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize,extName);
+        String filePath = matchFileToStoreUrl(fileMd5,fileSize,extName);
         FileSystemOpt.createDirect(new File(getFileRoot() + filePath).getParent());
         FileSystemOpt.fileCopy(sourFilePath,getFileRoot() + filePath);
         return filePath;

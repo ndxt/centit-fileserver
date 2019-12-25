@@ -4,14 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
+import com.centit.support.algorithm.BooleanBaseOpt;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.network.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
@@ -65,7 +69,7 @@ public class FileClientImpl implements FileClient {
         this.fileServerExportUrl = fileServerUrl;
     }
 
-    public CloseableHttpClient getHttpClient() {
+    public CloseableHttpClient allocHttpClient() {
         try {
             return appSession.allocHttpClient();
         }catch (Exception e){
@@ -94,7 +98,7 @@ public class FileClientImpl implements FileClient {
     }
 
     public String/*文件下载url */getFileUrl(FileAccessLog aacessLog) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String url = getFileUrl(httpClient, aacessLog);
         releaseHttpClient(httpClient);
         return url;
@@ -116,7 +120,7 @@ public class FileClientImpl implements FileClient {
 
     @Override
     public String applyUploadFiles(int maxUploadFiles) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String uploadToken = applyUploadFiles(httpClient, maxUploadFiles);
         releaseHttpClient(httpClient);
         return uploadToken;
@@ -144,14 +148,14 @@ public class FileClientImpl implements FileClient {
     }
 
     public String getAttachFileUrl(String fileId, int expireTime) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String url = getAttachFileUrl(httpClient, fileId, expireTime);
         releaseHttpClient(httpClient);
         return url;
     }
 
     public String getFileUrl(String fileId, int expireTime) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String url = getFileUrl(httpClient, fileId, expireTime);
         releaseHttpClient(httpClient);
         return url;
@@ -175,14 +179,14 @@ public class FileClientImpl implements FileClient {
     }
 
     public String getAttachFileUrlLimitTimes(String fileId, int downloadTime) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String url = getAttachFileUrlLimitTimes(httpClient, fileId, downloadTime);
         releaseHttpClient(httpClient);
         return url;
     }
 
     public String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         String url = getFileUrlLimitTimes(httpClient, fileId, downloadTime);
         releaseHttpClient(httpClient);
         return url;
@@ -213,7 +217,7 @@ public class FileClientImpl implements FileClient {
     }
 
     public boolean updateFileInfo(FileInfo fi) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         boolean upres = updateFileInfo(httpClient, fi);
         releaseHttpClient(httpClient);
         return upres;
@@ -242,7 +246,7 @@ public class FileClientImpl implements FileClient {
     }
 
     public FileInfo uploadFile(FileInfo fi, File file) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         FileInfo upres = uploadFile(httpClient, fi, file);
         releaseHttpClient(httpClient);
         return upres;
@@ -266,7 +270,7 @@ public class FileClientImpl implements FileClient {
     }
 
     public long getFileRangeStart(String fileMd5, long fileSize) throws IOException{
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         long rs = getFileRangeStart(httpClient,fileMd5,fileSize);
         releaseHttpClient(httpClient);
         return rs;
@@ -279,7 +283,7 @@ public class FileClientImpl implements FileClient {
     }
 
     public long getFileRangeStart(File file) throws IOException{
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         long rs = getFileRangeStart(httpClient,file);
         releaseHttpClient(httpClient);
         return rs;
@@ -349,26 +353,25 @@ public class FileClientImpl implements FileClient {
     }
 
     public FileInfo uploadFileRange(FileInfo fi, File file, long rangeStart, long rangeSize) throws IOException{
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         FileInfo upres = uploadFileRange(httpClient, fi, file, rangeStart, rangeSize);
         releaseHttpClient(httpClient);
         return upres;
     }
 
     public FileInfo getFileInfo(String fileId) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         FileInfo fileInfo = getFileInfo(httpClient, fileId);
         releaseHttpClient(httpClient);
         return fileInfo;
     }
 
-    public void downloadFileRange(CloseableHttpClient httpClient,
-                                  String fileId, int offset, int length, String filePath) throws IOException {
-        //CloseableHttpClient httpClient = appSession.getHttpClient();
+    private void innerDownloadFileRange(CloseableHttpClient httpClient,
+                                  String downFileUrl, int offset, int length, String filePath) throws IOException {
+        //CloseableHttpClient httpClient = appSession.allocHttpClient();
         appSession.checkAccessToken(httpClient);
 
-        HttpGet httpGet = new HttpGet(
-                appSession.completeQueryUrl("/download/pfile/" + fileId));
+        HttpGet httpGet = new HttpGet(appSession.completeQueryUrl(downFileUrl));
 
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             if (offset > -1 && length > 0) {
@@ -376,22 +379,27 @@ public class FileClientImpl implements FileClient {
             }
             Header[] contentTypeHeader = response.getHeaders("Content-Type");
             if (contentTypeHeader == null || contentTypeHeader.length < 1
-                    ) {
+            ) {
                 String responseContent = Utf8ResponseHandler.INSTANCE
-                        .handleResponse(response);
+                    .handleResponse(response);
                 logger.error(responseContent);
             }
             try (InputStream inputStream = InputStreamResponseHandler.INSTANCE
-                    .handleResponse(response)) {
+                .handleResponse(response)) {
                 FileSystemOpt.createFile(inputStream, filePath);
             }
         }
+    }
         //appSession.releaseHttpClient(httpClient);
+    @Override
+    public void downloadFileRange(CloseableHttpClient httpClient,
+            String fileId, int offset, int length, String filePath) throws IOException {
+        innerDownloadFileRange(httpClient, "/download/pfile/" + fileId, offset, length, filePath);
     }
 
 
     public void downloadFileRange(String fileId, int offset, int length, String filePath) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         downloadFileRange(httpClient, fileId, offset, length, filePath);
         releaseHttpClient(httpClient);
     }
@@ -403,9 +411,45 @@ public class FileClientImpl implements FileClient {
 
     @Override
     public void downloadFile(String fileId, String filePath) throws IOException {
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = allocHttpClient();
         downloadFileRange(httpClient, fileId, -1, -1, filePath);
         releaseHttpClient(httpClient);
     }
 
+    @Override
+    public String storeFile(InputStream file) throws IOException{
+        CloseableHttpClient httpClient = allocHttpClient();
+        String jsonStr = HttpExecutor.inputStreamUpload(HttpExecutorContext.create(httpClient),
+            appSession.completeQueryUrl("/store/upload"),
+            file);
+        try {
+            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            releaseHttpClient(httpClient);
+            return resJson.getDataAsString("fileId");
+        }catch(Exception e){
+            releaseHttpClient(httpClient);
+            logger.error("解析返回json串失败",e);
+            throw new ObjectException(jsonStr, "解析返回json串失败");
+        }
+    }
+
+    @Override
+    public boolean checkFileExists(String fileMd5,long fileSize) throws IOException{
+        CloseableHttpClient httpClient = allocHttpClient();
+        String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
+            appSession.completeQueryUrl("/store/exists"),
+            CollectionsOpt.createHashMap("token", fileMd5, "size", fileSize));
+        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+        return BooleanBaseOpt.castObjectToBoolean(resJson.getData());
+    }
+
+    @Override
+    public File getFile(String md5SizeExt) throws IOException{
+        Pair<String, Long> filePair = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
+        String filePath = SystemTempFileUtils.getTempFilePath(filePair.getLeft(), filePair.getRight());
+        CloseableHttpClient httpClient = allocHttpClient();
+        innerDownloadFileRange(httpClient, "/store/download/" + md5SizeExt, -1, -1, filePath);
+        releaseHttpClient(httpClient);
+        return new File(filePath);
+    }
 }

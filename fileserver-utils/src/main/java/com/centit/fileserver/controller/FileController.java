@@ -60,6 +60,7 @@ public abstract class FileController extends BaseController {
     protected Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request) throws IOException {
         return UploadDownloadUtils.fetchInputStreamFromMultipartResolver(request);
     }
+
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      * @param token token
@@ -70,7 +71,7 @@ public abstract class FileController extends BaseController {
     @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,
         allowedHeaders="*", methods= RequestMethod.GET)
     @RequestMapping(value="/exists", method = RequestMethod.GET)
-    public void checkFileExists(String  token,long size, HttpServletResponse response) {
+    public void checkFileExists(String token, long size, HttpServletResponse response) {
         JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
     }
 
@@ -264,7 +265,7 @@ public abstract class FileController extends BaseController {
             fileName = urips[n-1];
         }
 
-        Pair<String, Long> md5Size = UploadDownloadUtils.fetchMd5andSize(md5SizeExt);
+        Pair<String, Long> md5Size = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
         InputStream inputStream = fileStore.loadFileStream(md5Size.getLeft(), md5Size.getRight());
         UploadDownloadUtils.downFileRange(request, response,
             inputStream,  md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName));
