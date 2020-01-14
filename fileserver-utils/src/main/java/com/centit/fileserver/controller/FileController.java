@@ -172,6 +172,7 @@ public abstract class FileController extends BaseController {
         }
 
         FileRangeInfo range = FileRangeInfo.parseRange(request);
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
         long tempFileSize= SystemTempFileUtils.checkTempFileSize(tempFilePath);
         if(tempFileSize < size) {//文件还没有传输完成
