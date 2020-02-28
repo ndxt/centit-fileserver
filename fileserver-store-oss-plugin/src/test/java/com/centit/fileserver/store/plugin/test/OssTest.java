@@ -12,7 +12,7 @@ public class OssTest {
     public static void main(String[] args) throws IOException {
         OSSClient ossc = new OSSClient("oss-cn-shanghai.aliyuncs.com",
                 //"5adzw3sGtcPeQMjm","LldMVUMuemMoJ7YEVBxZ3pXsWxY63T");
-        "LTAI9QEcfHf7VrSE","fYHyfoehaUS48tv53XEh3tihHx4hsN");
+        "","");
 
         OSSObject oobj = ossc.getObject("centit-pub", "image2016-9-22 14-13-24.png");
 
