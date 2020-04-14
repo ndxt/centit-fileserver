@@ -1,7 +1,7 @@
 package com.centit.fileserver.demo.fileserverclient;
 
 import com.alibaba.fastjson.JSON;
-import com.centit.fileserver.client.DefaultFileClient;
+import com.centit.fileserver.client.FileClientImpl;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.framework.appclient.AppSession;
@@ -18,13 +18,13 @@ public class TestFileClient {
     private static Logger logger = LoggerFactory.getLogger(TestFileClient.class);
 
     private static AppSession appSession;
-    private static DefaultFileClient fileClient;
+    private static FileClientImpl fileClient;
     private static final String fileId= "402805b85779c1b2015779c22ac30000";
     //http://codefanbook:8180/product-uploader/service/download/pfile/402805b85779c1b2015779c22ac30000
 
     public static void init(){
         appSession = new AppSession("http://codefanpc:8180/product-file",false,"u0000000","000000");
-        fileClient = new DefaultFileClient();
+        fileClient = new FileClientImpl();
         fileClient.setAppSession(appSession);
         fileClient.setFileServerExportUrl("http://codefanpc:8180/product-file");
     }
@@ -105,7 +105,7 @@ public class TestFileClient {
     public static void testDownloadFileInfo() {
         CloseableHttpClient httpClient = null;
         try {
-            httpClient = fileClient.getHttpClient();
+            httpClient = fileClient.allocHttpClient();
             fileClient.downloadFile(httpClient, fileId, "D:\\Projects\\RunData\\temp\\download.zip");
         }catch(Exception e){
             logger.error(e.getMessage(), e);
