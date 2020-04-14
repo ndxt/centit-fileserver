@@ -40,6 +40,8 @@ spec:
           mountPath: /etc/localtime
         - name: tomcat-logs
           mountPath: /usr/local/tomcat/logs
+        - name: file-home
+          mountPath: /D/Projects/RunData/file_home         
         ports:
         - containerPort: 8080
       imagePullSecrets:
@@ -51,3 +53,6 @@ spec:
       - name: tomcat-logs
         hostPath:
           path: /data/tomcat/logs
+      - name: file-home
+        hostPath:
+          path: /data/file_home
