@@ -19,16 +19,15 @@ import java.util.*;
 public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
 
     public Map<String, String> getFilterField() {
-        if( filterField == null){
-            filterField = new HashMap<>();
+        Map<String, String> filterField = new HashMap<>();
 
-            filterField.put("groupId" , CodeBook.EQUAL_HQL_ID);
-            filterField.put("isValid" , CodeBook.EQUAL_HQL_ID);
-            filterField.put("files", " fileId in (?) ");
-            filterField.put("fileName",CodeBook.EQUAL_HQL_ID);
-            filterField.put("fileShowPath",CodeBook.EQUAL_HQL_ID);
-            filterField.put("fileState",CodeBook.EQUAL_HQL_ID);
-        }
+        filterField.put("groupId" , CodeBook.EQUAL_HQL_ID);
+        filterField.put("isValid" , CodeBook.EQUAL_HQL_ID);
+        filterField.put("files", " fileId in (?) ");
+        filterField.put("fileName",CodeBook.EQUAL_HQL_ID);
+        filterField.put("fileShowPath",CodeBook.EQUAL_HQL_ID);
+        filterField.put("fileState",CodeBook.EQUAL_HQL_ID);
+
         return filterField;
     }
 

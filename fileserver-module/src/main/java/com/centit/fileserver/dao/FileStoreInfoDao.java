@@ -12,11 +12,8 @@ import java.util.Map;
 public class FileStoreInfoDao extends BaseDaoImpl<FileStoreInfo, String> {
 
     public Map<String, String> getFilterField() {
-        if( filterField == null){
-            filterField = new HashMap<>();
-
-            filterField.put("fileMd5" , CodeBook.EQUAL_HQL_ID);
-        }
+        Map<String, String> filterField = new HashMap<>();
+        filterField.put("fileMd5" , CodeBook.EQUAL_HQL_ID);
         return filterField;
     }
 }

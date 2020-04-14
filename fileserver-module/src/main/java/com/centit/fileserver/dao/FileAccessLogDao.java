@@ -13,11 +13,8 @@ import java.util.Map;
 public class FileAccessLogDao extends BaseDaoImpl<FileAccessLog, String> {
 
     public Map<String, String> getFilterField() {
-        if( filterField == null){
-            filterField = new HashMap<String, String>();
-
-            filterField.put("fileId" , CodeBook.EQUAL_HQL_ID);
-        }
+        Map<String, String> filterField = new HashMap<String, String>();
+        filterField.put("fileId" , CodeBook.EQUAL_HQL_ID);
         return filterField;
     }
 
