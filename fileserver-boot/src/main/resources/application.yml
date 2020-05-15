@@ -9,7 +9,7 @@ spring:
   datasource:
     type: org.apache.commons.dbcp2.BasicDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.134.7:3306:3306/file_server?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.134.7:3306/file_server?useUnicode=true&characterEncoding=utf-8
     username: filesvr
     password: filesvr
     dbcp2:
