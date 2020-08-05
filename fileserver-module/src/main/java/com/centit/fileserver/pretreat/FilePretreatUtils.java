@@ -33,12 +33,12 @@ public class FilePretreatUtils {
      * @param pdfFile PDF文件
      * @return 布尔值
      */
-    public static boolean office2Pdf(String inputFile, String pdfFile) {
-        return OfficeToPdf.office2Pdf(inputFile, pdfFile);
+    public static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
+        return AbstractOfficeToPdf.office2Pdf(inputFile, pdfFile);
     }
 
-    public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) {
-        return OfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
+    public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) throws Exception {
+        return AbstractOfficeToPdf.office2Pdf(suffix, inputFile, pdfFile);
 //        return OfficeToPdf.office2Pdf(suffix, "D:" + inputFile, "D:" + pdfFile); // for Windows
     }
 
@@ -154,7 +154,7 @@ public class FilePretreatUtils {
         return encrypted;
     }
 
-    public static String createPdf(FileInfo fileInfo, String sourceFilePath) throws IOException {
+    public static String createPdf(FileInfo fileInfo, String sourceFilePath) throws Exception {
         String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
         if (office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
             updateCommonFileInfo(fileInfo, pdfTmpFile);

@@ -1,9 +1,7 @@
 package com.centit.test;
 
-import com.centit.support.file.FileMD5Maker;
 
-import java.io.File;
-import java.io.IOException;
+import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 
 public class TestToPdf {
 
@@ -11,14 +9,30 @@ public class TestToPdf {
     /**
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 //        FilePretreatUtils.office2Pdf("D:/temp/复星集团.doc", "D:/temp/复星集团.pdf");
 //        Watermark4Pdf.addWatermark4Pdf("D:\\test.pdf", "D:\\out.pdf", "success", 0.4f, 45f, 60f);
-        try {
-            System.out.println(FileMD5Maker.makeFileMD5(new File("D:\\D\\Projects\\RunData\\file_home\\temp\\35821f7d75bda6b08420ac5e9672069a1.pdf")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//
+////            System.out.println(FileMD5Maker.makeFileMD5(new File("D:\\D\\Projects\\RunData\\file_home\\temp\\35821f7d75bda6b08420ac5e9672069a1.pdf")));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        AbstractOfficeToPdf.excel2Pdf("C:\\Users\\zhf\\Postman\\files\\1.xls","C:\\Users\\zhf\\Postman\\files\\3.html");
+        AbstractOfficeToPdf.word2Pdf("C:\\Users\\zhf\\Postman\\files\\test.doc","C:\\Users\\zhf\\Postman\\files\\5.pdf");
+        AbstractOfficeToPdf.ppt2Pdf("C:\\Users\\zhf\\Postman\\files\\1.pptx","C:\\Users\\zhf\\Postman\\files\\6.html");
+//        String pathOfXls = "C:\\Users\\zhf\\Postman\\files\\2.xlsx";
+//        String pathOfPdf = "C:\\Users\\zhf\\Postman\\files\\2.pdf";
+//
+//        FileInputStream fis = new FileInputStream(pathOfXls);
+//        List<ExcelObject> objects = new ArrayList<ExcelObject>();
+//        objects.add(new ExcelObject("导航1",fis));
+//        FileOutputStream fos = new FileOutputStream(pathOfPdf);
+//        Excel2Pdf pdf = new Excel2Pdf(objects, fos);
+//        pdf.convert();
+
+
     }
+
 
 }

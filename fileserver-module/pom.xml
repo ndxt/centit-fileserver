@@ -41,7 +41,10 @@
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-jdbc</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.centit.support</groupId>
+            <artifactId>centit-report-utils</artifactId>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.centit.support</groupId>-->
             <!--<artifactId>centit-office</artifactId>-->
@@ -85,15 +88,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
-        <!-- java操作office转pdf-->
-        <dependency>
-            <groupId>com.hynnet</groupId>
-            <artifactId>jacob</artifactId>
-        </dependency>
-
-        <!--com.lowagie itext 4.2.1 相当有 itextpdf的5.5.6，同时
-         它将覆盖 com.lowagie 2.1.7 -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
@@ -103,6 +97,15 @@
             <artifactId>itext-asian</artifactId>
             <version>${itext-asian.version}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.16</version>
+        </dependency>
+
+
     </dependencies>
 
 </project>

@@ -5,6 +5,7 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.support.algorithm.StringBaseOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(null==fileInfo) {
+            return;
+        }
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {
             String pdfTempFile = FilePretreatUtils.createPdf(fileInfo, originalTempFilePath);
@@ -40,6 +44,8 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
             }
         } catch (IOException e) {
             logger.error("生成PDF文件出错！" + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
