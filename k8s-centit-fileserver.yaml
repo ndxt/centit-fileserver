@@ -31,8 +31,6 @@ spec:
       labels:
         app: fileserver-web
     spec:
-      nodeSelector:
-        type: database
       containers:
       - name: fileserver-web
         image: 172.29.0.13:8082/fileserver-web:<BUILD_TAG>
