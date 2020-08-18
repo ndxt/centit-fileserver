@@ -2,6 +2,7 @@ package com.centit.fileserver.po;
 
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@Data
 @Table(name= "FILE_UPLOAD_AUTHORIZED")
 public class FileUploadAuthorized implements Serializable {
 
@@ -38,43 +40,4 @@ public class FileUploadAuthorized implements Serializable {
         restUploadFiles = 1;
     }
 
-    public String getUploadToken() {
-        return uploadToken;
-    }
-
-    public void setUploadToken(String uploadToken) {
-        this.uploadToken = uploadToken;
-    }
-
-    public Integer getMaxUploadFiles() {
-        return maxUploadFiles;
-    }
-
-    public void setMaxUploadFiles(Integer maxUploadFiles) {
-        this.maxUploadFiles = maxUploadFiles;
-    }
-
-    public Integer getRestUploadFiles() {
-        return restUploadFiles;
-    }
-
-    public void setRestUploadFiles(Integer restUploadFiles) {
-        this.restUploadFiles = restUploadFiles;
-    }
-
-    public Date getCraeteTime() {
-        return craeteTime;
-    }
-
-    public void setCraeteTime(Date craeteTime) {
-        this.craeteTime = craeteTime;
-    }
-
-    public Date getLastUploadTime() {
-        return lastUploadTime;
-    }
-
-    public void setLastUploadTime(Date lastUploadTime) {
-        this.lastUploadTime = lastUploadTime;
-    }
 }

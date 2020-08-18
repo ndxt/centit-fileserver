@@ -4,6 +4,7 @@ import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
+import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
 @Entity
+@Data
 @Table(name= "FILE_ACCESS_LOG")
 public class FileAccessLog implements Serializable {
 
@@ -53,9 +55,6 @@ public class FileAccessLog implements Serializable {
     @Column(name="LAST_ACCESS_HOST")
     private String lastAccessHost;
 
-    public FileAccessLog(){
-
-    }
 
     /**
      * 下载附属文件
@@ -73,88 +72,10 @@ public class FileAccessLog implements Serializable {
             return false;
         return true;
     }
-    public String getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
-    }
-
-    public Date getAuthTime() {
-        return authTime;
-    }
-
-    public void setAuthTime(Date authTime) {
-        this.authTime = authTime;
-    }
-
-    public String getAccessUsercode() {
-        return accessUsercode;
-    }
-
-    public void setAccessUsercode(String accessUsercode) {
-        this.accessUsercode = accessUsercode;
-    }
-
-    public String getAccessUsename() {
-        return accessUsename;
-    }
-
-    public void setAccessUsename(String accessUsename) {
-        this.accessUsename = accessUsename;
-    }
-
-    public String getAccessRight() {
-        return accessRight;
-    }
-
-    public void setAccessRight(String accessRight) {
-        this.accessRight = accessRight;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public Date getTokenExpireTime() {
-        return tokenExpireTime;
-    }
-
-    public void setTokenExpireTime(Date tokenExpireTime) {
-        this.tokenExpireTime = tokenExpireTime;
-    }
-
-    public Integer getAccessTimes() {
-        return accessTimes;
-    }
 
     public Integer chargeAccessTimes() {
         if(accessTimes != null)
             accessTimes -= 1;
         return accessTimes;
-    }
-    public void setAccessTimes(Integer accessTimes) {
-        this.accessTimes = accessTimes;
-    }
-
-    public Date getLastAccessTime() {
-        return lastAccessTime;
-    }
-
-    public void setLastAccessTime(Date lastAccessTime) {
-        this.lastAccessTime = lastAccessTime;
-    }
-
-    public String getLastAccessHost() {
-        return lastAccessHost;
-    }
-
-    public void setLastAccessHost(String lastAccessHost) {
-        this.lastAccessHost = lastAccessHost;
     }
 }
