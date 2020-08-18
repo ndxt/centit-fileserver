@@ -17,6 +17,8 @@ import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.security.Md5Encoder;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 
 @Controller
 @RequestMapping("/download")
+@Api(value = "文件下载", tags = "文件下载")
 public class DownloadController extends BaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
@@ -106,6 +109,7 @@ public class DownloadController extends BaseController {
      * @throws IOException 异常
      */
     @RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id下载附属文件")
     public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
 
@@ -145,6 +149,7 @@ public class DownloadController extends BaseController {
      * @throws IOException IOException
      */
     @RequestMapping(value= "/pfile/{fileId}", method=RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id下载文件")
     public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
@@ -162,6 +167,7 @@ public class DownloadController extends BaseController {
      * @throws IOException IOException
      */
     @RequestMapping(value= "/file/{token}", method=RequestMethod.GET)
+    @ApiOperation(value = "根据文件token下载文件")
     public void downloadByAccessToken(
             @PathVariable("token") String token, HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -195,6 +201,7 @@ public class DownloadController extends BaseController {
      * @throws IOException IOException
      */
     @RequestMapping(value= "/attach/{token}", method=RequestMethod.GET)
+    @ApiOperation(value = "根据文件的token下载附属文件")
     public void downloadAttachByAccessToken(
             @PathVariable("token") String token, HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -251,6 +258,7 @@ public class DownloadController extends BaseController {
      * @throws IOException 异常
      */
     @RequestMapping(value= "/batchdownload", method=RequestMethod.GET)
+    @ApiOperation(value = "批量下载文件")
     public void batchDownloadFile(String[] fileIds,
                                         String fileName,
                                         HttpServletRequest request,

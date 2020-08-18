@@ -17,6 +17,7 @@ drop table if exists file_library_info;
 drop table if exists file_favorite;
 
 drop table if exists file_store_info;
+drop table if exists file_upload_authorized;
 
 /*==============================================================*/
 /* Table: file_access_log                                       */
@@ -147,5 +148,14 @@ create table file_store_info
    is_temp              varchar(1) comment '是否临时文件',
    create_time          datetime comment '创建时间',
    primary key (file_md5)
+);
+create table file_upload_authorized
+(
+   upload_token         varchar(32) not null,
+   max_upload_files     decimal(10) not null,
+   rest_upload_files    decimal(10),
+   create_time          datetime,
+   last_upload_time     datetime,
+   primary key (upload_token)
 );
 

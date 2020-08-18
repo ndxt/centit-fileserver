@@ -16,6 +16,8 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.model.basedata.IUserInfo;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -38,6 +40,7 @@ import java.net.URLDecoder;
  */
 @Controller
 @RequestMapping("/local")
+@Api(value = "本地文件控制器", tags = "本地文件控制器")
 public class LocalFileController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(LocalFileController.class);
@@ -65,6 +68,7 @@ public class LocalFileController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/catalog", method = RequestMethod.GET)
+    @ApiOperation(value = "获取当前用户的文件类别")
     public void getFileCatalog(HttpServletRequest request, HttpServletResponse response) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
         JsonResultUtils.writeSingleDataJson(localFileManager.listUserUnit(userCode), response);
@@ -144,6 +148,7 @@ public class LocalFileController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/userdir/**", method = RequestMethod.GET)
+    @ApiOperation(value = "获取个人文件列表")
     public void listUserFiles(HttpServletRequest request,
                               HttpServletResponse response) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
@@ -165,6 +170,7 @@ public class LocalFileController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/unitdir/**", method = RequestMethod.GET)
+    @ApiOperation(value = "获取机构文件列表")
     public void listUnitFiles(HttpServletRequest request,
                               HttpServletResponse response) {
         try {
@@ -191,6 +197,7 @@ public class LocalFileController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/userfile/**", method = RequestMethod.GET)
+    @ApiOperation(value = "获取个人文件版本信息")
     public void listUserFileVersion(HttpServletRequest request, HttpServletResponse response) {
         try {
             String userCode = WebOptUtils.getCurrentUserCode(request);
@@ -216,6 +223,7 @@ public class LocalFileController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/unitfile/**", method = RequestMethod.GET)
+    @ApiOperation(value = "获取机构文件版本信息")
     public void listUnitFileVersion(HttpServletRequest request,
                                     HttpServletResponse response) {
         try {
@@ -271,6 +279,7 @@ public class LocalFileController extends BaseController {
      * @throws IOException IOException
      */
     @RequestMapping(value = "/download/{fileId}", method = RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id下载文件")
     public void downloadFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                              HttpServletResponse response) throws IOException {
 

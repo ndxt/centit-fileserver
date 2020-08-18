@@ -77,7 +77,7 @@ public class FileLibraryAccessController  extends BaseController {
 	@WrapUpResponseBody
     public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess, HttpServletResponse response) {
     	fileLibraryAccessMag.createFileLibraryAccess(fileLibraryAccess);
-        JsonResultUtils.writeSingleDataJson(fileLibraryAccess.getAccessId(),response);
+        JsonResultUtils.writeSingleDataJson(fileLibraryAccess,response);
     }
 
     /**

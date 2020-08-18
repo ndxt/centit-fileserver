@@ -78,7 +78,7 @@ public class FileFavoriteController  extends BaseController {
 	@WrapUpResponseBody
     public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletResponse response) {
     	fileFavoriteMag.createFileFavorite(fileFavorite);
-        JsonResultUtils.writeSingleDataJson(fileFavorite.getFavoriteId(),response);
+        JsonResultUtils.writeSingleDataJson(fileFavorite,response);
     }
 
     /**

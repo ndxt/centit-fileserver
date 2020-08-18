@@ -77,7 +77,7 @@ public class FileFolderInfoController  extends BaseController {
 	@WrapUpResponseBody
     public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletResponse response) {
     	fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeSingleDataJson(fileFolderInfo.getFolderId(),response);
+        JsonResultUtils.writeSingleDataJson(fileFolderInfo,response);
     }
 
     /**

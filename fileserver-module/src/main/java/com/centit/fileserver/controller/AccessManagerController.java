@@ -17,6 +17,8 @@ import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringRegularOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.database.utils.PageDesc;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/access")
+@Api(value = "文件授权日志", tags = "文件授权日志")
 public class AccessManagerController extends BaseController {
     protected Logger logger = LoggerFactory.getLogger(AccessManagerController.class);
 
@@ -62,21 +65,18 @@ public class AccessManagerController extends BaseController {
     }
 
     @RequestMapping(value="/apply", method = RequestMethod.POST)
+    @ApiOperation(value = "新增文件授权")
     public void accessFile(@Valid FileAccessLog accessLog , HttpServletResponse response) throws Exception{
         JsonResultUtils.writeOriginalObject(
             applyAccess(accessLog), response);
     }
 
-    @RequestMapping(value="/japply", method = RequestMethod.POST )//, headers="content-type=application/json")
-    @ResponseBody
-    public ResponseSingleData accessFileByJson(@RequestBody FileAccessLog accessLog) throws Exception{
-        //return applyAccess(JSON.parseObject(accessLog,FileAccessLog.class));
-        return applyAccess(accessLog);
-    }
+
 
     @RequestMapping(value="/log/{token}", method = RequestMethod.GET)
+    @ApiOperation(value = "查询单个授权")
     public void getAccessLog(@PathVariable("token") String token,
-            HttpServletRequest request, HttpServletResponse response){
+             HttpServletResponse response){
 
         FileAccessLog accessLog = fileAccessLogManager.getObjectById(token);
         if(accessLog !=null){
@@ -88,6 +88,7 @@ public class AccessManagerController extends BaseController {
     }
 
     @RequestMapping(value="/list", method = RequestMethod.GET)
+    @ApiOperation(value = "查询所有授权列表")
     public void listAccessLog( PageDesc pageDesc,
             HttpServletRequest request, HttpServletResponse response){
 
@@ -101,38 +102,11 @@ public class AccessManagerController extends BaseController {
         JsonResultUtils.writeResponseDataAsJson(resData, response);
     }
 
-    @RequestMapping(value="/list/{fileId}", method = RequestMethod.GET)
-    public void listAccessLogByFileId(@PathVariable("fileId") String fileId, PageDesc pageDesc,
-            HttpServletRequest request, HttpServletResponse response){
-
-        Map<String, Object> filterMap = BaseController.collectRequestParameters(request);
-        filterMap.put("fileId", fileId);
-
-        JSONArray listObjects = fileAccessLogManager.listObjectsAsJson(filterMap, pageDesc);
-        ResponseMapData resData = new ResponseMapData();
-        resData.addResponseData(OBJLIST, listObjects);
-        resData.addResponseData(PAGE_DESC, pageDesc);
-
-        JsonResultUtils.writeResponseDataAsJson(resData, response);
-    }
-
     @RequestMapping(value="/applyUpload", method = RequestMethod.POST)
+    @ApiOperation(value = "新增文件上传授权")
     public void applyUploadFiles(HttpServletResponse response) throws Exception{
         FileUploadAuthorized authorized = fileUploadAuthorizedManager.createNewAuthorization(1);
         JsonResultUtils.writeSingleDataJson(
                 authorized, response);
     }
-
-    @RequestMapping(value="/applyUpload/{maxFiles}", method = RequestMethod.POST)
-    public void applyUploadManyFiles( @PathVariable("maxFiles") String maxFiles, HttpServletResponse response) throws Exception{
-        int maxUploadFiles = 1;
-        if(StringRegularOpt.isNumber(maxFiles)){
-            maxUploadFiles = NumberBaseOpt.castObjectToInteger(maxFiles);
-        }
-        FileUploadAuthorized authorized =
-                fileUploadAuthorizedManager.createNewAuthorization(maxUploadFiles);
-        JsonResultUtils.writeSingleDataJson(
-                authorized, response);
-    }
-
 }

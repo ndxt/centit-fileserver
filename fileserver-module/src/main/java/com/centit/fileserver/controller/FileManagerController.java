@@ -12,6 +12,8 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
 import com.centit.support.database.utils.PageDesc;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/files")
+@Api(value = "文件管理", tags = "文件管理")
 public class FileManagerController extends BaseController {
 
     private Logger logger = LoggerFactory.getLogger(FileManagerController.class);
@@ -51,6 +54,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "根据文件的id逻辑删除文件(同时删除文件和数据库记录)")
     public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
@@ -70,6 +74,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/force/{fileId}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "根据文件的id物理删除文件(同时删除文件和数据库记录)")
     public void deleteForce(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
@@ -101,6 +106,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/{fileId}",method = RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id获取文件存储信息")
     public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletResponse response){
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
@@ -138,6 +144,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/{fileId}",method = RequestMethod.POST)
+    @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照表单的形式传送")
     public void postFileStoreInfo(@PathVariable("fileId") String fileId,
             @Valid FileInfo fileInfo, HttpServletResponse response){
         fileInfo.setFileId(fileId);
@@ -151,6 +158,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/j/{fileId}",method = RequestMethod.POST)
+    @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照json的形式传送")
     public void jsonpostFileStoreInfo(@PathVariable("fileId") String fileId,
             @RequestBody FileInfo fileInfo, HttpServletResponse response){
         fileInfo.setFileId(fileId);
@@ -164,6 +172,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(method = RequestMethod.GET)
+    @ApiOperation(value = "根据相关的条件查询文件")
     public void listStroedFiles( PageDesc pageDesc,
             HttpServletRequest request, HttpServletResponse response) {
 
@@ -184,6 +193,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/oss",method = RequestMethod.GET)
+    @ApiOperation(value = "获取系统中的所有OS")
     public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
         List<OsInfo> osinfoList = integrationEnvironment.listOsInfos();
         JsonResultUtils.writeSingleDataJson(osinfoList, response);
@@ -196,6 +206,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/optids/{osId}",method = RequestMethod.GET)
+    @ApiOperation(value = "获取系统所有操作")
     public void listOptsByOs(@PathVariable("osId") String osId,
                              HttpServletResponse response) {
         JSONArray listObjects = fileInfoManager.listOptsByOs(osId);
@@ -210,6 +221,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/owner/{osId}/{optId}",method = RequestMethod.GET)
+    @ApiOperation(value = "获取系统所有文件属主")
     public void listFileOwners(@PathVariable("osId") String osId,
                              @PathVariable("optId") String optId,
                              HttpServletResponse response) {
@@ -225,6 +237,7 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
     @RequestMapping(value = "/files/{osId}/{optId}/{owner}",method = RequestMethod.GET)
+    @ApiOperation(value = "获取系统所有文件")
     public void listFilesByOwner(@PathVariable("osId") String osId,
                                @PathVariable("optId") String optId,
                                  @PathVariable("owner") String owner,

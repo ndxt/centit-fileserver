@@ -80,7 +80,7 @@ public class FileLibraryInfoController extends BaseController {
     @WrapUpResponseBody
     public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletResponse response) {
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
-        JsonResultUtils.writeSingleDataJson(fileLibraryInfo.getLibraryId(), response);
+        JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
 
     /**
