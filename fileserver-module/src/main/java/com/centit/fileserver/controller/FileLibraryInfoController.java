@@ -30,7 +30,7 @@ import java.util.Map;
 
 
 @Controller
-@RequestMapping("/casemanagement/filelibraryinfo")
+@RequestMapping("library")
 @Api(value = "FILE_LIBRARY_INFO", tags = "文件库信息")
 public class FileLibraryInfoController extends BaseController {
 

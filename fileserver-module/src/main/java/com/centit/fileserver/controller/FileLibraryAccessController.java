@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 @Controller
-@RequestMapping("/casemanagement/filelibraryaccess")
+@RequestMapping("/libraryaccess")
 @Api(value = "FILE_LIBRARY_ACCESS", tags = "项目库授权信息")
 public class FileLibraryAccessController  extends BaseController {
 
