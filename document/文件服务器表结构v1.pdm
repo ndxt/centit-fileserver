@@ -2734,8 +2734,8 @@ Shadow=0</a:DisplayPreferences>
 <o:ReferenceSymbol Id="o9">
 <a:CreationDate>1597649310</a:CreationDate>
 <a:ModificationDate>1597713256</a:ModificationDate>
-<a:Rect>((-54276,5945), (-45560,17714))</a:Rect>
-<a:ListOfPoints>((-54276,5945),(-45560,17714))</a:ListOfPoints>
+<a:Rect>((-54276,5945), (-45560,17647))</a:Rect>
+<a:ListOfPoints>((-54276,5945),(-45560,17647))</a:ListOfPoints>
 <a:ArrowStyle>1</a:ArrowStyle>
 <a:LineColor>12615680</a:LineColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -2753,8 +2753,8 @@ Shadow=0</a:DisplayPreferences>
 <o:ReferenceSymbol Id="o13">
 <a:CreationDate>1597651533</a:CreationDate>
 <a:ModificationDate>1597717686</a:ModificationDate>
-<a:Rect>((-8879,18837), (10243,31265))</a:Rect>
-<a:ListOfPoints>((10243,18837),(-8879,31265))</a:ListOfPoints>
+<a:Rect>((-8879,19084), (10243,31265))</a:Rect>
+<a:ListOfPoints>((10243,19084),(-8879,31265))</a:ListOfPoints>
 <a:ArrowStyle>1</a:ArrowStyle>
 <a:LineColor>12615680</a:LineColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -2772,8 +2772,8 @@ Shadow=0</a:DisplayPreferences>
 <o:ReferenceSymbol Id="o16">
 <a:CreationDate>1597651547</a:CreationDate>
 <a:ModificationDate>1597717783</a:ModificationDate>
-<a:Rect>((-37709,4734), (-24713,18467))</a:Rect>
-<a:ListOfPoints>((-24713,4734),(-37709,18467))</a:ListOfPoints>
+<a:Rect>((-37709,4734), (-24713,18407))</a:Rect>
+<a:ListOfPoints>((-24713,4734),(-37709,18407))</a:ListOfPoints>
 <a:ArrowStyle>1</a:ArrowStyle>
 <a:LineColor>12615680</a:LineColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -2791,8 +2791,8 @@ Shadow=0</a:DisplayPreferences>
 <o:ReferenceSymbol Id="o19">
 <a:CreationDate>1597717475</a:CreationDate>
 <a:ModificationDate>1597717656</a:ModificationDate>
-<a:Rect>((-36104,18580), (-22454,24649))</a:Rect>
-<a:ListOfPoints>((-22454,24649),(-36104,18580))</a:ListOfPoints>
+<a:Rect>((-36104,18522), (-22454,24649))</a:Rect>
+<a:ListOfPoints>((-22454,24649),(-36104,18522))</a:ListOfPoints>
 <a:ArrowStyle>1</a:ArrowStyle>
 <a:LineColor>12615680</a:LineColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -2895,8 +2895,9 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:TableSymbol>
 <o:TableSymbol Id="o11">
 <a:CreationDate>1597644525</a:CreationDate>
-<a:ModificationDate>1597713256</a:ModificationDate>
-<a:Rect>((-49718,14393), (-34940,24415))</a:Rect>
+<a:ModificationDate>1597720731</a:ModificationDate>
+<a:Rect>((-49718,14293), (-34940,24415))</a:Rect>
+<a:AutoAdjustToText>0</a:AutoAdjustToText>
 <a:LineColor>12615680</a:LineColor>
 <a:FillColor>16570034</a:FillColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -2912,6 +2913,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:BrushStyle>6</a:BrushStyle>
 <a:GradientFillMode>65</a:GradientFillMode>
 <a:GradientEndColor>16777215</a:GradientEndColor>
+<a:ManuallyResized>1</a:ManuallyResized>
 <c:Object>
 <o:Table Ref="o28"/>
 </c:Object>
@@ -2942,7 +2944,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:TableSymbol Id="o14">
 <a:CreationDate>1597645122</a:CreationDate>
 <a:ModificationDate>1597717686</a:ModificationDate>
-<a:Rect>((5056,17658), (15586,23556))</a:Rect>
+<a:Rect>((5056,18070), (15586,23144))</a:Rect>
 <a:LineColor>12615680</a:LineColor>
 <a:FillColor>16570034</a:FillColor>
 <a:ShadowColor>12632256</a:ShadowColor>
@@ -3809,11 +3811,11 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Table>
 <o:Table Id="o30">
 <a:ObjectID>114AEB45-685C-40E8-A7CB-FA424184DE15</a:ObjectID>
-<a:Name>文件操作</a:Name>
-<a:Code>file_operation</a:Code>
+<a:Name>文件收藏</a:Name>
+<a:Code>file_favorite</a:Code>
 <a:CreationDate>1597645122</a:CreationDate>
 <a:Creator>zhf</a:Creator>
-<a:ModificationDate>1597718779</a:ModificationDate>
+<a:ModificationDate>1597722192</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Columns>
 <o:Column Id="o95">
@@ -3830,55 +3832,43 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Column>
 <o:Column Id="o96">
 <a:ObjectID>AB9471E0-786B-421A-A103-AED81A06CBF6</a:ObjectID>
-<a:Name>操作id</a:Name>
-<a:Code>operation_id</a:Code>
+<a:Name>收藏id</a:Name>
+<a:Code>favorite_id</a:Code>
 <a:CreationDate>1597716598</a:CreationDate>
 <a:Creator>zhf</a:Creator>
-<a:ModificationDate>1597718779</a:ModificationDate>
+<a:ModificationDate>1597722327</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
-<a:Comment>操作id</a:Comment>
+<a:Comment>收藏id</a:Comment>
 <a:DataType>varchar(32)</a:DataType>
 <a:Length>32</a:Length>
 <a:Mandatory>1</a:Mandatory>
 </o:Column>
 <o:Column Id="o97">
-<a:ObjectID>4097F5CA-7444-4174-BD7F-3452CA649F8D</a:ObjectID>
-<a:Name>操作类型</a:Name>
-<a:Code>operation_type</a:Code>
-<a:CreationDate>1597716598</a:CreationDate>
-<a:Creator>zhf</a:Creator>
-<a:ModificationDate>1597717925</a:ModificationDate>
-<a:Modifier>zhf</a:Modifier>
-<a:Comment>类型（上传、下载、浏览、收藏、分享)</a:Comment>
-<a:DataType>varchar(1)</a:DataType>
-<a:Length>1</a:Length>
-</o:Column>
-<o:Column Id="o98">
 <a:ObjectID>95F35D8F-6EFF-42CF-9749-CC7CA9218243</a:ObjectID>
-<a:Name>操作人</a:Name>
-<a:Code>operation_user</a:Code>
+<a:Name>收藏人</a:Name>
+<a:Code>favorite_user</a:Code>
 <a:CreationDate>1597716598</a:CreationDate>
 <a:Creator>zhf</a:Creator>
-<a:ModificationDate>1597717925</a:ModificationDate>
+<a:ModificationDate>1597722327</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
-<a:Comment>操作人</a:Comment>
+<a:Comment>收藏人</a:Comment>
 <a:DataType>varchar(32)</a:DataType>
 <a:Length>32</a:Length>
 </o:Column>
-<o:Column Id="o99">
+<o:Column Id="o98">
 <a:ObjectID>55F3EA32-7D95-4C1B-916D-F09E606E3E06</a:ObjectID>
-<a:Name>操作时间</a:Name>
-<a:Code>operation_time</a:Code>
+<a:Name>收藏时间</a:Name>
+<a:Code>favorite_time</a:Code>
 <a:CreationDate>1597716598</a:CreationDate>
 <a:Creator>zhf</a:Creator>
-<a:ModificationDate>1597717925</a:ModificationDate>
+<a:ModificationDate>1597722327</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
-<a:Comment>操作时间</a:Comment>
+<a:Comment>收藏时间</a:Comment>
 <a:DataType>datetime</a:DataType>
 </o:Column>
 </c:Columns>
 <c:Keys>
-<o:Key Id="o100">
+<o:Key Id="o99">
 <a:ObjectID>1B39BD9E-2DC3-4F6B-AD22-DEDF847CF0C3</a:ObjectID>
 <a:Name>Key_1</a:Name>
 <a:Code>Key_1</a:Code>
@@ -3892,7 +3882,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Key>
 </c:Keys>
 <c:PrimaryKey>
-<o:Key Ref="o100"/>
+<o:Key Ref="o99"/>
 </c:PrimaryKey>
 </o:Table>
 <o:Table Id="o31">
@@ -3904,7 +3894,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:ModificationDate>1597714815</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Columns>
-<o:Column Id="o101">
+<o:Column Id="o100">
 <a:ObjectID>076B1254-C1A7-4A10-8F41-F1A82C9105B9</a:ObjectID>
 <a:Name>授权id</a:Name>
 <a:Code>access_id</a:Code>
@@ -3917,7 +3907,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:Length>32</a:Length>
 <a:Mandatory>1</a:Mandatory>
 </o:Column>
-<o:Column Id="o102">
+<o:Column Id="o101">
 <a:ObjectID>412861D4-856B-496A-8138-0CEB2697376C</a:ObjectID>
 <a:Name>库id</a:Name>
 <a:Code>library_id</a:Code>
@@ -3929,7 +3919,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>varchar(32)</a:DataType>
 <a:Length>32</a:Length>
 </o:Column>
-<o:Column Id="o103">
+<o:Column Id="o102">
 <a:ObjectID>B06D16F5-DC97-4D6E-8A0C-CDA25FD5E75B</a:ObjectID>
 <a:Name>被授权人员</a:Name>
 <a:Code>access_usercode</a:Code>
@@ -3941,7 +3931,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>varchar(32)</a:DataType>
 <a:Length>32</a:Length>
 </o:Column>
-<o:Column Id="o104">
+<o:Column Id="o103">
 <a:ObjectID>BD9AFD8A-A05C-4782-B3A4-BD5CDE7B9EA5</a:ObjectID>
 <a:Name>创建人</a:Name>
 <a:Code>create_user</a:Code>
@@ -3953,7 +3943,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>varchar(32)</a:DataType>
 <a:Length>32</a:Length>
 </o:Column>
-<o:Column Id="o105">
+<o:Column Id="o104">
 <a:ObjectID>6F5EC82A-4C82-40DF-AACE-4D8AF81FE32F</a:ObjectID>
 <a:Name>创建时间</a:Name>
 <a:Code>create_time</a:Code>
@@ -3966,7 +3956,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Column>
 </c:Columns>
 <c:Keys>
-<o:Key Id="o106">
+<o:Key Id="o105">
 <a:ObjectID>C03710D8-026B-4512-A362-7386B6A2CC92</a:ObjectID>
 <a:Name>Key_1</a:Name>
 <a:Code>Key_1</a:Code>
@@ -3975,12 +3965,12 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:ModificationDate>1597713253</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Key.Columns>
-<o:Column Ref="o101"/>
+<o:Column Ref="o100"/>
 </c:Key.Columns>
 </o:Key>
 </c:Keys>
 <c:PrimaryKey>
-<o:Key Ref="o106"/>
+<o:Key Ref="o105"/>
 </c:PrimaryKey>
 </o:Table>
 <o:Table Id="o32">
@@ -3992,7 +3982,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:ModificationDate>1597718720</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Columns>
-<o:Column Id="o107">
+<o:Column Id="o106">
 <a:ObjectID>596307CD-347C-451A-BBAC-503ED6896035</a:ObjectID>
 <a:Name>文件MD5</a:Name>
 <a:Code>file_md5</a:Code>
@@ -4005,7 +3995,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:Length>32</a:Length>
 <a:Mandatory>1</a:Mandatory>
 </o:Column>
-<o:Column Id="o108">
+<o:Column Id="o107">
 <a:ObjectID>2A69D3E6-ADEB-4CE4-819C-679D177BCAD2</a:ObjectID>
 <a:Name>文件存储位置</a:Name>
 <a:Code>file_store_path</a:Code>
@@ -4017,7 +4007,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>varchar(200)</a:DataType>
 <a:Length>200</a:Length>
 </o:Column>
-<o:Column Id="o109">
+<o:Column Id="o108">
 <a:ObjectID>55E05D01-5258-4608-AC56-18A23C9CF09E</a:ObjectID>
 <a:Name>文件大小</a:Name>
 <a:Code>file_size</a:Code>
@@ -4029,7 +4019,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>decimal(20)</a:DataType>
 <a:Length>20</a:Length>
 </o:Column>
-<o:Column Id="o110">
+<o:Column Id="o109">
 <a:ObjectID>CFEEB1B2-F76C-43FF-896B-35A41F77C4DA</a:ObjectID>
 <a:Name>文件引用次数</a:Name>
 <a:Code>file_reference_count</a:Code>
@@ -4041,7 +4031,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>decimal(6)</a:DataType>
 <a:Length>6</a:Length>
 </o:Column>
-<o:Column Id="o111">
+<o:Column Id="o110">
 <a:ObjectID>E0B3FDD5-91E8-4C50-BB5D-2EE60228AF2A</a:ObjectID>
 <a:Name>是否临时文件</a:Name>
 <a:Code>is_temp</a:Code>
@@ -4053,7 +4043,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:DataType>varchar(1)</a:DataType>
 <a:Length>1</a:Length>
 </o:Column>
-<o:Column Id="o112">
+<o:Column Id="o111">
 <a:ObjectID>7B31A218-C19B-473B-847A-65565147F33E</a:ObjectID>
 <a:Name>创建时间</a:Name>
 <a:Code>create_time</a:Code>
@@ -4066,7 +4056,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Column>
 </c:Columns>
 <c:Keys>
-<o:Key Id="o113">
+<o:Key Id="o112">
 <a:ObjectID>E74D3A8E-3FC6-40FC-B718-B695F034F166</a:ObjectID>
 <a:Name>Key_1</a:Name>
 <a:Code>Key_1</a:Code>
@@ -4075,12 +4065,12 @@ TableComment 0 新宋体,8,N</a:FontList>
 <a:ModificationDate>1597718013</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Key.Columns>
-<o:Column Ref="o107"/>
+<o:Column Ref="o106"/>
 </c:Key.Columns>
 </o:Key>
 </c:Keys>
 <c:PrimaryKey>
-<o:Key Ref="o113"/>
+<o:Key Ref="o112"/>
 </c:PrimaryKey>
 </o:Table>
 </c:Tables>
@@ -4106,7 +4096,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o57"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o114">
+<o:ReferenceJoin Id="o113">
 <a:ObjectID>8F6C6DF6-C1D0-473C-B817-49077677D2FF</a:ObjectID>
 <a:CreationDate>1446081716</a:CreationDate>
 <a:Creator>codefan</a:Creator>
@@ -4142,7 +4132,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o81"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o115">
+<o:ReferenceJoin Id="o114">
 <a:ObjectID>C54C30D8-C025-4F69-8B94-5BD565949747</a:ObjectID>
 <a:CreationDate>1597713262</a:CreationDate>
 <a:Creator>zhf</a:Creator>
@@ -4152,7 +4142,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Column Ref="o71"/>
 </c:Object1>
 <c:Object2>
-<o:Column Ref="o102"/>
+<o:Column Ref="o101"/>
 </c:Object2>
 </o:ReferenceJoin>
 </c:Joins>
@@ -4178,7 +4168,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o57"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o116">
+<o:ReferenceJoin Id="o115">
 <a:ObjectID>A2164F98-4443-4966-BC29-69A9E4811DCB</a:ObjectID>
 <a:CreationDate>1597651533</a:CreationDate>
 <a:Creator>zhf</a:Creator>
@@ -4214,7 +4204,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o81"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o117">
+<o:ReferenceJoin Id="o116">
 <a:ObjectID>B26A9101-0A57-44D4-84C5-04579483F974</a:ObjectID>
 <a:CreationDate>1597713262</a:CreationDate>
 <a:Creator>zhf</a:Creator>
@@ -4250,7 +4240,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o81"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o118">
+<o:ReferenceJoin Id="o117">
 <a:ObjectID>54F5AF55-73C8-4AE7-8083-D63C48D01711</a:ObjectID>
 <a:CreationDate>1597717475</a:CreationDate>
 <a:Creator>zhf</a:Creator>
@@ -4286,7 +4276,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Key Ref="o94"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o119">
+<o:ReferenceJoin Id="o118">
 <a:ObjectID>B81ED4DC-E02A-4742-A794-B2C7AF6342EC</a:ObjectID>
 <a:CreationDate>1597717638</a:CreationDate>
 <a:Creator>zhf</a:Creator>
@@ -4319,17 +4309,17 @@ TableComment 0 新宋体,8,N</a:FontList>
 <o:Table Ref="o26"/>
 </c:ChildTable>
 <c:ParentKey>
-<o:Key Ref="o113"/>
+<o:Key Ref="o112"/>
 </c:ParentKey>
 <c:Joins>
-<o:ReferenceJoin Id="o120">
+<o:ReferenceJoin Id="o119">
 <a:ObjectID>32EA39DB-EAA1-4122-98F9-C15DB81BE500</a:ObjectID>
 <a:CreationDate>1597718013</a:CreationDate>
 <a:Creator>zhf</a:Creator>
 <a:ModificationDate>1597718013</a:ModificationDate>
 <a:Modifier>zhf</a:Modifier>
 <c:Object1>
-<o:Column Ref="o107"/>
+<o:Column Ref="o106"/>
 </c:Object1>
 <c:Object2>
 <o:Column Ref="o34"/>
@@ -4339,7 +4329,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Reference>
 </c:References>
 <c:DefaultGroups>
-<o:Group Id="o121">
+<o:Group Id="o120">
 <a:ObjectID>42F3E72D-D503-4861-8113-370500658ECA</a:ObjectID>
 <a:Name>PUBLIC</a:Name>
 <a:Code>PUBLIC</a:Code>
@@ -4350,7 +4340,7 @@ TableComment 0 新宋体,8,N</a:FontList>
 </o:Group>
 </c:DefaultGroups>
 <c:TargetModels>
-<o:TargetModel Id="o122">
+<o:TargetModel Id="o121">
 <a:ObjectID>00FE533D-A63B-4BCE-8C67-6315BCA22F48</a:ObjectID>
 <a:Name>MySQL 5.0</a:Name>
 <a:Code>MYSQL50</a:Code>

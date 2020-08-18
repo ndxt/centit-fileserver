@@ -14,7 +14,7 @@ drop table if exists file_library_access;
 
 drop table if exists file_library_info;
 
-drop table if exists file_operation;
+drop table if exists file_favorite;
 
 drop table if exists file_store_info;
 
@@ -124,16 +124,15 @@ create table file_library_info
 );
 
 /*==============================================================*/
-/* Table: file_operation                                        */
+/* Table: file_favorite                                        */
 /*==============================================================*/
-create table file_operation
+create table file_favorite
 (
    file_id              varchar(32) comment '文件ID',
-   operation_id         varchar(32) not null comment '操作id',
-   operation_type       varchar(1) comment '类型（上传、下载、浏览、收藏、分享)',
-   operation_user       varchar(32) comment '操作人',
-   operation_time       datetime comment '操作时间',
-   primary key (operation_id)
+   favorite_id          varchar(32) not null comment '收藏id',
+   favorite_user        varchar(32) comment '收藏人',
+   favorite_time        datetime comment '收藏时间',
+   primary key (favorite_id)
 );
 
 /*==============================================================*/
