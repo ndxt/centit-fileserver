@@ -3,6 +3,7 @@ package com.centit.fileserver.service.impl;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
+import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.PageDesc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,30 +21,36 @@ import java.util.Map;
 */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class FileLibraryInfoManagerImpl
+public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibraryInfo, String, FileLibraryInfoDao>
+    implements FileLibraryInfoManager
 	{
 
 	private static final Logger logger = LoggerFactory.getLogger(FileLibraryInfoManager.class);
 
     @Autowired
 	private FileLibraryInfoDao fileLibraryInfoDao ;
+    @Override
     public void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo){
 		fileLibraryInfoDao.updateObject(fileLibraryInfo);
 		fileLibraryInfoDao.saveObjectReferences(fileLibraryInfo);
     }
+    @Override
     public void createFileLibraryInfo(FileLibraryInfo fileLibraryInfo){
 		fileLibraryInfoDao.saveNewObject(fileLibraryInfo);
 		fileLibraryInfoDao.saveObjectReferences(fileLibraryInfo);
     }
+    @Override
     public List<FileLibraryInfo> listFileLibraryInfo(Map<String, Object> param, PageDesc pageDesc){
 		return fileLibraryInfoDao.listObjectsByProperties(param, pageDesc);
     }
 
 
-    public  FileLibraryInfo getFileLibraryInfo( String libraryId){
+    @Override
+    public  FileLibraryInfo getFileLibraryInfo(String libraryId){
 		return fileLibraryInfoDao.getObjectById(libraryId);
     }
-    public void deleteFileLibraryInfo( String libraryId){
+    @Override
+    public void deleteFileLibraryInfo(String libraryId){
 		fileLibraryInfoDao.deleteObjectById(libraryId);
     }
 

@@ -1,6 +1,8 @@
 package com.centit.fileserver.service;
 
+import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileFavorite;
+import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.Map;
  * 文件收藏
  */
 
-public interface FileFavoriteManager {
+public interface FileFavoriteManager extends BaseEntityManager<FileFavorite, String> {
     void updateFileFavorite(FileFavorite fileFavorite);
 
     void deleteFileFavorite(String favoriteId);

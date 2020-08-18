@@ -1,6 +1,7 @@
 package com.centit.fileserver.service;
 
 import com.centit.fileserver.po.FileLibraryAccess;
+import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Map;
  * 项目库授权信息
  */
 
-public interface FileLibraryAccessManager {
+public interface FileLibraryAccessManager extends BaseEntityManager<FileLibraryAccess, String> {
     void updateFileLibraryAccess(FileLibraryAccess fileLibraryAccess);
 
 

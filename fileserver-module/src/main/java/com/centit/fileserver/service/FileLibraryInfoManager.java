@@ -1,6 +1,7 @@
 package com.centit.fileserver.service;
 
 import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.Map;
  * 文件库信息
  */
 
-public interface FileLibraryInfoManager {
+public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInfo, String> {
     void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo);
 
     void deleteFileLibraryInfo(String libraryId);

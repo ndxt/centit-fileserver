@@ -1,6 +1,7 @@
 package com.centit.fileserver.service;
 
 import com.centit.fileserver.po.FileFolderInfo;
+import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
 import java.util.List;
@@ -14,9 +15,8 @@ import java.util.Map;
  * 文件夹信息
  */
 
-public interface FileFolderInfoManager {
+public interface FileFolderInfoManager extends BaseEntityManager<FileFolderInfo, String> {
     void updateFileFolderInfo(FileFolderInfo fileFolderInfo);
-
 
     void deleteFileFolderInfo(String folderId);
 
