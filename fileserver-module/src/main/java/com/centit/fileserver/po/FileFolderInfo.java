@@ -114,8 +114,12 @@ public class FileFolderInfo implements java.io.Serializable {
     @JsonIgnore
     private Date updateTime;
 
-    public void setParentFolder(String folderPath){
-        this.parentFolder= StringUtils.substringAfterLast(folderPath,"/");
+
+    public String getParentFolder(){
+        if(StringUtils.isBlank(this.parentFolder)) {
+            return StringUtils.substringAfterLast(this.folderPath, "/");
+        }
+        return this.parentFolder;
     }
 
     public FileFolderInfo copyNotNullProperty(FileFolderInfo other) {

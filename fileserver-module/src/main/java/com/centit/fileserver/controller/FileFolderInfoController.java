@@ -86,7 +86,6 @@ public class FileFolderInfoController  extends BaseController {
 	@WrapUpResponseBody
     public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request , HttpServletResponse response) {
         fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
-        fileFolderInfo.setParentFolder(fileFolderInfo.getFolderPath());
         fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
         JsonResultUtils.writeSingleDataJson(fileFolderInfo,response);
     }
@@ -116,7 +115,6 @@ public class FileFolderInfoController  extends BaseController {
 	@WrapUpResponseBody
     public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request , HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        fileFolderInfo.setParentFolder(fileFolderInfo.getFolderPath());
         fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
         JsonResultUtils.writeSingleDataJson(fileFolderInfo,response);
     }

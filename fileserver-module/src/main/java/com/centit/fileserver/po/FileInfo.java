@@ -119,7 +119,12 @@ public class FileInfo implements Serializable {
         createTime = DatetimeOpt.currentUtilDate();
         downloadTimes = 0L;
     }
-
+    public String getParentFolder(){
+        if(StringUtils.isBlank(this.parentFolder)) {
+            return StringUtils.substringAfterLast(this.fileShowPath, "/");
+        }
+        return this.parentFolder;
+    }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
@@ -190,6 +195,12 @@ public class FileInfo implements Serializable {
 
         if (StringUtils.isNotBlank(other.getFileUnit())) {
             this.fileUnit = other.getFileUnit();
+        }
+        if (StringUtils.isNotBlank(other.getParentFolder())) {
+            this.parentFolder = other.getParentFolder();
+        }
+        if (StringUtils.isNotBlank(other.getLibraryId())) {
+            this.libraryId = other.getLibraryId();
         }
         //this.attachedStorePath=other.getAttachedStorePath();
         /*
