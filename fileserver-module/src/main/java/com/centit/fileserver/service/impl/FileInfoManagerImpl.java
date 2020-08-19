@@ -49,6 +49,11 @@ public class FileInfoManagerImpl
 
 
     @Override
+    public List<FileInfo> listFileInfo(Map<String, Object> param, PageDesc pageDesc) {
+        return baseDao.listObjectsByProperties(param,pageDesc);
+    }
+
+    @Override
     public void saveNewFile(FileInfo originalFile){
          saveNewObject(originalFile);
     }

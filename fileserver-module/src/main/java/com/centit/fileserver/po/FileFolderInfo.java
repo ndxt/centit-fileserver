@@ -1,11 +1,18 @@
 package com.centit.fileserver.po;
 
+import com.centit.support.database.orm.GeneratorCondition;
+import com.centit.support.database.orm.GeneratorTime;
+import com.centit.support.database.orm.GeneratorType;
+import com.centit.support.database.orm.ValueGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Date;
 
 /**
  * create by scaffold 2020-08-18 13:38:14
@@ -24,162 +31,91 @@ public class FileFolderInfo implements java.io.Serializable {
     /**
      * 文件夹id 文件夹id
      */
+    @ApiModelProperty(value = "文件夹id,新增时不用传")
     @Id
     @Column(name = "folder_id")
+    @ValueGenerator(strategy = GeneratorType.UUID, condition = GeneratorCondition.IFNULL)
     private String folderId;
 
     /**
      * 库id 库id
      */
+    @ApiModelProperty(value = "库id", required = true)
     @Column(name = "library_id")
     private String libraryId;
     /**
      * 上级文件夹 上级文件夹
      */
+    @ApiModelProperty(value = "上级文件夹")
     @Column(name = "parent_folder")
+    @JsonIgnore
     private String parentFolder;
     /**
      * 文件夹路径 文件夹路径
      */
+    @ApiModelProperty(value = "文件路径，/上级路径/本级文件夹id", required = true)
     @Column(name = "folder_path")
+    @Basic(fetch = FetchType.LAZY)
     private String folderPath;
     /**
      * 是否可以创建子目录 是否可以创建子目录
      */
+    @ApiModelProperty(value = "是否可以创建子目录", required = true)
     @Column(name = "is_create_folder")
     private String isCreateFolder;
     /**
      * 是否可以上传文件 是否可以上传文件
      */
+    @ApiModelProperty(value = "是否可以上传文件", required = true)
     @Column(name = "is_upload")
     private String isUpload;
     /**
      * 验证码 验证码
      */
+    @ApiModelProperty(value = "验证码")
     @Column(name = "auth_code")
+    @JsonIgnore
     private String authCode;
     /**
      * 文件夹名称 文件夹名称
      */
+    @ApiModelProperty(value = "文件夹名称", required = true)
     @Column(name = "folder_name")
     private String folderName;
     /**
      * 创建人 创建人
      */
+    @ApiModelProperty(value = "创建人")
     @Column(name = "create_user")
+    @JsonIgnore
     private String createUser;
     /**
      * 创建时间 创建时间
      */
+    @ApiModelProperty(value = "创建时间")
     @Column(name = "create_time")
-    private java.sql.Date createTime;
+    @ValueGenerator( strategy= GeneratorType.FUNCTION,occasion = GeneratorTime.NEW, value = "today()")
+    @JsonIgnore
+    private Date createTime;
     /**
      * 修改人 修改人
      */
+    @ApiModelProperty(value = "修改人")
     @Column(name = "update_user")
+    @JsonIgnore
     private String updateUser;
     /**
      * 修改时间 修改时间
      */
+    @ApiModelProperty(value = "修改时间")
     @Column(name = "update_time")
-    private java.sql.Date updateTime;
+    @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.UPDATE,
+        condition = GeneratorCondition.ALWAYS, value="today()" )
+    @JsonIgnore
+    private Date updateTime;
 
-    @OneToMany(mappedBy = "fileFolderInfo", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<FileInfo> fileInfos;
-
-
-    public void addFileInfo(FileInfo fileInfo) {
-        if (this.fileInfos == null) {
-            this.fileInfos = new ArrayList<FileInfo>();
-        }
-        this.fileInfos.add(fileInfo);
-    }
-
-    public void removeFileInfo(FileInfo fileInfo) {
-        if (this.fileInfos == null) {
-            return;
-        }
-        this.fileInfos.remove(fileInfo);
-    }
-
-    public FileInfo newFileInfo() {
-        FileInfo res = new FileInfo();
-
-        res.setFolderId(this.getFolderId());
-
-        return res;
-    }
-
-    /**
-     * 替换子类对象数组，这个函数主要是考虑hibernate中的对象的状态，以避免对象状态不一致的问题
-     */
-    public void replaceFileInfos(List<FileInfo> fileInfos) {
-        List<FileInfo> newObjs = new ArrayList<FileInfo>();
-        for (FileInfo p : fileInfos) {
-            if (p == null) {
-                continue;
-            }
-            FileInfo newdt = newFileInfo();
-            newdt.copyNotNullProperty(p);
-            newObjs.add(newdt);
-        }
-        //delete
-        boolean found = false;
-        List<FileInfo> oldObjs = new ArrayList<FileInfo>();
-        oldObjs.addAll(getFileInfos());
-
-        for (FileInfo odt : oldObjs) {
-            found = false;
-            for (FileInfo newdt : newObjs) {
-                if (odt.getFileId().equals(newdt.getFileId())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                removeFileInfo(odt);
-            }
-        }
-        oldObjs.clear();
-        //insert or update
-        for (FileInfo newdt : newObjs) {
-            found = false;
-            for (Iterator<FileInfo> it = getFileInfos().iterator();
-                 it.hasNext(); ) {
-                FileInfo odt = it.next();
-                if (odt.getFileId().equals(newdt.getFileId())) {
-                    odt.copy(newdt);
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                addFileInfo(newdt);
-            }
-        }
-    }
-
-
-    public FileFolderInfo copy(FileFolderInfo other) {
-
-
-        this.setFolderId(other.getFolderId());
-
-
-        this.libraryId = other.getLibraryId();
-        this.parentFolder = other.getParentFolder();
-        this.folderPath = other.getFolderPath();
-        this.isCreateFolder = other.getIsCreateFolder();
-        this.isUpload = other.getIsUpload();
-        this.authCode = other.getAuthCode();
-        this.folderName = other.getFolderName();
-        this.createUser = other.getCreateUser();
-        this.createTime = other.getCreateTime();
-        this.updateUser = other.getUpdateUser();
-        this.updateTime = other.getUpdateTime();
-
-        this.fileInfos = other.getFileInfos();
-        return this;
+    public void setParentFolder(String folderPath){
+        this.parentFolder= StringUtils.substringAfterLast(folderPath,"/");
     }
 
     public FileFolderInfo copyNotNullProperty(FileFolderInfo other) {
@@ -223,8 +159,6 @@ public class FileFolderInfo implements java.io.Serializable {
             this.updateTime = other.getUpdateTime();
         }
 
-        //this.fileInfos = other.getFileInfos();
-        replaceFileInfos(other.getFileInfos());
 
         return this;
     }
@@ -242,8 +176,6 @@ public class FileFolderInfo implements java.io.Serializable {
         this.createTime = null;
         this.updateUser = null;
         this.updateTime = null;
-
-        this.fileInfos = new ArrayList<FileInfo>();
         return this;
     }
 }

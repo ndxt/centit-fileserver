@@ -3,6 +3,7 @@ package com.centit.fileserver.controller;
 import com.centit.fileserver.po.FileFavorite;
 import com.centit.fileserver.service.FileFavoriteManager;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
@@ -76,8 +77,9 @@ public class FileFavoriteController  extends BaseController {
     @RequestMapping(method = {RequestMethod.POST})
 	@ApiOperation(value = "新增文件收藏")
 	@WrapUpResponseBody
-    public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletResponse response) {
-    	fileFavoriteMag.createFileFavorite(fileFavorite);
+    public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request, HttpServletResponse response) {
+    	fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
+        fileFavoriteMag.createFileFavorite(fileFavorite);
         JsonResultUtils.writeSingleDataJson(fileFavorite,response);
     }
 

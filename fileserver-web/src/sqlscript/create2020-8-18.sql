@@ -44,8 +44,8 @@ create table file_folder_info
 (
    library_id           varchar(32) comment '库id',
    folder_id            varchar(32) not null comment '文件夹id',
-   parent_folder        varchar(32) comment '上级文件夹',
-   folder_path          text comment '文件夹路径',
+   parent_folder        varchar(32) default '-1' comment '上级文件夹',
+   folder_path          text  comment '文件夹路径',
    is_create_folder     varchar(1) comment '是否可以创建子目录',
    is_upload            varchar(1) comment '是否可以上传文件',
    auth_code            varchar(32) comment '验证码',
@@ -84,7 +84,7 @@ create table file_info
    attached_store_path  varchar(200),
    attached_type        varchar(1) comment '附属文件类别：N :   没有  T：缩略图  P： pdf只读文件',
    auth_code            varchar(32) comment '验证码',
-   folder_id            varchar(32) comment '文件夹id',
+   parent_folder            varchar(32) default '-1' comment '所属文件夹id',
    library_id           varchar(32) comment '库id',
    primary key (file_id)
 );
@@ -121,6 +121,8 @@ create table file_library_info
    is_create_folder     varchar(1) comment '是否可以创建子目录',
    is_upload            varchar(1) comment '是否可以上传文件',
    auth_code            varchar(32) comment '验证码',
+   update_user          varchar(32) comment '修改人',
+   update_time          datetime comment '修改时间',
    primary key (library_id)
 );
 

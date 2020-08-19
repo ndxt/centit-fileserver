@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -50,6 +51,11 @@ public class LocalFileManagerImpl implements LocalFileManager {
             }
         }
         return files;
+    }
+
+    @Override
+    public List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn) {
+        return fileInfoDao.listFolderFiles(searchColumn);
     }
 
     @Override

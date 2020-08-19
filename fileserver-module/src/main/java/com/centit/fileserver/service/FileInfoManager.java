@@ -5,9 +5,11 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
+import java.util.List;
 import java.util.Map;
 
 public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
+    List<FileInfo> listFileInfo(Map<String, Object> param, PageDesc pageDesc);
     /**
      * @param originalFile 原始文件
      */

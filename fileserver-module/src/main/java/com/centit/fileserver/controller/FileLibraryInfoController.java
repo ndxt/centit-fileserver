@@ -3,6 +3,7 @@ package com.centit.fileserver.controller;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
@@ -78,7 +79,8 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件库信息")
     @WrapUpResponseBody
-    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletResponse response) {
+    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo,HttpServletRequest request,HttpServletResponse response) {
+        fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
@@ -106,7 +108,9 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件库信息")
     @WrapUpResponseBody
-    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo) {
+    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo,HttpServletRequest request,HttpServletResponse response) {
+        fileLibraryInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryInfoMag.updateFileLibraryInfo(fileLibraryInfo);
+        JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
 }

@@ -131,13 +131,43 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         if(objects !=null){
             for(Object obj:objects){
                 String sd =StringBaseOpt.objectToString(obj);
-                if(StringUtils.isNotBlank(sd))
+                if(StringUtils.isNotBlank(sd)) {
                     dirs.add(sd);
+                }
             }
         }
         return dirs;
     }
+    public List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn){
+        String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
+            "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
+            "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,max(a.file_show_path) as file_show_path " +
+            "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
+            "where parent_folder=:parentFolder and library_id=:libraryId " +
+            "group by FILE_NAME";
+        List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
+            sqlsen, searchColumn);
+        List<FileShowInfo> files = new ArrayList<>();
+        if(objects !=null){
+            for(Object[] objs:objects){
+                FileShowInfo file = new FileShowInfo();
+                file.setCatalogType("p");
+                file.setFileType("f");
+                file.setFileName(StringBaseOpt.objectToString(objs[0]));
+                file.setAccessToken(StringBaseOpt.objectToString(objs[1]));
+                file.setVersions(NumberBaseOpt.castObjectToInteger(objs[2]));
+                file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[3]),"D"));
+                if(objs[4] instanceof java.util.Date ) {
+                    file.setCreateTime((Date)objs[4]);
+                }
+                file.setFileSize(NumberBaseOpt.castObjectToLong(objs[5]));
+                file.setFileShowPath(StringBaseOpt.objectToString(objs[6]));
+                files.add(file);
+            }
+        }
+        return files;
 
+    }
     public List<FileShowInfo> listUserFiles(String userCode, String fileShowPath) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
@@ -177,8 +207,9 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setAccessToken(StringBaseOpt.objectToString(objs[1]));
                 file.setVersions(NumberBaseOpt.castObjectToInteger(objs[2]));
                 file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[3]),"D"));
-                if(objs[4] instanceof java.util.Date )
-                    file.setCreateTime((java.util.Date)objs[4]);
+                if(objs[4] instanceof java.util.Date ) {
+                    file.setCreateTime((Date)objs[4]);
+                }
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[5]));
 
                 files.add(file);

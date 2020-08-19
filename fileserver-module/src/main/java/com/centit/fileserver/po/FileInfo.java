@@ -107,75 +107,90 @@ public class FileInfo implements Serializable {
     private String attachedType;
     @Column(name = "auth_code")
     private String authCode;
-    @Column(name = "folder_id")
-    private String folderId;
     @Column(name = "library_id")
     private String libraryId;
+    @Column(name = "parent_folder")
+    private String parentFolder;
 
     public FileInfo() {
         indexState = "N";
         encryptType = "N";
         fileState = "N";
         createTime = DatetimeOpt.currentUtilDate();
-        downloadTimes = 0l;
+        downloadTimes = 0L;
     }
 
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
-        if (StringUtils.isNoneBlank(fileName) && StringUtils.isBlank(fileType))
+        if (StringUtils.isNoneBlank(fileName) && StringUtils.isBlank(fileType)) {
             fileType = FileType.getFileExtName(fileName);
+        }
     }
 
 
     public Long addDownloadTimes() {
-        if (this.downloadTimes == null)
-            downloadTimes = 1l;
-        else
+        if (this.downloadTimes == null) {
+            downloadTimes = 1L;
+        } else {
             downloadTimes += 1;
+        }
         return downloadTimes;
     }
 
 
     public void copyNotNullProperty(FileInfo other) {
-        if (StringUtils.isNotBlank(other.getFileName()))
+        if (StringUtils.isNotBlank(other.getFileName())) {
             this.fileName = other.getFileName();
+        }
 
-        if (StringUtils.isNotBlank(other.getFileShowPath()))
+        if (StringUtils.isNotBlank(other.getFileShowPath())) {
             this.fileShowPath = other.getFileShowPath();
+        }
 
-        if (StringUtils.isNotBlank(other.getFileType()))
+        if (StringUtils.isNotBlank(other.getFileType())) {
             this.fileType = other.getFileType();
+        }
         /**
          * C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
          */
-        if (StringUtils.isNotBlank(other.getFileState()))
+        if (StringUtils.isNotBlank(other.getFileState())) {
             this.fileState = other.getFileState();
+        }
 
-        if (StringUtils.isNotBlank(other.getFileDesc()))
+        if (StringUtils.isNotBlank(other.getFileDesc())) {
             this.fileDesc = other.getFileDesc();
+        }
         //this.indexState = other.getIndexState();
         //this.downloadTimes = other.getDownloadTimes();
-        if (StringUtils.isNotBlank(other.getOsId()))
+        if (StringUtils.isNotBlank(other.getOsId())) {
             this.osId = other.getOsId();
-        if (StringUtils.isNotBlank(other.getOptId()))
+        }
+        if (StringUtils.isNotBlank(other.getOptId())) {
             this.optId = other.getOptId();
-        if (StringUtils.isNotBlank(other.getOptMethod()))
+        }
+        if (StringUtils.isNotBlank(other.getOptMethod())) {
             this.optMethod = other.getOptMethod();
-        if (StringUtils.isNotBlank(other.getOptTag()))
+        }
+        if (StringUtils.isNotBlank(other.getOptTag())) {
             this.optTag = other.getOptTag();
-        if (other.getCreated() != null)
+        }
+        if (other.getCreated() != null) {
             this.created = other.getCreated();
-        if (other.getCreateTime() != null)
+        }
+        if (other.getCreateTime() != null) {
             this.createTime = other.getCreateTime();
+        }
         //this.fileSize = other.getFileSize();
         //加密算法
         //this.encryptType=other.getEncryptType();
-        if (StringUtils.isNotBlank(other.getFileOwner()))
+        if (StringUtils.isNotBlank(other.getFileOwner())) {
             this.fileOwner = other.getFileOwner();
+        }
 
-        if (StringUtils.isNotBlank(other.getFileUnit()))
+        if (StringUtils.isNotBlank(other.getFileUnit())) {
             this.fileUnit = other.getFileUnit();
+        }
         //this.attachedStorePath=other.getAttachedStorePath();
         /*
          * 附属文件类别： T：缩略图  P： pdf只读文件
@@ -220,8 +235,8 @@ public class FileInfo implements Serializable {
 
         this.fileUnit = other.getFileUnit();
         this.authCode = other.getAuthCode();
-        this.folderId = other.folderId;
         this.libraryId = other.libraryId;
+        this.parentFolder = other.parentFolder;
 
         //this.attachedStorePath=other.getAttachedStorePath();
 

@@ -4,6 +4,7 @@ import com.centit.fileserver.po.FileShowInfo;
 import com.centit.framework.model.basedata.IUnitInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface LocalFileManager{
@@ -20,6 +21,8 @@ public interface LocalFileManager{
      * @return 文件列表
      */
     List<FileShowInfo> listUserFiles(String userCode,String fileShowPath);
+    List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn);
+
 
     List<FileShowInfo> listUnitFiles(String unitCode,String fileShowPath);
 

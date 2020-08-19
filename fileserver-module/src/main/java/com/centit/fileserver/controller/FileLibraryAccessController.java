@@ -3,6 +3,7 @@ package com.centit.fileserver.controller;
 import com.centit.fileserver.po.FileLibraryAccess;
 import com.centit.fileserver.service.FileLibraryAccessManager;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
@@ -75,8 +76,9 @@ public class FileLibraryAccessController  extends BaseController {
     @RequestMapping(method = {RequestMethod.POST})
 	@ApiOperation(value = "新增项目库授权信息")
 	@WrapUpResponseBody
-    public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess, HttpServletResponse response) {
-    	fileLibraryAccessMag.createFileLibraryAccess(fileLibraryAccess);
+    public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess,HttpServletRequest request, HttpServletResponse response) {
+    	fileLibraryAccess.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+        fileLibraryAccessMag.createFileLibraryAccess(fileLibraryAccess);
         JsonResultUtils.writeSingleDataJson(fileLibraryAccess,response);
     }
 
