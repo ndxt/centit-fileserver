@@ -4,12 +4,16 @@ import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.CodeRepositoryCache;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
+import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,13 +52,16 @@ public class FileLibraryInfoController extends BaseController {
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
-    @ApiOperation(value = "查询所有文件库信息列表")
+    @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
-    public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request, PageDesc pageDesc) {
-        Map<String, Object> searchColumn = collectRequestParameters(request);
+    public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
+        String userCode = getUserCode(request);
+        if (userCode == null) {
+            return null;
+        }
         List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibraryInfo(
-            searchColumn, pageDesc);
-        return PageQueryResult.createResult(fileLibraryInfos, pageDesc);
+            userCode);
+        return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
     /**
@@ -71,6 +78,28 @@ public class FileLibraryInfoController extends BaseController {
         return fileLibraryInfoMag.getFileLibraryInfo(libraryId);
     }
 
+    @RequestMapping(value="/unitpath",method = RequestMethod.GET)
+    @ApiOperation(value = "根据用户查询机构全路径")
+    @WrapUpResponseBody
+    public List<IUnitInfo> listUnitPathsByUserCode(HttpServletRequest request){
+        String userCode = getUserCode(request);
+        if (userCode == null) {
+            return null;
+        }
+        return fileLibraryInfoMag.listUnitPathsByUserCode(userCode);
+    }
+
+    private String getUserCode(HttpServletRequest request) {
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        if (StringUtils.isBlank(userCode)) {
+            userCode = (String) collectRequestParameters(request).get("userCode");
+        }
+        if (StringUtils.isBlank(userCode)) {
+            return null;
+        }
+        return userCode;
+    }
+
     /**
      * 新增 文件库信息
      *
@@ -81,6 +110,7 @@ public class FileLibraryInfoController extends BaseController {
     @WrapUpResponseBody
     public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo,HttpServletRequest request,HttpServletResponse response) {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+        fileLibraryInfo.getFileLibraryAccesss().forEach(e->e.setCreateUser(fileLibraryInfo.getCreateUser()));
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
@@ -113,4 +143,5 @@ public class FileLibraryInfoController extends BaseController {
         fileLibraryInfoMag.updateFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
+
 }

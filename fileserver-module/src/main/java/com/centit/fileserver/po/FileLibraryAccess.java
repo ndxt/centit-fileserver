@@ -62,44 +62,4 @@ public class FileLibraryAccess implements java.io.Serializable {
     @JsonIgnore
     private Date createTime;
 
-
-    public FileLibraryAccess copy(FileLibraryAccess other) {
-        this.setAccessId(other.getAccessId());
-        this.libraryId = other.getLibraryId();
-        this.accessUsercode = other.getAccessUsercode();
-        this.createUser = other.getCreateUser();
-        this.createTime = other.getCreateTime();
-        return this;
-    }
-
-    public FileLibraryAccess copyNotNullProperty(FileLibraryAccess other) {
-        if (other.getAccessId() != null) {
-            this.setAccessId(other.getAccessId());
-        }
-
-        if (other.getLibraryId() != null) {
-            this.libraryId = other.getLibraryId();
-        }
-        if (other.getAccessUsercode() != null) {
-            this.accessUsercode = other.getAccessUsercode();
-        }
-        if (other.getCreateUser() != null) {
-            this.createUser = other.getCreateUser();
-        }
-        if (other.getCreateTime() != null) {
-            this.createTime = other.getCreateTime();
-        }
-
-        return this;
-    }
-
-    public FileLibraryAccess clearProperties() {
-
-        this.libraryId = null;
-        this.accessUsercode = null;
-        this.createUser = null;
-        this.createTime = null;
-
-        return this;
-    }
 }

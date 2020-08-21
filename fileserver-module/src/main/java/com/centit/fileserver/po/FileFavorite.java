@@ -56,44 +56,4 @@ public class FileFavorite implements java.io.Serializable {
     @JsonIgnore
 	private Date favoriteTime;
 
-
-	public FileFavorite copy(FileFavorite other){
-
-
-
-		this.setFavoriteId(other.getFavoriteId());
-
-
-		this.fileId= other.getFileId();
-		this.favoriteUser= other.getFavoriteUser();
-		this.favoriteTime= other.getFavoriteTime();
-
-		return this;
-	}
-
-	public FileFavorite copyNotNullProperty(FileFavorite other){
-
-
-
-	if( other.getFavoriteId() != null)
-		this.setFavoriteId(other.getFavoriteId());
-
-		if( other.getFileId() != null)
-			this.fileId= other.getFileId();
-		if( other.getFavoriteUser() != null)
-			this.favoriteUser= other.getFavoriteUser();
-		if( other.getFavoriteTime() != null)
-			this.favoriteTime= other.getFavoriteTime();
-
-		return this;
-	}
-
-	public FileFavorite clearProperties(){
-
-		this.fileId= null;
-		this.favoriteUser= null;
-		this.favoriteTime= null;
-
-		return this;
-	}
 }
