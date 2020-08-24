@@ -18,6 +18,7 @@ import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.database.utils.PageDesc;
 import com.google.gson.JsonArray;
 import io.swagger.annotations.Api;
@@ -263,7 +264,7 @@ public class FileManagerController extends BaseController {
     public Map<String,Object> getAuthCode(@PathVariable("fileId") String fileId, HttpServletRequest request){
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if(StringBaseOpt.isNvl(fileInfo.getAuthCode())){
-            fileInfo.setAuthCode(StringUtils.substring(fileInfo.getFileMd5(),-4));
+            fileInfo.setAuthCode(StringUtils.substring(UuidOpt.getUuidAsString(),-4));
             fileInfoManager.updateObject(fileInfo);
         }
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
