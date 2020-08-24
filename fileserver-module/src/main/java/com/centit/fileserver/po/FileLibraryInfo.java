@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +42,7 @@ public class FileLibraryInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "库名称",required = true)
     @Column(name = "library_name")
+    @NotNull(message = "库名称不能为空")
     private String libraryName;
     /**
      * 类别 类别(个人、组织、项目)

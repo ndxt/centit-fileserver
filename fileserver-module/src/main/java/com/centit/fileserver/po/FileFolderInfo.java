@@ -12,6 +12,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -81,6 +82,7 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "文件夹名称", required = true)
     @Column(name = "folder_name")
+    @NotNull(message = "文件夹名称不能为空")
     private String folderName;
     /**
      * 创建人 创建人
