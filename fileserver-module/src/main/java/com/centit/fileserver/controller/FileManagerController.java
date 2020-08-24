@@ -8,9 +8,13 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
+import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -107,7 +111,7 @@ public class FileManagerController extends BaseController {
      */
     @RequestMapping(value = "/{fileId}",method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id获取文件存储信息")
-    public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletResponse response){
+    public void getFileStoreInfo(@PathVariable("fileId") String fileId,HttpServletRequest request, HttpServletResponse response){
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if(fileInfo !=null){
@@ -116,6 +120,8 @@ public class FileManagerController extends BaseController {
             JsonResultUtils.writeErrorMessageJson(
                     "文件不存在："+fileId, response);
         }
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+            .method("查看").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(""));
     }
 
     /**

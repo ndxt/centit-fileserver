@@ -12,9 +12,12 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.model.basedata.IUserInfo;
+import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.UuidOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -266,7 +269,9 @@ public class LocalFileController extends BaseController {
         }
         fileInfo.addDownloadTimes();
 
-        fileAccessLogManager.saveNewAccessLog(accessLog);
+//        fileAccessLogManager.saveNewAccessLog(accessLog);
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
+            .method("下载").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate()).content(StringBaseOpt.castObjectToString(accessLog)));
         fileInfoManager.updateObject(fileInfo);
     }
 
