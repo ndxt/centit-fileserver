@@ -1,5 +1,6 @@
 package com.centit.fileserver.po;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
@@ -106,6 +107,7 @@ public class FileInfo implements Serializable {
     @Column(name = "ATTACHED_TYPE")
     private String attachedType;
     @Column(name = "auth_code")
+    @JSONField(serialize = false)
     private String authCode;
     @Column(name = "library_id")
     private String libraryId;

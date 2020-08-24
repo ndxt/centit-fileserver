@@ -56,7 +56,7 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "文件路径，/上级路径/本级文件夹id", required = true)
     @Column(name = "folder_path")
-    @Basic(fetch = FetchType.LAZY)
+//    @Basic(fetch = FetchType.LAZY)
     private String folderPath;
     /**
      * 是否可以创建子目录 是否可以创建子目录

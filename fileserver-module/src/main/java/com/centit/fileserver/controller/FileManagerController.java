@@ -11,13 +11,18 @@ import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.PageDesc;
+import com.google.gson.JsonArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,5 +256,29 @@ public class FileManagerController extends BaseController {
 
         JSONArray listObjects = fileInfoManager.listFilesByOwner(osId,optId,owner);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
+    }
+    @RequestMapping(value = "/authcode/{fileId}",method = RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id获取验证码")
+    @WrapUpResponseBody
+    public Map<String,Object> getAuthCode(@PathVariable("fileId") String fileId, HttpServletRequest request){
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(StringBaseOpt.isNvl(fileInfo.getAuthCode())){
+            fileInfo.setAuthCode(StringUtils.substring(fileInfo.getFileMd5(),-4));
+            fileInfoManager.updateObject(fileInfo);
+        }
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+            .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(""));
+        return CollectionsOpt.createHashMap("authcode",fileInfo.getAuthCode(),
+            "uri","/checkauth/"+fileId);
+    }
+    @RequestMapping(value = "/checkauth/{fileId}/{authCode}",method = RequestMethod.GET)
+    @ApiOperation(value = "检查验证码")
+    @WrapUpResponseBody
+    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId,String authCode){
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(fileInfo.getAuthCode().equals(authCode)){
+           return fileInfo;
+        }
+        return null;
     }
 }
