@@ -1,5 +1,6 @@
 package com.centit.fileserver.po;
 
+import com.centit.framework.core.dao.DictionaryMap;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
@@ -47,6 +48,7 @@ public class FileLibraryAccess implements java.io.Serializable {
      */
     @ApiModelProperty(value = "被授权人员",required = true)
     @Column(name = "access_usercode")
+    @DictionaryMap(fieldName="accessUserName",value="userCode")
     private String accessUsercode;
     /**
      * 创建人 创建人

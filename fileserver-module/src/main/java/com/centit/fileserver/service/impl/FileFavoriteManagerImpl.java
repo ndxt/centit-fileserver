@@ -43,13 +43,20 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
 
     @Override
     public List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc) {
-        return fileFavoriteDao.listObjectsByProperties(param, pageDesc);
+        List<FileFavorite> list=fileFavoriteDao.listObjectsByProperties(param, pageDesc);
+        list.forEach(e-> {
+            if(e.getFileId()!=null)
+            {
+                fileFavoriteDao.fetchObjectReferences(e);
+            }
+        });
+        return list;
     }
 
 
     @Override
     public FileFavorite getFileFavorite(String favoriteId) {
-        return fileFavoriteDao.getObjectById(favoriteId);
+        return fileFavoriteDao.fetchObjectReferences(fileFavoriteDao.getObjectById(favoriteId));
     }
 
     @Override

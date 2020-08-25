@@ -7,11 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * create by scaffold 2020-08-18 13:38:14
@@ -55,5 +53,10 @@ public class FileFavorite implements java.io.Serializable {
     @ValueGenerator( strategy= GeneratorType.FUNCTION, value = "today()")
     @JsonIgnore
 	private Date favoriteTime;
+
+    @ApiModelProperty(value = "文件信息")
+    @OneToOne(mappedBy = "fileFavorite", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "file_id", referencedColumnName = "file_id")
+    private FileInfo fileInfo;
 
 }

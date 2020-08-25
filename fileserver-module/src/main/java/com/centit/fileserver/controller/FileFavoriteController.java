@@ -7,6 +7,7 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,7 +79,9 @@ public class FileFavoriteController  extends BaseController {
 	@ApiOperation(value = "新增文件收藏")
 	@WrapUpResponseBody
     public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request, HttpServletResponse response) {
-    	fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
+    	if(StringBaseOpt.isNvl(fileFavorite.getFavoriteUser())) {
+            fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
+        }
         fileFavoriteMag.createFileFavorite(fileFavorite);
         JsonResultUtils.writeSingleDataJson(fileFavorite,response);
     }

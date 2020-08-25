@@ -275,7 +275,7 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/checkauth/{fileId}/{authCode}",method = RequestMethod.GET)
     @ApiOperation(value = "检查验证码")
     @WrapUpResponseBody
-    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId,String authCode){
+    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId,@PathVariable("authCode")String authCode){
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if(fileInfo.getAuthCode().equals(authCode)){
            return fileInfo;
