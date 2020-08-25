@@ -84,18 +84,17 @@ private final static String DOC="doc";
         return true;
     }
 
-    public static boolean ppt2Pdf(String inPptFile, String outPdfFile) {
+    public static boolean ppt2Pdf(String inPptFile, String outPdfFile,String suffix) {
         String inputFile = inPptFile.replace('/', '\\');
         String pdfFile = outPdfFile.replace('/', '\\');
         String sFileName = FileSystemOpt.extractFullFileName(pdfFile);
-        POIPptToHtmlUtils.pptToHtml(inputFile, pdfFile.replace(sFileName, ""), sFileName);
+        POIPptToHtmlUtils.pptToHtml(inputFile, pdfFile.replace(sFileName, ""), sFileName,suffix);
         return false;
     }
 
-    public static boolean word2Pdf(String inWordFile, String outPdfFile) throws Exception {
+    public static boolean word2Pdf(String inWordFile, String outPdfFile,String suffix) throws Exception {
         String inputFile = inWordFile.replace('/', '\\');
         String pdfFile = outPdfFile.replace('/', '\\');
-        String suffix = FileType.getFileExtName(inputFile);
         if (DOCX.equalsIgnoreCase(suffix)) {
             WordReportUtil.convertDocxToPdf(inputFile, outPdfFile);
         }
@@ -144,9 +143,9 @@ private final static String DOC="doc";
             return false;
         }
         if (DOC.equalsIgnoreCase(suffix) || DOCX.equalsIgnoreCase(suffix)) {
-            return word2Pdf(inputFile, pdfFile);
+            return word2Pdf(inputFile, pdfFile,suffix);
         } else if (PPT.equalsIgnoreCase(suffix) || PPTX.equalsIgnoreCase(suffix)) {
-            return ppt2Pdf(inputFile, pdfFile);
+            return ppt2Pdf(inputFile, pdfFile,suffix);
         } else if (XLS.equalsIgnoreCase(suffix) || XLSX.equalsIgnoreCase(suffix)) {
             return excel2Pdf(inputFile, pdfFile);
         }

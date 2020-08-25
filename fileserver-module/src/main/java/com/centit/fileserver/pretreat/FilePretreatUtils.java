@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FilePretreatUtils {
 
@@ -286,7 +287,7 @@ public class FilePretreatUtils {
         FileDocument fileDoc = new FileDocument();
         fileDoc.setFileId(fileInfo.getFileId() );
         fileDoc.setOsId(fileInfo.getOsId());
-        fileDoc.setOptId(fileInfo.getOptId());
+        fileDoc.setOptId(fileInfo.getLibraryId());
         fileDoc.setOptMethod(fileInfo.getOptMethod());
         fileDoc.setOptTag(fileInfo.getOptTag());
         fileDoc.setFileMD5(fileInfo.getFileMd5());
@@ -301,7 +302,7 @@ public class FilePretreatUtils {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-        fileDoc.setCreateTime(fileInfo.getCreateTime());
+        fileDoc.setCreateTime(new Date());
         fileInfo.setIndexState("I");
 
         return fileDoc;

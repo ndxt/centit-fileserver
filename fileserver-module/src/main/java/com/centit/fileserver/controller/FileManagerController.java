@@ -12,18 +12,21 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
 import com.centit.framework.model.basedata.OperationLog;
-import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.StringBaseOpt;
-import com.centit.support.algorithm.UuidOpt;
+import com.centit.search.service.Impl.ESSearcher;
+import com.centit.support.algorithm.*;
+import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
 import com.google.gson.JsonArray;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +62,8 @@ public class FileManagerController extends BaseController {
 
     @Autowired
     protected FileStore fileStore;
+    @Autowired(required = false)
+    private ESSearcher esObjectSearcher;
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
      * @param fileId 文件ID
@@ -281,5 +287,33 @@ public class FileManagerController extends BaseController {
            return fileInfo;
         }
         return null;
+    }
+    @ApiOperation(value = "全文检索")
+    @ApiImplicitParams({@ApiImplicitParam(
+        name = "libraryIds", value = "库ids",
+        required = true, paramType = "query", dataType = "String",allowMultiple = true
+    ), @ApiImplicitParam(
+        name = "query", value = "检索关键字",
+        required = true, paramType = "query", dataType = "String"
+    )})
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @WrapUpResponseBody
+    public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds,String query,HttpServletRequest request, PageDesc pageDesc) {
+        if(esObjectSearcher==null){
+            throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
+        }
+        Map<String, Object> queryParam = collectRequestParameters(request);
+        Map<String, Object> searchQuery = new HashMap<>(10);
+        if(libraryIds!=null) {
+            searchQuery.put("optId", libraryIds);
+        }
+        searchQuery.putAll(queryParam);
+        Pair<Long, List<Map<String, Object>>> res =
+            esObjectSearcher.search(searchQuery, query, pageDesc.getPageNo(), pageDesc.getPageSize());
+        if (res == null) {
+            throw new ObjectException("ELK异常");
+        }
+        pageDesc.setTotalRows(NumberBaseOpt.castObjectToInteger(res.getLeft()));
+        return PageQueryResult.createResult(res.getRight(), pageDesc);
     }
 }

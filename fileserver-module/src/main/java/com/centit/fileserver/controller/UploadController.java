@@ -15,6 +15,7 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
@@ -70,7 +71,7 @@ public class UploadController extends BaseController {
     protected FileStore fileStore;
 
     @Autowired(required = false)
-    protected Indexer documentIndexer;
+    protected ESIndexer documentIndexer;
 
     @Autowired
     private FileOptTaskQueue fileOptTaskQueue;
@@ -108,6 +109,7 @@ public class UploadController extends BaseController {
         fileInfo.setFileOwner(request.getParameter("fileOwner"));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
+        fileInfo.setLibraryId(request.getParameter("libraryId"));
         fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
 
         return fileInfo;

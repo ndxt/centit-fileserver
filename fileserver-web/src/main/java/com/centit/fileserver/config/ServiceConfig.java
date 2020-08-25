@@ -18,6 +18,10 @@ import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.model.StandardPasswordEncoderImpl;
 import com.centit.framework.session.jdbc.JdbcSessionPersistenceConfig;
 import com.centit.search.document.FileDocument;
+import com.centit.search.document.ObjectDocument;
+import com.centit.search.service.ESServerConfig;
+import com.centit.search.service.Impl.ESIndexer;
+import com.centit.search.service.Impl.ESSearcher;
 import com.centit.search.service.Indexer;
 import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.search.service.Searcher;
@@ -140,14 +144,16 @@ public class ServiceConfig {
     }
 
     @Bean
-    public Indexer documentIndexer(){
-        if(BooleanBaseOpt.castObjectToBoolean(
-                env.getProperty("fulltext.index.enable"),false)) {
-            return IndexerSearcherFactory.obtainIndexer(
-                    IndexerSearcherFactory.loadESServerConfigFormProperties(
-                            SysParametersUtils.loadProperties()), FileDocument.class);
-        }
-        return null;
+    public ESServerConfig esServerConfig(){
+        return IndexerSearcherFactory.loadESServerConfigFormProperties(
+            SysParametersUtils.loadProperties()
+        );
+    }
+
+    @Bean(name = "esObjectIndexer")
+    public ESIndexer esObjectIndexer(@Autowired ESServerConfig esServerConfig){
+        return IndexerSearcherFactory.obtainIndexer(
+            esServerConfig, ObjectDocument.class);
     }
 
     @Bean
@@ -160,7 +166,11 @@ public class ServiceConfig {
         }
         return null;
     }
-
+    @Bean(name = "esObjectSearcher")
+    public ESSearcher esObjectSearcher(@Autowired ESServerConfig esServerConfig){
+        return IndexerSearcherFactory.obtainSearcher(
+            esServerConfig, ObjectDocument.class);
+    }
     @Bean
     public NotificationCenter notificationCenter() {
         NotificationCenterImpl notificationCenter = new NotificationCenterImpl();

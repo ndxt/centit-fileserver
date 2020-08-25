@@ -6,6 +6,7 @@ import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
+import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Indexer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +27,11 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
     private FileInfoManager fileInfoManager;
 
     @Autowired(required = false)
-    private Indexer documentIndexer;
+    private ESIndexer esObjectIndexer;
 
     @Override
     public void accept(FileOptTaskInfo fileOptTaskInfo) {
-        if(documentIndexer==null){
+        if(esObjectIndexer==null){
             return;
         }
         String fileId = fileOptTaskInfo.getFileId();
@@ -38,7 +39,7 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
-        documentIndexer.saveNewDocument(fileDoc);
+        esObjectIndexer.mergeDocument(fileDoc);
         logger.info("文件已加入全文检索");
     }
 }

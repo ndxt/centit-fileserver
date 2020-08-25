@@ -36,18 +36,17 @@ public class POIPptToHtmlUtils {
      * @param targetFileName
      * @return
      */
-    public static String pptToHtml(String sourceFilePath, String targetFolder, String targetFileName) {
+    public static String pptToHtml(String sourceFilePath, String targetFolder, String targetFileName,String suffix) {
         FileSystemOpt.createDirect(targetFolder);
         File pptFile = new File(sourceFilePath);
         if (pptFile.exists()) {
             try {
-                String type = FileType.getFileType(sourceFilePath);
                 String targetFilePath = targetFolder + "/"+ targetFileName;
-                if ("ppt".equals(type)) {
+                if ("ppt".equals(suffix)) {
                     String htmlStr = toImage2003(sourceFilePath, targetFolder);
                     FileIOOpt.writeStringToFile(htmlStr, targetFilePath);
                     return "ok";
-                } else if ("pptx".equals(type)) {
+                } else if ("pptx".equals(suffix)) {
                     String htmlStr = toImage2007(sourceFilePath, targetFolder);
                     FileIOOpt.writeStringToFile(htmlStr, targetFilePath);
                     return "ok";
@@ -183,7 +182,7 @@ public class POIPptToHtmlUtils {
 
  public static void main(String[] args) {
   //POIPptToHtmlUtils.pptToHtml("D:/diagnosis/file/temp//ppt2007.pptx", "D:/diagnosis/file/temp/", "test5.html");
-  POIPptToHtmlUtils.pptToHtml("C:\\Users\\zhf\\Postman\\files\\1.pptx", "C:\\Users\\zhf\\Postman\\files\\tmp", "6.html");
+  POIPptToHtmlUtils.pptToHtml("C:\\Users\\zhf\\Postman\\files\\1.pptx", "C:\\Users\\zhf\\Postman\\files\\tmp", "6.html","ppt");
  }
 
 }
