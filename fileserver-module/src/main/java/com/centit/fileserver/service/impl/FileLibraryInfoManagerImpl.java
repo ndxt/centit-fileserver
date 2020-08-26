@@ -6,6 +6,7 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -67,6 +68,22 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
            result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
         }
         return result;
+    }
+
+    @Override
+    public void initPersonLibrary(String userCode) {
+        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
+            CollectionsOpt.createHashMap("ownUser",userCode,"libraryType","P"));
+        if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
+           FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+           fileLibraryInfo.setCreateUser(userCode);
+           fileLibraryInfo.setOwnUser(userCode);
+           fileLibraryInfo.setLibraryName("我的文件");
+           fileLibraryInfo.setLibraryType("P");
+           fileLibraryInfo.setIsCreateFolder("T");
+           fileLibraryInfo.setIsUpload("T");
+           createFileLibraryInfo(fileLibraryInfo);
+        }
     }
 
     private String[] getUnits(String userCode) {

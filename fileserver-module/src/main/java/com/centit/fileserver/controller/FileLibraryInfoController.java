@@ -99,7 +99,12 @@ public class FileLibraryInfoController extends BaseController {
         }
         return userCode;
     }
-
+    @RequestMapping(value="/initpersonlib",method = {RequestMethod.POST})
+    @ApiOperation(value = "初始化个人文件库")
+    @WrapUpResponseBody
+    public void initPersonLibrary(HttpServletRequest request){
+        fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
+    }
     /**
      * 新增 文件库信息
      *
@@ -126,10 +131,7 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "删除单个文件库信息")
     @WrapUpResponseBody
     public void deleteFileLibraryInfo(@PathVariable String libraryId) {
-
         fileLibraryInfoMag.deleteFileLibraryInfo(libraryId);
-
-
     }
 
     /**
