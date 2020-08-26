@@ -54,8 +54,9 @@ public class FileFolderInfoController  extends BaseController {
     @RequestMapping(value = "/{libraryId}/{folderId}",method = RequestMethod.GET)
 	@ApiOperation(value = "按库查询所有文件夹及文件夹信息列表")
 	@WrapUpResponseBody
-    public PageQueryResult<Map<String, Object>> list(@PathVariable String libraryId, @PathVariable String folderId) {
+    public PageQueryResult<Map<String, Object>> list(@PathVariable String libraryId, @PathVariable String folderId,HttpServletRequest request) {
         Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId",libraryId,"parentFolder",folderId);
+        searchColumn.put("favoriteUser",WebOptUtils.getCurrentUserCode(request));
         List<Map<String, Object>> result=new ArrayList<>();
         result.add(CollectionsOpt.createHashMap("folders", fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null)));

@@ -144,7 +144,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
             "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
-            "left join file_favorite c on a.file_id=c.file_id " +
+            "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
             "where file_state='N' and parent_folder=:parentFolder and library_id=:libraryId " +
             "group by FILE_NAME";
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
