@@ -55,8 +55,9 @@ public class FileFavorite implements java.io.Serializable {
 	private Date favoriteTime;
 
     @ApiModelProperty(value = "文件信息")
-    @OneToOne(mappedBy = "fileFavorite", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "fileFavorite", orphanRemoval = true, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
     @JoinColumn(name = "file_id", referencedColumnName = "file_id")
+    @JsonIgnore
     private FileInfo fileInfo;
 
 }

@@ -32,13 +32,11 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
     @Override
     public void updateFileFavorite(FileFavorite fileFavorite) {
         fileFavoriteDao.updateObject(fileFavorite);
-        fileFavoriteDao.saveObjectReferences(fileFavorite);
     }
 
     @Override
     public void createFileFavorite(FileFavorite fileFavorite) {
         fileFavoriteDao.saveNewObject(fileFavorite);
-        fileFavoriteDao.saveObjectReferences(fileFavorite);
     }
 
     @Override

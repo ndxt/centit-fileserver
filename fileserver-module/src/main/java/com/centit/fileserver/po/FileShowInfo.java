@@ -31,6 +31,15 @@ public class FileShowInfo {
 
     private Date createTime;//, CREATE_TIME
 
+    public String getFavoriteId() {
+        return favoriteId;
+    }
+
+    public void setFavoriteId(String favoriteId) {
+        this.favoriteId = favoriteId;
+    }
+
+    private String favoriteId;
     public int getVersions() {
         return versions;
     }
