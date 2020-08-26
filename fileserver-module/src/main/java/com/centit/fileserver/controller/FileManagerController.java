@@ -142,12 +142,17 @@ public class FileManagerController extends BaseController {
      * @param response HttpServletResponse
      */
 
-    private void updateFileStoreInfo(FileInfo fileInfo, HttpServletResponse response){
-        FileInfo dbFileInfo = fileInfoManager.getObjectById(fileInfo.getFileId());
+    private void updateFileStoreInfo(String fileId,FileInfo fileInfo, HttpServletResponse response){
+        FileInfo dbFileInfo = fileInfoManager.getObjectById(fileId);
 
         if(dbFileInfo !=null){
             dbFileInfo.copyNotNullProperty(fileInfo);
-            fileInfoManager.updateObject(dbFileInfo);
+            if(StringBaseOpt.isNvl(fileInfo.getFileId())){
+                dbFileInfo.setFileId(null);
+                fileInfoManager.saveNewFile(dbFileInfo);
+            }else {
+                fileInfoManager.updateObject(dbFileInfo);
+            }
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
         }else{
             JsonResultUtils.writeErrorMessageJson(
@@ -165,8 +170,7 @@ public class FileManagerController extends BaseController {
     @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照表单的形式传送")
     public void postFileStoreInfo(@PathVariable("fileId") String fileId,
             @Valid FileInfo fileInfo, HttpServletResponse response){
-        fileInfo.setFileId(fileId);
-        updateFileStoreInfo(fileInfo,response);
+        updateFileStoreInfo(fileId,fileInfo,response);
     }
 
     /**
@@ -179,8 +183,7 @@ public class FileManagerController extends BaseController {
     @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照json的形式传送")
     public void jsonpostFileStoreInfo(@PathVariable("fileId") String fileId,
             @RequestBody FileInfo fileInfo, HttpServletResponse response){
-        fileInfo.setFileId(fileId);
-        updateFileStoreInfo(fileInfo,response);
+        updateFileStoreInfo(fileId,fileInfo,response);
     }
 
     /**
