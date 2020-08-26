@@ -280,6 +280,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "uc",userCode,
                             "fn",fileName));
         }else{
+            fileShowPath="/"+fileShowPath;
             String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                     "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
