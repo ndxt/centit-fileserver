@@ -143,7 +143,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,max(a.file_show_path) as file_show_path " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
-            "where parent_folder=:parentFolder and library_id=:libraryId " +
+            "where file_state='N' and parent_folder=:parentFolder and library_id=:libraryId " +
             "group by FILE_NAME";
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
             sqlsen, searchColumn);
