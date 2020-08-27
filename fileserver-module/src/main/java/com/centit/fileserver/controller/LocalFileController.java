@@ -19,6 +19,7 @@ import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.UuidOpt;
+import com.centit.support.json.JSONOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -271,7 +272,8 @@ public class LocalFileController extends BaseController {
 
 //        fileAccessLogManager.saveNewAccessLog(accessLog);
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
-            .method("inline".equalsIgnoreCase(request.getParameter("downloadType"))?"预览":"下载").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()));
+            .method("inline".equalsIgnoreCase(request.getParameter("downloadType"))?"预览":"下载").tag(fileInfo.getFileId())
+            .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
         fileInfoManager.updateObject(fileInfo);
     }
 
