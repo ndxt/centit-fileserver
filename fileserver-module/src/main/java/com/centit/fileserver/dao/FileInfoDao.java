@@ -273,25 +273,27 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUserFileVersions(String userCode, String fileShowPath,String fileName) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
-                    "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
+                "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
+                "where FILE_OWNER = :uc and fileState='N' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, CollectionsOpt.createHashMap(
-                            "uc",userCode,
+                            "favoriteUser",userCode,
                             "fn",fileName));
         }else{
             fileShowPath="/"+fileShowPath;
-            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
-                    "where FILE_OWNER = :uc and OS_ID='FILE_SVR' and OPT_ID='LOCAL_FILE' " +
+                "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
+                "where  fileState='N' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, CollectionsOpt.createHashMap(
-                            "uc",userCode,
+                            "favoriteUser",userCode,
                             "fsp",fileShowPath,
                             "fn",fileName));
         }

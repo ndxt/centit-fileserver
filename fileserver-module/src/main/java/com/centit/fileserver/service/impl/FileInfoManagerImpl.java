@@ -93,7 +93,7 @@ public class FileInfoManagerImpl
     @Override
     public FileInfo getDuplicateFile(FileInfo originalFile){
         String queryStatement =
-                " where FILE_ID <> ? and FILE_MD5 = ?" +
+                " where FILE_ID <> ? and FILE_MD5 = ? and file_state='N'" +
                 " and ( FILE_OWNER = ? or FILE_UNIT= ? )";
         List<FileInfo> duplicateFiles =
                 baseDao.listObjectsByFilter( queryStatement, new Object[]
