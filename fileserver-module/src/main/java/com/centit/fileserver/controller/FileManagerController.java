@@ -133,7 +133,7 @@ public class FileManagerController extends BaseController {
                     "文件不存在："+fileId, response);
         }
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
-            .method("查看").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(""));
+            .method("查看").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()));
     }
 
     /**
@@ -277,7 +277,7 @@ public class FileManagerController extends BaseController {
             fileInfoManager.updateObject(fileInfo);
         }
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
-            .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(""));
+            .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()));
         return CollectionsOpt.createHashMap("authcode",fileInfo.getAuthCode(),
             "uri","/checkauth/"+fileId);
     }

@@ -271,7 +271,7 @@ public class LocalFileController extends BaseController {
 
 //        fileAccessLogManager.saveNewAccessLog(accessLog);
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
-            .method("inline".equalsIgnoreCase(request.getParameter("downloadType"))?"预览":"下载").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate()).content(StringBaseOpt.castObjectToString(accessLog)));
+            .method("inline".equalsIgnoreCase(request.getParameter("downloadType"))?"预览":"下载").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()));
         fileInfoManager.updateObject(fileInfo);
     }
 

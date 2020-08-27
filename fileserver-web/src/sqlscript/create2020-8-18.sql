@@ -67,7 +67,7 @@ create table file_info
    file_name            varchar(200) comment '原始文件名称',
    file_store_path      varchar(200) comment '文件存储在服务器上的相对路径',
    file_show_path       varchar(1000) comment '文件在服务端展示是的相对路径',
-   file_type            varchar(8) comment '文件后缀名',
+   file_type            varchar(32) comment '文件后缀名',
    file_Desc            varchar(200),
    file_state           char(1) comment 'C : 正在上传  N : 正常 Z:空文件 F:文件上传失败',
    file_size            numeric(20,0),
@@ -160,4 +160,18 @@ create table file_upload_authorized
    last_upload_time     datetime,
    primary key (upload_token)
 );
-
+CREATE TABLE f_opt_log  (
+  log_id varchar(32),
+  log_level varchar(200),
+  user_code varchar(32),
+  opt_time datetime(0) NOT NULL,
+  opt_content varchar(1000),
+  new_value text,
+  old_value text,
+  opt_id varchar(32),
+  opt_method varchar(500),
+  opt_tag varchar(200),
+  unit_code varchar(32),
+  correlation_id decimal(32, 0) NULL DEFAULT NULL,
+  PRIMARY KEY (log_id)
+);
