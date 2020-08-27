@@ -88,9 +88,15 @@ public class DownloadController extends BaseController {
                         new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName());
                 } else {
-                    UploadDownloadUtils.downFileRange(request, response,
-                        fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
-                        fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                    try{
+                        InputStream inputStream= fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                        UploadDownloadUtils.downFileRange(request, response,
+                            inputStream,
+                            fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                    }catch (Exception e){
+                       logger.error(e.getMessage());
+                       JsonResultUtils.writeErrorMessageJson(e.getMessage(),response);
+                    }
                 }
             }
         } else {
