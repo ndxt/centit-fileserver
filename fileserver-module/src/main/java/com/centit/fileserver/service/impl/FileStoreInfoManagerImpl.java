@@ -5,7 +5,7 @@ import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class FileStoreInfoManagerImpl
     @Override
     @Transactional
     public void saveTempFileInfo(String fileMd5, String tempFilePath, long size) {
-        if(StringUtils.isBlank(fileMd5)){
+        if (StringUtils.isBlank(fileMd5)) {
             return;
         }
 

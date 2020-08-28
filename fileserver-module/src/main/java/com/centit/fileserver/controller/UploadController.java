@@ -6,6 +6,7 @@ import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileOptTaskQueue;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
@@ -93,8 +94,9 @@ public class UploadController extends BaseController {
         fileInfo.setFileMd5(request.getParameter("token"));
         String fileName =UploadDownloadUtils.getRequestFirstOneParameter(request,"name","fileName");
         String fileState = request.getParameter("fileState");
-        if(StringUtils.isNotBlank(fileState))
+        if(StringUtils.isNotBlank(fileState)) {
             fileInfo.setFileState(fileState);
+        }
 
         fileInfo.setFileName(fileName);//*
         fileInfo.setOsId(request.getParameter("osId"));//*
@@ -103,8 +105,9 @@ public class UploadController extends BaseController {
         fileInfo.setOptTag(request.getParameter("optTag"));
         //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
         String filePath = request.getParameter("filePath");
-        if(StringUtils.isBlank(filePath))
+        if(StringUtils.isBlank(filePath)) {
             filePath = request.getParameter("fileShowPath");
+        }
         fileInfo.setFileShowPath(filePath);
         fileInfo.setFileOwner(request.getParameter("fileOwner"));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
@@ -134,13 +137,17 @@ public class UploadController extends BaseController {
                 request.getParameter("width"), 300l).intValue());
         //encryptType 加密方式 N : 没有加密 Z：zipFile D: DES加密
         String encryptType = request.getParameter("encryptType");
-        if("zip".equalsIgnoreCase(encryptType) || "Z".equals(encryptType))
+        if("zip".equalsIgnoreCase(encryptType) || "Z".equals(encryptType)) {
             pretreatInfo.put("encryptType", "Z");
+        }
         if("des".equalsIgnoreCase(encryptType) || "D".equals(encryptType)) // 待删除
+        {
             pretreatInfo.put("encryptType", "A");
+        }
         //AES 暂未实现
-        if("aes".equalsIgnoreCase(encryptType) || "A".equals(encryptType))
+        if("aes".equalsIgnoreCase(encryptType) || "A".equals(encryptType)) {
             pretreatInfo.put("encryptType", "A");
+        }
         pretreatInfo.put("password", request.getParameter("password"));
 
         return pretreatInfo;
@@ -319,7 +326,8 @@ public class UploadController extends BaseController {
                 fileOptTaskQueue.add(indexTaskInfo);
             }
 
-            if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)) {
+            if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)||
+            checkPdf(fileInfo)) {
                 FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
                 addPdfTaskInfo.setFileId(fileId);
                 addPdfTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
@@ -367,6 +375,23 @@ public class UploadController extends BaseController {
         return UploadDownloadUtils.makeRangeUploadCompleteJson(
             fileMd5, size, fileInfo.getFileName(), fileId);
 
+    }
+
+    private boolean checkPdf(FileInfo fileInfo) {
+        if(StringBaseOpt.isNvl(fileInfo.getLibraryId())){
+            return false;
+        }
+        switch (fileInfo.getFileType()) {
+            case AbstractOfficeToPdf.DOC:
+            case AbstractOfficeToPdf.DOCX:
+            case AbstractOfficeToPdf.XLS:
+            case AbstractOfficeToPdf.XLSX:
+            case AbstractOfficeToPdf.PPT:
+            case AbstractOfficeToPdf.PPTX:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

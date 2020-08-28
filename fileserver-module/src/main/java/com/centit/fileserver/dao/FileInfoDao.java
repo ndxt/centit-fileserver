@@ -18,6 +18,7 @@ import java.util.*;
 @Repository
 public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
 
+    @Override
     public Map<String, String> getFilterField() {
         Map<String, String> filterField = new HashMap<>();
 
@@ -32,11 +33,13 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     }
 
     private static String trimFilePath(String filePath){
-        if(StringUtils.isBlank(filePath))
+        if(StringUtils.isBlank(filePath)) {
             return "";
+        }
         String tfp = filePath.trim();
-        if(tfp.endsWith("/"))
+        if(tfp.endsWith("/")) {
             return tfp.substring(0,tfp.length()-1);
+        }
         return tfp;
     }
 
@@ -82,8 +85,9 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         if(objects !=null){
             for(Object obj:objects){
                 String sd =StringBaseOpt.objectToString(obj);
-                if(StringUtils.isNotBlank(sd))
+                if(StringUtils.isNotBlank(sd)) {
                     dirs.add(sd);
+                }
             }
         }
         return dirs;
@@ -260,8 +264,9 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setAccessToken(StringBaseOpt.objectToString(objs[1]));
                 file.setVersions(NumberBaseOpt.castObjectToInteger(objs[2]));
                 file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[3]),"D"));
-                if(objs[4] instanceof java.util.Date )
-                    file.setCreateTime((java.util.Date)objs[4]);
+                if(objs[4] instanceof java.util.Date ) {
+                    file.setCreateTime((Date)objs[4]);
+                }
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[5]));
 
                 files.add(file);
@@ -276,7 +281,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
-                "where FILE_OWNER = :uc and fileState='N' " +
+                "where FILE_OWNER = :uc and file_state='N' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -288,7 +293,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
-                "where  fileState='N' " +
+                "where  file_state='N' " +
                     "and FILE_SHOW_PATH=:fsp " +
                     "and FILE_NAME=:fn";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
@@ -308,8 +313,9 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setAccessToken(StringBaseOpt.objectToString(objs[0]));
                 file.setVersions(1);
                 file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[1]),"D"));
-                if(objs[2] instanceof java.util.Date )
-                    file.setCreateTime((java.util.Date)objs[2]);
+                if(objs[2] instanceof java.util.Date ) {
+                    file.setCreateTime((Date)objs[2]);
+                }
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[3]));
 
                 files.add(file);
@@ -355,8 +361,9 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setAccessToken(StringBaseOpt.objectToString(objs[0]));
                 file.setVersions(1);
                 file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[1]),"D"));
-                if(objs[2] instanceof java.util.Date )
-                    file.setCreateTime((java.util.Date)objs[2]);
+                if(objs[2] instanceof java.util.Date ) {
+                    file.setCreateTime((Date)objs[2]);
+                }
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[3]));
 
                 files.add(file);

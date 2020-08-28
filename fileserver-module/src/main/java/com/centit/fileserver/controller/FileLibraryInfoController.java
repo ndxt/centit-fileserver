@@ -15,6 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,8 +103,11 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(value="/initpersonlib",method = {RequestMethod.POST})
     @ApiOperation(value = "初始化个人文件库")
     @WrapUpResponseBody
+    @Transactional(rollbackFor=Exception.class)
     public void initPersonLibrary(HttpServletRequest request){
         fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
+        fileLibraryInfoMag.initUnitLibrary(WebOptUtils.getCurrentUnitCode(request),WebOptUtils.getCurrentUserCode(request));
+
     }
     /**
      * 新增 文件库信息

@@ -35,12 +35,12 @@ public abstract class AbstractOfficeToPdf {
     private AbstractOfficeToPdf() {
         throw new IllegalAccessError("Utility class");
     }
-private final static String DOC="doc";
-    private final static String DOCX="docx";
-    private final static String XLS="xls";
-    private final static String XLSX="xlsx";
-    private final static String PPT="ppt";
-    private final static String PPTX="pptx";
+    public final static String DOC="doc";
+    public final static String DOCX="docx";
+    public final static String XLS="xls";
+    public final static String XLSX="xlsx";
+    public final static String PPT="ppt";
+    public final static String PPTX="pptx";
     private final static String PDF="pdf";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);

@@ -7,10 +7,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -18,6 +15,9 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import static org.apache.poi.ss.usermodel.CellType.*;
+
 public class XlsxTransformXls {
     private int lastColumn = 0;
     private HashMap<Integer, HSSFCellStyle> styleMap = new HashMap();
@@ -67,8 +67,9 @@ public class XlsxTransformXls {
         HSSFRow rowNew;
         for (Row row : sheetOld) {
             rowNew = sheetNew.createRow(row.getRowNum());
-            if (rowNew != null)
+            if (rowNew != null) {
                 this.transform(workbookOld, workbookNew, (XSSFRow) row, rowNew);
+            }
         }
 
         for (int i = 0; i < this.lastColumn; i++) {
@@ -110,21 +111,21 @@ public class XlsxTransformXls {
         cellNew.setCellStyle(this.styleMap.get(hash));
 
         switch (cellOld.getCellType()) {
-            case Cell.CELL_TYPE_BLANK:
+            case BLANK:
                 break;
-            case Cell.CELL_TYPE_BOOLEAN:
+            case BOOLEAN:
                 cellNew.setCellValue(cellOld.getBooleanCellValue());
                 break;
-            case Cell.CELL_TYPE_ERROR:
+            case ERROR:
                 cellNew.setCellValue(cellOld.getErrorCellValue());
                 break;
-            case Cell.CELL_TYPE_FORMULA:
+            case FORMULA:
                 cellNew.setCellValue(cellOld.getCellFormula());
                 break;
-            case Cell.CELL_TYPE_NUMERIC:
+            case NUMERIC:
                 cellNew.setCellValue(cellOld.getNumericCellValue());
                 break;
-            case Cell.CELL_TYPE_STRING:
+            case STRING:
                 cellNew.setCellValue(cellOld.getStringCellValue());
                 break;
             default:
@@ -164,7 +165,7 @@ public class XlsxTransformXls {
 
     private HSSFFont transform(HSSFWorkbook workbookNew, XSSFFont fontOld) {
         HSSFFont fontNew = workbookNew.createFont();
-        fontNew.setBoldweight(fontOld.getBoldweight());
+        fontNew.setBold(fontOld.getBold());
         fontNew.setCharSet(fontOld.getCharSet());
         fontNew.setColor(fontOld.getColor());
         fontNew.setFontName(fontOld.getFontName());

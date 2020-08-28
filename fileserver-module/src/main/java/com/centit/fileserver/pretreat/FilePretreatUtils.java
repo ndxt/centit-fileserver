@@ -298,7 +298,7 @@ public class FilePretreatUtils {
         fileDoc.setUnitCode(fileInfo.getFileUnit());
         //获取文件的文本信息
         try {
-            fileDoc.setContent(TikaTextExtractor.extractInputStreamText(new FileInputStream(sourceFilePath)));
+            fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFilePath));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

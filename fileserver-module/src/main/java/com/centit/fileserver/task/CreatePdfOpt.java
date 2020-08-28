@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +32,9 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        FileInfo oldInfo= new FileInfo();
+        oldInfo.copyNotNullProperty(fileInfo);
+        oldInfo.setFileId(fileId);
         if(null==fileInfo) {
             return;
         }
@@ -39,7 +43,9 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
             String pdfTempFile = FilePretreatUtils.createPdf(fileInfo, originalTempFilePath);
             if (null != pdfTempFile) {
                 save(pdfTempFile, fileInfo.getFileMd5(), new File(pdfTempFile).length());
-                fileInfoManager.updateObject(fileInfo);
+                oldInfo.setAttachedFileMd5(fileInfo.getFileMd5());
+                oldInfo.setAttachedType(fileInfo.getFileType());
+                fileInfoManager.updateObject(oldInfo);
                 logger.info("生成PDF完成");
             }
         } catch (IOException e) {

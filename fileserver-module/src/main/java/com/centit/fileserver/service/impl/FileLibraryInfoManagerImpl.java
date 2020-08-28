@@ -51,7 +51,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public List<FileLibraryInfo> listFileLibraryInfo(String userCode) {
-        String where =" where 1=1 and ((library_type='P' and own_user=:userCode) or "
+        String where =" where 1=1 and ((own_user=:userCode) or "
             +"(library_type='O' and own_unit in (:ownunit)) "
             +"or (library_type='I' and library_id in (select library_id from file_library_access where access_usercode=:accessuser)))";
         Map<String,Object> map=new HashMap<>();
@@ -83,6 +83,23 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
            fileLibraryInfo.setIsCreateFolder("T");
            fileLibraryInfo.setIsUpload("T");
            createFileLibraryInfo(fileLibraryInfo);
+        }
+    }
+
+    @Override
+    public void initUnitLibrary(String unitCode,String userCode) {
+        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
+            CollectionsOpt.createHashMap("ownUnit",unitCode,"libraryType","O"));
+        if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
+            FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+            fileLibraryInfo.setCreateUser(userCode);
+            fileLibraryInfo.setOwnUser(userCode);
+            fileLibraryInfo.setOwnUnit(unitCode);
+            fileLibraryInfo.setLibraryName(CodeRepositoryUtil.getUnitName(unitCode));
+            fileLibraryInfo.setLibraryType("O");
+            fileLibraryInfo.setIsCreateFolder("T");
+            fileLibraryInfo.setIsUpload("T");
+            createFileLibraryInfo(fileLibraryInfo);
         }
     }
 
