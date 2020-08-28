@@ -2,6 +2,7 @@ package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.FileFolderInfoManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
@@ -54,14 +55,30 @@ public class FileFolderInfoController  extends BaseController {
     @RequestMapping(value = "/{libraryId}/{folderId}",method = RequestMethod.GET)
 	@ApiOperation(value = "按库查询所有文件夹及文件夹信息列表")
 	@WrapUpResponseBody
-    public PageQueryResult<Map<String, Object>> list(@PathVariable String libraryId, @PathVariable String folderId,HttpServletRequest request) {
+    public List<FileShowInfo> list(@PathVariable String libraryId, @PathVariable String folderId, HttpServletRequest request) {
         Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId",libraryId,"parentFolder",folderId);
         searchColumn.put("favoriteUser",WebOptUtils.getCurrentUserCode(request));
-        List<Map<String, Object>> result=new ArrayList<>();
-        result.add(CollectionsOpt.createHashMap("folders", fileFolderInfoMag.listFileFolderInfo(
-            searchColumn, null)));
-        result.add(CollectionsOpt.createHashMap("fileShowInfos", localFileManager.listFolderFiles(searchColumn)));
-		return PageQueryResult.createResult(result,null);
+
+        List<FileFolderInfo> fileFolderInfos= fileFolderInfoMag.listFileFolderInfo(
+            searchColumn, null);
+        List<FileShowInfo> fileShowInfos= localFileManager.listFolderFiles(searchColumn);
+		for(FileFolderInfo fileFolderInfo:fileFolderInfos){
+            FileShowInfo fileShowInfo = fileFolderToFileShow(fileFolderInfo);
+            fileShowInfos.add(fileShowInfo);
+        }
+        return fileShowInfos;
+    }
+
+    private FileShowInfo fileFolderToFileShow(FileFolderInfo fileFolderInfo) {
+        FileShowInfo fileShowInfo=new FileShowInfo();
+        fileShowInfo.setFileName(fileFolderInfo.getFolderName());
+        fileShowInfo.setFileShowPath(fileFolderInfo.getFolderPath());
+        fileShowInfo.setFolder(true);
+        fileShowInfo.setFolderId(fileFolderInfo.getFolderId());
+        fileShowInfo.setParentPath(fileFolderInfo.getParentFolder());
+        fileShowInfo.setCreateFolder(fileFolderInfo.getIsCreateFolder());
+        fileShowInfo.setUploadFile(fileFolderInfo.getIsUpload());
+        return fileShowInfo;
     }
 
     /**

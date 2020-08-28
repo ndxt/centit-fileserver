@@ -133,8 +133,6 @@ public class FileManagerController extends BaseController {
             JsonResultUtils.writeErrorMessageJson(
                     "文件不存在："+fileId, response);
         }
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
-            .method("查看").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
     }
 
     /**

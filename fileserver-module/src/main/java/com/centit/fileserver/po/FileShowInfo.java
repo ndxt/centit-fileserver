@@ -31,6 +31,54 @@ public class FileShowInfo {
 
     private Date createTime;//, CREATE_TIME
 
+    public boolean isFolder() {
+        return isFolder;
+    }
+
+    public void setFolder(boolean folder) {
+        isFolder = folder;
+    }
+
+    public String getUploadFile() {
+        return uploadFile;
+    }
+
+    public void setUploadFile(String uploadFile) {
+        this.uploadFile = uploadFile;
+    }
+
+    public String getCreateFolder() {
+        return createFolder;
+    }
+
+    public void setCreateFolder(String createFolder) {
+        this.createFolder = createFolder;
+    }
+
+    private boolean isFolder;
+    private String uploadFile;
+    private String createFolder;
+
+    public String getParentPath() {
+        return parentPath;
+    }
+
+    public void setParentPath(String parentPath) {
+        this.parentPath = parentPath;
+    }
+
+    private String parentPath;
+
+    public String getFolderId() {
+        return folderId;
+    }
+
+    public void setFolderId(String folderId) {
+        this.folderId = folderId;
+    }
+
+    private String folderId;
+
     public String getFavoriteId() {
         return favoriteId;
     }

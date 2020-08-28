@@ -11,11 +11,16 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
+import com.centit.support.file.FileType;
 import com.centit.support.security.Md5Encoder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,7 +83,7 @@ public class DownloadController extends BaseController {
                 }
                 try(InputStream inputStream = new FileInputStream(tmpFile)){
                     UploadDownloadUtils.downFileRange(request, response,
-                        inputStream, tmpFile.length(), fileInfo.getFileName());
+                        inputStream, tmpFile.length(), fileInfo.getFileName(),request.getParameter("downloadType"));
                 }
 
                 FileSystemOpt.deleteFile(tmpFile);
@@ -86,13 +91,13 @@ public class DownloadController extends BaseController {
                 if (fileStoreInfo.isTemp()){
                     UploadDownloadUtils.downFileRange(request, response,
                         new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
-                        fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(),request.getParameter("downloadType"));
                 } else {
                     try{
                         InputStream inputStream= fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                         UploadDownloadUtils.downFileRange(request, response,
                             inputStream,
-                            fileStoreInfo.getFileSize(), fileInfo.getFileName());
+                            fileStoreInfo.getFileSize(), fileInfo.getFileName(),request.getParameter("downloadType"));
                     }catch (Exception e){
                        logger.error(e.getMessage());
                        JsonResultUtils.writeErrorMessageJson(e.getMessage(),response);
@@ -105,7 +110,23 @@ public class DownloadController extends BaseController {
         }
     }
 
-
+    @RequestMapping(value= "/preview/{fileId}",method=RequestMethod.GET)
+    @ApiOperation(value = "预览文件")
+    public void previewFile(@PathVariable("fileId") String fileId,  HttpServletRequest request,
+                               HttpServletResponse response) throws IOException {
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())){
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
+        }else {
+            FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+            UploadDownloadUtils.downFileRange(request, response,
+                fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), FileType.truncateFileExtName(fileInfo.getFileName()) + ".pdf", "inline");
+        }
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+            .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+    }
     /**
      * 根据文件的id下载附属文件
      * 这个需要权限 控制 用于内部服务之间文件传输
@@ -138,7 +159,7 @@ public class DownloadController extends BaseController {
             FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
             UploadDownloadUtils.downFileRange(request, response,
                 fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName());
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName(),request.getParameter("downloadType"));
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "找不到该文件", response);
@@ -323,6 +344,6 @@ public class DownloadController extends BaseController {
 
         UploadDownloadUtils.downFileRange(request, response,
             inputStream,
-            fileSize, fileName);
+            fileSize, fileName,request.getParameter("downloadType"));
     }
 }

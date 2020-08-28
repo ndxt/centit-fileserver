@@ -269,7 +269,7 @@ public abstract class FileController extends BaseController {
         Pair<String, Long> md5Size = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
         InputStream inputStream = fileStore.loadFileStream(md5Size.getLeft(), md5Size.getRight());
         UploadDownloadUtils.downFileRange(request, response,
-            inputStream,  md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName));
+            inputStream,  md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName),request.getParameter("downloadType"));
     }
 
 }

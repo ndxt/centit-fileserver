@@ -167,7 +167,7 @@ public abstract class UploadDownloadUtils {
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                      InputStream inputStream, long fSize, String fileName)
+                                      InputStream inputStream, long fSize, String fileName,String downloadType)
             throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);
@@ -180,9 +180,8 @@ public abstract class UploadDownloadUtils {
         response.setHeader("Accept-Ranges", "bytes");
         //这个需要设置成真正返回的长度
         //response.setHeader("Content-Length", String.valueOf(fSize));
-        String s = request.getParameter("downloadType");
         response.setHeader("Content-Disposition",
-                ("inline".equalsIgnoreCase(s)?"inline": "attachment")+"; filename="
+                ("inline".equalsIgnoreCase(downloadType)?"inline": "attachment")+"; filename="
                         + UploadDownloadUtils.encodeDownloadFilename(fileName));
         long pos = 0;
 

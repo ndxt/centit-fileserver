@@ -58,7 +58,20 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         map.put("userCode",userCode);
         map.put("ownunit",getUnits(userCode));
         map.put("accessuser",userCode);
-        return fileLibraryInfoDao.listObjectsByFilter(where,map);
+        List<FileLibraryInfo> libraryInfos= fileLibraryInfoDao.listObjectsByFilter(where,map);
+        boolean hasPerson= libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
+            userCode.equals(fileLibraryInfo.getOwnUser()));
+        if(!hasPerson){
+           libraryInfos.add(getPersonLibraryInfo(userCode));
+        }
+        for(String unitCode:getUnits(userCode)) {
+            boolean hasUnit= libraryInfos.stream().anyMatch(fileLibraryInfo -> "U".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
+                unitCode.equals(fileLibraryInfo.getOwnUnit()));
+            if (!hasUnit) {
+                libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
+            }
+        }
+        return libraryInfos;
     }
 
     @Override
@@ -75,15 +88,20 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("ownUser",userCode,"libraryType","P"));
         if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
-           FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
-           fileLibraryInfo.setCreateUser(userCode);
-           fileLibraryInfo.setOwnUser(userCode);
-           fileLibraryInfo.setLibraryName("我的文件");
-           fileLibraryInfo.setLibraryType("P");
-           fileLibraryInfo.setIsCreateFolder("T");
-           fileLibraryInfo.setIsUpload("T");
-           createFileLibraryInfo(fileLibraryInfo);
+            FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(userCode);
+            createFileLibraryInfo(fileLibraryInfo);
         }
+    }
+
+    private FileLibraryInfo getPersonLibraryInfo(String userCode) {
+        FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+        fileLibraryInfo.setCreateUser(userCode);
+        fileLibraryInfo.setOwnUser(userCode);
+        fileLibraryInfo.setLibraryName("我的文件");
+        fileLibraryInfo.setLibraryType("P");
+        fileLibraryInfo.setIsCreateFolder("T");
+        fileLibraryInfo.setIsUpload("T");
+        return fileLibraryInfo;
     }
 
     @Override
@@ -91,16 +109,21 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("ownUnit",unitCode,"libraryType","O"));
         if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
-            FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
-            fileLibraryInfo.setCreateUser(userCode);
-            fileLibraryInfo.setOwnUser(userCode);
-            fileLibraryInfo.setOwnUnit(unitCode);
-            fileLibraryInfo.setLibraryName(CodeRepositoryUtil.getUnitName(unitCode));
-            fileLibraryInfo.setLibraryType("O");
-            fileLibraryInfo.setIsCreateFolder("T");
-            fileLibraryInfo.setIsUpload("T");
+            FileLibraryInfo fileLibraryInfo = getUnitLibraryInfo(unitCode, userCode);
             createFileLibraryInfo(fileLibraryInfo);
         }
+    }
+
+    private FileLibraryInfo getUnitLibraryInfo(String unitCode, String userCode) {
+        FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+        fileLibraryInfo.setCreateUser(userCode);
+        fileLibraryInfo.setOwnUser(userCode);
+        fileLibraryInfo.setOwnUnit(unitCode);
+        fileLibraryInfo.setLibraryName(CodeRepositoryUtil.getUnitName(unitCode));
+        fileLibraryInfo.setLibraryType("O");
+        fileLibraryInfo.setIsCreateFolder("T");
+        fileLibraryInfo.setIsUpload("T");
+        return fileLibraryInfo;
     }
 
     private String[] getUnits(String userCode) {

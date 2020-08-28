@@ -14,8 +14,11 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.*;
@@ -484,6 +487,9 @@ public class UploadController extends BaseController {
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
+            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+                .method("上传").tag(formData.getLeft().getFileId()).time(DatetimeOpt.currentUtilDate()).content(formData.getLeft().getFileName()).newObject(formData.getLeft()));
+
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),

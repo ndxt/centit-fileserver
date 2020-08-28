@@ -75,7 +75,6 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询单个文件库信息")
     @WrapUpResponseBody
     public FileLibraryInfo getFileLibraryInfo(@PathVariable String libraryId) {
-
         return fileLibraryInfoMag.getFileLibraryInfo(libraryId);
     }
 
@@ -103,11 +102,14 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(value="/initpersonlib",method = {RequestMethod.POST})
     @ApiOperation(value = "初始化个人文件库")
     @WrapUpResponseBody
-    @Transactional(rollbackFor=Exception.class)
     public void initPersonLibrary(HttpServletRequest request){
         fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
+    }
+    @RequestMapping(value="/initunitlib",method = {RequestMethod.POST})
+    @ApiOperation(value = "初始化机构库")
+    @WrapUpResponseBody
+    public void initUnitLibrary(HttpServletRequest request){
         fileLibraryInfoMag.initUnitLibrary(WebOptUtils.getCurrentUnitCode(request),WebOptUtils.getCurrentUserCode(request));
-
     }
     /**
      * 新增 文件库信息
