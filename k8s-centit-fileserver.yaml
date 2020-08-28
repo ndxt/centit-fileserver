@@ -42,7 +42,7 @@ spec:
           mountPath: /usr/local/tomcat/logs
         - name: file-home
           mountPath: /D/Projects/RunData/file_home
-          subPath: /project/ctm/fileserver
+          subPath: project/ctm/fileserver
         ports:
         - containerPort: 8080
       imagePullSecrets:
