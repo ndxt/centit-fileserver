@@ -380,7 +380,7 @@ public class UploadController extends BaseController {
 
     }
 
-    private boolean checkPdf(FileInfo fileInfo) {
+    public static boolean checkPdf(FileInfo fileInfo) {
         if(StringBaseOpt.isNvl(fileInfo.getLibraryId())){
             return false;
         }

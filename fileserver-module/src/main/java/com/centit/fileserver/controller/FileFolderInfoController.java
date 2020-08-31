@@ -15,6 +15,7 @@ import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,7 +48,20 @@ public class FileFolderInfoController  extends BaseController {
         this.localFileManager=localFileManager;
     }
 
-
+    @RequestMapping(value = "/prev/{folderId}",method = RequestMethod.GET)
+    @ApiOperation(value = "查询文件夹所有上级文件夹")
+    @WrapUpResponseBody
+    public List<FileFolderInfo> list(@PathVariable String folderId, HttpServletRequest request) {
+       FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(folderId);
+       String[] paths= StringUtils.split(fileFolderInfo.getFolderPath(),"/");
+       List<FileFolderInfo> fileFolderInfos = new ArrayList<>();
+       for(String path:paths){
+           if(!"-1".equals(path)) {
+               fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));
+           }
+       }
+       return fileFolderInfos;
+    }
     /**
      * 查询所有   文件夹信息  列表
      * @return {data:[]}

@@ -160,7 +160,10 @@ public class XlsxTransformXls {
                             short index) {
         DataFormat formatOld = workbookOld.createDataFormat();
         DataFormat formatNew = workbookNew.createDataFormat();
-        return formatNew.getFormat(formatOld.getFormat(index));
+        if(formatOld.getFormat(index)!=null) {
+            return formatNew.getFormat(formatOld.getFormat(index));
+        }
+        return index;
     }
 
     private HSSFFont transform(HSSFWorkbook workbookNew, XSSFFont fontOld) {

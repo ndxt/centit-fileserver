@@ -2,10 +2,14 @@ package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.file.FileSystemOpt;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +30,10 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
 
     @Autowired
     private FileInfoManager fileInfoManager;
+    @Autowired
+    private FileStoreInfoManager fileStoreInfoManager;
 
+    @SneakyThrows
     @Override
     public void accept(FileOptTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
@@ -39,6 +46,12 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
             return;
         }
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+        if(!new File(originalTempFilePath).exists()){
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            if(fileStoreInfo!=null) {
+                FileSystemOpt.fileCopy(fileStore.getFileStoreUrl(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize()), originalTempFilePath);
+            }
+        }
         try {
             String pdfTempFile = FilePretreatUtils.createPdf(fileInfo, originalTempFilePath);
             if (null != pdfTempFile) {

@@ -1,12 +1,16 @@
 package com.centit.fileserver.controller;
 
+import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
+import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.task.CreatePdfOpt;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
@@ -57,6 +61,8 @@ public class DownloadController extends BaseController {
 
     @Autowired
     protected FileStore fileStore;
+    @Autowired
+    protected CreatePdfOpt createPdfOpt;
 
 
     public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
@@ -65,10 +71,10 @@ public class DownloadController extends BaseController {
 
             //对加密的进行特殊处理，ZIP加密的无需处理
             String password = request.getParameter("password");
-            if("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password) ){
+            if ("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password)) {
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
-                if (!fileStoreInfo.isTemp()){ //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
+                if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
                     try (InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
                         FileEncryptWithAes.decrypt(downFile, diminationFile, password);
@@ -81,88 +87,124 @@ public class DownloadController extends BaseController {
                         return;
                     }
                 }
-                try(InputStream inputStream = new FileInputStream(tmpFile)){
+                try (InputStream inputStream = new FileInputStream(tmpFile)) {
                     UploadDownloadUtils.downFileRange(request, response,
-                        inputStream, tmpFile.length(), fileInfo.getFileName(),request.getParameter("downloadType"));
+                        inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"));
                 }
 
                 FileSystemOpt.deleteFile(tmpFile);
-            }else{
-                if (fileStoreInfo.isTemp()){
+            } else {
+                if (fileStoreInfo.isTemp()) {
                     UploadDownloadUtils.downFileRange(request, response,
                         new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
-                        fileStoreInfo.getFileSize(), fileInfo.getFileName(),request.getParameter("downloadType"));
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"));
                 } else {
-                    try{
-                        InputStream inputStream= fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                    try {
+                        InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                         UploadDownloadUtils.downFileRange(request, response,
                             inputStream,
-                            fileStoreInfo.getFileSize(), fileInfo.getFileName(),request.getParameter("downloadType"));
-                    }catch (Exception e){
-                       logger.error(e.getMessage());
-                       JsonResultUtils.writeErrorMessageJson(e.getMessage(),response);
+                            fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"));
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
+                        JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
                     }
                 }
             }
         } else {
             JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
+                FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
         }
     }
 
-    @RequestMapping(value= "/preview/{fileId}",method=RequestMethod.GET)
+    @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "预览文件")
-    public void previewFile(@PathVariable("fileId") String fileId,  HttpServletRequest request,
-                               HttpServletResponse response) throws IOException {
+    public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
+                            HttpServletResponse response) throws Exception {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())){
-            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-            downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
-        }else {
-            FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-            UploadDownloadUtils.downFileRange(request, response,
-                fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), FileType.truncateFileExtName(fileInfo.getFileName()) + ".pdf", "inline");
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+        if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
+            createPdf(fileId, fileInfo, fileStoreInfo);
         }
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+        fileInfo = fileInfoManager.getObjectById(fileId);
+        if (!StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
+            previewFile(request, response, fileInfo);
+        } else {
+            UploadDownloadUtils.downFileRange(request, response,
+                fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
+                fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline");
+        }
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
             .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
     }
+
+    private void previewFile(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
+        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+        String sFileType;
+        switch (fileInfo.getFileType()) {
+            case AbstractOfficeToPdf.DOC:
+            case AbstractOfficeToPdf.DOCX:
+                sFileType = ".pdf";
+                break;
+            case AbstractOfficeToPdf.XLS:
+            case AbstractOfficeToPdf.XLSX:
+            case AbstractOfficeToPdf.PPT:
+            case AbstractOfficeToPdf.PPTX:
+                sFileType = ".html";
+                break;
+            default:
+                sFileType = "." + fileInfo.getFileType();
+        }
+        UploadDownloadUtils.downFileRange(request, response,
+            fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
+            fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), FileType.truncateFileExtName(fileInfo.getFileName()) + sFileType, "inline");
+    }
+
+    private void createPdf(@PathVariable("fileId") String fileId, FileInfo fileInfo, FileStoreInfo fileStoreInfo) {
+        if (UploadController.checkPdf(fileInfo)) {
+            FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
+            addPdfTaskInfo.setFileId(fileId);
+            addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
+            createPdfOpt.accept(addPdfTaskInfo);
+        }
+    }
+
     /**
      * 根据文件的id下载附属文件
      * 这个需要权限 控制 用于内部服务之间文件传输
-     * @param fileId 文件ID
-     * @param request HttpServletRequest
+     *
+     * @param fileId   文件ID
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException 异常
      */
-    @RequestMapping(value= "/pattach/{fileId}",method=RequestMethod.GET)
+    @RequestMapping(value = "/pattach/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id下载附属文件")
-    public void downloadAttach(@PathVariable("fileId") String fileId,  HttpServletRequest request,
+    public void downloadAttach(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
 
         if (null != fileInfo) {
             String at = fileInfo.getAttachedType();
-            if("N".equals(at)){
+            if ("N".equals(at)) {
                 JsonResultUtils.writeHttpErrorMessage(
-                        FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
-                return ;
+                    FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
+                return;
             }
             String fileName = fileInfo.getFileName();
-            if("P".equals(at)){
-                if (fileName.lastIndexOf(".") != -1){
-                    fileName = fileName.substring(0,fileName.lastIndexOf("."))+".pdf" ;
+            if ("P".equals(at)) {
+                if (fileName.lastIndexOf(".") != -1) {
+                    fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
                 }
             }
 
             FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
             UploadDownloadUtils.downFileRange(request, response,
                 fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName(),request.getParameter("downloadType"));
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName(), request.getParameter("downloadType"));
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "找不到该文件", response);
+                "找不到该文件", response);
         }
     }
     // 文件目录 = 配置目录 + file.getFileStorePath()
@@ -170,15 +212,16 @@ public class DownloadController extends BaseController {
     /**
      * 根据文件的id下载文件
      * 这个需要权限 控制 用于内部服务之间文件传输
-     * @param fileId 文件ID
-     * @param request HttpServletRequest
+     *
+     * @param fileId   文件ID
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
-    @RequestMapping(value= "/pfile/{fileId}", method=RequestMethod.GET)
+    @RequestMapping(value = "/pfile/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id下载文件")
     public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+                                 HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
@@ -188,68 +231,70 @@ public class DownloadController extends BaseController {
 
     /**
      * 根据文件的 access_token 下载文件
-     * @param token token
-     * @param request HttpServletRequest
+     *
+     * @param token    token
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
-    @RequestMapping(value= "/file/{token}", method=RequestMethod.GET)
+    @RequestMapping(value = "/file/{token}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件token下载文件")
     public void downloadByAccessToken(
-            @PathVariable("token") String token, HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+        @PathVariable("token") String token, HttpServletRequest request,
+        HttpServletResponse response) throws IOException {
         // 根据访问日志的id和授权的token查看是否已经被授权
         FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
-        if(fileAccessLog!=null){
-            if(fileAccessLog.checkValid(false)){
+        if (fileAccessLog != null) {
+            if (fileAccessLog.checkValid(false)) {
                 FileInfo fileInfo = fileInfoManager.getObjectById(fileAccessLog.getFileId());
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                downloadFile(fileStore, fileInfo, fileStoreInfo, request ,response);
+                downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
                 // 记录访问日志
                 fileAccessLog.chargeAccessTimes();
                 fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
                 fileAccessLog.setLastAccessHost(request.getLocalAddr());
                 fileAccessLogManager.updateObject(fileAccessLog);
-            }else{
+            } else {
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-                        "没有权限访问该文件或者访问授权已过期！", response);
+                    "没有权限访问该文件或者访问授权已过期！", response);
             }
-        }else{
+        } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "找不到该文件或者您没有权限访问该文件！", response);
+                "找不到该文件或者您没有权限访问该文件！", response);
         }
     }
 
     /**
      * 根据access_token下载附属文件
-     * @param token token
-     * @param request HttpServletRequest
+     *
+     * @param token    token
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
-    @RequestMapping(value= "/attach/{token}", method=RequestMethod.GET)
+    @RequestMapping(value = "/attach/{token}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的token下载附属文件")
     public void downloadAttachByAccessToken(
-            @PathVariable("token") String token, HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+        @PathVariable("token") String token, HttpServletRequest request,
+        HttpServletResponse response) throws IOException {
         // 根据访问日志的id和授权的token查看是否已经被授权
         FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
         // 判断权限
-        if(fileAccessLog!=null){
-            if(fileAccessLog.checkValid(true)){
-                downloadAttach( fileAccessLog.getFileId(), request ,response);
+        if (fileAccessLog != null) {
+            if (fileAccessLog.checkValid(true)) {
+                downloadAttach(fileAccessLog.getFileId(), request, response);
                 // 记录访问日志
                 fileAccessLog.chargeAccessTimes();
                 fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
                 fileAccessLog.setLastAccessHost(request.getLocalAddr());
                 fileAccessLogManager.updateObject(fileAccessLog);
-            }else{
+            } else {
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-                        "没有权限访问该文件或者访问授权已过期！", response);
+                    "没有权限访问该文件或者访问授权已过期！", response);
             }
-        }else{
+        } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "找不到该文件或者您没有权限访问该文件！", response);
+                "找不到该文件或者您没有权限访问该文件！", response);
         }
     }
 
@@ -263,11 +308,11 @@ public class DownloadController extends BaseController {
             // new ZipOutputStream(cos);
             String basedir = "";
 
-            for(int i=0; i<len; i++){
-                try(InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
+            for (int i = 0; i < len; i++) {
+                try (InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
                     ZipCompressor.compressFile(fis, fileNames[i], out, basedir);
-                }catch (Exception e) {
-                    logger.info("获取文件"+ fileUrls[i] +"出错！");
+                } catch (Exception e) {
+                    logger.info("获取文件" + fileUrls[i] + "出错！");
                 }
             }
             out.close();
@@ -278,27 +323,28 @@ public class DownloadController extends BaseController {
 
     /**
      * 批量下载文件
-     * @param fileIds 批量下载文件列表
+     *
+     * @param fileIds  批量下载文件列表
      * @param fileName 文件名
-     * @param request HttpServletRequest
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException 异常
      */
-    @RequestMapping(value= "/batchdownload", method=RequestMethod.GET)
+    @RequestMapping(value = "/batchdownload", method = RequestMethod.GET)
     @ApiOperation(value = "批量下载文件")
     public void batchDownloadFile(String[] fileIds,
-                                        String fileName,
-                                        HttpServletRequest request,
-                                        HttpServletResponse response) throws IOException {
-        if(fileIds == null || fileIds.length==0){
-            JsonResultUtils.writeMessageJson("请提供文件id列表",response);
+                                  String fileName,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response) throws IOException {
+        if (fileIds == null || fileIds.length == 0) {
+            JsonResultUtils.writeMessageJson("请提供文件id列表", response);
             return;
         }
 
         InputStream inputStream = null;
-        long fileSize ;
+        long fileSize;
         // 如果只下载一个文件则 不压缩
-        if(fileIds.length == 1){
+        if (fileIds.length == 1) {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             fileSize = fileStoreInfo.getFileSize();
@@ -307,7 +353,7 @@ public class DownloadController extends BaseController {
         } else {
             StringBuilder fileIdSb = new StringBuilder();
             Arrays.sort(fileIds, String::compareTo);
-            for(String fid : fileIds){
+            for (String fid : fileIds) {
                 fileIdSb.append(fid);
             }
             // 用所有的fileid（排序）的md5 作为文件名保存在临时目录中
@@ -315,7 +361,7 @@ public class DownloadController extends BaseController {
             String fileId = Md5Encoder.encode(fileIdSb.toString());
             String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 1024);
             File file = new File(tempFilePath);
-            if(! file.exists()) {
+            if (!file.exists()) {
 
                 int len = fileIds.length;
                 String[] fileUrls = new String[len];
@@ -344,6 +390,6 @@ public class DownloadController extends BaseController {
 
         UploadDownloadUtils.downFileRange(request, response,
             inputStream,
-            fileSize, fileName,request.getParameter("downloadType"));
+            fileSize, fileName, request.getParameter("downloadType"));
     }
 }
