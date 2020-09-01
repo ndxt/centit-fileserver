@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Consumer;
 
 /**
@@ -49,7 +50,8 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
         if(!new File(originalTempFilePath).exists()){
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if(fileStoreInfo!=null) {
-                FileSystemOpt.fileCopy(fileStore.getFileStoreUrl(fileStoreInfo.getFileMd5(),fileStoreInfo.getFileSize()), originalTempFilePath);
+                InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                FileSystemOpt.createFile(inputStream,originalTempFilePath);
             }
         }
         try {

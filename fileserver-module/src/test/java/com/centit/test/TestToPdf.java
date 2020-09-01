@@ -2,7 +2,10 @@ package com.centit.test;
 
 
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
+import com.centit.fileserver.pretreat.XlsxTransformXls;
 import com.centit.search.utils.TikaTextExtractor;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TestToPdf {
 
@@ -11,6 +14,7 @@ public class TestToPdf {
      * @param args
      */
     public static void main(String[] args) throws Exception {
+
 //        FilePretreatUtils.office2Pdf("D:/temp/复星集团.doc", "D:/temp/复星集团.pdf");
 //        Watermark4Pdf.addWatermark4Pdf("D:\\test.pdf", "D:\\out.pdf", "success", 0.4f, 45f, 60f);
 //        try {
@@ -31,8 +35,8 @@ public class TestToPdf {
 //        FileOutputStream fos = new FileOutputStream(pathOfPdf);
 //        Excel2Pdf pdf = new Excel2Pdf(objects, fos);
 //        pdf.convert();
-        System.out.println(
-            TikaTextExtractor.extractFileText("/D/Projects/RunData/file_home/temp\\db06f45a30226a56b59930ac52732e8d_13512.tmp"));
+//        System.out.println(
+//            TikaTextExtractor.extractFileText("/D/Projects/RunData/file_home/temp\\db06f45a30226a56b59930ac52732e8d_13512.tmp"));
 
     }
 

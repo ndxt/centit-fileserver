@@ -59,6 +59,7 @@ public class FileFolderInfoController  extends BaseController {
        FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(folderId);
        String[] paths= StringUtils.split(fileFolderInfo.getFolderPath(),"/");
        List<FileFolderInfo> fileFolderInfos = new ArrayList<>();
+       fileFolderInfos.add(fileFolderInfo);
        for(String path:paths){
            if(!"-1".equals(path)) {
                fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));
