@@ -4,6 +4,10 @@ import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.report.ExcelTypeEnum;
 import com.centit.support.report.WordReportUtil;
+import com.lowagie.text.Font;
+import com.lowagie.text.pdf.BaseFont;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +18,7 @@ import org.apache.poi.hwpf.converter.AbstractWordUtils;
 import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,9 +29,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author zhf
@@ -96,7 +99,25 @@ public abstract class AbstractOfficeToPdf {
         String inputFile = inWordFile.replace('/', '\\');
         String pdfFile = outPdfFile.replace('/', '\\');
         if (DOCX.equalsIgnoreCase(suffix)) {
-            WordReportUtil.convertDocxToPdf(inputFile, outPdfFile);
+//            WordReportUtil.convertDocxToPdf(inputFile, outPdfFile);
+            XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
+            PdfOptions options = PdfOptions.create();
+            // 中文字体处理
+            options.fontProvider((familyName, encoding, size, style, color) -> {
+                try {
+                    BaseFont bfChinese = BaseFont.createFont(AbstractOfficeToPdf.class.getClassLoader().getResource("simsun.ttf").getPath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                    Font fontChinese = new Font(bfChinese, size, style, color);
+                    if (familyName != null) {
+                        fontChinese.setFamily(familyName);
+                    }
+                    return fontChinese;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            });
+
+            PdfConverter.getInstance().convert(docx, new FileOutputStream(pdfFile), options);
         }
         if (DOC.equalsIgnoreCase(suffix)) {
             HWPFDocumentCore wordDocument = AbstractWordUtils.loadDoc(new File(inputFile));
