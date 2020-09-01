@@ -49,7 +49,7 @@ public class FileFolderInfoController  extends BaseController {
     }
 
     @RequestMapping(value = "/prev/{folderId}",method = RequestMethod.GET)
-    @ApiOperation(value = "查询文件夹所有上级文件夹")
+    @ApiOperation(value = "查询文件夹所有上级文件夹接口")
     @WrapUpResponseBody
     public List<FileFolderInfo> list(@PathVariable String folderId, HttpServletRequest request) {
        FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(folderId);
