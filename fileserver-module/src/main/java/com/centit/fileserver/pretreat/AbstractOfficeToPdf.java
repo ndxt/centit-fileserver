@@ -50,8 +50,12 @@ public abstract class AbstractOfficeToPdf {
 
 
     public static boolean excel2Pdf(String inExcelFile, String outPdfFile) throws TransformerException, IOException, ParserConfigurationException {
-        String inFilePath = inExcelFile.replace('/', '\\');
-        String outFilePath = outPdfFile.replace('/', '\\');
+        String inFilePath = inExcelFile;
+        String outFilePath = outPdfFile;
+        if(File.separator.equals("\\")){
+            inFilePath=inExcelFile.replace('/', '\\');
+            outFilePath = outPdfFile.replace('/', '\\');
+        }
         HSSFWorkbook excelBook = new HSSFWorkbook();
         ExcelTypeEnum excelType = ExcelTypeEnum.checkFileExcelType(inFilePath);
         if (excelType == ExcelTypeEnum.HSSF) {
@@ -88,55 +92,67 @@ public abstract class AbstractOfficeToPdf {
     }
 
     public static boolean ppt2Pdf(String inPptFile, String outPdfFile,String suffix) {
-        String inputFile = inPptFile.replace('/', '\\');
-        String pdfFile = outPdfFile.replace('/', '\\');
+        String inputFile = inPptFile;
+        String pdfFile = outPdfFile;
+        if(File.separator.equals("\\")){
+            inputFile=inPptFile.replace('/', '\\');
+            pdfFile = outPdfFile.replace('/', '\\');
+        }
         String sFileName = FileSystemOpt.extractFullFileName(pdfFile);
         POIPptToHtmlUtils.pptToHtml(inputFile, pdfFile.replace(sFileName, ""), sFileName,suffix);
         return false;
     }
 
     public static boolean word2Pdf(String inWordFile, String outPdfFile,String suffix) throws Exception {
-        String inputFile = inWordFile.replace('/', '\\');
-        String pdfFile = outPdfFile.replace('/', '\\');
-        if (DOCX.equalsIgnoreCase(suffix)) {
+        try {
+            String inputFile = inWordFile;
+            String pdfFile = outPdfFile;
+            if(File.separator.equals("\\")){
+                inputFile=inWordFile.replace('/', '\\');
+                pdfFile = outPdfFile.replace('/', '\\');
+            }
+            if (DOCX.equalsIgnoreCase(suffix)) {
 //            WordReportUtil.convertDocxToPdf(inputFile, outPdfFile);
-            XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
-            PdfOptions options = PdfOptions.create();
-            // 中文字体处理
-            options.fontProvider((familyName, encoding, size, style, color) -> {
-                try {
-                    BaseFont bfChinese = BaseFont.createFont(AbstractOfficeToPdf.class.getClassLoader().getResource("simsun.ttf").getPath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-                    Font fontChinese = new Font(bfChinese, size, style, color);
-                    if (familyName != null) {
-                        fontChinese.setFamily(familyName);
+                XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
+                PdfOptions options = PdfOptions.create();
+                // 中文字体处理
+                options.fontProvider((familyName, encoding, size, style, color) -> {
+                    try {
+                        BaseFont bfChinese = BaseFont.createFont(AbstractOfficeToPdf.class.getClassLoader().getResource("simsun.ttf").getPath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                        Font fontChinese = new Font(bfChinese, size, style, color);
+                        if (familyName != null) {
+                            fontChinese.setFamily(familyName);
+                        }
+                        return fontChinese;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
-                    return fontChinese;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            });
+                });
 
-            PdfConverter.getInstance().convert(docx, new FileOutputStream(pdfFile), options);
-        }
-        if (DOC.equalsIgnoreCase(suffix)) {
-            HWPFDocumentCore wordDocument = AbstractWordUtils.loadDoc(new File(inputFile));
-            WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
-                XMLHelper.getDocumentBuilderFactory().newDocumentBuilder()
-                    .newDocument());
-            wordToHtmlConverter.processDocument(wordDocument);
-            Document doc = wordToHtmlConverter.getDocument();
+                PdfConverter.getInstance().convert(docx, new FileOutputStream(pdfFile), options);
+            }
+            if (DOC.equalsIgnoreCase(suffix)) {
+                HWPFDocumentCore wordDocument = AbstractWordUtils.loadDoc(new File(inputFile));
+                WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
+                    XMLHelper.getDocumentBuilderFactory().newDocumentBuilder()
+                        .newDocument());
+                wordToHtmlConverter.processDocument(wordDocument);
+                Document doc = wordToHtmlConverter.getDocument();
 
-            DOMSource domSource = new DOMSource(doc);
-            StreamResult streamResult = new StreamResult(new File(pdfFile));
+                DOMSource domSource = new DOMSource(doc);
+                StreamResult streamResult = new StreamResult(new File(pdfFile));
 
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer serializer = tf.newTransformer();
-            // TODO set encoding from a command argument
-            serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-            serializer.setOutputProperty(OutputKeys.METHOD, "html");
-            serializer.transform(domSource, streamResult);
+                TransformerFactory tf = TransformerFactory.newInstance();
+                Transformer serializer = tf.newTransformer();
+                // TODO set encoding from a command argument
+                serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+                serializer.setOutputProperty(OutputKeys.METHOD, "html");
+                serializer.transform(domSource, streamResult);
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
         }
         return true;
     }

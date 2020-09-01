@@ -32,48 +32,46 @@ import java.util.*;
 /**
  * FileFolderInfo  Controller.
  * create by scaffold 2020-08-18 13:38:14
+ *
  * @author codefan@sina.com
  * 文件夹信息
-*/
+ */
 
 
 @Controller
 @RequestMapping("/folder")
 @Api(value = "FILE_FOLDER_INFO", tags = "文件夹信息")
-public class FileFolderInfoController  extends BaseController {
+public class FileFolderInfoController extends BaseController {
 
-	private final FileFolderInfoManager fileFolderInfoMag;
-	private final LocalFileManager localFileManager;
-	private final FileLibraryInfoManager fileLibraryInfoManager;
+    private final FileFolderInfoManager fileFolderInfoMag;
+    private final LocalFileManager localFileManager;
+    private final FileLibraryInfoManager fileLibraryInfoManager;
 
-    public FileFolderInfoController(FileFolderInfoManager fileFolderInfoMag,LocalFileManager localFileManager,FileLibraryInfoManager fileLibraryInfoManager) {
+    public FileFolderInfoController(FileFolderInfoManager fileFolderInfoMag, LocalFileManager localFileManager, FileLibraryInfoManager fileLibraryInfoManager) {
         this.fileFolderInfoMag = fileFolderInfoMag;
-        this.localFileManager=localFileManager;
-        this.fileLibraryInfoManager=fileLibraryInfoManager;
+        this.localFileManager = localFileManager;
+        this.fileLibraryInfoManager = fileLibraryInfoManager;
     }
 
-    @RequestMapping(value = "/prev/{folderId}",method = RequestMethod.GET)
+    @RequestMapping(value = "/prev/{folderId}", method = RequestMethod.GET)
     @ApiOperation(value = "查询文件夹所有上级文件夹接口")
     @WrapUpResponseBody
     public List<FileFolderInfo> list(@PathVariable String folderId, HttpServletRequest request) {
-       FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(folderId);
-       String[] paths= StringUtils.split(fileFolderInfo.getFolderPath(),"/");
-       List<FileFolderInfo> fileFolderInfos = new ArrayList<>();
-       fileFolderInfos.add(fileFolderInfo);
-       for(String path:paths){
-           if(!"-1".equals(path)) {
-               fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));
-           }else{
-               FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(fileFolderInfo.getLibraryId());
-               FileFolderInfo fileFolderInfo1 = getFileFolderInfo(fileLibraryInfo);
-               fileFolderInfos.add(fileFolderInfo1);
-           }
-       }
-       return fileFolderInfos;
+        FileFolderInfo fileFolderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
+        String[] paths = StringUtils.split(fileFolderInfo.getFolderPath(), "/");
+        List<FileFolderInfo> fileFolderInfos = new ArrayList<>();
+        fileFolderInfos.add(fileFolderInfo);
+        fileFolderInfos.add(getFileFolderInfo(fileLibraryInfoManager.getFileLibraryInfo(fileFolderInfo.getLibraryId())));
+        for (String path : paths) {
+            if (!"-1".equals(path)) {
+                fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));
+            }
+        }
+        return fileFolderInfos;
     }
 
     private FileFolderInfo getFileFolderInfo(FileLibraryInfo fileLibraryInfo) {
-        FileFolderInfo fileFolderInfo1=new FileFolderInfo();
+        FileFolderInfo fileFolderInfo1 = new FileFolderInfo();
         fileFolderInfo1.setFolderName(fileLibraryInfo.getLibraryName());
         fileFolderInfo1.setFolderId(fileLibraryInfo.getLibraryId());
         fileFolderInfo1.setIsCreateFolder(fileLibraryInfo.getIsCreateFolder());
@@ -85,19 +83,20 @@ public class FileFolderInfoController  extends BaseController {
 
     /**
      * 查询所有   文件夹信息  列表
+     *
      * @return {data:[]}
      */
-    @RequestMapping(value = "/{libraryId}/{folderId}",method = RequestMethod.GET)
-	@ApiOperation(value = "按库查询所有文件夹及文件夹信息列表")
-	@WrapUpResponseBody
+    @RequestMapping(value = "/{libraryId}/{folderId}", method = RequestMethod.GET)
+    @ApiOperation(value = "按库查询所有文件夹及文件夹信息列表")
+    @WrapUpResponseBody
     public List<FileShowInfo> list(@PathVariable String libraryId, @PathVariable String folderId, HttpServletRequest request) {
-        Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId",libraryId,"parentFolder",folderId);
-        searchColumn.put("favoriteUser",WebOptUtils.getCurrentUserCode(request));
+        Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId", libraryId, "parentFolder", folderId);
+        searchColumn.put("favoriteUser", WebOptUtils.getCurrentUserCode(request));
 
-        List<FileFolderInfo> fileFolderInfos= fileFolderInfoMag.listFileFolderInfo(
+        List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
-        List<FileShowInfo> fileShowInfos= localFileManager.listFolderFiles(searchColumn);
-		for(FileFolderInfo fileFolderInfo:fileFolderInfos){
+        List<FileShowInfo> fileShowInfos = localFileManager.listFolderFiles(searchColumn);
+        for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
             FileShowInfo fileShowInfo = fileFolderToFileShow(fileFolderInfo);
             fileShowInfos.add(fileShowInfo);
         }
@@ -105,7 +104,7 @@ public class FileFolderInfoController  extends BaseController {
     }
 
     private FileShowInfo fileFolderToFileShow(FileFolderInfo fileFolderInfo) {
-        FileShowInfo fileShowInfo=new FileShowInfo();
+        FileShowInfo fileShowInfo = new FileShowInfo();
         fileShowInfo.setFileName(fileFolderInfo.getFolderName());
         fileShowInfo.setFileShowPath(fileFolderInfo.getFolderPath());
         fileShowInfo.setFolder(true);
@@ -118,57 +117,57 @@ public class FileFolderInfoController  extends BaseController {
 
     /**
      * 查询单个  文件夹信息
-
-	 * @param folderId  folder_id
+     *
+     * @param folderId folder_id
      * @return {data:{}}
      */
     @RequestMapping(value = "/{folderId}", method = {RequestMethod.GET})
-	@ApiOperation(value = "查询单个文件夹信息")
-	@WrapUpResponseBody
-	public FileFolderInfo getFileFolderInfo(@PathVariable String folderId) {
-        return  fileFolderInfoMag.getFileFolderInfo( folderId);
+    @ApiOperation(value = "查询单个文件夹信息")
+    @WrapUpResponseBody
+    public FileFolderInfo getFileFolderInfo(@PathVariable String folderId) {
+        return fileFolderInfoMag.getFileFolderInfo(folderId);
     }
 
     /**
      * 新增 文件夹信息
      *
-     * @param fileFolderInfo  {@link FileFolderInfo}
+     * @param fileFolderInfo {@link FileFolderInfo}
      */
     @RequestMapping(method = {RequestMethod.POST})
-	@ApiOperation(value = "新增文件夹信息")
-	@WrapUpResponseBody
-    public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request , HttpServletResponse response) {
+    @ApiOperation(value = "新增文件夹信息")
+    @WrapUpResponseBody
+    public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeSingleDataJson(fileFolderInfo,response);
+        JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
     }
 
     /**
      * 删除单个  文件夹信息
-
-	 * @param folderId  folder_id
+     *
+     * @param folderId folder_id
      */
     @RequestMapping(value = "/{folderId}", method = {RequestMethod.DELETE})
-	@ApiOperation(value = "删除单个文件夹信息")
-	@WrapUpResponseBody
-	public void deleteFileFolderInfo(@PathVariable String folderId) {
+    @ApiOperation(value = "删除单个文件夹信息")
+    @WrapUpResponseBody
+    public void deleteFileFolderInfo(@PathVariable String folderId) {
 
-    	fileFolderInfoMag.deleteFileFolderInfo( folderId);
+        fileFolderInfoMag.deleteFileFolderInfo(folderId);
 
 
     }
 
     /**
      * 新增或保存 文件夹信息
-
-	 * @param fileFolderInfo  {@link FileFolderInfo}
+     *
+     * @param fileFolderInfo {@link FileFolderInfo}
      */
-    @RequestMapping( method = {RequestMethod.PUT})
-	@ApiOperation(value = "更新文件夹信息")
-	@WrapUpResponseBody
-    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request , HttpServletResponse response) {
+    @RequestMapping(method = {RequestMethod.PUT})
+    @ApiOperation(value = "更新文件夹信息")
+    @WrapUpResponseBody
+    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
         fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeSingleDataJson(fileFolderInfo,response);
+        JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
     }
 }
