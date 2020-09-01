@@ -119,22 +119,26 @@ public class DownloadController extends BaseController {
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "预览文件")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
-                            HttpServletResponse response) throws Exception {
-        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
-            createPdf(fileId, fileInfo, fileStoreInfo);
+                            HttpServletResponse response) {
+        try {
+            FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
+                createPdf(fileId, fileInfo, fileStoreInfo);
+            }
+            fileInfo = fileInfoManager.getObjectById(fileId);
+            if (!StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
+                previewFile(request, response, fileInfo);
+            } else {
+                UploadDownloadUtils.downFileRange(request, response,
+                    fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
+                    fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline");
+            }
+            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
+                .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+        }catch (Exception e){
+            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
-        fileInfo = fileInfoManager.getObjectById(fileId);
-        if (!StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
-            previewFile(request, response, fileInfo);
-        } else {
-            UploadDownloadUtils.downFileRange(request, response,
-                fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
-                fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline");
-        }
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
-            .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
     }
 
     private void previewFile(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {

@@ -2,9 +2,11 @@ package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.FileFolderInfoManager;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
@@ -42,10 +44,12 @@ public class FileFolderInfoController  extends BaseController {
 
 	private final FileFolderInfoManager fileFolderInfoMag;
 	private final LocalFileManager localFileManager;
+	private final FileLibraryInfoManager fileLibraryInfoManager;
 
-    public FileFolderInfoController(FileFolderInfoManager fileFolderInfoMag,LocalFileManager localFileManager) {
+    public FileFolderInfoController(FileFolderInfoManager fileFolderInfoMag,LocalFileManager localFileManager,FileLibraryInfoManager fileLibraryInfoManager) {
         this.fileFolderInfoMag = fileFolderInfoMag;
         this.localFileManager=localFileManager;
+        this.fileLibraryInfoManager=fileLibraryInfoManager;
     }
 
     @RequestMapping(value = "/prev/{folderId}",method = RequestMethod.GET)
@@ -58,10 +62,26 @@ public class FileFolderInfoController  extends BaseController {
        for(String path:paths){
            if(!"-1".equals(path)) {
                fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));
+           }else{
+               FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(fileFolderInfo.getLibraryId());
+               FileFolderInfo fileFolderInfo1 = getFileFolderInfo(fileLibraryInfo);
+               fileFolderInfos.add(fileFolderInfo1);
            }
        }
        return fileFolderInfos;
     }
+
+    private FileFolderInfo getFileFolderInfo(FileLibraryInfo fileLibraryInfo) {
+        FileFolderInfo fileFolderInfo1=new FileFolderInfo();
+        fileFolderInfo1.setFolderName(fileLibraryInfo.getLibraryName());
+        fileFolderInfo1.setFolderId(fileLibraryInfo.getLibraryId());
+        fileFolderInfo1.setIsCreateFolder(fileLibraryInfo.getIsCreateFolder());
+        fileFolderInfo1.setIsUpload(fileLibraryInfo.getIsUpload());
+        fileFolderInfo1.setFolderPath("/");
+        fileFolderInfo1.setParentFolder("0");
+        return fileFolderInfo1;
+    }
+
     /**
      * 查询所有   文件夹信息  列表
      * @return {data:[]}
