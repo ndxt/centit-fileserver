@@ -41,7 +41,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
 
     @Override
     public List<FileFolderInfo> listFileFolderInfo(Map<String, Object> param, PageDesc pageDesc) {
-        return fileFolderInfoDao.listObjectsByProperties(param, pageDesc);
+        return fileFolderInfoDao.listObjects(param, pageDesc);
     }
 
 

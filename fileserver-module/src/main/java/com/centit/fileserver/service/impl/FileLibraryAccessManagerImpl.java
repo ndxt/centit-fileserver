@@ -45,7 +45,7 @@ public class FileLibraryAccessManagerImpl extends BaseEntityManagerImpl<FileLibr
 
     @Override
     public List<FileLibraryAccess> listFileLibraryAccess(Map<String, Object> param, PageDesc pageDesc) {
-        return fileLibraryAccessDao.listObjectsByProperties(param, pageDesc);
+        return fileLibraryAccessDao.listObjects(param, pageDesc);
     }
 
 

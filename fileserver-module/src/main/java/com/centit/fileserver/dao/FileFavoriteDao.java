@@ -31,6 +31,7 @@ public class FileFavoriteDao extends BaseDaoImpl<FileFavorite, String> {
         filterField.put("fileId", CodeBook.EQUAL_HQL_ID);
         filterField.put("favoriteUser", CodeBook.EQUAL_HQL_ID);
         filterField.put("favoriteTime", CodeBook.EQUAL_HQL_ID);
+        filterField.put("withFile","file_id in (select file_id from file_info a join file_store_info b on a.file_md5=b.file_md5)");
         return filterField;
     }
 }

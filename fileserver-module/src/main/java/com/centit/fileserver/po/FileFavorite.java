@@ -53,11 +53,11 @@ public class FileFavorite implements java.io.Serializable {
     @ValueGenerator( strategy= GeneratorType.FUNCTION, value = "today()")
     @JsonIgnore
 	private Date favoriteTime;
-
-    @ApiModelProperty(value = "文件信息")
-    @OneToOne(mappedBy = "fileFavorite", orphanRemoval = true, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "file_id", referencedColumnName = "file_id")
-    @JsonIgnore
-    private FileInfo fileInfo;
+    @Transient
+    private String fileName;
+    @Transient
+    private Long fileSize;
+    @Transient
+    private String uploadUser;
 
 }

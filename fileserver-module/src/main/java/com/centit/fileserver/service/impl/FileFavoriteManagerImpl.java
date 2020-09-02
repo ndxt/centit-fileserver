@@ -1,8 +1,13 @@
 package com.centit.fileserver.service.impl;
 
 import com.centit.fileserver.dao.FileFavoriteDao;
+import com.centit.fileserver.dao.FileInfoDao;
+import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileFavorite;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileFavoriteManager;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.PageDesc;
 import org.slf4j.Logger;
@@ -27,6 +32,10 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
     implements FileFavoriteManager {
     @Autowired
     private FileFavoriteDao fileFavoriteDao;
+    @Autowired
+    private FileInfoDao fileInfoDao;
+    @Autowired
+    private FileStoreInfoDao fileStoreInfoDao;
 
 
     @Override
@@ -41,13 +50,20 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
 
     @Override
     public List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc) {
-        List<FileFavorite> list=fileFavoriteDao.listObjectsByProperties(param, pageDesc);
-        list.forEach(e-> {
-            if(e.getFileId()!=null)
-            {
-                fileFavoriteDao.fetchObjectReferences(e);
+        param.put("withFile","1");
+        List<FileFavorite> list=fileFavoriteDao.listObjects(param,pageDesc);
+        list.forEach(e->{
+            FileInfo fileInfo= fileInfoDao.getObjectById(e.getFileId());
+            if(fileInfo!=null){
+                e.setFileName(fileInfo.getFileName());
+                e.setUploadUser(CodeRepositoryUtil.getUserName(fileInfo.getFileOwner()));
+                FileStoreInfo fileStoreInfo=fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
+                if(fileStoreInfo!=null){
+                    e.setFileSize(fileStoreInfo.getFileSize());
+                }
             }
         });
+
         return list;
     }
 
