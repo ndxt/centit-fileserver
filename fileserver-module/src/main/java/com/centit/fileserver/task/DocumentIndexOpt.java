@@ -44,7 +44,7 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
         FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
         esObjectIndexer.mergeDocument(fileDoc);
         logger.info("文件已加入全文检索");
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog")
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
             .method("文件已加入全文检索").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
     }
 }

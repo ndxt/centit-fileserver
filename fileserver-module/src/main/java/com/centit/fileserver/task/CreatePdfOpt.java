@@ -66,7 +66,7 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
                 oldInfo.setAttachedType(fileInfo.getFileType());
                 fileInfoManager.updateObject(oldInfo);
                 logger.info("生成PDF完成");
-                OperationLogCenter.log(OperationLog.create().operation("FileServerLog")
+                OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
                     .method("生成PDF完成").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
             }
         } catch (IOException e) {

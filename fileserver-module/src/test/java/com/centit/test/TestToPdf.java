@@ -24,7 +24,7 @@ public class TestToPdf {
 //            e.printStackTrace();
 //        }
 //        AbstractOfficeToPdf.excel2Pdf("C:\\Users\\zhf\\Postman\\files\\1.xls","C:\\Users\\zhf\\Postman\\files\\3.html");
-//        AbstractOfficeToPdf.word2Pdf("C:\\Users\\zhf\\Postman\\files\\test.doc","C:\\Users\\zhf\\Postman\\files\\5.pdf","docx");
+        AbstractOfficeToPdf.word2Pdf("d:\\test3.docx","d:\\5.pdf","docx");
 //        AbstractOfficeToPdf.ppt2Pdf("C:\\Users\\zhf\\Postman\\files\\1.pptx","C:\\Users\\zhf\\Postman\\files\\6.html");
 //        String pathOfXls = "C:\\Users\\zhf\\Postman\\files\\2.xlsx";
 //        String pathOfPdf = "C:\\Users\\zhf\\Postman\\files\\2.pdf";

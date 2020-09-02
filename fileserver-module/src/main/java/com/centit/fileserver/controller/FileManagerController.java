@@ -304,12 +304,10 @@ public class FileManagerController extends BaseController {
         if(esObjectSearcher==null){
             throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
         }
-        Map<String, Object> queryParam = collectRequestParameters(request);
         Map<String, Object> searchQuery = new HashMap<>(10);
         if(libraryIds!=null) {
             searchQuery.put("optId", libraryIds);
         }
-        searchQuery.putAll(queryParam);
         Pair<Long, List<Map<String, Object>>> res =
             esObjectSearcher.search(searchQuery, query, pageDesc.getPageNo(), pageDesc.getPageSize());
         if (res == null) {

@@ -151,7 +151,7 @@ public class DownloadController extends BaseController {
                 previewFile(request, response, fileInfo);
             } else {
                 UploadDownloadUtils.downFileRange(request, response,
-                    fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
+                    fileStoreInfo.getIsTemp()?new FileInputStream(new File(fileStoreInfo.getFileStorePath())):fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
                     fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline");
             }
             OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))

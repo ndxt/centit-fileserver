@@ -175,6 +175,7 @@ public abstract class UploadDownloadUtils {
             fileName = "attachment.dat";
         }
         response.setContentType(FileType.getFileMimeType(fileName));
+        response.setCharacterEncoding("utf-8");
         //"application/octet-stream"); //application/x-download "multipart/form-data"
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
         response.setHeader("Accept-Ranges", "bytes");
