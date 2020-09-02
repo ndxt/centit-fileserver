@@ -2,13 +2,12 @@ package com.centit.fileserver.controller;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.po.FileAccessLog;
-import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.po.*;
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.task.CreatePdfOpt;
 import com.centit.fileserver.utils.FileServerConstant;
@@ -16,6 +15,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.model.basedata.OperationLog;
@@ -56,6 +56,8 @@ public class DownloadController extends BaseController {
 
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
+    @Autowired
+    private FileLibraryInfoManager fileLibraryInfoManager;
 
     @Autowired
     private FileAccessLogManager fileAccessLogManager;
@@ -117,12 +119,29 @@ public class DownloadController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/downloadwithauth/{fileId}", method = RequestMethod.GET)
+    @ApiOperation(value = "根据权限下载文件，可以传入authCode分享码")
+    public void downloadWithauthByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
+                                         HttpServletResponse response) throws IOException {
+
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if (!checkAuth(fileInfo, request)) {
+            JsonResultUtils.writeErrorMessageJson("没有权限", response);
+        }
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+
+        downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
+    }
+
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
-    @ApiOperation(value = "预览文件")
+    @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response) {
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if (!checkAuth(fileInfo, request)) {
+            JsonResultUtils.writeErrorMessageJson("没有权限", response);
+        }
         try {
-            FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
                 createPdf(fileId, fileInfo, fileStoreInfo);
@@ -137,9 +156,45 @@ public class DownloadController extends BaseController {
             }
             OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
                 .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
-        }catch (Exception e){
+        } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
+    }
+
+    private boolean checkAuth(FileInfo fileInfo, HttpServletRequest request) {
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        String unitPath = CodeRepositoryUtil.getUnitInfoByCode(WebOptUtils.getCurrentUnitCode(request)).getUnitPath();
+        String authCode = request.getParameter("authCode");
+        if (!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
+            FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
+            switch (fileLibraryInfo.getLibraryType()) {
+                //个人
+                case "P":
+                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
+                        return true;
+                    }
+                    break;
+                //机构
+                case "O":
+                    if (StringUtils.contains(unitPath, fileLibraryInfo.getOwnUnit())) {
+                        return true;
+                    }
+                    break;
+                //项目
+                case "I":
+                    for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
+                        if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
+                            return true;
+                        }
+                    }
+                default:
+                    break;
+            }
+        }
+        if (!StringBaseOpt.isNvl(authCode)) {
+            return fileInfo.getAuthCode().equals(authCode);
+        }
+        return false;
     }
 
     private void previewFile(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
@@ -229,6 +284,7 @@ public class DownloadController extends BaseController {
                                  HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);

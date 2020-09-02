@@ -65,7 +65,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
            libraryInfos.add(getPersonLibraryInfo(userCode));
         }
         for(String unitCode:getUnits(userCode)) {
-            boolean hasUnit= libraryInfos.stream().anyMatch(fileLibraryInfo -> "U".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
+            boolean hasUnit= libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
                 unitCode.equals(fileLibraryInfo.getOwnUnit()));
             if (!hasUnit) {
                 libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
