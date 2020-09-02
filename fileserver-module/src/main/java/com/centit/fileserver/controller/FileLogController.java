@@ -2,6 +2,7 @@ package com.centit.fileserver.controller;
 
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.model.basedata.OperationLog;
@@ -45,7 +46,7 @@ public class FileLogController extends BaseController {
         notes = "request参数：optTag(文件id),userCode(操作人员)"
     )
     @GetMapping
-    @WrapUpResponseBody
+    @WrapUpResponseBody(contentType = WrapUpContentType.MAP_DICT)
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
         return this.optLogManager.listOptLog("FileServerLog", searchColumn, pageDesc.getRowStart(), pageDesc.getPageSize());
