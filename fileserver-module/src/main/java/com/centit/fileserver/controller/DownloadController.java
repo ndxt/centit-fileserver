@@ -125,8 +125,8 @@ public class DownloadController extends BaseController {
                                          HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if (!checkAuth(fileInfo, request)) {
-            JsonResultUtils.writeErrorMessageJson("没有权限", response);
+        if (noAuth(request, response, fileInfo)) {
+            return;
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
@@ -138,8 +138,8 @@ public class DownloadController extends BaseController {
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if (!checkAuth(fileInfo, request)) {
-            JsonResultUtils.writeErrorMessageJson("没有权限", response);
+        if (noAuth(request, response, fileInfo)) {
+            return;
         }
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
@@ -161,10 +161,19 @@ public class DownloadController extends BaseController {
         }
     }
 
-    private boolean checkAuth(FileInfo fileInfo, HttpServletRequest request) {
-        String userCode = WebOptUtils.getCurrentUserCode(request);
-        String unitPath = CodeRepositoryUtil.getUnitInfoByCode(WebOptUtils.getCurrentUnitCode(request)).getUnitPath();
-        String authCode = request.getParameter("authCode");
+    private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
+        if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),WebOptUtils.getCurrentUnitCode(request),request.getParameter("authCode"))) {
+            JsonResultUtils.writeErrorMessageJson("用户"+WebOptUtils.getCurrentUserCode(request)+"没有权限", response);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkAuth(FileInfo fileInfo, String userCode,String unitCode,String authCode) {
+        String unitPath = "";
+        if(!StringBaseOpt.isNvl(unitCode)) {
+            unitPath=CodeRepositoryUtil.getUnitInfoByCode(unitCode).getUnitPath();
+        }
         if (!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
