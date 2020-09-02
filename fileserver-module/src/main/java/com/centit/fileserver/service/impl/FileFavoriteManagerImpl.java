@@ -56,6 +56,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
             FileInfo fileInfo= fileInfoDao.getObjectById(e.getFileId());
             if(fileInfo!=null){
                 e.setFileName(fileInfo.getFileName());
+                e.setFileType(fileInfo.getFileType());
                 e.setUploadUser(CodeRepositoryUtil.getUserName(fileInfo.getFileOwner()));
                 FileStoreInfo fileStoreInfo=fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
                 if(fileStoreInfo!=null){

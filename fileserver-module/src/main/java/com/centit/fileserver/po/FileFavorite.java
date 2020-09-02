@@ -56,6 +56,8 @@ public class FileFavorite implements java.io.Serializable {
     @Transient
     private String fileName;
     @Transient
+    private String fileType;
+    @Transient
     private Long fileSize;
     @Transient
     private String uploadUser;
