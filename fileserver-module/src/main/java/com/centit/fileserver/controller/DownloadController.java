@@ -191,9 +191,14 @@ public class DownloadController extends BaseController {
                     break;
                 //项目
                 case "I":
-                    for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
-                        if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
-                            return true;
+                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
+                        return true;
+                    }
+                    if(fileLibraryInfo.getFileLibraryAccesss()!=null) {
+                        for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
+                            if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
+                                return true;
+                            }
                         }
                     }
                 default:
