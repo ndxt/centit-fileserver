@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -174,7 +175,7 @@ public abstract class UploadDownloadUtils {
         if(StringUtils.isBlank(fileName)){
             fileName = "attachment.dat";
         }
-        response.setContentType(FileType.getFileMimeType(fileName));
+        response.setContentType(FileType.getFileMimeType(fileName)+";charset=utf-8");
         response.setCharacterEncoding("utf-8");
         //"application/octet-stream"); //application/x-download "multipart/form-data"
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
@@ -209,14 +210,13 @@ public abstract class UploadDownloadUtils {
             if(pos>0) {
                 inputStream.skip(pos);
             }
-            byte[] buffer = new byte[64 * 1024];
-            int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
+            InputStreamReader inputStreamReader=new InputStreamReader(inputStream);
+            char[] buffer = new char[64 * 1024];
             int length = 0;
-            while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
-                int writeLen =  needSize > length ? length: needSize;
-                bufferOut.write(buffer, 0, writeLen);
+            while  ((length = inputStreamReader.read(buffer)) != -1) {
+                String str=new String(buffer,0,length);
+                bufferOut.write(str.getBytes());
                 bufferOut.flush();
-                needSize -= writeLen;
             }
             //bufferOut.flush();
             //bufferOut.close();
