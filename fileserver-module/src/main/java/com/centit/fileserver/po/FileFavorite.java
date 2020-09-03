@@ -65,4 +65,6 @@ public class FileFavorite implements java.io.Serializable {
     private String libraryId;
     @Transient
     private String parentFolder;
+    @Transient
+    private String showPath;
 }
