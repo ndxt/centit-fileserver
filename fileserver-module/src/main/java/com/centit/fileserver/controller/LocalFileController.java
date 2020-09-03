@@ -88,12 +88,14 @@ public class LocalFileController extends BaseController {
     public static String fetchUserShowPath(String uri) throws UnsupportedEncodingException {
         String[] urips = uri.split("/");
         int n = urips.length;
-        if (n < URI_START_PARAM + 1)
+        if (n < URI_START_PARAM + 1) {
             return null;
+        }
         StringBuilder sb = new StringBuilder(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"));
-        for (int i = URI_START_PARAM + 1; i < n; i++)
+        for (int i = URI_START_PARAM + 1; i < n; i++) {
             sb.append(LocalFileManager.FILE_PATH_SPLIT).append(
                 URLDecoder.decode(urips[i], "UTF-8"));
+        }
         return sb.toString();
     }
 
@@ -101,14 +103,17 @@ public class LocalFileController extends BaseController {
         throws UnsupportedEncodingException {
         String[] urips = uri.split("/");
         int n = urips.length;
-        if (n < URI_START_PARAM + 1)
+        if (n < URI_START_PARAM + 1) {
             return null;
-        if (n == URI_START_PARAM + 1)
+        }
+        if (n == URI_START_PARAM + 1) {
             return new ImmutablePair<>("", URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"));
+        }
 
         StringBuilder sb = new StringBuilder(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"));
-        for (int i = URI_START_PARAM + 1; i < n - 1; i++)
+        for (int i = URI_START_PARAM + 1; i < n - 1; i++) {
             sb.append(LocalFileManager.FILE_PATH_SPLIT).append(URLDecoder.decode(urips[i], "UTF-8"));
+        }
         return new ImmutablePair<>(sb.toString(), URLDecoder.decode(urips[n - 1], "UTF-8"));
     }
 
@@ -117,14 +122,16 @@ public class LocalFileController extends BaseController {
         //URLDecoder.decode(uri,"UTF-8");
         String[] urips = uri.split("/");
         int n = urips.length;
-        if (n < URI_START_PARAM + 1)
+        if (n < URI_START_PARAM + 1) {
             return null;
+        }
         if (n == URI_START_PARAM + 1) {
             return new ImmutablePair<>(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"), "");
         }
         StringBuilder sb = new StringBuilder(URLDecoder.decode(urips[URI_START_PARAM + 1], "UTF-8"));
-        for (int i = URI_START_PARAM + 2; i < n; i++)
+        for (int i = URI_START_PARAM + 2; i < n; i++) {
             sb.append(LocalFileManager.FILE_PATH_SPLIT).append(URLDecoder.decode(urips[i], "UTF-8"));
+        }
         return new ImmutablePair<>(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"), sb.toString());
     }
 
@@ -132,14 +139,17 @@ public class LocalFileController extends BaseController {
         throws UnsupportedEncodingException {
         String[] urips = uri.split("/");
         int n = urips.length;
-        if (n < URI_START_PARAM + 2)
+        if (n < URI_START_PARAM + 2) {
             return null;
-        if (n == URI_START_PARAM + 2)
+        }
+        if (n == URI_START_PARAM + 2) {
             return new ImmutableTriple<>(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"),
                 "", URLDecoder.decode(urips[URI_START_PARAM + 1], "UTF-8"));
+        }
         StringBuilder sb = new StringBuilder(URLDecoder.decode(urips[URI_START_PARAM + 1], "UTF-8"));
-        for (int i = URI_START_PARAM + 2; i < n - 1; i++)
+        for (int i = URI_START_PARAM + 2; i < n - 1; i++) {
             sb.append(LocalFileManager.FILE_PATH_SPLIT).append(URLDecoder.decode(urips[i], "UTF-8"));
+        }
         return new ImmutableTriple<>(URLDecoder.decode(urips[URI_START_PARAM], "UTF-8"),
             sb.toString(), URLDecoder.decode(urips[n - 1], "UTF-8"));
     }
@@ -247,35 +257,6 @@ public class LocalFileController extends BaseController {
     }
 
 
-    private void writeDownloadFileLog(FileInfo fileInfo, HttpServletRequest request) {
-
-        FileAccessLog accessLog = new FileAccessLog();
-        String ar = "A";
-        accessLog.setFileId(fileInfo.getFileId());
-        accessLog.setAccessToken(UuidOpt.getUuidAsString32());
-        accessLog.setAuthTime(DatetimeOpt.currentUtilDate());
-        accessLog.setAccessRight(ar);
-        accessLog.setAccessTimes(0);
-        //accessLog.chargeAccessTimes();
-        accessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
-        accessLog.setLastAccessHost(request.getLocalAddr());
-        String userCode = WebOptUtils.getCurrentUserCode(request);
-
-        if (StringUtils.isNotBlank(userCode)) {
-            accessLog.setAccessUsercode(userCode);
-            IUserInfo user = CodeRepositoryUtil.getUserInfoByCode(userCode);
-            if(user!=null) {
-                accessLog.setAccessUsename(user.getUserName());
-            }
-        }
-        fileInfo.addDownloadTimes();
-
-//        fileAccessLogManager.saveNewAccessLog(accessLog);
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
-            .method("下载").tag(fileInfo.getFileId())
-            .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
-        fileInfoManager.updateObject(fileInfo);
-    }
 
     /**
      * 根据文件的id下载文件
@@ -298,7 +279,7 @@ public class LocalFileController extends BaseController {
             return;
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        writeDownloadFileLog(fileInfo, request);
+        fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
         DownloadController.downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
     }
 }

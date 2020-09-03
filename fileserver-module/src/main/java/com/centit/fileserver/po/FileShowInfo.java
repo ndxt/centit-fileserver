@@ -20,6 +20,16 @@ public class FileShowInfo {
      */
     private String fileType;
     private String fileName;
+
+    public int getDownloadTimes() {
+        return downloadTimes;
+    }
+
+    public void setDownloadTimes(int downloadTimes) {
+        this.downloadTimes = downloadTimes;
+    }
+
+    private int downloadTimes;
     /**
      * 如果文件最新版本的访问入口，可以通过这个直接访问
      */

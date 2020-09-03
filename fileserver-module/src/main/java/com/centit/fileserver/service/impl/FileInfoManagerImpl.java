@@ -4,9 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
+import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +69,14 @@ public class FileInfoManagerImpl
         originalFile.setFileState("D");
         this.baseDao.mergeObject(originalFile);
     }
-
+    @Override
+    public  void writeDownloadFileLog(FileInfo fileInfo, String userCode) {
+        fileInfo.addDownloadTimes();
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
+            .method("下载").tag(fileInfo.getFileId())
+            .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+        updateObject(fileInfo);
+    }
     @Override
     public JSONArray listStoredFiles(Map<String, Object> queryParamsMap, PageDesc pageDesc) {
         String queryStatement =

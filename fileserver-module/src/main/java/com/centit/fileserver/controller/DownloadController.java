@@ -131,6 +131,7 @@ public class DownloadController extends BaseController {
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
+        fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
     }
 
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
@@ -154,8 +155,7 @@ public class DownloadController extends BaseController {
                     fileStoreInfo.getIsTemp()?new FileInputStream(new File(fileStoreInfo.getFileStorePath())):fileStore.loadFileStream(fileStoreInfo.getFileStorePath()),
                     fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline");
             }
-            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
-                .method("预览").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+            fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
@@ -303,6 +303,7 @@ public class DownloadController extends BaseController {
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
+        fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
     }
 
     /**

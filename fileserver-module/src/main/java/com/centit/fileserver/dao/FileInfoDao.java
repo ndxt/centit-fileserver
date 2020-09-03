@@ -146,7 +146,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
             "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
-            "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,max(a.file_type) fileType " +
+            "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,max(a.file_type) fileType,max(a.download_times) downloadTimes " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
             "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
             "where file_state='N' and parent_folder=:parentFolder and library_id=:libraryId " +
@@ -169,6 +169,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[5]));
                 file.setFileShowPath(StringBaseOpt.objectToString(objs[6]));
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
+                file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[9]));
                 files.add(file);
             }
         }
@@ -278,7 +279,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     public List<FileShowInfo> listUserFileVersions(String userCode, String fileShowPath,String fileName) {
         List<Object[]> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id,a.file_type,a.download_times " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
                 "where FILE_OWNER = :uc and file_state='N' " +
@@ -290,7 +291,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                             "fn",fileName));
         }else{
             fileShowPath="/"+fileShowPath;
-            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id " +
+            String sqlsen = "select a.FILE_ID, a.ENCRYPT_TYPE, a.CREATE_TIME, b.FILE_SIZE,c.favorite_id,a.file_type,a.download_times " +
                     "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 " +
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
                 "where  file_state='N' " +
@@ -308,7 +309,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 FileShowInfo file = new FileShowInfo();
                 file.setFileShowPath(fileShowPath);
                 file.setCatalogType("p");
-                file.setFileType("f");
+                file.setFileType(StringBaseOpt.objectToString(objs[5]));
                 file.setFileName(fileName);
                 file.setAccessToken(StringBaseOpt.objectToString(objs[0]));
                 file.setVersions(1);
@@ -317,7 +318,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                     file.setCreateTime((Date)objs[2]);
                 }
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[3]));
-
+                file.setFavoriteId(StringBaseOpt.objectToString(objs[4]));
+                file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[6]));
                 files.add(file);
             }
         }
