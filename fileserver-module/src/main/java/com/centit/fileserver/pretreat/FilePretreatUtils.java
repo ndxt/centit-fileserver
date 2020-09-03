@@ -296,7 +296,7 @@ public class FilePretreatUtils {
         fileDoc.setOsId(fileInfo.getOsId());
         fileDoc.setOptId(fileInfo.getLibraryId());
         fileDoc.setOptMethod(fileInfo.getOptMethod());
-        fileDoc.setOptTag(fileInfo.getOptTag());
+        fileDoc.setOptTag(fileInfo.getParentFolder());
         fileDoc.setFileMD5(fileInfo.getFileMd5());
         fileDoc.setFileName(fileInfo.getFileName());
         fileDoc.setFileSummary(fileInfo.getFileDesc());

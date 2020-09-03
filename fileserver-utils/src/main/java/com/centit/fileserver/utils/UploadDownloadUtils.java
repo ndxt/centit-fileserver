@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import sun.awt.geom.AreaOp;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -39,21 +41,24 @@ import java.util.Map;
 
 /**
  * Created by codefan on 17-7-19.
+ *
  * @author codefan
  */
 @SuppressWarnings("unused")
 public abstract class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
-    public static String getRequestFirstOneParameter(HttpServletRequest request, String ...params) {
-        for(String p : params){
+
+    public static String getRequestFirstOneParameter(HttpServletRequest request, String... params) {
+        for (String p : params) {
             String value = request.getParameter(p);
-            if(StringUtils.isNotBlank(value)){
+            if (StringUtils.isNotBlank(value)) {
                 return value;
             }
         }
         return null;
     }
+
     public static JSONObject checkFileRange(FileStore fileStore, String token, long size) {
         JSONObject jsonObject;
         // 如果文件已经存在则完成秒传，无需再传
@@ -69,20 +74,20 @@ public abstract class UploadDownloadUtils {
         return jsonObject;
     }
 
-     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
-        String fileName = getRequestFirstOneParameter(request,"name","fileName");
+    public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
+        String fileName = getRequestFirstOneParameter(request, "name", "fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             return new ImmutablePair<>(fileName, request.getInputStream());
         }
 
-        MultipartResolver resolver = useCommonsReolver?
+        MultipartResolver resolver = useCommonsReolver ?
             new CommonsMultipartResolver(request.getSession().getServletContext()) :
             new StandardServletMultipartResolver();
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
         Map<String, MultipartFile> map = multiRequest.getFileMap();
         InputStream fis = null;
-        if(useCommonsReolver) {
+        if (useCommonsReolver) {
             for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
                 CommonsMultipartFile cMultipartFile = (CommonsMultipartFile) entry.getValue();
                 FileItem fi = cMultipartFile.getFileItem();
@@ -100,7 +105,7 @@ public abstract class UploadDownloadUtils {
                 fis = cMultipartFile.getInputStream();
             }
         }
-        return  new ImmutablePair<>(fileName, fis);
+        return new ImmutablePair<>(fileName, fis);
     }
 
     public static Pair<String, InputStream> fetchInputStreamFromMultipartResolver(HttpServletRequest request) throws IOException {
@@ -114,12 +119,12 @@ public abstract class UploadDownloadUtils {
 
     @Deprecated
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request)
-            throws IOException, FileUploadException {
+        throws IOException, FileUploadException {
 
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             String fileName = request.getParameter("name");
-            if(StringUtils.isBlank(fileName)) {
+            if (StringUtils.isBlank(fileName)) {
                 fileName = request.getParameter("fileName");
             }
             return new ImmutablePair<>(fileName, request.getInputStream());
@@ -130,122 +135,134 @@ public abstract class UploadDownloadUtils {
         List<FileItem> fileItems = servletFileUpload.parseRequest(request);
         InputStream fis = null;
         for (FileItem fi : fileItems) {
-            if (! fi.isFormField())  {
+            if (!fi.isFormField()) {
                 fileName = fi.getName();
                 fis = fi.getInputStream();
-                if(fis!=null)
+                if (fis != null)
                     break;
             }
         }
 
-        if(StringUtils.isBlank(fileName)) {
+        if (StringUtils.isBlank(fileName)) {
             fileName = request.getParameter("name");
         }
-        if(StringUtils.isBlank(fileName)) {
+        if (StringUtils.isBlank(fileName)) {
             fileName = request.getParameter("fileName");
         }
 
-        return  new ImmutablePair<>(fileName, fis);
+        return new ImmutablePair<>(fileName, fis);
     }
 
     public static String encodeDownloadFilename(String paramName) {
         try {
             return new String(
-                    StringEscapeUtils.unescapeHtml4(paramName).getBytes("GBK"), "ISO8859-1");
+                StringEscapeUtils.unescapeHtml4(paramName).getBytes("GBK"), "ISO8859-1");
         } catch (UnsupportedEncodingException e) {
-            logger.error("转换文件名 " + paramName + " 报错："+e.getMessage(),e);
+            logger.error("转换文件名 " + paramName + " 报错：" + e.getMessage(), e);
             return paramName;
         }
     }
 
     /**
-     *
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
+     * @param request     HttpServletRequest
+     * @param response    HttpServletResponse
      * @param inputStream InputStream
-     * @param fSize long
-     * @param fileName fileName
+     * @param fSize       long
+     * @param fileName    fileName
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                      InputStream inputStream, long fSize, String fileName,String downloadType)
-            throws IOException {
+                                     InputStream inputStream, long fSize, String fileName, String downloadType)
+        throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);
-        if(StringUtils.isBlank(fileName)){
+        if (StringUtils.isBlank(fileName)) {
             fileName = "attachment.dat";
         }
-        response.setContentType(FileType.getFileMimeType(fileName)+";charset=utf-8");
-        response.setCharacterEncoding("utf-8");
+
+
         //"application/octet-stream"); //application/x-download "multipart/form-data"
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
         response.setHeader("Accept-Ranges", "bytes");
         //这个需要设置成真正返回的长度
         //response.setHeader("Content-Length", String.valueOf(fSize));
         response.setHeader("Content-Disposition",
-                ("inline".equalsIgnoreCase(downloadType)?"inline": "attachment")+"; filename="
-                        + UploadDownloadUtils.encodeDownloadFilename(fileName));
+            ("inline".equalsIgnoreCase(downloadType) ? "inline" : "attachment") + "; filename="
+                + UploadDownloadUtils.encodeDownloadFilename(fileName));
         long pos = 0;
 
         FileRangeInfo fr = FileRangeInfo.parseRange(request.getHeader("Range"));
 
-        if(fr == null){
-            fr = new FileRangeInfo(0,fSize - 1,fSize);
-        }else{
-            if(fr.getRangeEnd()<=0)
+        if (fr == null) {
+            fr = new FileRangeInfo(0, fSize - 1, fSize);
+        } else {
+            if (fr.getRangeEnd() <= 0)
                 fr.setRangeEnd(fSize - 1);
             fr.setFileSize(fSize);
             pos = fr.getRangeStart();
-            if(fr.getPartSize() < fr.getFileSize()) //206
+            if (fr.getPartSize() < fr.getFileSize()) //206
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
         }
-
         response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
         // Content-Range: bytes 500-999/1234
         response.setHeader("Content-Range", fr.getResponseRange());
         //logger.debug("Content-Range :" + contentRange);
-        try(ServletOutputStream out = response.getOutputStream();
-            BufferedOutputStream bufferOut = new BufferedOutputStream(out)){
-
-            if(pos>0) {
+        try (ServletOutputStream out = response.getOutputStream();
+             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
+            if (pos > 0) {
                 inputStream.skip(pos);
             }
-            InputStreamReader inputStreamReader=new InputStreamReader(inputStream);
-            char[] buffer = new char[64 * 1024];
+            byte[] buffer = new byte[64 * 1024];
+            int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
             int length = 0;
-            while  ((length = inputStreamReader.read(buffer)) != -1) {
-                String str=new String(buffer,0,length);
-                bufferOut.write(str.getBytes());
+            int one = 0;
+
+            while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
+                int writeLen = needSize > length ? length : needSize;
+                if (one == 0) {
+                    UniversalDetector detector = new UniversalDetector(null);
+                    detector.handleData(buffer, 0, writeLen);
+                    String code = detector.getDetectedCharset();
+                    detector.dataEnd();
+                    detector.reset();
+                    response.setCharacterEncoding(code);
+                    response.setContentType(FileType.getFileMimeType(fileName) + ";charset=" + code);
+                }
+                bufferOut.write(buffer, 0, writeLen);
                 bufferOut.flush();
+                needSize -= writeLen;
+                one++;
             }
+            inputStream.close();
+
             //bufferOut.flush();
             //bufferOut.close();
             //out.close();
-        } catch (SocketException e){
-            logger.info("客户端断开链接："+e.getMessage(), e);
+        } catch (SocketException e) {
+            logger.info("客户端断开链接：" + e.getMessage(), e);
         }
     }
 
-    private static long checkTempFileSize(String filePath){
+    private static long checkTempFileSize(String filePath) {
         File f = new File(filePath);
-        if(!f.exists()) return 0;
+        if (!f.exists()) return 0;
         return f.length();
     }
 
     /**
-     * @param tempFilePath 需要保存的临时文件路径
-     * @param token String
-     * @param size long
+     * @param tempFilePath    需要保存的临时文件路径
+     * @param token           String
+     * @param size            long
      * @param fileInputStream InputStream
-     * @param request HttpServletRequest
+     * @param request         HttpServletRequest
      * @return long 0 complete &lt; 0 error &gt; 0 completeSize rangecomplete
-     * @throws IOException IOException
+     * @throws IOException     IOException
      * @throws ObjectException ObjectException
      */
     public static long uploadRange(String tempFilePath,
-                                    InputStream fileInputStream, String token,
-                                    long size, HttpServletRequest request )
-            throws IOException, ObjectException {
+                                   InputStream fileInputStream, String token,
+                                   long size, HttpServletRequest request)
+        throws IOException, ObjectException {
 
         long tempFileSize = checkTempFileSize(tempFilePath);
         FileRangeInfo range = FileRangeInfo.parseRange(request);
@@ -253,18 +270,18 @@ public abstract class UploadDownloadUtils {
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
                 throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
-                        "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。" );
+                    "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
                 //return -1l;
             }
 
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             try (FileOutputStream out = new FileOutputStream(
-                    new File(tempFilePath), true)) {
+                new File(tempFilePath), true)) {
                 long length = FileIOOpt.writeInputStreamToOutputStream(
-                        fileInputStream, out);
+                    fileInputStream, out);
                 if (length != range.getPartSize()) {
                     throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
-                            "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
+                        "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
                     //return -1l;
                 }
             }
@@ -283,17 +300,17 @@ public abstract class UploadDownloadUtils {
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
                 throw new ObjectException(FileServerConstant.ERROR_FILE_MD5_ERROR,
-                        "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR + " 文件MD5计算错误。");
+                    "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR + " 文件MD5计算错误。");
                 //return -1;
             }
         }
         return tempFileSize;
     }
 
-    public static JSONObject makeRangeCheckJson(long rangeFileSize, String fileMd5, boolean hasStored){
+    public static JSONObject makeRangeCheckJson(long rangeFileSize, String fileMd5, boolean hasStored) {
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
-        if(hasStored) {
+        if (hasStored) {
             json.put("signal", "secondpass");
             json.put(ResponseData.RES_MSG_FILED, "检查文件上传点, 请调用秒传(secondpass)接口!");
         } else { // 需要调用秒传接口
@@ -308,21 +325,21 @@ public abstract class UploadDownloadUtils {
         return json;
     }
 
-    public static JSONObject makeRangeUploadJson(long rangeFileSize, String fileMd5, String fileName){
+    public static JSONObject makeRangeUploadJson(long rangeFileSize, String fileMd5, String fileName) {
         JSONObject json = new JSONObject();
         json.put("start", rangeFileSize);
         json.put("signal", "continue");
         json.put(ResponseData.RES_CODE_FILED, 0);
         json.put(ResponseData.RES_MSG_FILED, "上传文件片段成功!");
         json.put(ResponseData.RES_DATA_FILED, CollectionsOpt.createHashMap(
-            "fileName",fileName ,
+            "fileName", fileName,
             "fileMd5", fileMd5,
             "fileSize", rangeFileSize));
         return json;
     }
 
     public static JSONObject makeRangeUploadCompleteJson(long fileSize,
-                                                         Object fileInfo){
+                                                         Object fileInfo) {
         JSONObject json = new JSONObject();
         json.put("start", fileSize);
         json.put("signal", "complete");
@@ -332,7 +349,7 @@ public abstract class UploadDownloadUtils {
         return json;
     }
 
-    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId){
+    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId) {
         return makeRangeUploadCompleteJson(fileSize,
             CollectionsOpt.createHashMap("fileId", fileId,
                 "fileMd5", fileMd5, "fileSize", fileSize,
