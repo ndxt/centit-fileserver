@@ -18,9 +18,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -283,7 +285,7 @@ public class FilePretreatUtils {
         return null;
     }
 
-    public static FileDocument index(FileInfo fileInfo, String sourceFilePath) {
+    public static FileDocument index(FileInfo fileInfo, InputStream inputStream,long size) {
         FileDocument fileDoc = new FileDocument();
         fileDoc.setFileId(fileInfo.getFileId() );
         fileDoc.setOsId(fileInfo.getOsId());
@@ -298,7 +300,12 @@ public class FilePretreatUtils {
         fileDoc.setUnitCode(fileInfo.getFileUnit());
         //获取文件的文本信息
         try {
-            fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFilePath));
+            if(size<25) {
+                fileDoc.setContent(inputStream.toString());
+            }
+            else {
+                fileDoc.setContent(TikaTextExtractor.extractInputStreamText(inputStream));
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
