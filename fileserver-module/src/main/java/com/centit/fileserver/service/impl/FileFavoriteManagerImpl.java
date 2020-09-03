@@ -82,15 +82,16 @@ private FileLibraryInfoManager fileLibraryInfoManager;
         String[] paths = StringUtils.split(fileInfo.getFileShowPath(), "/");
         StringBuffer showPath = new StringBuffer();
         for (String path : paths) {
-            showPath.append("/");
             if (!"-1".equals(path)) {
                 FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(path);
                 if(fileFolderInfo!=null) {
+                    showPath.append("/");
                     showPath.append(fileFolderInfo.getFolderName());
                 }
             }else{
                 FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
                 if(fileLibraryInfo!=null) {
+                    showPath.append("/");
                     showPath.append(fileLibraryInfo.getLibraryName());
                 }
             }
