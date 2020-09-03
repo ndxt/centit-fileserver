@@ -10,6 +10,7 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.image.ImageOpt;
+import com.google.common.io.ByteStreams;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
@@ -18,9 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,11 +28,13 @@ import java.util.Date;
 public class FilePretreatUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FilePretreatUtils.class);
+    private static final int SIZE_SERARCH = 30;
 
     /**
      * 将office文件转换为PDF
+     *
      * @param inputFile office文件
-     * @param pdfFile PDF文件
+     * @param pdfFile   PDF文件
      * @return 布尔值
      */
     public static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
@@ -56,15 +57,16 @@ public class FilePretreatUtils {
 
     /**
      * 给文件添加缩略图
-     * @param filename 文件名
-     * @param thumbWidth 宽度
+     *
+     * @param filename    文件名
+     * @param thumbWidth  宽度
      * @param thumbHeight 高度
-     * @param quality quality
+     * @param quality     quality
      * @param outFilename 处理后文件名
      * @return 布尔值
      */
     public static boolean createImageThumbnail(String filename, int thumbWidth, int thumbHeight, int quality,
-                                               String outFilename){
+                                               String outFilename) {
         boolean created = false;
         try {
             ImageOpt.createThumbnail(filename, thumbWidth, thumbHeight, quality, outFilename);
@@ -77,17 +79,18 @@ public class FilePretreatUtils {
 
     /**
      * 压缩文件
-     * @param inputFile 处理前的文件
-     * @param fileName 文件名
+     *
+     * @param inputFile       处理前的文件
+     * @param fileName        文件名
      * @param zipFilePathName zip文件路径
      * @return 布尔值
      */
-    public static boolean zipFile(String inputFile, String fileName ,String zipFilePathName) {
-        boolean ziped=false;
-        try{
+    public static boolean zipFile(String inputFile, String fileName, String zipFilePathName) {
+        boolean ziped = false;
+        try {
             ZipCompressor.compress(zipFilePathName, fileName, inputFile);
             ziped = true;
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);
         }
         return ziped;
@@ -95,13 +98,14 @@ public class FilePretreatUtils {
 
     /**
      * 压缩文件并通过密码加密
+     *
      * @param inputFilePath 处理前的文件
-     * @param zipFilePath zip文件路径
-     * @param password 密码
+     * @param zipFilePath   zip文件路径
+     * @param password      密码
      * @return 布尔值
      */
-    public static boolean zipFileAndEncrypt(String inputFilePath, String zipFilePath,String password) {
-        boolean ziped=false;
+    public static boolean zipFileAndEncrypt(String inputFilePath, String zipFilePath, String password) {
+        boolean ziped = false;
         try {
             // Initiate ZipFile object with the path/name of the zip file.
             ZipFile zipFile = new ZipFile(zipFilePath);
@@ -131,7 +135,7 @@ public class FilePretreatUtils {
             // then this method throws an exception as Zip Format Specification does not
             // allow updating split zip files
             zipFile.addFiles(filesToAdd, parameters);
-            ziped=true;
+            ziped = true;
         } catch (ZipException e) {
             logger.error(e.getMessage(), e);
         }
@@ -141,16 +145,17 @@ public class FilePretreatUtils {
 
     /**
      * 加密文件：加密算法暂时不可以设定
-     * @param inputFile 处理前文件
+     *
+     * @param inputFile          处理前文件
      * @param diminationFileName diminationFileName
-     * @param password 密码
+     * @param password           密码
      * @return 布尔值
      */
-    public static boolean encryptFile(String inputFile, String diminationFileName,String password) {
-        boolean encrypted=false;
+    public static boolean encryptFile(String inputFile, String diminationFileName, String password) {
+        boolean encrypted = false;
         try {
             FileEncryptWithAes.encrypt(inputFile, diminationFileName, password);
-            encrypted=true;
+            encrypted = true;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -174,7 +179,7 @@ public class FilePretreatUtils {
     }
 
     public static String addWatermarkForPdf(FileInfo fileInfo, String inputPdfPath, String waterMarkStr)
-            throws IOException {
+        throws IOException {
         String outputPdfPath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "2.pdf";
         if (!inputPdfPath.endsWith(".pdf")) {
             String realInputPdfPath = FileType.truncateFileExtName(inputPdfPath) + ".pdf";
@@ -202,15 +207,15 @@ public class FilePretreatUtils {
     }
 
     public static String addThumbnail(FileInfo fileInfo, String sourceFilePath, int width, int height)
-            throws IOException {
+        throws IOException {
         String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.jpg";
-        if(createImageThumbnail(sourceFilePath, width, height, 100, outFilePath)) {
+        if (createImageThumbnail(sourceFilePath, width, height, 100, outFilePath)) {
             fileInfo.setAttachedType("T");
             fileInfo.setAttachedFileMd5(FileMD5Maker.makeFileMD5(new File(outFilePath)));
 
             return outFilePath;
         } else {
-            logger.error("生成缩略图出错！"+ fileInfo.getFileMd5());
+            logger.error("生成缩略图出错！" + fileInfo.getFileMd5());
         }
 
         return null;
@@ -223,55 +228,55 @@ public class FilePretreatUtils {
             fileInfo.setEncryptType("Z");
             fileInfo.setFileName(
                 FileType.truncateFileExtName(fileInfo.getFileName())
-                    +".zip");
+                    + ".zip");
             fileInfo.setFileType("zip");
 
             return outFilePath;
         } else {
-            logger.error("Zip压缩文件时出错！"+ fileInfo.getFileMd5());
+            logger.error("Zip压缩文件时出错！" + fileInfo.getFileMd5());
         }
 
         return null;
     }
 
     public static String zipFileAndEncrypt(FileInfo fileInfo, String sourceFilePath, String encryptPass)
-            throws IOException {
+        throws IOException {
         String entFileDir = SystemTempFileUtils.getTempDirectory()
             + fileInfo.getFileMd5();
         FileSystemOpt.createDirect(entFileDir);
         String entFilePath = entFileDir + File.separatorChar + fileInfo.getFileName();
-        String outFilePath =  SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
+        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
 
         FileSystemOpt.fileCopy(sourceFilePath, entFilePath);
 
-        if(zipFileAndEncrypt(entFilePath, outFilePath, encryptPass)){
+        if (zipFileAndEncrypt(entFilePath, outFilePath, encryptPass)) {
             fileInfo.setFileMd5(FileMD5Maker.makeFileMD5(new File(outFilePath)));
             fileInfo.setEncryptType("Z");
             fileInfo.setFileName(
                 FileType.truncateFileExtName(fileInfo.getFileName())
-                    +".zip");
+                    + ".zip");
             fileInfo.setFileType("zip");
             //删除临时文件
             FileSystemOpt.deleteFile(entFilePath);
             FileSystemOpt.deleteDirect(entFileDir);
 
             return outFilePath;
-        }else{
+        } else {
             FileSystemOpt.deleteFile(entFilePath);
             FileSystemOpt.deleteDirect(entFileDir);
-            logger.error("zipFileAndEncrypt 压缩文件时出错！"+ fileInfo.getFileMd5());
+            logger.error("zipFileAndEncrypt 压缩文件时出错！" + fileInfo.getFileMd5());
         }
 
         return null;
     }
 
     public static String encryptFileWithAes(FileInfo fileInfo, String sourceFilePath, String encryptPass)
-            throws IOException {
-        if(StringUtils.isBlank(encryptPass)) {
-            logger.error("设置AES加密时请同时设置密码！"+ fileInfo.getFileMd5());
+        throws IOException {
+        if (StringUtils.isBlank(encryptPass)) {
+            logger.error("设置AES加密时请同时设置密码！" + fileInfo.getFileMd5());
         }
-        String outFilePath =  SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
-        if(encryptFile(sourceFilePath, outFilePath, encryptPass)){
+        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
+        if (encryptFile(sourceFilePath, outFilePath, encryptPass)) {
             File file = new File(outFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(file);
             fileInfo.setFileMd5(fileMd5);
@@ -279,15 +284,15 @@ public class FilePretreatUtils {
 
             return outFilePath;
         } else {
-            logger.error("AES加密文件时出错！"+ fileInfo.getFileMd5());
+            logger.error("AES加密文件时出错！" + fileInfo.getFileMd5());
         }
 
         return null;
     }
 
-    public static FileDocument index(FileInfo fileInfo, InputStream inputStream,long size) {
+    public static FileDocument index(FileInfo fileInfo, InputStream inputStream, long size) {
         FileDocument fileDoc = new FileDocument();
-        fileDoc.setFileId(fileInfo.getFileId() );
+        fileDoc.setFileId(fileInfo.getFileId());
         fileDoc.setOsId(fileInfo.getOsId());
         fileDoc.setOptId(fileInfo.getLibraryId());
         fileDoc.setOptMethod(fileInfo.getOptMethod());
@@ -300,10 +305,9 @@ public class FilePretreatUtils {
         fileDoc.setUnitCode(fileInfo.getFileUnit());
         //获取文件的文本信息
         try {
-            if(size<25) {
-                fileDoc.setContent(inputStream.toString());
-            }
-            else {
+            if (size < SIZE_SERARCH) {
+                fileDoc.setContent(new String(ByteStreams.toByteArray(inputStream)));
+            } else {
                 fileDoc.setContent(TikaTextExtractor.extractInputStreamText(inputStream));
             }
         } catch (Exception e) {
