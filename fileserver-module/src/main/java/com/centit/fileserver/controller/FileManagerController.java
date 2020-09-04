@@ -343,6 +343,8 @@ private FileFavoriteManager fileFavoriteManager;
                 CollectionsOpt.createHashMap("fileId",e.get("fileId"),"favoriteUser",userCode),null);
             if(list!=null&&list.size()>0) {
                 e.put("favoriteId",list.get(0).getFavoriteId());
+            }else{
+                e.put("favoriteId","");
             }
         });
         return mapList;
