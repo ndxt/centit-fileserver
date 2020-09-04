@@ -67,36 +67,38 @@ private FileLibraryInfoManager fileLibraryInfoManager;
                 e.setUploadUser(CodeRepositoryUtil.getUserName(fileInfo.getFileOwner()));
                 e.setLibraryId(fileInfo.getLibraryId());
                 e.setParentFolder(fileInfo.getParentFolder());
-                e.setShowPath(getShowPath(fileInfo).toString());
+                e.setShowPath(getShowPath(fileInfo.getFileShowPath(),fileInfo.getLibraryId()));
                 FileStoreInfo fileStoreInfo=fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
                 if(fileStoreInfo!=null){
                     e.setFileSize(fileStoreInfo.getFileSize());
                 }
             }
         });
-
         return list;
     }
 
-    private StringBuffer getShowPath(FileInfo fileInfo) {
-        String[] paths = StringUtils.split(fileInfo.getFileShowPath(), "/");
-        StringBuffer showPath = new StringBuffer();
+    private String getShowPath(String fileShowPath,String libraryId) {
+        String[] paths = StringUtils.split(fileShowPath, "/");
+        StringBuilder showPath = new StringBuilder();
         for (String path : paths) {
+            showPath.append("/");
             if (!"-1".equals(path)) {
                 FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(path);
                 if(fileFolderInfo!=null) {
-                    showPath.append("/");
                     showPath.append(fileFolderInfo.getFolderName());
+                }else{
+                    showPath.append(path);
                 }
             }else{
-                FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
+                FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(libraryId);
                 if(fileLibraryInfo!=null) {
-                    showPath.append("/");
                     showPath.append(fileLibraryInfo.getLibraryName());
+                }else{
+                    showPath.append(path);
                 }
             }
         }
-        return showPath;
+        return showPath.toString();
     }
 
 
