@@ -13,6 +13,9 @@
     <name>com.centit.product:centit-fileserver-web</name>
     <packaging>war</packaging>
 
+    <description>文件服务器的服务程序，war包形式，需要放到tomcat中启动
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>com.centit.product</groupId>

@@ -14,6 +14,8 @@
     <artifactId>fileserver-boot</artifactId>
     <name>com.centit.product:fileserver-boot</name>
     <version>3.1-SNAPSHOT</version>
+    <description>文件服务器的服务程序，spring-boot的jar包形式可以直接启动
+    </description>
 
     <properties>
         <centit.framework.version>4.6-SNAPSHOT</centit.framework.version>
@@ -138,7 +140,7 @@
             <artifactId>centit-quartz-extend</artifactId>
             <version>${centit.common.module.version}</version>
         </dependency>
-        
+
         <!-- swagger2 -->
         <dependency>
 		  <groupId>io.springfox</groupId>
@@ -151,7 +153,7 @@
 		  <artifactId>swagger-bootstrap-ui</artifactId>
 		  <version>1.9.6</version>
 		</dependency>
-        
+
 
         <dependency>
             <groupId>org.flywaydb</groupId>
