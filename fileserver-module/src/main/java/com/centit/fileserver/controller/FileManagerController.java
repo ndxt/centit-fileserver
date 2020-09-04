@@ -341,7 +341,7 @@ private FileFavoriteManager fileFavoriteManager;
             e.put("showPath",fileFavoriteManager.getShowPath(e.get("optUrl").toString(),e.get("optId").toString()));
             List<FileFavorite> list =fileFavoriteManager.listFileFavorite(
                 CollectionsOpt.createHashMap("fileId",e.get("fileId"),"favoriteUser",userCode),null);
-            if(list!=null) {
+            if(list!=null&&list.size()>0) {
                 e.put("favoriteId",list.get(0).getFavoriteId());
             }
         });
