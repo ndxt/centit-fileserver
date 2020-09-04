@@ -77,7 +77,8 @@ private FileLibraryInfoManager fileLibraryInfoManager;
         return list;
     }
 
-    private String getShowPath(String fileShowPath,String libraryId) {
+    @Override
+    public String getShowPath(String fileShowPath, String libraryId) {
         String[] paths = StringUtils.split(fileShowPath, "/");
         StringBuilder showPath = new StringBuilder();
         for (String path : paths) {

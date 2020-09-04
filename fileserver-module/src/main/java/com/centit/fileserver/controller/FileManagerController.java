@@ -2,8 +2,10 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.po.FileFavorite;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.service.FileFavoriteManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.common.JsonResultUtils;
@@ -65,37 +67,42 @@ public class FileManagerController extends BaseController {
     protected FileStore fileStore;
     @Autowired(required = false)
     private ESSearcher esObjectSearcher;
+@Autowired
+private FileFavoriteManager fileFavoriteManager;
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-     * @param fileId 文件ID
+     *
+     * @param fileId   文件ID
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/{fileId}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "根据文件的id逻辑删除文件(同时删除文件和数据库记录)")
-    public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response){
+    public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response) {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(fileInfo !=null){
+        if (fileInfo != null) {
             fileInfo.setFileState("D");
             fileInfoManager.updateObject(fileInfo);
             JsonResultUtils.writeSuccessJson(response);
-        }else{
+        } else {
             JsonResultUtils.writeErrorMessageJson(
-                    "文件不存在："+fileId, response);
+                "文件不存在：" + fileId, response);
         }
 
     }
+
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-     * @param fileId 文件ID
+     *
+     * @param fileId   文件ID
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/force/{fileId}",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/force/{fileId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "根据文件的id物理删除文件(同时删除文件和数据库记录)")
-    public void deleteForce(@PathVariable("fileId") String fileId, HttpServletResponse response){
+    public void deleteForce(@PathVariable("fileId") String fileId, HttpServletResponse response) {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(fileInfo !=null){
+        if (fileInfo != null) {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             String path = fileStoreInfo.getFileStorePath();
 
@@ -104,97 +111,102 @@ public class FileManagerController extends BaseController {
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
                 JsonResultUtils.writeErrorMessageJson(
-                        e.getMessage(), response);
+                    e.getMessage(), response);
                 return;
             }
             fileInfo.setFileState("D");
             fileInfoManager.updateObject(fileInfo);
             JsonResultUtils.writeSuccessJson(response);
-        }else{
+        } else {
             JsonResultUtils.writeErrorMessageJson(
-                    "文件不存在："+fileId, response);
+                "文件不存在：" + fileId, response);
         }
 
     }
 
     /**
      * 根据文件的id获取文件存储信息
-     * @param fileId 文件ID
+     *
+     * @param fileId   文件ID
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/{fileId}",method = RequestMethod.GET)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id获取文件存储信息")
-    public void getFileStoreInfo(@PathVariable("fileId") String fileId,HttpServletRequest request, HttpServletResponse response){
+    public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(fileInfo !=null){
+        if (fileInfo != null) {
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
-        }else{
+        } else {
             JsonResultUtils.writeErrorMessageJson(
-                    "文件不存在："+fileId, response);
+                "文件不存在：" + fileId, response);
         }
     }
 
     /**
      * 更新文件存储信息
+     *
      * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
 
-    private void updateFileStoreInfo(String fileId,FileInfo fileInfo, HttpServletResponse response){
+    private void updateFileStoreInfo(String fileId, FileInfo fileInfo, HttpServletResponse response) {
         FileInfo dbFileInfo = fileInfoManager.getObjectById(fileId);
 
-        if(dbFileInfo !=null){
+        if (dbFileInfo != null) {
             dbFileInfo.copyNotNullProperty(fileInfo);
-            if(StringBaseOpt.isNvl(fileInfo.getFileId())){
+            if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
                 dbFileInfo.setFileId(null);
                 fileInfoManager.saveNewFile(dbFileInfo);
-            }else {
+            } else {
                 fileInfoManager.updateObject(dbFileInfo);
             }
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
-        }else{
+        } else {
             JsonResultUtils.writeErrorMessageJson(
-                    "文件不存在："+fileInfo.getFileId(), response);
+                "文件不存在：" + fileInfo.getFileId(), response);
         }
     }
 
     /**
      * 根据文件的id修改文件存储信息，文件春粗信息按照表单的形式传送
-     * @param fileId 文件ID
+     *
+     * @param fileId   文件ID
      * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/{fileId}",method = RequestMethod.POST)
+    @RequestMapping(value = "/{fileId}", method = RequestMethod.POST)
     @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照表单的形式传送")
     public void postFileStoreInfo(@PathVariable("fileId") String fileId,
-            @Valid FileInfo fileInfo, HttpServletResponse response){
-        updateFileStoreInfo(fileId,fileInfo,response);
+                                  @Valid FileInfo fileInfo, HttpServletResponse response) {
+        updateFileStoreInfo(fileId, fileInfo, response);
     }
 
     /**
      * 根据文件的id修改文件存储信息，文件存储信息按照json的格式传送
-     * @param fileId 文件ID
+     *
+     * @param fileId   文件ID
      * @param fileInfo 文件对象
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/j/{fileId}",method = RequestMethod.POST)
+    @RequestMapping(value = "/j/{fileId}", method = RequestMethod.POST)
     @ApiOperation(value = "根据文件的id修改文件存储信息，文件信息按照json的形式传送")
     public void jsonpostFileStoreInfo(@PathVariable("fileId") String fileId,
-            @RequestBody FileInfo fileInfo, HttpServletResponse response){
-        updateFileStoreInfo(fileId,fileInfo,response);
+                                      @RequestBody FileInfo fileInfo, HttpServletResponse response) {
+        updateFileStoreInfo(fileId, fileInfo, response);
     }
 
     /**
      * 根据相关的条件查询文件
+     *
      * @param pageDesc 分页对象
-     * @param request HttpServletRequest
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      */
     @RequestMapping(method = RequestMethod.GET)
     @ApiOperation(value = "根据相关的条件查询文件")
-    public void listStroedFiles( PageDesc pageDesc,
-            HttpServletRequest request, HttpServletResponse response) {
+    public void listStroedFiles(PageDesc pageDesc,
+                                HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
 
@@ -209,10 +221,11 @@ public class FileManagerController extends BaseController {
 
     /**
      * 获取系统中的所有OS
-     * @param request HttpServletRequest
+     *
+     * @param request  HttpServletRequest
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/oss",method = RequestMethod.GET)
+    @RequestMapping(value = "/oss", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统中的所有OS")
     public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
         List<OsInfo> osinfoList = integrationEnvironment.listOsInfos();
@@ -222,10 +235,11 @@ public class FileManagerController extends BaseController {
 
     /**
      * 获取系统所有操作
-     * @param osId 项目编号
+     *
+     * @param osId     项目编号
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/optids/{osId}",method = RequestMethod.GET)
+    @RequestMapping(value = "/optids/{osId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统所有操作")
     public void listOptsByOs(@PathVariable("osId") String osId,
                              HttpServletResponse response) {
@@ -236,76 +250,81 @@ public class FileManagerController extends BaseController {
 
     /**
      * 获取系统所有文件属主
-     * @param osId 项目编号
-     * @param optId 模块编号
+     *
+     * @param osId     项目编号
+     * @param optId    模块编号
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/owner/{osId}/{optId}",method = RequestMethod.GET)
+    @RequestMapping(value = "/owner/{osId}/{optId}", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统所有文件属主")
     public void listFileOwners(@PathVariable("osId") String osId,
-                             @PathVariable("optId") String optId,
-                             HttpServletResponse response) {
-        JSONArray listObjects = fileInfoManager.listFileOwners(osId,optId);
+                               @PathVariable("optId") String optId,
+                               HttpServletResponse response) {
+        JSONArray listObjects = fileInfoManager.listFileOwners(osId, optId);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
 
     /**
      * 获取系统所有文件
-     * @param osId 项目编号
-     * @param optId 模块编号
-     * @param owner 所属者
+     *
+     * @param osId     项目编号
+     * @param optId    模块编号
+     * @param owner    所属者
      * @param response HttpServletResponse
      */
-    @RequestMapping(value = "/files/{osId}/{optId}/{owner}",method = RequestMethod.GET)
+    @RequestMapping(value = "/files/{osId}/{optId}/{owner}", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统所有文件")
     public void listFilesByOwner(@PathVariable("osId") String osId,
-                               @PathVariable("optId") String optId,
+                                 @PathVariable("optId") String optId,
                                  @PathVariable("owner") String owner,
-                               HttpServletResponse response) {
+                                 HttpServletResponse response) {
 
-        JSONArray listObjects = fileInfoManager.listFilesByOwner(osId,optId,owner);
+        JSONArray listObjects = fileInfoManager.listFilesByOwner(osId, optId, owner);
         JsonResultUtils.writeSingleDataJson(listObjects, response);
     }
-    @RequestMapping(value = "/authcode/{fileId}",method = RequestMethod.GET)
+
+    @RequestMapping(value = "/authcode/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id获取验证码")
     @WrapUpResponseBody
-    public Map<String,Object> getAuthCode(@PathVariable("fileId") String fileId, HttpServletRequest request){
+    public Map<String, Object> getAuthCode(@PathVariable("fileId") String fileId, HttpServletRequest request) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(StringBaseOpt.isNvl(fileInfo.getAuthCode())){
-            fileInfo.setAuthCode(StringUtils.substring(UuidOpt.getUuidAsString(),-4));
+        if (StringBaseOpt.isNvl(fileInfo.getAuthCode())) {
+            fileInfo.setAuthCode(StringUtils.substring(UuidOpt.getUuidAsString(), -4));
             fileInfoManager.updateObject(fileInfo);
         }
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
+        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
             .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
-        return CollectionsOpt.createHashMap("authcode",fileInfo.getAuthCode(),
-            "uri","/checkauth/"+fileId);
+        return CollectionsOpt.createHashMap("authcode", fileInfo.getAuthCode(),
+            "uri", "/checkauth/" + fileId);
     }
-    @RequestMapping(value = "/checkauth/{fileId}/{authCode}",method = RequestMethod.GET)
+
+    @RequestMapping(value = "/checkauth/{fileId}/{authCode}", method = RequestMethod.GET)
     @ApiOperation(value = "检查验证码")
     @WrapUpResponseBody
-    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId,@PathVariable("authCode")String authCode){
+    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId, @PathVariable("authCode") String authCode) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(fileInfo.getAuthCode().equals(authCode)){
-           return fileInfo;
+        if (fileInfo.getAuthCode().equals(authCode)) {
+            return fileInfo;
         }
         return null;
     }
+
     @ApiOperation(value = "全文检索")
     @ApiImplicitParams({@ApiImplicitParam(
         name = "libraryIds", value = "库ids",
-        required = true, paramType = "query", dataType = "String",allowMultiple = true
+        required = true, paramType = "query", dataType = "String", allowMultiple = true
     ), @ApiImplicitParam(
         name = "query", value = "检索关键字",
         required = true, paramType = "query", dataType = "String"
     )})
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @WrapUpResponseBody
-    public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds,String query,HttpServletRequest request, PageDesc pageDesc) {
-        if(esObjectSearcher==null){
+    public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds, String query, HttpServletRequest request, PageDesc pageDesc) {
+        if (esObjectSearcher == null) {
             throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
         }
         Map<String, Object> searchQuery = new HashMap<>(10);
-        if(libraryIds!=null) {
+        if (libraryIds != null) {
             searchQuery.put("optId", libraryIds);
         }
         Pair<Long, List<Map<String, Object>>> res =
@@ -314,6 +333,18 @@ public class FileManagerController extends BaseController {
             throw new ObjectException("ELK异常");
         }
         pageDesc.setTotalRows(NumberBaseOpt.castObjectToInteger(res.getLeft()));
-        return PageQueryResult.createResult(res.getRight(), pageDesc);
+        return PageQueryResult.createResult(change(res.getRight(),WebOptUtils.getCurrentUserCode(request)), pageDesc);
+    }
+
+    private List<Map<String, Object>> change(List<Map<String, Object>> mapList,String userCode) {
+        mapList.forEach(e -> {
+            e.put("showPath",fileFavoriteManager.getShowPath(e.get("optUrl").toString(),e.get("optId").toString()));
+            List<FileFavorite> list =fileFavoriteManager.listFileFavorite(
+                CollectionsOpt.createHashMap("fileId",e.get("fileId"),"favoriteUser",userCode),null);
+            if(list!=null) {
+                e.put("favoriteId",list.get(0).getFavoriteId());
+            }
+        });
+        return mapList;
     }
 }
