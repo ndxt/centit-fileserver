@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -312,7 +315,7 @@ public class FilePretreatUtils {
                 charset=new AutoDetectReader(new FileInputStream(sourceFilePath)).getCharset().name();
             }
             if("GB18030".equals(charset)){
-                fileDoc.setContent(new FileInputStream(sourceFilePath).toString());
+                fileDoc.setContent(new String(Files.readAllBytes(Paths.get(sourceFilePath)), Charset.forName("GB18030")));
             }else {
                 fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFilePath));
             }
