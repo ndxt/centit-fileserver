@@ -134,7 +134,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public FileLibraryInfo getFileLibraryInfo(String libraryId) {
-        return fileLibraryInfoDao.getObjectById(libraryId);
+        return fileLibraryInfoDao.getObjectWithReferences(libraryId);
     }
 
     @Override
