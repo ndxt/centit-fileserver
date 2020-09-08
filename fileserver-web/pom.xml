@@ -144,9 +144,6 @@
             <properties>
                 <profiles.active>test</profiles.active>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
         <profile>
             <id>prod</id>
