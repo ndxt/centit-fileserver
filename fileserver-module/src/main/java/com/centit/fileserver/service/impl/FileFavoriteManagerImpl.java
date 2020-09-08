@@ -9,16 +9,12 @@ import com.centit.fileserver.service.FileFolderInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
-import com.centit.support.compiler.Lexer;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,10 +35,10 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
     private FileInfoDao fileInfoDao;
     @Autowired
     private FileStoreInfoDao fileStoreInfoDao;
-@Autowired
-private FileFolderInfoManager fileFolderInfoMag;
-@Autowired
-private FileLibraryInfoManager fileLibraryInfoManager;
+    @Autowired
+    private FileFolderInfoManager fileFolderInfoMag;
+    @Autowired
+    private FileLibraryInfoManager fileLibraryInfoManager;
 
 
     @Override
@@ -57,19 +53,19 @@ private FileLibraryInfoManager fileLibraryInfoManager;
 
     @Override
     public List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc) {
-        param.put("withFile","1");
-        List<FileFavorite> list=fileFavoriteDao.listObjects(param,pageDesc);
-        list.forEach(e->{
-            FileInfo fileInfo= fileInfoDao.getObjectById(e.getFileId());
-            if(fileInfo!=null){
+        param.put("withFile", "1");
+        List<FileFavorite> list = fileFavoriteDao.listObjects(param, pageDesc);
+        list.forEach(e -> {
+            FileInfo fileInfo = fileInfoDao.getObjectById(e.getFileId());
+            if (fileInfo != null) {
                 e.setFileName(fileInfo.getFileName());
                 e.setFileType(fileInfo.getFileType());
                 e.setUploadUser(CodeRepositoryUtil.getUserName(fileInfo.getFileOwner()));
                 e.setLibraryId(fileInfo.getLibraryId());
                 e.setParentFolder(fileInfo.getParentFolder());
-                e.setShowPath(getShowPath(fileInfo.getFileShowPath(),fileInfo.getLibraryId()));
-                FileStoreInfo fileStoreInfo=fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
-                if(fileStoreInfo!=null){
+                e.setShowPath(getShowPath(fileInfo.getFileShowPath(), fileInfo.getLibraryId()));
+                FileStoreInfo fileStoreInfo = fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
+                if (fileStoreInfo != null) {
                     e.setFileSize(fileStoreInfo.getFileSize());
                 }
             }
@@ -84,17 +80,17 @@ private FileLibraryInfoManager fileLibraryInfoManager;
         for (String path : paths) {
             showPath.append("/");
             if (!"-1".equals(path)) {
-                FileFolderInfo fileFolderInfo=fileFolderInfoMag.getFileFolderInfo(path);
-                if(fileFolderInfo!=null) {
+                FileFolderInfo fileFolderInfo = fileFolderInfoMag.getFileFolderInfo(path);
+                if (fileFolderInfo != null) {
                     showPath.append(fileFolderInfo.getFolderName());
-                }else{
+                } else {
                     showPath.append(path);
                 }
-            }else{
-                FileLibraryInfo fileLibraryInfo=fileLibraryInfoManager.getFileLibraryInfo(libraryId);
-                if(fileLibraryInfo!=null) {
+            } else {
+                FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(libraryId);
+                if (fileLibraryInfo != null) {
                     showPath.append(fileLibraryInfo.getLibraryName());
-                }else{
+                } else {
                     showPath.append(path);
                 }
             }

@@ -131,9 +131,21 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         String[] split= StringUtils.split(
             CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(),SEPARATOR);
         if("true".equals(env.getProperty("top.enable","false"))){
-            List<String> result= new ArrayList<>(Arrays.asList(split));
-             result.add(env.getProperty("top.unit",""));
-             return result.toArray(new String[0]);
+            String exUnit=env.getProperty("top.unit","");
+            if (!StringBaseOpt.isNvl(exUnit)) {
+                boolean isFind=false;
+                for(int i=0;i<split.length;i++){
+                    if(split[i].indexOf(exUnit)!=-1){
+                        isFind=true;
+                        break;
+                    }
+                }
+                if(!isFind) {
+                    List<String> result = new ArrayList<>(Arrays.asList(split));
+                    result.add(env.getProperty("top.unit", ""));
+                    return result.toArray(new String[0]);
+                }
+            }
         }
         return split;
     }
@@ -142,6 +154,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     @Override
     public FileLibraryInfo getFileLibraryInfo(String libraryId) {
         FileLibraryInfo fileLibraryInfo= fileLibraryInfoDao.getObjectWithReferences(libraryId);
+        if(fileLibraryInfo==null){
+            return null;
+        }
         if(!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())){
            fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(fileLibraryInfo.getOwnUser()));
         }
