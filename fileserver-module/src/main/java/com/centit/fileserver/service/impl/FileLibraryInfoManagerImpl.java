@@ -73,7 +73,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                 libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
             }
         }
-        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType))
+        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType,Comparator.reverseOrder()))
             .collect(Collectors.toList());
     }
 
