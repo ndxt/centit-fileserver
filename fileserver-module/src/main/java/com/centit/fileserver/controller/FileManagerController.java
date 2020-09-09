@@ -22,8 +22,6 @@ import com.centit.search.service.Impl.ESSearcher;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
-import com.centit.support.json.JSONOpt;
-import com.google.gson.JsonArray;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -67,8 +65,9 @@ public class FileManagerController extends BaseController {
     protected FileStore fileStore;
     @Autowired(required = false)
     private ESSearcher esObjectSearcher;
-@Autowired
-private FileFavoriteManager fileFavoriteManager;
+    @Autowired
+    private FileFavoriteManager fileFavoriteManager;
+
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
      *
@@ -333,18 +332,18 @@ private FileFavoriteManager fileFavoriteManager;
             throw new ObjectException("ELK异常");
         }
         pageDesc.setTotalRows(NumberBaseOpt.castObjectToInteger(res.getLeft()));
-        return PageQueryResult.createResult(change(res.getRight(),WebOptUtils.getCurrentUserCode(request)), pageDesc);
+        return PageQueryResult.createResult(change(res.getRight(), WebOptUtils.getCurrentUserCode(request)), pageDesc);
     }
 
-    private List<Map<String, Object>> change(List<Map<String, Object>> mapList,String userCode) {
+    private List<Map<String, Object>> change(List<Map<String, Object>> mapList, String userCode) {
         mapList.forEach(e -> {
-            e.put("showPath",fileFavoriteManager.getShowPath(e.get("optUrl").toString(),e.get("optId").toString()));
-            List<FileFavorite> list =fileFavoriteManager.listFileFavorite(
-                CollectionsOpt.createHashMap("fileId",e.get("fileId"),"favoriteUser",userCode),null);
-            if(list!=null&&list.size()>0) {
-                e.put("favoriteId",list.get(0).getFavoriteId());
-            }else{
-                e.put("favoriteId","");
+            e.put("showPath", fileFavoriteManager.getShowPath(e.get("optUrl").toString(), e.get("optId").toString()));
+            List<FileFavorite> list = fileFavoriteManager.listFileFavorite(
+                CollectionsOpt.createHashMap("fileId", e.get("fileId"), "favoriteUser", userCode), null);
+            if (list != null && list.size() > 0) {
+                e.put("favoriteId", list.get(0).getFavoriteId());
+            } else {
+                e.put("favoriteId", "");
             }
         });
         return mapList;

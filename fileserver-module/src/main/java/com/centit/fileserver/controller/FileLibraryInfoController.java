@@ -105,11 +105,11 @@ public class FileLibraryInfoController extends BaseController {
     public void initPersonLibrary(HttpServletRequest request){
         fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
     }
-    @RequestMapping(value="/initunitlib",method = {RequestMethod.POST})
+    @RequestMapping(value="/initunitlib/{unitCode}",method = {RequestMethod.POST})
     @ApiOperation(value = "初始化机构库")
     @WrapUpResponseBody
-    public void initUnitLibrary(HttpServletRequest request){
-        fileLibraryInfoMag.initUnitLibrary(WebOptUtils.getCurrentUnitCode(request),WebOptUtils.getCurrentUserCode(request));
+    public void initUnitLibrary(@PathVariable String unitCode,HttpServletRequest request){
+        fileLibraryInfoMag.initUnitLibrary(unitCode,WebOptUtils.getCurrentUserCode(request));
     }
     /**
      * 新增 文件库信息

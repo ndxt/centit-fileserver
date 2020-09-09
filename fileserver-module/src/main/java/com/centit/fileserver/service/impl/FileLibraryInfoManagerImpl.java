@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * FileLibraryInfo  Service.
@@ -72,7 +73,8 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                 libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
             }
         }
-        return libraryInfos;
+        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -127,7 +129,8 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         return fileLibraryInfo;
     }
 
-    private String[] getUnits(String userCode) {
+    @Override
+    public String[] getUnits(String userCode) {
         String[] split= StringUtils.split(
             CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(),SEPARATOR);
         if("true".equals(env.getProperty("top.enable","false"))){

@@ -172,7 +172,7 @@ public class DownloadController extends BaseController {
     }
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
-        if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),WebOptUtils.getCurrentUnitCode(request),request.getParameter("authCode"))) {
+        if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户"+WebOptUtils.getCurrentUserCode(request)
                 +"所属机构"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);
             return true;
@@ -180,11 +180,9 @@ public class DownloadController extends BaseController {
         return false;
     }
 
-    private boolean checkAuth(FileInfo fileInfo, String userCode,String unitCode,String authCode) {
-        String unitPath = "";
-        if(!StringBaseOpt.isNvl(unitCode)) {
-            unitPath=CodeRepositoryUtil.getUnitInfoByCode(unitCode).getUnitPath();
-        }
+    private boolean checkAuth(FileInfo fileInfo, String userCode,String authCode) {
+        String[] unitPath = fileLibraryInfoManager.getUnits(userCode);
+
         if (!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
@@ -196,8 +194,10 @@ public class DownloadController extends BaseController {
                     break;
                 //机构
                 case "O":
-                    if (StringUtils.contains(unitPath, fileLibraryInfo.getOwnUnit())) {
-                        return true;
+                    for (String s : unitPath) {
+                        if (s.contains(fileLibraryInfo.getOwnUnit())) {
+                            return true;
+                        }
                     }
                     break;
                 //项目
