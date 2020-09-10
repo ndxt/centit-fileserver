@@ -156,14 +156,18 @@ public class FileManagerController extends BaseController {
 
     private void updateFileStoreInfo(String fileId, FileInfo fileInfo, HttpServletResponse response) {
         FileInfo dbFileInfo = fileInfoManager.getObjectById(fileId);
-
         if (dbFileInfo != null) {
-            dbFileInfo.copyNotNullProperty(fileInfo);
             if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
+                dbFileInfo.copyNotNullProperty(fileInfo);
                 dbFileInfo.setFileId(null);
                 fileInfoManager.saveNewFile(dbFileInfo);
             } else {
-                fileInfoManager.updateObject(dbFileInfo);
+                fileInfoManager.updateObject(fileInfo);
+                if(!dbFileInfo.getFileName().equals(fileInfo.getFileName())) {
+                    OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+                        .method("更新文件信息").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate())
+                        .content("更改文件名称").oldObject(dbFileInfo.getFileName()).newObject(fileInfo.getFileName()));
+                }
             }
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
         } else {

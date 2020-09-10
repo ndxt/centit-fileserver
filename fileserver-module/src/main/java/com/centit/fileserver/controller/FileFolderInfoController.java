@@ -10,10 +10,14 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
+import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -165,9 +169,15 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件夹信息")
     @WrapUpResponseBody
-    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+    public FileFolderInfo updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
+        FileFolderInfo oldFileFolder = fileFolderInfoMag.getFileFolderInfo(fileFolderInfo.getFolderId());
         fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
+        if(!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
+            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+                .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
+                .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
+        }
+        return fileFolderInfo;
     }
 }
