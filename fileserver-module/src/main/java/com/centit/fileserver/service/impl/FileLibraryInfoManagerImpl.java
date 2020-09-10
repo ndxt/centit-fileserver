@@ -9,15 +9,19 @@ import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.PageDesc;
+import com.centit.support.image.ImageOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -36,8 +40,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     private static final char SEPARATOR = '/';
     @Autowired
     private FileLibraryInfoDao fileLibraryInfoDao;
-    @Autowired
-    private Environment env;
+    @Value("${top.enable:false}")
+    protected boolean topEnable;
+    @Value("${top.unit}")
+    protected String topUnit;
 
     @Override
     public void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
@@ -133,19 +139,18 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     public String[] getUnits(String userCode) {
         String[] split= StringUtils.split(
             CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(),SEPARATOR);
-        if("true".equals(env.getProperty("top.enable","false"))){
-            String exUnit=env.getProperty("top.unit","");
-            if (!StringBaseOpt.isNvl(exUnit)) {
+        if(topEnable){
+            if (!StringBaseOpt.isNvl(topUnit)) {
                 boolean isFind=false;
-                for(int i=0;i<split.length;i++){
-                    if(split[i].indexOf(exUnit)!=-1){
-                        isFind=true;
+                for (String s : split) {
+                    if (s.contains(topUnit)) {
+                        isFind = true;
                         break;
                     }
                 }
                 if(!isFind) {
                     List<String> result = new ArrayList<>(Arrays.asList(split));
-                    result.add(env.getProperty("top.unit", ""));
+                    result.add(topUnit);
                     return result.toArray(new String[0]);
                 }
             }

@@ -44,7 +44,8 @@ public abstract class AbstractOfficeToPdf {
     public final static String XLSX="xlsx";
     public final static String PPT="ppt";
     public final static String PPTX="pptx";
-    private final static String PDF="pdf";
+    public final static String PDF="pdf";
+    public final static String TXT="txt";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);
 

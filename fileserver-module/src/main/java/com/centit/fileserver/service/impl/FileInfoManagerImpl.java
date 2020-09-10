@@ -116,29 +116,7 @@ public class FileInfoManagerImpl
         return null;
     }
 
-    @Override
-    public FileInfo getDuplicateFileByShowPath(FileInfo originalFile){
-        if (StringUtils.isBlank(originalFile.getFileShowPath())){
-            String queryStatement2 = " where FILE_ID <> ? and FILE_SHOW_PATH is null " +
-                    " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
-            List<FileInfo> duplicateFiles =
-                    baseDao.listObjectsByFilter(queryStatement2, new Object[]
-                            {originalFile.getFileId(),originalFile.getFileName(),
-                                    originalFile.getFileOwner(),originalFile.getFileUnit()});
-            if(duplicateFiles!=null && duplicateFiles.size()>0)
-                return duplicateFiles.get(0);
-        }else {
-            String queryStatement = " where FILE_ID <> ? and FILE_SHOW_PATH = ? " +
-                    " and FILE_NAME = ? and ( FILE_OWNER = ? or FILE_UNIT= ? )";
-            List<FileInfo> duplicateFiles =
-                    baseDao.listObjectsByFilter(queryStatement, new Object[]
-                            {originalFile.getFileId(),originalFile.getFileShowPath(),originalFile.getFileName(),
-                                    originalFile.getFileOwner(),originalFile.getFileUnit()});
-            if(duplicateFiles!=null && duplicateFiles.size()>0)
-                return duplicateFiles.get(0);
-        }
-        return null;
-    }
+
     /**
      * 同步保存文件
      *
