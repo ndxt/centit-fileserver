@@ -87,6 +87,7 @@ create table file_info
    parent_folder            varchar(32) default '-1' comment '所属文件夹id',
    library_id           varchar(32) comment '库id',
    os_id varchar(32),
+   attached_file_md5 varchar(32),
    primary key (file_id)
 );
 
