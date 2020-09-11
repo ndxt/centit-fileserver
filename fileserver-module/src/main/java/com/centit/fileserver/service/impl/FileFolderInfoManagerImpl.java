@@ -3,7 +3,9 @@ package com.centit.fileserver.service.impl;
 import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.service.FileFolderInfoManager;
+import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
+import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.database.utils.PageDesc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,8 +53,15 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteFileFolderInfo(String folderId) {
+        FileFolderInfo fileFolderInfo=fileFolderInfoDao.getObjectById(folderId);
         fileFolderInfoDao.deleteObjectById(folderId);
+        String path=fileFolderInfo.getFolderPath()+"/"+fileFolderInfo.getFolderId()+"%";
+        DatabaseOptUtils.doExecuteNamedSql(fileFolderInfoDao,"delete from file_folder_info where folder_path like :path",
+            CollectionsOpt.createHashMap("path",path));
+        DatabaseOptUtils.doExecuteNamedSql(fileFolderInfoDao,"delete from file_info where file_show_path like :path",
+            CollectionsOpt.createHashMap("path",path));
     }
 
 }

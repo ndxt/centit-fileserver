@@ -81,7 +81,7 @@ public class FileInfoManagerImpl
                 "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, b.FILE_STORE_PATH, a.FILE_TYPE,"
                 + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
                 + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, b.FILE_SIZE,"
-                + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_FILE_MD5"
+                + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_FILE_MD5,a.library_id,a.parent_folder"
                 + " from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 where 1=1 "
                 + " [ :files | and a.FILE_ID in (:files) ] "
                         //:(SPLITFORIN)files 这个地方files如果不是数组而是逗号分隔的就需要添加这个预处理

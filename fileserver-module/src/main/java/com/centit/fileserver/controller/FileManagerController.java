@@ -79,14 +79,16 @@ public class FileManagerController extends BaseController {
      */
     @RequestMapping(value = "/{fileId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "根据文件的id逻辑删除文件(同时删除文件和数据库记录)")
-    public void delete(@PathVariable("fileId") String fileId, HttpServletResponse response) {
-
+    public void delete(@PathVariable("fileId") String fileId,HttpServletRequest request, HttpServletResponse response) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo != null) {
             fileInfoManager.deleteObjectById(fileId);
             if(documentIndexer != null){
                 documentIndexer.deleteDocument(fileId);
             }
+            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
+                .method("删除文件").tag(fileInfo.getFileMd5())
+                .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).oldObject(fileInfo));
             JsonResultUtils.writeSuccessJson(response);
         } else {
             JsonResultUtils.writeErrorMessageJson(
