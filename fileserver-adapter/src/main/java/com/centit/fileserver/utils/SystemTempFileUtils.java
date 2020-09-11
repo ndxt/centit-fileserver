@@ -23,7 +23,7 @@ public abstract class SystemTempFileUtils {
         if(tempFileDirectory.endsWith("/") || tempFileDirectory.endsWith("\\")) {
             TEMP_FILE_DIRECTORY = tempFileDirectory;
         }else{
-            TEMP_FILE_DIRECTORY = tempFileDirectory + "/";
+            TEMP_FILE_DIRECTORY = tempFileDirectory + File.separatorChar;
         }
     }
 
