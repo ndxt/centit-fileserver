@@ -1,6 +1,5 @@
 package com.centit.fileserver.service;
 
-import com.centit.fileserver.po.FileAccessLog;
 import com.centit.fileserver.po.FileFavorite;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;

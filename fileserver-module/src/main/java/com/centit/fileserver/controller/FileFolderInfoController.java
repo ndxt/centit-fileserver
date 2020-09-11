@@ -1,11 +1,9 @@
 package com.centit.fileserver.controller;
 
 import com.centit.fileserver.po.FileFolderInfo;
-import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.FileFolderInfoManager;
-import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.common.JsonResultUtils;
@@ -13,16 +11,12 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
-import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.StringBaseOpt;
-import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * FileFolderInfo  Controller.

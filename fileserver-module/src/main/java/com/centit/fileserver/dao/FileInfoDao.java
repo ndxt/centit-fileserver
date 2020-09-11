@@ -37,7 +37,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             return "";
         }
         String tfp = filePath.trim();
-        if(tfp.endsWith("/")) {
+        if(tfp.endsWith("/") || tfp.endsWith("\\")) {
             return tfp.substring(0,tfp.length()-1);
         }
         return tfp;

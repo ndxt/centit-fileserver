@@ -1,14 +1,6 @@
 package com.centit.test;
 
 
-import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
-import com.centit.fileserver.pretreat.XlsxTransformXls;
-import com.centit.search.utils.TikaTextExtractor;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.tika.detect.AutoDetectReader;
-
-import java.io.FileInputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;

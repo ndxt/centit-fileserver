@@ -20,7 +20,6 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
-import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;

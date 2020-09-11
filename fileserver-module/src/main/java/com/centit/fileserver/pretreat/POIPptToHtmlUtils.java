@@ -1,11 +1,9 @@
 package com.centit.fileserver.pretreat;
 
 
-
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileSystemOpt;
-import com.centit.support.file.FileType;
 import org.apache.poi.hslf.usermodel.*;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;

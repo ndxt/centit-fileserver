@@ -9,7 +9,6 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Impl.ESIndexer;
-import com.centit.search.service.Indexer;
 import com.centit.support.algorithm.DatetimeOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
