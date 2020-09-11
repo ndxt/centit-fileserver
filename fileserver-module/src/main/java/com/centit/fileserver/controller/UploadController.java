@@ -160,14 +160,14 @@ public class UploadController extends BaseController {
      *
      * @param token token
      * @param size 大小
-     * @param response HttpServletResponse
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
             allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public void checkFileExists(String token, long size, HttpServletResponse response){
-        JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
+    @WrapUpResponseBody
+    public boolean checkFileExists(String token, long size){
+        return fileStore.checkFile(token, size);
     }
 
     /**
@@ -321,7 +321,7 @@ public class UploadController extends BaseController {
                 }
             }
 
-            if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false)) {
+            if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false) && checkIndex(fileInfo.getFileType())) {
                 FileOptTaskInfo indexTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_DOCUMENT_INDEX);
                 indexTaskInfo.setFileId(fileId);
                 indexTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
@@ -359,26 +359,32 @@ public class UploadController extends BaseController {
         if(checkDuplicate){
             FileInfo duplicateFile = fileInfoManager.getDuplicateFile(fileInfo);
             if(duplicateFile != null){
-                if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
+                if(documentIndexer != null ){
                     documentIndexer.deleteDocument(duplicateFile.getFileId());
                 }
-                fileInfoManager.deleteFile(duplicateFile);
+                fileInfoManager.deleteObject(duplicateFile);
             }
         }
 
-        if(keepSingleIndexByShowpath ){
-            FileInfo duplicateFile = fileInfoManager.getDuplicateFileByShowPath(fileInfo);
-            if(duplicateFile != null){
-                if(documentIndexer != null && "I".equals(duplicateFile.getIndexState())){
-                    documentIndexer.deleteDocument(duplicateFile.getFileId());
-                }
-            }
-        }
         return UploadDownloadUtils.makeRangeUploadCompleteJson(
             fileMd5, size, fileInfo.getFileName(), fileId);
 
     }
-
+    private boolean checkIndex(String fileType) {
+        switch (fileType) {
+            case AbstractOfficeToPdf.DOC:
+            case AbstractOfficeToPdf.DOCX:
+            case AbstractOfficeToPdf.XLS:
+            case AbstractOfficeToPdf.XLSX:
+            case AbstractOfficeToPdf.PPT:
+            case AbstractOfficeToPdf.PPTX:
+            case AbstractOfficeToPdf.PDF:
+            case AbstractOfficeToPdf.TXT:
+                return true;
+            default:
+                return false;
+        }
+    }
     public static boolean checkPdf(FileInfo fileInfo) {
         if(StringBaseOpt.isNvl(fileInfo.getLibraryId())){
             return false;

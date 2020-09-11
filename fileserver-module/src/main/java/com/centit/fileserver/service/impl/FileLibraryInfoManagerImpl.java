@@ -7,17 +7,17 @@ import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * FileLibraryInfo  Service.
@@ -35,6 +35,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     private static final char SEPARATOR = '/';
     @Autowired
     private FileLibraryInfoDao fileLibraryInfoDao;
+    @Value("${top.enable:false}")
+    protected boolean topEnable;
+    @Value("${top.unit}")
+    protected String topUnit;
 
     @Override
     public void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
@@ -70,7 +74,8 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                 libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
             }
         }
-        return libraryInfos;
+        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType,Comparator.reverseOrder()))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -125,15 +130,40 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         return fileLibraryInfo;
     }
 
-    private String[] getUnits(String userCode) {
-        return StringUtils.split(
+    @Override
+    public String[] getUnits(String userCode) {
+        String[] split= StringUtils.split(
             CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(),SEPARATOR);
+        if(topEnable){
+            if (!StringBaseOpt.isNvl(topUnit)) {
+                boolean isFind=false;
+                for (String s : split) {
+                    if (s.contains(topUnit)) {
+                        isFind = true;
+                        break;
+                    }
+                }
+                if(!isFind) {
+                    List<String> result = new ArrayList<>(Arrays.asList(split));
+                    result.add(topUnit);
+                    return result.toArray(new String[0]);
+                }
+            }
+        }
+        return split;
     }
 
 
     @Override
     public FileLibraryInfo getFileLibraryInfo(String libraryId) {
-        return fileLibraryInfoDao.getObjectById(libraryId);
+        FileLibraryInfo fileLibraryInfo= fileLibraryInfoDao.getObjectWithReferences(libraryId);
+        if(fileLibraryInfo==null){
+            return null;
+        }
+        if(!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())){
+           fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(fileLibraryInfo.getOwnUser()));
+        }
+        return fileLibraryInfo;
     }
 
     @Override

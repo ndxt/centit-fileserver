@@ -74,6 +74,8 @@ public class FileLibraryInfo implements java.io.Serializable {
     @ApiModelProperty(value = "所属人员",required = true)
     @Column(name = "own_user")
     private String ownUser;
+    @Transient
+    private String ownName;
     /**
      * 是否可以创建子目录 是否可以创建子目录
      */

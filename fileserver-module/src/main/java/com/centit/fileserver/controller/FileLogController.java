@@ -49,7 +49,7 @@ public class FileLogController extends BaseController {
     @WrapUpResponseBody(contentType = WrapUpContentType.MAP_DICT)
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
-        return this.optLogManager.listOptLog("FileServerLog", searchColumn, pageDesc.getRowStart(), pageDesc.getPageSize());
+        return this.optLogManager.listOptLog("FileServerLog", searchColumn, pageDesc.getPageNo(), pageDesc.getPageSize());
     }
 
 }

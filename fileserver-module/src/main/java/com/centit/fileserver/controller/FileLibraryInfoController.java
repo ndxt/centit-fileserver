@@ -5,9 +5,11 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -73,15 +76,33 @@ public class FileLibraryInfoController extends BaseController {
         return fileLibraryInfoMag.getFileLibraryInfo(libraryId);
     }
 
-    @RequestMapping(value="/unitpath",method = RequestMethod.GET)
+    @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
     @ApiOperation(value = "根据用户查询机构全路径")
     @WrapUpResponseBody
-    public List<IUnitInfo> listUnitPathsByUserCode(HttpServletRequest request){
+    public List<IUnitInfo> listUnitPathsByUserCode(HttpServletRequest request) {
         String userCode = getUserCode(request);
         if (userCode == null) {
             return null;
         }
         return fileLibraryInfoMag.listUnitPathsByUserCode(userCode);
+    }
+
+    @RequestMapping(value = "/libraryimage/{name}", method = RequestMethod.GET)
+    @ApiOperation(value = "根据库名获取图片")
+    @WrapUpResponseBody(contentType = WrapUpContentType.IMAGE)
+    public Image getImage(@PathVariable String name, Integer size, Integer red, Integer green, Integer blue, Boolean border) {
+        if (size == null) {
+            size = 20;
+        }
+        if (red == null || green == null || blue == null) {
+            red = 167;
+            green = 214;
+            blue = 211;
+        }
+        if (border == null) {
+            border = true;
+        }
+        return ImageOpt.createNameIcon(name, size, new Color(red, green, blue), border);
     }
 
     private String getUserCode(HttpServletRequest request) {
@@ -94,18 +115,21 @@ public class FileLibraryInfoController extends BaseController {
         }
         return userCode;
     }
-    @RequestMapping(value="/initpersonlib",method = {RequestMethod.POST})
+
+    @RequestMapping(value = "/initpersonlib", method = {RequestMethod.POST})
     @ApiOperation(value = "初始化个人文件库")
     @WrapUpResponseBody
-    public void initPersonLibrary(HttpServletRequest request){
+    public void initPersonLibrary(HttpServletRequest request) {
         fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
     }
-    @RequestMapping(value="/initunitlib",method = {RequestMethod.POST})
+
+    @RequestMapping(value = "/initunitlib/{unitCode}", method = {RequestMethod.POST})
     @ApiOperation(value = "初始化机构库")
     @WrapUpResponseBody
-    public void initUnitLibrary(HttpServletRequest request){
-        fileLibraryInfoMag.initUnitLibrary(WebOptUtils.getCurrentUnitCode(request),WebOptUtils.getCurrentUserCode(request));
+    public void initUnitLibrary(@PathVariable String unitCode, HttpServletRequest request) {
+        fileLibraryInfoMag.initUnitLibrary(unitCode, WebOptUtils.getCurrentUserCode(request));
     }
+
     /**
      * 新增 文件库信息
      *
@@ -114,9 +138,9 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件库信息")
     @WrapUpResponseBody
-    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo,HttpServletRequest request,HttpServletResponse response) {
+    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request, HttpServletResponse response) {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
-        if(fileLibraryInfo.getFileLibraryAccesss()!=null) {
+        if (fileLibraryInfo.getFileLibraryAccesss() != null) {
             fileLibraryInfo.getFileLibraryAccesss().forEach(e -> e.setCreateUser(fileLibraryInfo.getCreateUser()));
         }
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
@@ -143,7 +167,7 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件库信息")
     @WrapUpResponseBody
-    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo,HttpServletRequest request,HttpServletResponse response) {
+    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request, HttpServletResponse response) {
         fileLibraryInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryInfoMag.updateFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);

@@ -1,7 +1,9 @@
 package com.centit.test;
 
 
-import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class TestToPdf {
 
@@ -20,7 +22,7 @@ public class TestToPdf {
 //            e.printStackTrace();
 //        }
 //        AbstractOfficeToPdf.excel2Pdf("C:\\Users\\zhf\\Postman\\files\\1.xls","C:\\Users\\zhf\\Postman\\files\\3.html");
-        AbstractOfficeToPdf.word2Pdf("d:\\test3.docx","d:\\5.pdf","docx");
+//        AbstractOfficeToPdf.word2Pdf("d:\\test3.docx","d:\\5.pdf","docx");
 //        AbstractOfficeToPdf.ppt2Pdf("C:\\Users\\zhf\\Postman\\files\\1.pptx","C:\\Users\\zhf\\Postman\\files\\6.html");
 //        String pathOfXls = "C:\\Users\\zhf\\Postman\\files\\2.xlsx";
 //        String pathOfPdf = "C:\\Users\\zhf\\Postman\\files\\2.pdf";
@@ -31,8 +33,9 @@ public class TestToPdf {
 //        FileOutputStream fos = new FileOutputStream(pathOfPdf);
 //        Excel2Pdf pdf = new Excel2Pdf(objects, fos);
 //        pdf.convert();
-//        System.out.println(
-//            TikaTextExtractor.extractFileText("/D/Projects/RunData/file_home/temp\\db06f45a30226a56b59930ac52732e8d_13512.tmp"));
+//        String charset = new AutoDetectReader(new FileInputStream("D:\\BaiduNetdiskDownload\\周五.txt")).getCharset().name();
+        System.out.println(
+            (new String(Files.readAllBytes(Paths.get("D:\\BaiduNetdiskDownload\\周五.txt")),Charset.forName("GB18030"))));
 
     }
 

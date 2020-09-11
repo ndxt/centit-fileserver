@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.framework.common.ResponseData;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -18,7 +19,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -91,8 +91,9 @@ public abstract class UploadDownloadUtils {
                 if (!fi.isFormField()) {
                     fileName = fi.getName();
                     fis = fi.getInputStream();
-                    if (fis != null)
+                    if (fis != null) {
                         break;
+                    }
                 }
             }
         } else {
@@ -135,8 +136,9 @@ public abstract class UploadDownloadUtils {
             if (!fi.isFormField()) {
                 fileName = fi.getName();
                 fis = fi.getInputStream();
-                if (fis != null)
+                if (fis != null) {
                     break;
+                }
             }
         }
 
@@ -169,18 +171,20 @@ public abstract class UploadDownloadUtils {
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                     InputStream inputStream, long fSize, String fileName, String downloadType)
+                                     InputStream inputStream, long fSize, String fileName, String downloadType,String charset)
         throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);
         if (StringUtils.isBlank(fileName)) {
             fileName = "attachment.dat";
         }
-
-
         //"application/octet-stream"); //application/x-download "multipart/form-data"
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
         response.setHeader("Accept-Ranges", "bytes");
+        response.setContentType(FileType.getFileMimeType(fileName));
+        if(!StringBaseOpt.isNvl(charset)){
+            response.setCharacterEncoding(charset);
+        }
         //这个需要设置成真正返回的长度
         //response.setHeader("Content-Length", String.valueOf(fSize));
         response.setHeader("Content-Disposition",
@@ -193,12 +197,15 @@ public abstract class UploadDownloadUtils {
         if (fr == null) {
             fr = new FileRangeInfo(0, fSize - 1, fSize);
         } else {
-            if (fr.getRangeEnd() <= 0)
+            if (fr.getRangeEnd() <= 0) {
                 fr.setRangeEnd(fSize - 1);
+            }
             fr.setFileSize(fSize);
             pos = fr.getRangeStart();
             if (fr.getPartSize() < fr.getFileSize()) //206
+            {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+            }
         }
         response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
         // Content-Range: bytes 500-999/1234
@@ -212,26 +219,14 @@ public abstract class UploadDownloadUtils {
             byte[] buffer = new byte[64 * 1024];
             int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
             int length = 0;
-            int one = 0;
 
             while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
                 int writeLen = needSize > length ? length : needSize;
-                if (one == 0) {
-                    UniversalDetector detector = new UniversalDetector(null);
-                    detector.handleData(buffer, 0, writeLen);
-                    String code = detector.getDetectedCharset();
-                    detector.dataEnd();
-                    detector.reset();
-                    response.setCharacterEncoding(code);
-                    response.setContentType(FileType.getFileMimeType(fileName) + ";charset=" + code);
-                }
+
                 bufferOut.write(buffer, 0, writeLen);
                 bufferOut.flush();
                 needSize -= writeLen;
-                one++;
             }
-            inputStream.close();
-
             //bufferOut.flush();
             //bufferOut.close();
             //out.close();
@@ -242,7 +237,9 @@ public abstract class UploadDownloadUtils {
 
     private static long checkTempFileSize(String filePath) {
         File f = new File(filePath);
-        if (!f.exists()) return 0;
+        if (!f.exists()) {
+            return 0;
+        }
         return f.length();
     }
 

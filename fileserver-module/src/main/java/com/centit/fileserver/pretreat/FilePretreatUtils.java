@@ -10,25 +10,28 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.image.ImageOpt;
-import com.google.common.io.ByteStreams;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class FilePretreatUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FilePretreatUtils.class);
-    private static final int SIZE_SERARCH = 30;
+
 
     /**
      * 将office文件转换为PDF
@@ -290,7 +293,7 @@ public class FilePretreatUtils {
         return null;
     }
 
-    public static FileDocument index(FileInfo fileInfo, InputStream inputStream, long size) {
+    public static FileDocument index(FileInfo fileInfo, String sourceFilePath) {
         FileDocument fileDoc = new FileDocument();
         fileDoc.setFileId(fileInfo.getFileId());
         fileDoc.setOsId(fileInfo.getOsId());
@@ -305,10 +308,14 @@ public class FilePretreatUtils {
         fileDoc.setUnitCode(fileInfo.getFileUnit());
         //获取文件的文本信息
         try {
-            if (size < SIZE_SERARCH) {
-                fileDoc.setContent(new String(ByteStreams.toByteArray(inputStream)));
-            } else {
-                fileDoc.setContent(TikaTextExtractor.extractInputStreamText(inputStream));
+            String charset ="";
+            if("txt".equals(fileInfo.getFileType())){
+                charset=new AutoDetectReader(new FileInputStream(sourceFilePath)).getCharset().name();
+            }
+            if("GB18030".equals(charset)){
+                fileDoc.setContent(new String(Files.readAllBytes(Paths.get(sourceFilePath)), Charset.forName("GB18030")));
+            }else {
+                fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFilePath));
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

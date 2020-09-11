@@ -23,7 +23,7 @@ public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
 
     FileInfo getDuplicateFile(FileInfo originalFile);
 
-    FileInfo getDuplicateFileByShowPath(FileInfo originalFile);
+
     //String owner, String unit, String fileMd5, long fileSize, String fileId)
     /**
      * @param queryParamsMap Map &lt; String,Object &gt;

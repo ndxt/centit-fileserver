@@ -18,6 +18,7 @@ import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.ip.po.OsInfo;
 import com.centit.framework.ip.service.IntegrationEnvironment;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Impl.ESSearcher;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
@@ -65,8 +66,11 @@ public class FileManagerController extends BaseController {
     protected FileStore fileStore;
     @Autowired(required = false)
     private ESSearcher esObjectSearcher;
-@Autowired
-private FileFavoriteManager fileFavoriteManager;
+    @Autowired
+    private FileFavoriteManager fileFavoriteManager;
+    @Autowired(required = false)
+    protected ESIndexer documentIndexer;
+
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
      *
@@ -79,8 +83,10 @@ private FileFavoriteManager fileFavoriteManager;
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo != null) {
-            fileInfo.setFileState("D");
-            fileInfoManager.updateObject(fileInfo);
+            fileInfoManager.deleteObjectById(fileId);
+            if(documentIndexer != null){
+                documentIndexer.deleteDocument(fileId);
+            }
             JsonResultUtils.writeSuccessJson(response);
         } else {
             JsonResultUtils.writeErrorMessageJson(
@@ -150,14 +156,19 @@ private FileFavoriteManager fileFavoriteManager;
 
     private void updateFileStoreInfo(String fileId, FileInfo fileInfo, HttpServletResponse response) {
         FileInfo dbFileInfo = fileInfoManager.getObjectById(fileId);
-
         if (dbFileInfo != null) {
             dbFileInfo.copyNotNullProperty(fileInfo);
+            dbFileInfo.setFileName(fileInfo.getFileName());
             if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
                 dbFileInfo.setFileId(null);
                 fileInfoManager.saveNewFile(dbFileInfo);
             } else {
-                fileInfoManager.updateObject(dbFileInfo);
+                fileInfoManager.updateObject(fileInfo);
+                if(!dbFileInfo.getFileName().equals(fileInfo.getFileName())) {
+                    OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+                        .method("更新文件信息").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate())
+                        .content("更改文件名称").oldObject(dbFileInfo.getFileName()).newObject(fileInfo.getFileName()));
+                }
             }
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
         } else {
@@ -331,18 +342,18 @@ private FileFavoriteManager fileFavoriteManager;
             throw new ObjectException("ELK异常");
         }
         pageDesc.setTotalRows(NumberBaseOpt.castObjectToInteger(res.getLeft()));
-        return PageQueryResult.createResult(change(res.getRight(),WebOptUtils.getCurrentUserCode(request)), pageDesc);
+        return PageQueryResult.createResult(change(res.getRight(), WebOptUtils.getCurrentUserCode(request)), pageDesc);
     }
 
-    private List<Map<String, Object>> change(List<Map<String, Object>> mapList,String userCode) {
+    private List<Map<String, Object>> change(List<Map<String, Object>> mapList, String userCode) {
         mapList.forEach(e -> {
-            e.put("showPath",fileFavoriteManager.getShowPath(e.get("optUrl").toString(),e.get("optId").toString()));
-            List<FileFavorite> list =fileFavoriteManager.listFileFavorite(
-                CollectionsOpt.createHashMap("fileId",e.get("fileId"),"favoriteUser",userCode),null);
-            if(list!=null&&list.size()>0) {
-                e.put("favoriteId",list.get(0).getFavoriteId());
-            }else{
-                e.put("favoriteId","");
+            e.put("showPath", fileFavoriteManager.getShowPath(e.get("optUrl").toString(), e.get("optId").toString()));
+            List<FileFavorite> list = fileFavoriteManager.listFileFavorite(
+                CollectionsOpt.createHashMap("fileId", e.get("fileId"), "favoriteUser", userCode), null);
+            if (list != null && list.size() > 0) {
+                e.put("favoriteId", list.get(0).getFavoriteId());
+            } else {
+                e.put("favoriteId", "");
             }
         });
         return mapList;

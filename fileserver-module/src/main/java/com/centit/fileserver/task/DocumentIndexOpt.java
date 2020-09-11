@@ -4,13 +4,12 @@ import com.centit.fileserver.common.FileOptTaskInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
-import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.support.algorithm.DatetimeOpt;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +27,20 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
 
     @Autowired
     private FileInfoManager fileInfoManager;
-    @Autowired
-    private FileStoreInfoManager fileStoreInfoManager;
 
     @Autowired(required = false)
     private ESIndexer esObjectIndexer;
 
-    @SneakyThrows
     @Override
     public void accept(FileOptTaskInfo fileOptTaskInfo) {
         if(esObjectIndexer==null){
             return;
         }
         String fileId = fileOptTaskInfo.getFileId();
+        long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        FileDocument fileDoc = FilePretreatUtils.index(fileInfo, fileStore.loadFileStream(fileStoreInfoManager.getObjectById(fileInfo.getFileMd5()).getFileStorePath()),fileOptTaskInfo.getFileSize());
+        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+        FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
         esObjectIndexer.mergeDocument(fileDoc);
         logger.info("文件已加入全文检索");
         OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
