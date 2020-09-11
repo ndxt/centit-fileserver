@@ -157,8 +157,9 @@ public class FileManagerController extends BaseController {
     private void updateFileStoreInfo(String fileId, FileInfo fileInfo, HttpServletResponse response) {
         FileInfo dbFileInfo = fileInfoManager.getObjectById(fileId);
         if (dbFileInfo != null) {
+            dbFileInfo.copyNotNullProperty(fileInfo);
+            dbFileInfo.setFileName(fileInfo.getFileName());
             if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
-                dbFileInfo.copyNotNullProperty(fileInfo);
                 dbFileInfo.setFileId(null);
                 fileInfoManager.saveNewFile(dbFileInfo);
             } else {
