@@ -92,7 +92,6 @@ create table file_info
    primary key (file_id)
 );
 
-alter table file_info comment '这里只保留文件的目录信息';
 
 
 
