@@ -7,7 +7,6 @@ import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

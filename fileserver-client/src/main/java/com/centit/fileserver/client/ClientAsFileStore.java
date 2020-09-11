@@ -1,12 +1,10 @@
 package com.centit.fileserver.client;
 
-import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.File;
 import java.io.FileInputStream;

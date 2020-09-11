@@ -2,10 +2,6 @@ package com.centit.test;
 
 
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
-import com.centit.fileserver.pretreat.XlsxTransformXls;
-import com.centit.search.utils.TikaTextExtractor;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class TestToPdf {
 

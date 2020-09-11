@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
-import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
