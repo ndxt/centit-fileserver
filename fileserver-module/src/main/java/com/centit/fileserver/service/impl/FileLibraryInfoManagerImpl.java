@@ -132,19 +132,28 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public String[] getUnits(String userCode) {
-        String[] split= StringUtils.split(
-            CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(),SEPARATOR);
-        if(topEnable){
+        String[] split=null;
+        if(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()!=null) {
+            split= StringUtils.split(
+               CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(), SEPARATOR);
+
+     }
+     if(topEnable){
             if (!StringBaseOpt.isNvl(topUnit)) {
                 boolean isFind=false;
-                for (String s : split) {
-                    if (s.contains(topUnit)) {
-                        isFind = true;
-                        break;
+                if(split!=null) {
+                    for (String s : split) {
+                        if (s.contains(topUnit)) {
+                            isFind = true;
+                            break;
+                        }
                     }
                 }
                 if(!isFind) {
-                    List<String> result = new ArrayList<>(Arrays.asList(split));
+                    List<String> result =new ArrayList<>();
+                    if(split!=null) {
+                        result= new ArrayList<>(Arrays.asList(split));
+                    }
                     result.add(topUnit);
                     return result.toArray(new String[0]);
                 }

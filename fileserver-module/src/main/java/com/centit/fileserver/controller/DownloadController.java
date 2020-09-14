@@ -29,6 +29,7 @@ import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +63,8 @@ public class DownloadController extends BaseController {
     protected FileStore fileStore;
     @Autowired
     protected CreatePdfOpt createPdfOpt;
+    @Value("${jdbc.url}")
+    protected String jdbcUrl;
 
 
     public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
@@ -166,6 +169,9 @@ public class DownloadController extends BaseController {
     }
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
+        if(jdbcUrl.startsWith("jdbc:h2")){
+            return false;
+        }
         if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户"+WebOptUtils.getCurrentUserCode(request)
                 +"所属机构"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);

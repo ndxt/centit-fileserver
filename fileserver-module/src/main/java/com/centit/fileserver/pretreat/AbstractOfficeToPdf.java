@@ -18,6 +18,7 @@ import org.apache.poi.hwpf.converter.WordToHtmlConverter;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.omg.CORBA.portable.InputStream;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,10 +29,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author zhf
@@ -121,7 +119,7 @@ public abstract class AbstractOfficeToPdf {
                 // 中文字体处理
                 options.fontProvider((familyName, encoding, size, style, color) -> {
                     try {
-                        BaseFont bfChinese = BaseFont.createFont(AbstractOfficeToPdf.class.getClassLoader().getResource("simsun.ttf").getPath(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+                        BaseFont bfChinese = BaseFont.createFont("simsun.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
                         Font fontChinese = new Font(bfChinese, size, style, color);
                         if (familyName != null) {
                             fontChinese.setFamily(familyName);
