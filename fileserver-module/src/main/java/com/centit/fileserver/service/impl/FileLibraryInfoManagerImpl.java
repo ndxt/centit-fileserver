@@ -54,51 +54,51 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public List<FileLibraryInfo> listFileLibraryInfo(String userCode) {
-        String where =" where 1=1 and ((own_user=:userCode) or "
-            +"(library_type='O' and own_unit in (:ownunit)) "
-            +"or (library_type='I' and library_id in (select library_id from file_library_access where access_usercode=:accessuser)))";
-        Map<String,Object> map=new HashMap<>();
-        map.put("userCode",userCode);
-        map.put("ownunit",getUnits(userCode));
-        map.put("accessuser",userCode);
-        List<FileLibraryInfo> libraryInfos= fileLibraryInfoDao.listObjectsByFilter(where,map);
-        boolean hasPerson= libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
+        String where = " where 1=1 and ((own_user=:userCode) or "
+            + "(library_type='O' and own_unit in (:ownunit)) "
+            + "or (library_type='I' and library_id in (select library_id from file_library_access where access_usercode=:accessuser)))";
+        Map<String, Object> map = new HashMap<>();
+        map.put("userCode", userCode);
+        map.put("ownunit", getUnits(userCode));
+        map.put("accessuser", userCode);
+        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(where, map);
+        boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
             userCode.equals(fileLibraryInfo.getOwnUser()));
-        if(!hasPerson){
-           libraryInfos.add(getPersonLibraryInfo(userCode));
+        if (!hasPerson) {
+            libraryInfos.add(getPersonLibraryInfo(userCode));
         }
-        for(String unitCode:getUnits(userCode)) {
-            boolean hasUnit= libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
+        for (String unitCode : getUnits(userCode)) {
+            boolean hasUnit = libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
                 unitCode.equals(fileLibraryInfo.getOwnUnit()));
             if (!hasUnit) {
                 libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
             }
         }
-        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType,Comparator.reverseOrder()))
+        return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType, Comparator.reverseOrder()))
             .collect(Collectors.toList());
     }
 
     @Override
     public List<IUnitInfo> listUnitPathsByUserCode(String userCode) {
-        List<IUnitInfo> result= new ArrayList<>(10);
-        for(String unit: getUnits(userCode)){
-           result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
+        List<IUnitInfo> result = new ArrayList<>(10);
+        for (String unit : getUnits(userCode)) {
+            result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
         }
         return result;
     }
 
     @Override
     public void initPersonLibrary(String userCode) {
-        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
-            CollectionsOpt.createHashMap("ownUser",userCode,"libraryType","P"));
-        if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoDao.listObjectsByProperties(
+            CollectionsOpt.createHashMap("ownUser", userCode, "libraryType", "P"));
+        if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
             FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(userCode);
             createFileLibraryInfo(fileLibraryInfo);
         }
     }
 
     private FileLibraryInfo getPersonLibraryInfo(String userCode) {
-        FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+        FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.setCreateUser(userCode);
         fileLibraryInfo.setOwnUser(userCode);
         fileLibraryInfo.setLibraryName("我的文件");
@@ -109,17 +109,17 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public void initUnitLibrary(String unitCode,String userCode) {
-        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoDao.listObjectsByProperties(
-            CollectionsOpt.createHashMap("ownUnit",unitCode,"libraryType","O"));
-        if(null==fileLibraryInfos || fileLibraryInfos.size()==0){
+    public void initUnitLibrary(String unitCode, String userCode) {
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoDao.listObjectsByProperties(
+            CollectionsOpt.createHashMap("ownUnit", unitCode, "libraryType", "O"));
+        if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
             FileLibraryInfo fileLibraryInfo = getUnitLibraryInfo(unitCode, userCode);
             createFileLibraryInfo(fileLibraryInfo);
         }
     }
 
     private FileLibraryInfo getUnitLibraryInfo(String unitCode, String userCode) {
-        FileLibraryInfo fileLibraryInfo= new FileLibraryInfo();
+        FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.setCreateUser(userCode);
         fileLibraryInfo.setOwnUser(userCode);
         fileLibraryInfo.setOwnUnit(unitCode);
@@ -132,16 +132,20 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public String[] getUnits(String userCode) {
-        String[] split=null;
-        if(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()!=null) {
-            split= StringUtils.split(
-               CodeRepositoryUtil.getUnitInfoByCode(CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit()).getUnitPath(), SEPARATOR);
+        String[] split = null;
+        String primaryUnit = CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit();
+        if (!StringBaseOpt.isNvl(primaryUnit)) {
+            IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(primaryUnit);
+            if (unitInfo != null) {
+                split = StringUtils.split(
+                    unitInfo.getUnitPath(), SEPARATOR);
+            }
 
-     }
-     if(topEnable){
+        }
+        if (topEnable) {
             if (!StringBaseOpt.isNvl(topUnit)) {
-                boolean isFind=false;
-                if(split!=null) {
+                boolean isFind = false;
+                if (split != null) {
                     for (String s : split) {
                         if (s.contains(topUnit)) {
                             isFind = true;
@@ -149,10 +153,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                         }
                     }
                 }
-                if(!isFind) {
-                    List<String> result =new ArrayList<>();
-                    if(split!=null) {
-                        result= new ArrayList<>(Arrays.asList(split));
+                if (!isFind) {
+                    List<String> result = new ArrayList<>();
+                    if (split != null) {
+                        result = new ArrayList<>(Arrays.asList(split));
                     }
                     result.add(topUnit);
                     return result.toArray(new String[0]);
@@ -165,12 +169,12 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public FileLibraryInfo getFileLibraryInfo(String libraryId) {
-        FileLibraryInfo fileLibraryInfo= fileLibraryInfoDao.getObjectWithReferences(libraryId);
-        if(fileLibraryInfo==null){
+        FileLibraryInfo fileLibraryInfo = fileLibraryInfoDao.getObjectWithReferences(libraryId);
+        if (fileLibraryInfo == null) {
             return null;
         }
-        if(!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())){
-           fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(fileLibraryInfo.getOwnUser()));
+        if (!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())) {
+            fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(fileLibraryInfo.getOwnUser()));
         }
         return fileLibraryInfo;
     }
