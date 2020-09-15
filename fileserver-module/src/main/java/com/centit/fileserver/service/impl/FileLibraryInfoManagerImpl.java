@@ -6,6 +6,7 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.framework.model.basedata.IUserInfo;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -133,14 +134,16 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     @Override
     public String[] getUnits(String userCode) {
         String[] split = null;
-        String primaryUnit = CodeRepositoryUtil.getUserInfoByCode(userCode).getPrimaryUnit();
-        if (!StringBaseOpt.isNvl(primaryUnit)) {
-            IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(primaryUnit);
-            if (unitInfo != null) {
-                split = StringUtils.split(
-                    unitInfo.getUnitPath(), SEPARATOR);
+        IUserInfo userInfo=CodeRepositoryUtil.getUserInfoByCode(userCode);
+        if(userInfo!=null) {
+            String primaryUnit = userInfo.getPrimaryUnit();
+            if (!StringBaseOpt.isNvl(primaryUnit)) {
+                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(primaryUnit);
+                if (unitInfo != null) {
+                    split = StringUtils.split(
+                        unitInfo.getUnitPath(), SEPARATOR);
+                }
             }
-
         }
         if (topEnable) {
             if (!StringBaseOpt.isNvl(topUnit)) {
