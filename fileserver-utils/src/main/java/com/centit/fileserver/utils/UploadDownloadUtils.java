@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.SocketException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -203,7 +204,7 @@ public abstract class UploadDownloadUtils {
         //response.setHeader("Content-Length", String.valueOf(fSize));
         response.setHeader("Content-Disposition",
             ("inline".equalsIgnoreCase(downloadType) ? "inline" : "attachment") + "; filename="
-                + UploadDownloadUtils.encodeDownloadFilename(fileName, downloadType));
+                + URLEncoder.encode(fileName, "UTF-8"));
         long pos = 0;
 
         FileRangeInfo fr = FileRangeInfo.parseRange(request.getHeader("Range"));
