@@ -138,9 +138,9 @@ public class DownloadController extends BaseController {
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if (noAuth(request, response, fileInfo)) {
-            return;
-        }
+//        if (noAuth(request, response, fileInfo)) {
+//            return;
+//        }
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
@@ -228,12 +228,12 @@ public class DownloadController extends BaseController {
         switch (fileInfo.getFileType()) {
             case AbstractOfficeToPdf.DOC:
             case AbstractOfficeToPdf.DOCX:
+            case AbstractOfficeToPdf.PPT:
+            case AbstractOfficeToPdf.PPTX:
                 sFileType = ".pdf";
                 break;
             case AbstractOfficeToPdf.XLS:
             case AbstractOfficeToPdf.XLSX:
-            case AbstractOfficeToPdf.PPT:
-            case AbstractOfficeToPdf.PPTX:
                 sFileType = ".html";
                 break;
             default:

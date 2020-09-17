@@ -38,14 +38,15 @@ public abstract class AbstractOfficeToPdf {
     private AbstractOfficeToPdf() {
         throw new IllegalAccessError("Utility class");
     }
-    public final static String DOC="doc";
-    public final static String DOCX="docx";
-    public final static String XLS="xls";
-    public final static String XLSX="xlsx";
-    public final static String PPT="ppt";
-    public final static String PPTX="pptx";
-    public final static String PDF="pdf";
-    public final static String TXT="txt";
+
+    public final static String DOC = "doc";
+    public final static String DOCX = "docx";
+    public final static String XLS = "xls";
+    public final static String XLSX = "xlsx";
+    public final static String PPT = "ppt";
+    public final static String PPTX = "pptx";
+    public final static String PDF = "pdf";
+    public final static String TXT = "txt";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);
 
@@ -53,8 +54,8 @@ public abstract class AbstractOfficeToPdf {
     public static boolean excel2Pdf(String inExcelFile, String outPdfFile) throws TransformerException, IOException, ParserConfigurationException {
         String inFilePath = inExcelFile;
         String outFilePath = outPdfFile;
-        if(File.separator.equals("\\")){
-            inFilePath=inExcelFile.replace('/', '\\');
+        if (File.separator.equals("\\")) {
+            inFilePath = inExcelFile.replace('/', '\\');
             outFilePath = outPdfFile.replace('/', '\\');
         }
         HSSFWorkbook excelBook = new HSSFWorkbook();
@@ -92,24 +93,26 @@ public abstract class AbstractOfficeToPdf {
         return true;
     }
 
-    public static boolean ppt2Pdf(String inPptFile, String outPdfFile,String suffix) {
+    public static boolean ppt2Pdf(String inPptFile, String outPdfFile, String suffix) {
         String inputFile = inPptFile;
         String pdfFile = outPdfFile;
-        if(File.separator.equals("\\")){
-            inputFile=inPptFile.replace('/', '\\');
+        if (File.separator.equals("\\")) {
+            inputFile = inPptFile.replace('/', '\\');
             pdfFile = outPdfFile.replace('/', '\\');
         }
         String sFileName = FileSystemOpt.extractFullFileName(pdfFile);
-        POIPptToHtmlUtils.pptToHtml(inputFile, pdfFile.replace(sFileName, ""), sFileName,suffix);
+        if ("ok".equals(POIPptToHtmlUtils.pptToPdf(inputFile, pdfFile.replace(sFileName, ""), sFileName, suffix))) {
+            return true;
+        }
         return false;
     }
 
-    public static boolean word2Pdf(String inWordFile, String outPdfFile,String suffix) throws Exception {
+    public static boolean word2Pdf(String inWordFile, String outPdfFile, String suffix) throws Exception {
         try {
             String inputFile = inWordFile;
             String pdfFile = outPdfFile;
-            if(File.separator.equals("\\")){
-                inputFile=inWordFile.replace('/', '\\');
+            if (File.separator.equals("\\")) {
+                inputFile = inWordFile.replace('/', '\\');
                 pdfFile = outPdfFile.replace('/', '\\');
             }
             if (DOCX.equalsIgnoreCase(suffix)) {
@@ -152,7 +155,7 @@ public abstract class AbstractOfficeToPdf {
                 serializer.setOutputProperty(OutputKeys.METHOD, "html");
                 serializer.transform(domSource, streamResult);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return true;
@@ -181,9 +184,9 @@ public abstract class AbstractOfficeToPdf {
             return false;
         }
         if (DOC.equalsIgnoreCase(suffix) || DOCX.equalsIgnoreCase(suffix)) {
-            return word2Pdf(inputFile, pdfFile,suffix);
+            return word2Pdf(inputFile, pdfFile, suffix);
         } else if (PPT.equalsIgnoreCase(suffix) || PPTX.equalsIgnoreCase(suffix)) {
-            return ppt2Pdf(inputFile, pdfFile,suffix);
+            return ppt2Pdf(inputFile, pdfFile, suffix);
         } else if (XLS.equalsIgnoreCase(suffix) || XLSX.equalsIgnoreCase(suffix)) {
             return excel2Pdf(inputFile, pdfFile);
         }

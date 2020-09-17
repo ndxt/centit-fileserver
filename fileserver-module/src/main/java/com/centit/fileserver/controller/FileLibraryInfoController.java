@@ -107,7 +107,7 @@ public class FileLibraryInfoController extends BaseController {
 
     private String getUserCode(HttpServletRequest request) {
         String userCode =  (String) collectRequestParameters(request).get("userCode");
-        if (StringUtils.isBlank(userCode)) {
+        if (StringUtils.isBlank(userCode)||"undefined".equals(userCode)) {
             userCode = WebOptUtils.getCurrentUserCode(request);
         }
         if (StringUtils.isBlank(userCode)) {

@@ -162,6 +162,20 @@ public abstract class UploadDownloadUtils {
         }
     }
 
+    public static String encodeDownloadFilename(String paramName, String downloadType) {
+        try {
+            if ("inline".equals(downloadType)) {
+                return new String(
+                    StringEscapeUtils.unescapeHtml4(paramName).getBytes("utf-8"), "utf-8");
+            } else {
+                return encodeDownloadFilename(paramName);
+            }
+        } catch (UnsupportedEncodingException e) {
+            logger.error("转换文件名 " + paramName + " 报错：" + e.getMessage(), e);
+            return paramName;
+        }
+    }
+
     /**
      * @param request     HttpServletRequest
      * @param response    HttpServletResponse
@@ -171,7 +185,7 @@ public abstract class UploadDownloadUtils {
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                     InputStream inputStream, long fSize, String fileName, String downloadType,String charset)
+                                     InputStream inputStream, long fSize, String fileName, String downloadType, String charset)
         throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);
@@ -182,14 +196,14 @@ public abstract class UploadDownloadUtils {
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
         response.setHeader("Accept-Ranges", "bytes");
         response.setContentType(FileType.getFileMimeType(fileName));
-        if(!StringBaseOpt.isNvl(charset)){
+        if (!StringBaseOpt.isNvl(charset)) {
             response.setCharacterEncoding(charset);
         }
         //这个需要设置成真正返回的长度
         //response.setHeader("Content-Length", String.valueOf(fSize));
         response.setHeader("Content-Disposition",
             ("inline".equalsIgnoreCase(downloadType) ? "inline" : "attachment") + "; filename="
-                + UploadDownloadUtils.encodeDownloadFilename(fileName));
+                + UploadDownloadUtils.encodeDownloadFilename(fileName, downloadType));
         long pos = 0;
 
         FileRangeInfo fr = FileRangeInfo.parseRange(request.getHeader("Range"));

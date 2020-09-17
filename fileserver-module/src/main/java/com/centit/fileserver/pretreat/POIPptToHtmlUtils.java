@@ -4,6 +4,12 @@ package com.centit.fileserver.pretreat;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileSystemOpt;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.tools.ImageToPDF;
 import org.apache.poi.hslf.usermodel.*;
 import org.apache.poi.xslf.usermodel.*;
 import org.slf4j.Logger;
@@ -17,36 +23,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ppt转换为html
- * @author chen
  *
+ * @author chen
  */
 public class POIPptToHtmlUtils {
 
     private static Logger logger = LoggerFactory.getLogger(POIPptToHtmlUtils.class);
+    private static PDRectangle mediaBox = PDRectangle.LETTER;
+    private static boolean landscape = false;
+    private static boolean autoOrientation = true;
+    private static boolean resize = true;
 
     /**
-     *
      * @param sourceFilePath
      * @param targetFolder
      * @param targetFileName
      * @return
      */
-    public static String pptToHtml(String sourceFilePath, String targetFolder, String targetFileName,String suffix) {
+    public static String pptToPdf(String sourceFilePath, String targetFolder, String targetFileName, String suffix) {
         FileSystemOpt.createDirect(targetFolder);
         File pptFile = new File(sourceFilePath);
         if (pptFile.exists()) {
             try {
-                String targetFilePath = targetFolder + "/"+ targetFileName;
+                String targetFilePath = targetFolder + "/" + targetFileName;
                 if ("ppt".equals(suffix)) {
-                    String htmlStr = toImage2003(sourceFilePath, targetFolder);
-                    FileIOOpt.writeStringToFile(htmlStr, targetFilePath);
+                    List<String> htmlStr = toImage2003(sourceFilePath, targetFolder);
+                    createPDFFromImages(htmlStr, targetFilePath);
                     return "ok";
                 } else if ("pptx".equals(suffix)) {
-                    String htmlStr = toImage2007(sourceFilePath, targetFolder);
-                    FileIOOpt.writeStringToFile(htmlStr, targetFilePath);
+                    List<String> htmlStr = toImage2007(sourceFilePath, targetFolder);
+                    createPDFFromImages(htmlStr, targetFilePath);
                     return "ok";
                 } else {
                     logger.error("ppt转换为html,源文件={}不是ppt文件", sourceFilePath);
@@ -61,17 +72,41 @@ public class POIPptToHtmlUtils {
             logger.error("ppt文档转换为html,源文件={}不存在", sourceFilePath);
             return null;
         }
+
     }
 
-    public static String toImage2007(String sourcePath, String targetDir) throws Exception {
-        String htmlStr = "";
+    private static void createPDFFromImages(List<String> imageFilenames, String targetFilePath) throws IOException {
+        PDDocument doc = new PDDocument();
+        for (String imageFileName : imageFilenames) {
+            PDImageXObject pdImage = PDImageXObject.createFromFile(imageFileName, doc);
+
+            PDRectangle actualMediaBox = mediaBox;
+            if ((autoOrientation && pdImage.getWidth() > pdImage.getHeight()) || landscape) {
+                actualMediaBox = new PDRectangle(mediaBox.getHeight(), mediaBox.getWidth());
+            }
+            PDPage page = new PDPage(actualMediaBox);
+            doc.addPage(page);
+
+            PDPageContentStream contents = new PDPageContentStream(doc, page);
+            if (resize) {
+                contents.drawImage(pdImage, 0, 0, actualMediaBox.getWidth(), actualMediaBox.getHeight());
+            } else {
+                contents.drawImage(pdImage, 0, 0, pdImage.getWidth(), pdImage.getHeight());
+            }
+            contents.close();
+        }
+        doc.save(targetFilePath);
+        doc.close();
+    }
+
+    public static List<String> toImage2007(String sourcePath, String targetDir) throws Exception {
+        List<String> htmlStr = new ArrayList<>();
         FileInputStream is = new FileInputStream(sourcePath);
         XMLSlideShow ppt = new XMLSlideShow(is);
         is.close();
         FileSystemOpt.createDirect(targetDir);
         Dimension pgsize = ppt.getPageSize();
         String imageFileName = "ppt" + UuidOpt.getUuidAsString32();
-        StringBuffer sb = new StringBuffer();
         for (int i = 0; i < ppt.getSlides().size(); i++) {
             try {
                 for (XSLFShape shape : ppt.getSlides().get(i).getShapes()) {
@@ -98,8 +133,7 @@ public class POIPptToHtmlUtils {
                 String relativeImagePath = imageFileName + "/" + imageFileName + "-" + (i + 1) + ".png";
                 // 绝对路径
                 String imagePath = imageDir + imageFileName + "-" + (i + 1) + ".png";
-                sb.append("<br>");
-                sb.append("<img src=" + "\"" + relativeImagePath + "\"" + "/>");
+                htmlStr.add(imagePath);
                 FileOutputStream out = new FileOutputStream(imagePath);
                 javax.imageio.ImageIO.write(img, "png", out);
                 out.close();
@@ -109,12 +143,11 @@ public class POIPptToHtmlUtils {
                 return null;
             }
         }
-        htmlStr = sb.toString();
         return htmlStr;
     }
 
-    public static String toImage2003(String sourcePath, String targetDir) {
-        String htmlStr = "";
+    public static List<String> toImage2003(String sourcePath, String targetDir) {
+        List<String> htmlStr = new ArrayList<>();
         try {
             HSLFSlideShow ppt = new HSLFSlideShow(new HSLFSlideShowImpl(sourcePath));
             FileSystemOpt.createDirect(targetDir);
@@ -146,13 +179,11 @@ public class POIPptToHtmlUtils {
                 String relativeImagePath = imageFileName + "/" + imageFileName + "-" + (i + 1) + ".png";
                 // 绝对路径
                 String imagePath = imageDir + imageFileName + "-" + (i + 1) + ".png";
-                sb.append("<br>");
-                sb.append("<img src=" + "\"" + relativeImagePath + "\"" + "/>");
+                htmlStr.add(imagePath);
                 FileOutputStream out = new FileOutputStream(imagePath);
                 javax.imageio.ImageIO.write(img, "png", out);
                 out.close();
             }
-            htmlStr = sb.toString();
         } catch (Exception e) {
             logger.error("ppt转换为html,发生异常,源文件={}", sourcePath, e);
             return null;
@@ -162,7 +193,6 @@ public class POIPptToHtmlUtils {
     }
 
     /**
-     *
      * @param srcImgPath
      * @param distImgPath
      * @param width
@@ -178,9 +208,9 @@ public class POIPptToHtmlUtils {
         ImageIO.write(buffImg, "JPEG", new File(distImgPath));
     }
 
- public static void main(String[] args) {
-  //POIPptToHtmlUtils.pptToHtml("D:/diagnosis/file/temp//ppt2007.pptx", "D:/diagnosis/file/temp/", "test5.html");
-  POIPptToHtmlUtils.pptToHtml("C:\\Users\\zhf\\Postman\\files\\1.pptx", "C:\\Users\\zhf\\Postman\\files\\tmp", "6.html","ppt");
- }
+    public static void main(String[] args) {
+        //POIPptToHtmlUtils.pptToHtml("D:/diagnosis/file/temp//ppt2007.pptx", "D:/diagnosis/file/temp/", "test5.html");
+        POIPptToHtmlUtils.pptToPdf("d:\\2.pptx", "C:\\Users\\zhf\\Postman\\files\\tmp", "3.pdf", "pptx");
+    }
 
 }
