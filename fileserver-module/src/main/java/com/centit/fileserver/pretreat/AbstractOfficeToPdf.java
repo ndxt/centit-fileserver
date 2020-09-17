@@ -2,6 +2,8 @@ package com.centit.fileserver.pretreat;
 
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import com.centit.support.office.OfficeToHtml;
+import com.centit.support.office.OfficeToPdf;
 import com.centit.support.report.ExcelTypeEnum;
 import com.lowagie.text.Font;
 import com.lowagie.text.pdf.BaseFont;
@@ -49,119 +51,6 @@ public abstract class AbstractOfficeToPdf {
     public final static String TXT = "txt";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);
-
-
-    public static boolean excel2Pdf(String inExcelFile, String outPdfFile) throws TransformerException, IOException, ParserConfigurationException {
-        String inFilePath = inExcelFile;
-        String outFilePath = outPdfFile;
-        if (File.separator.equals("\\")) {
-            inFilePath = inExcelFile.replace('/', '\\');
-            outFilePath = outPdfFile.replace('/', '\\');
-        }
-        HSSFWorkbook excelBook = new HSSFWorkbook();
-        ExcelTypeEnum excelType = ExcelTypeEnum.checkFileExcelType(inFilePath);
-        if (excelType == ExcelTypeEnum.HSSF) {
-            excelBook = new HSSFWorkbook(new FileInputStream(inFilePath));
-        } else if (excelType == ExcelTypeEnum.XSSF) {
-            XlsxTransformXls xls = new XlsxTransformXls();
-            XSSFWorkbook workbookOld = new XSSFWorkbook(inFilePath);
-            xls.transformXSSF(workbookOld, excelBook);
-        } else {
-            return false;
-        }
-
-        ExcelToHtmlConverter excelToHtmlConverter = new ExcelToHtmlConverter(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
-        excelToHtmlConverter.setOutputColumnHeaders(false);
-        //去掉Excel行号
-        excelToHtmlConverter.setOutputRowNumbers(false);
-
-        excelToHtmlConverter.processWorkbook(excelBook);
-        Document htmlDocument = excelToHtmlConverter.getDocument();
-
-
-        DOMSource domSource = new DOMSource(htmlDocument);
-        StreamResult streamResult = new StreamResult(new File(outFilePath));
-
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer serializer = tf.newTransformer();
-        // TODO set encoding from a command argument
-        serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        serializer.setOutputProperty(OutputKeys.INDENT, "no");
-        serializer.setOutputProperty(OutputKeys.METHOD, "html");
-        serializer.transform(domSource, streamResult);
-
-        return true;
-    }
-
-    public static boolean ppt2Pdf(String inPptFile, String outPdfFile, String suffix) {
-        String inputFile = inPptFile;
-        String pdfFile = outPdfFile;
-        if (File.separator.equals("\\")) {
-            inputFile = inPptFile.replace('/', '\\');
-            pdfFile = outPdfFile.replace('/', '\\');
-        }
-        String sFileName = FileSystemOpt.extractFullFileName(pdfFile);
-        if ("ok".equals(POIPptToHtmlUtils.pptToPdf(inputFile, pdfFile.replace(sFileName, ""), sFileName, suffix))) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean word2Pdf(String inWordFile, String outPdfFile, String suffix) throws Exception {
-        try {
-            String inputFile = inWordFile;
-            String pdfFile = outPdfFile;
-            if (File.separator.equals("\\")) {
-                inputFile = inWordFile.replace('/', '\\');
-                pdfFile = outPdfFile.replace('/', '\\');
-            }
-            if (DOCX.equalsIgnoreCase(suffix)) {
-//            WordReportUtil.convertDocxToPdf(inputFile, outPdfFile);
-                XWPFDocument docx = new XWPFDocument(new FileInputStream(inputFile));
-                PdfOptions options = PdfOptions.create();
-                // 中文字体处理
-                options.fontProvider((familyName, encoding, size, style, color) -> {
-                    try {
-                        BaseFont bfChinese = BaseFont.createFont("simsun.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-                        Font fontChinese = new Font(bfChinese, size, style, color);
-                        if (familyName != null) {
-                            fontChinese.setFamily(familyName);
-                        }
-                        return fontChinese;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                });
-
-                PdfConverter.getInstance().convert(docx, new FileOutputStream(pdfFile), options);
-            }
-            if (DOC.equalsIgnoreCase(suffix)) {
-                HWPFDocumentCore wordDocument = AbstractWordUtils.loadDoc(new File(inputFile));
-                WordToHtmlConverter wordToHtmlConverter = new WordToHtmlConverter(
-                    XMLHelper.getDocumentBuilderFactory().newDocumentBuilder()
-                        .newDocument());
-                wordToHtmlConverter.processDocument(wordDocument);
-                Document doc = wordToHtmlConverter.getDocument();
-
-                DOMSource domSource = new DOMSource(doc);
-                StreamResult streamResult = new StreamResult(new File(pdfFile));
-
-                TransformerFactory tf = TransformerFactory.newInstance();
-                Transformer serializer = tf.newTransformer();
-                // TODO set encoding from a command argument
-                serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-                serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-                serializer.setOutputProperty(OutputKeys.METHOD, "html");
-                serializer.transform(domSource, streamResult);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return true;
-    }
-
-
     static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
         String suffix = StringUtils.lowerCase(
             FileType.getFileExtName(inputFile));
@@ -184,11 +73,11 @@ public abstract class AbstractOfficeToPdf {
             return false;
         }
         if (DOC.equalsIgnoreCase(suffix) || DOCX.equalsIgnoreCase(suffix)) {
-            return word2Pdf(inputFile, pdfFile, suffix);
+            return OfficeToPdf.word2Pdf(inputFile, pdfFile, suffix);
         } else if (PPT.equalsIgnoreCase(suffix) || PPTX.equalsIgnoreCase(suffix)) {
-            return ppt2Pdf(inputFile, pdfFile, suffix);
+            return OfficeToPdf.ppt2Pdf(inputFile, pdfFile, suffix);
         } else if (XLS.equalsIgnoreCase(suffix) || XLSX.equalsIgnoreCase(suffix)) {
-            return excel2Pdf(inputFile, pdfFile);
+            return OfficeToHtml.excel2Html(inputFile, pdfFile);
         }
         return false;
     }

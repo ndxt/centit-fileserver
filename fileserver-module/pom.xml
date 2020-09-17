@@ -108,6 +108,10 @@
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-extend</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.centit.support</groupId>
+            <artifactId>centit-office-utils</artifactId>
+        </dependency>
 
 
     </dependencies>
