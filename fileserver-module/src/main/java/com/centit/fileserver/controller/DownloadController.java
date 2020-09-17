@@ -138,9 +138,9 @@ public class DownloadController extends BaseController {
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-//        if (noAuth(request, response, fileInfo)) {
-//            return;
-//        }
+        if (noAuth(request, response, fileInfo)) {
+            return;
+        }
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
