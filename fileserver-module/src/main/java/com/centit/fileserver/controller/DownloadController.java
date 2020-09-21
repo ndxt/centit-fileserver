@@ -226,12 +226,12 @@ public class DownloadController extends BaseController {
         FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
         String sFileType;
         switch (fileInfo.getFileType()) {
-            case AbstractOfficeToPdf.DOC:
             case AbstractOfficeToPdf.DOCX:
             case AbstractOfficeToPdf.PPT:
             case AbstractOfficeToPdf.PPTX:
                 sFileType = ".pdf";
                 break;
+            case AbstractOfficeToPdf.DOC:
             case AbstractOfficeToPdf.XLS:
             case AbstractOfficeToPdf.XLSX:
                 sFileType = ".html";
