@@ -21,6 +21,9 @@ public class FileShowInfo {
     private String fileType;
     private String fileName;
 
+    public FileShowInfo() {
+    }
+
     public int getDownloadTimes() {
         return downloadTimes;
     }
@@ -40,6 +43,16 @@ public class FileShowInfo {
     private long fileSize;
 
     private Date createTime;//, CREATE_TIME
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    private String ownerName;
 
     public boolean isFolder() {
         return isFolder;

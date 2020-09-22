@@ -1,6 +1,7 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileFavorite;
 import com.centit.fileserver.po.FileInfo;
@@ -312,10 +313,10 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/checkauth/{fileId}/{authCode}", method = RequestMethod.GET)
     @ApiOperation(value = "检查验证码")
     @WrapUpResponseBody
-    public FileInfo checkAuthCode(@PathVariable("fileId") String fileId, @PathVariable("authCode") String authCode) {
+    public JSONObject checkAuthCode(@PathVariable("fileId") String fileId, @PathVariable("authCode") String authCode) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo.getAuthCode().equals(authCode)) {
-            return fileInfo;
+            return fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("files",fileId),null).getJSONObject(0);
         }
         return null;
     }

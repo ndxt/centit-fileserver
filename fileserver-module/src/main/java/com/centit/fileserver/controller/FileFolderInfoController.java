@@ -8,6 +8,7 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
@@ -112,6 +113,7 @@ public class FileFolderInfoController extends BaseController {
         fileShowInfo.setParentPath(fileFolderInfo.getParentFolder());
         fileShowInfo.setCreateFolder(fileFolderInfo.getIsCreateFolder());
         fileShowInfo.setUploadFile(fileFolderInfo.getIsUpload());
+        fileShowInfo.setOwnerName(CodeRepositoryUtil.getUserName(fileFolderInfo.getCreateUser()));
         return fileShowInfo;
     }
 

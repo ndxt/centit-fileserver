@@ -3,6 +3,7 @@ package com.centit.fileserver.dao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.LocalFileManager;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
@@ -146,7 +147,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
             "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
-            "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,max(a.file_type) fileType,max(a.download_times) downloadTimes " +
+            "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,"+
+        "max(a.file_type) fileType,max(a.download_times) downloadTimes,max(file_owner) owner " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
             "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
             "where file_state='N' and parent_folder=:parentFolder and library_id=:libraryId " +
@@ -170,6 +172,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setFileShowPath(StringBaseOpt.objectToString(objs[6]));
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
                 file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[9]));
+                file.setOwnerName(CodeRepositoryUtil.getUserName(StringBaseOpt.objectToString(objs[10])));
                 files.add(file);
             }
         }
