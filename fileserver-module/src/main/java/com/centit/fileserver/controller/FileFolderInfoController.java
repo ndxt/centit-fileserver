@@ -139,9 +139,15 @@ public class FileFolderInfoController extends BaseController {
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
     public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
-        fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
-        fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
+        List<FileFolderInfo> fileFolderInfos=fileFolderInfoMag.listFileFolderInfo(CollectionsOpt.createHashMap("folderPath",fileFolderInfo.getFolderPath(),
+            "folderName",fileFolderInfo.getFolderName(),"libraryId",fileFolderInfo.getLibraryId()),null);
+        if(fileFolderInfos==null || fileFolderInfos.size()==0) {
+            fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+            fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
+            JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
+        }else{
+            JsonResultUtils.writeSingleErrorDataJson(100,"文件夹已存在",fileFolderInfos.get(0),response);
+        }
     }
 
     /**
