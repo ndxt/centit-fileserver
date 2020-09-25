@@ -9,10 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -116,7 +113,8 @@ public class FileFolderInfo implements java.io.Serializable {
         condition = GeneratorCondition.ALWAYS, value="today()" )
     @JsonIgnore
     private Date updateTime;
-
+    @Transient
+    private String oldFoldId;
 
     public String getParentFolder(){
         if(StringUtils.isBlank(this.parentFolder)) {

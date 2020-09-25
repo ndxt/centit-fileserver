@@ -15,6 +15,7 @@ import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.common.ObjectException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -113,6 +114,7 @@ public class FileFolderInfoController extends BaseController {
         fileShowInfo.setParentPath(fileFolderInfo.getParentFolder());
         fileShowInfo.setCreateFolder(fileFolderInfo.getIsCreateFolder());
         fileShowInfo.setUploadFile(fileFolderInfo.getIsUpload());
+        fileShowInfo.setCreateTime(fileFolderInfo.getCreateTime());
         fileShowInfo.setOwnerName(CodeRepositoryUtil.getUserName(fileFolderInfo.getCreateUser()));
         return fileShowInfo;
     }
@@ -159,10 +161,7 @@ public class FileFolderInfoController extends BaseController {
     @ApiOperation(value = "删除单个文件夹信息")
     @WrapUpResponseBody
     public void deleteFileFolderInfo(@PathVariable String folderId) {
-
         fileFolderInfoMag.deleteFileFolderInfo(folderId);
-
-
     }
 
     /**
@@ -175,13 +174,7 @@ public class FileFolderInfoController extends BaseController {
     @WrapUpResponseBody
     public FileFolderInfo updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        FileFolderInfo oldFileFolder = fileFolderInfoMag.getFileFolderInfo(fileFolderInfo.getFolderId());
         fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
-        if(!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
-            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
-                .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
-                .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
-        }
         return fileFolderInfo;
     }
 }

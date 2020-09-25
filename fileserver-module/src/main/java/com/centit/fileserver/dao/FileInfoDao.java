@@ -29,7 +29,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         filterField.put("fileName",CodeBook.EQUAL_HQL_ID);
         filterField.put("fileShowPath",CodeBook.EQUAL_HQL_ID);
         filterField.put("fileState",CodeBook.EQUAL_HQL_ID);
-
+        filterField.put("pathLike","file_show_path like :pathLike");
         return filterField;
     }
 

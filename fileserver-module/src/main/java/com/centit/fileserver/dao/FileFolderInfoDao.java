@@ -50,6 +50,7 @@ public class FileFolderInfoDao extends BaseDaoImpl<FileFolderInfo, String> {
         filterField.put("updateUser", CodeBook.EQUAL_HQL_ID);
 
         filterField.put("updateTime", CodeBook.EQUAL_HQL_ID);
+        filterField.put("pathLike","folder_path like :pathLike");
 
         return filterField;
     }
