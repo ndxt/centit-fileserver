@@ -172,8 +172,13 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件夹信息")
     @WrapUpResponseBody
-    public String updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        return fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
+        String result= fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
+        if("ok".equals(result)) {
+            JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
+        }else{
+            JsonResultUtils.writeSingleDataJson(result, response);
+        }
     }
 }
