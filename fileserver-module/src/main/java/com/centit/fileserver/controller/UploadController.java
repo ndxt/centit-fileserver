@@ -111,7 +111,7 @@ public class UploadController extends BaseController {
             filePath = request.getParameter("fileShowPath");
         }
         fileInfo.setFileShowPath(filePath);
-        fileInfo.setFileOwner(request.getParameter("fileOwner"));
+        fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
         fileInfo.setLibraryId(request.getParameter("libraryId"));
