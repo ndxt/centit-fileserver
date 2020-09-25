@@ -148,7 +148,7 @@ public class FileFolderInfoController extends BaseController {
             fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
             JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
         }else{
-            JsonResultUtils.writeSingleErrorDataJson(100,"文件夹已存在",fileFolderInfos.get(0),response);
+            JsonResultUtils.writeSingleDataJson("100文件夹已存在",response);
         }
     }
 
@@ -172,9 +172,8 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件夹信息")
     @WrapUpResponseBody
-    public FileFolderInfo updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+    public String updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
-        return fileFolderInfo;
+        return fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
     }
 }
