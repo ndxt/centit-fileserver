@@ -42,7 +42,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
     @Override
     public String updateFileFolderInfo(FileFolderInfo fileFolderInfo) {
         if (fileFolderInfo.getParentFolder().equals(fileFolderInfo.getFolderId())) {
-            return  "100不能移动到自身";
+            return  "101不能移动到自身";
         }
         FileFolderInfo oldFileFolder = getFileFolderInfo(fileFolderInfo.getFolderId());
         List<FileFolderInfo> fileFolderInfos = listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
