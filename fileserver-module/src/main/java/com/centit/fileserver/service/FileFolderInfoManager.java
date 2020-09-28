@@ -16,7 +16,7 @@ import java.util.Map;
  */
 
 public interface FileFolderInfoManager extends BaseEntityManager<FileFolderInfo, String> {
-    String updateFileFolderInfo(FileFolderInfo fileFolderInfo);
+    FileFolderInfo updateFileFolderInfo(FileFolderInfo fileFolderInfo);
 
     void deleteFileFolderInfo(String folderId);
 

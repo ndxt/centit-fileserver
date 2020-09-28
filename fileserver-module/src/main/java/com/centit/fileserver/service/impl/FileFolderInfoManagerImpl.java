@@ -40,15 +40,17 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
     private FileInfoDao fileInfoDao;
 
     @Override
-    public String updateFileFolderInfo(FileFolderInfo fileFolderInfo) {
+    public FileFolderInfo updateFileFolderInfo(FileFolderInfo fileFolderInfo) {
         if (fileFolderInfo.getParentFolder().equals(fileFolderInfo.getFolderId())) {
-            return  "101不能移动到自身";
+            fileFolderInfo.setMsg("101不能移动到自身");
+            return fileFolderInfo;
         }
         FileFolderInfo oldFileFolder = getFileFolderInfo(fileFolderInfo.getFolderId());
         List<FileFolderInfo> fileFolderInfos = listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
             "folderName", fileFolderInfo.getFolderName(), "libraryId", fileFolderInfo.getLibraryId()), null);
         if (fileFolderInfos.size() == 1) {
-            return "100文件夹已存在";
+            fileFolderInfo.setMsg("100文件夹已存在");
+            return fileFolderInfo;
         }
         fileFolderInfoDao.updateObject(fileFolderInfo);
         if (!oldFileFolder.getFolderPath().equals(fileFolderInfo.getFolderPath()) ||
@@ -67,7 +69,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
                 .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
                 .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
         }
-        return "ok";
+        return fileFolderInfo;
     }
 
     @Override

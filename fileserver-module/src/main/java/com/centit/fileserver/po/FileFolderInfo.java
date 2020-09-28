@@ -94,7 +94,7 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "创建时间")
     @Column(name = "create_time")
-    @ValueGenerator( strategy= GeneratorType.FUNCTION,occasion = GeneratorTime.NEW, value = "today()")
+    @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW, value = "today()")
     @JsonIgnore
     private Date createTime;
     /**
@@ -110,14 +110,16 @@ public class FileFolderInfo implements java.io.Serializable {
     @ApiModelProperty(value = "修改时间")
     @Column(name = "update_time")
     @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.UPDATE,
-        condition = GeneratorCondition.ALWAYS, value="today()" )
+        condition = GeneratorCondition.ALWAYS, value = "today()")
     @JsonIgnore
     private Date updateTime;
     @Transient
     private String oldFoldId;
+    @Transient
+    private String msg;
 
-    public String getParentFolder(){
-        if(StringUtils.isBlank(this.parentFolder)) {
+    public String getParentFolder() {
+        if (StringUtils.isBlank(this.parentFolder)) {
             return StringUtils.substringAfterLast(this.folderPath, "/");
         }
         return this.parentFolder;

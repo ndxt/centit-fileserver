@@ -141,14 +141,16 @@ public class FileFolderInfoController extends BaseController {
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
     public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
-        List<FileFolderInfo> fileFolderInfos=fileFolderInfoMag.listFileFolderInfo(CollectionsOpt.createHashMap("folderPath",fileFolderInfo.getFolderPath(),
-            "folderName",fileFolderInfo.getFolderName(),"libraryId",fileFolderInfo.getLibraryId()),null);
-        if(fileFolderInfos==null || fileFolderInfos.size()==0) {
+        List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
+            "folderName", fileFolderInfo.getFolderName(), "libraryId", fileFolderInfo.getLibraryId()), null);
+        if (fileFolderInfos == null || fileFolderInfos.size() == 0) {
             fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
             fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
             JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
-        }else{
-            JsonResultUtils.writeMessageAndData("100文件夹已存在",fileFolderInfos.get(0),response);
+        } else {
+            FileFolderInfo fileFolderInfo1 = fileFolderInfos.get(0);
+            fileFolderInfo1.setMsg("100文件夹已存在");
+            JsonResultUtils.writeSingleDataJson(fileFolderInfo1, response);
         }
     }
 
@@ -174,7 +176,6 @@ public class FileFolderInfoController extends BaseController {
     @WrapUpResponseBody
     public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        String result= fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo);
-        JsonResultUtils.writeMessageAndData(result,fileFolderInfo, response);
+        JsonResultUtils.writeSingleDataJson(fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo), response);
     }
 }
