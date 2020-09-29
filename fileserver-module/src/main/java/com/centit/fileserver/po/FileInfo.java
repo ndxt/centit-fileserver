@@ -1,6 +1,7 @@
 package com.centit.fileserver.po;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.centit.framework.core.dao.DictionaryMap;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
@@ -91,6 +92,7 @@ public class FileInfo implements Serializable {
     private String encryptType;
 
     @Column(name = "FILE_OWNER")
+    @DictionaryMap(fieldName="ownerName",value="userCode")
     private String fileOwner;
 
     @Column(name = "FILE_UNIT")
