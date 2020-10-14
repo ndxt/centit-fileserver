@@ -4,20 +4,6 @@
 /*==============================================================*/
 
 
-drop table if exists file_access_log;
-
-drop table if exists file_folder_info;
-
-drop table if exists file_info;
-
-drop table if exists file_library_access;
-
-drop table if exists file_library_info;
-
-drop table if exists file_favorite;
-
-drop table if exists file_store_info;
-drop table if exists file_upload_authorized;
 
 /*==============================================================*/
 /* Table: file_access_log                                       */
