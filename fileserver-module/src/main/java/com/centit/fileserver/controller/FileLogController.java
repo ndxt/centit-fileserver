@@ -1,5 +1,8 @@
 package com.centit.fileserver.controller;
 
+import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.fileserver.service.FileLibraryInfoManager;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpContentType;
@@ -10,6 +13,7 @@ import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +32,8 @@ import java.util.Map;
 public class FileLogController extends BaseController {
     public static final String LOG_OPERATION_NAME = "FileServerLog";
     private final OperationLogWriter optLogManager;
+    @Autowired
+    private FileLibraryInfoManager fileLibraryInfoManager;
 
     public FileLogController(OperationLogWriter optLogManager) {
         this.optLogManager = optLogManager;
@@ -42,6 +48,14 @@ public class FileLogController extends BaseController {
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         //TODO 获取当前人员所在库数组 编辑 unitCode in 这个数组
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
+        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoManager.listFileLibraryInfo(WebOptUtils.getCurrentUserCode(request));
+        if(fileLibraryInfos!=null){
+            String[] units=new String[fileLibraryInfos.size()];
+            for(int i=0;i<fileLibraryInfos.size();i++){
+                units[i]=fileLibraryInfos.get(i).getLibraryId();
+            }
+            searchColumn.put("units_in",units);
+        }
         return this.optLogManager.listOptLog(LOG_OPERATION_NAME, searchColumn, pageDesc.getPageNo(), pageDesc.getPageSize());
     }
 
