@@ -1,6 +1,7 @@
 package com.centit.fileserver.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
+import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
@@ -70,7 +71,9 @@ public class FileInfoManagerImpl
     @Override
     public  void writeDownloadFileLog(FileInfo fileInfo, String userCode) {
         fileInfo.addDownloadTimes();
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
+        OperationLogCenter.log(OperationLog.create()
+            .operation(FileLogController.LOG_OPERATION_NAME).user(userCode)
+            .unit(fileInfo.getLibraryId())
             .method("下载").tag(fileInfo.getFileId())
             .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
         updateObject(fileInfo);

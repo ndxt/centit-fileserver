@@ -1,6 +1,7 @@
 package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
@@ -26,7 +27,8 @@ public class SaveFileOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
         save(tempFilePath, fileMd5, fileSize);
         logger.info("存储文件完成");
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+        OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+            .user("admin")//.unit(fileOptTaskInfo.)
             .method("存储文件完成").tag(fileMd5).time(DatetimeOpt.currentUtilDate()).content(tempFilePath));
     }
 }

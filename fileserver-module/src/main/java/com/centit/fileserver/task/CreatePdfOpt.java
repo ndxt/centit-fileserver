@@ -1,6 +1,7 @@
 package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
@@ -63,7 +64,8 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
                 oldInfo.setAttachedType(fileInfo.getFileType());
                 fileInfoManager.updateObject(oldInfo);
                 logger.info("生成PDF完成");
-                OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+                OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+                    .user("admin").unit(fileInfo.getLibraryId())
                     .method("生成PDF完成").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
             }
         } catch (IOException e) {

@@ -492,8 +492,13 @@ public class UploadController extends BaseController {
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
-            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user( WebOptUtils.getCurrentUserCode(request))
-                .method("上传").tag(formData.getLeft().getFileId()).time(DatetimeOpt.currentUtilDate()).content(formData.getLeft().getFileName()).newObject(formData.getLeft()));
+            OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+                .unit(formData.getLeft().getLibraryId())
+                .user(WebOptUtils.getCurrentUserCode(request))
+                .method("上传").tag(formData.getLeft().getFileId())
+                .time(DatetimeOpt.currentUtilDate())
+                .content(formData.getLeft().getFileName())
+                .newObject(formData.getLeft()));
 
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);

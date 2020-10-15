@@ -1,5 +1,6 @@
 package com.centit.fileserver.service.impl;
 
+import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;
@@ -65,7 +66,9 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
                 new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
         }
         if (!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
-            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+            OperationLogCenter.log(OperationLog.create()
+                .operation(FileLogController.LOG_OPERATION_NAME).user("admin")
+                .unit(fileFolderInfo.getLibraryId())
                 .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
                 .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
         }

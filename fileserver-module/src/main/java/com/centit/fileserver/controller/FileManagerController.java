@@ -87,7 +87,10 @@ public class FileManagerController extends BaseController {
             if(documentIndexer != null){
                 documentIndexer.deleteDocument(fileId);
             }
-            OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
+            OperationLogCenter.log(OperationLog.create()
+                .operation(FileLogController.LOG_OPERATION_NAME)
+                .user(WebOptUtils.getCurrentUserCode(request))
+                .unit(fileInfo.getLibraryId())
                 .method("删除文件").tag(fileInfo.getFileMd5())
                 .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).oldObject(fileInfo));
             JsonResultUtils.writeSuccessJson(response);
@@ -168,7 +171,9 @@ public class FileManagerController extends BaseController {
             } else {
                 fileInfoManager.updateObject(fileInfo);
                 if(!dbFileInfo.getFileName().equals(fileInfo.getFileName())) {
-                    OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user("admin")
+                    OperationLogCenter.log(OperationLog.create()
+                        .operation(FileLogController.LOG_OPERATION_NAME).user("admin")
+                        .unit(fileInfo.getLibraryId())
                         .method("更新文件信息").tag(fileInfo.getFileId()).time(DatetimeOpt.currentUtilDate())
                         .content("更改文件名称").oldObject(dbFileInfo.getFileName()).newObject(fileInfo.getFileName()));
                 }
@@ -304,8 +309,12 @@ public class FileManagerController extends BaseController {
             fileInfo.setAuthCode(StringUtils.substring(UuidOpt.getUuidAsString(), -4));
             fileInfoManager.updateObject(fileInfo);
         }
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(WebOptUtils.getCurrentUserCode(request))
-            .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+        OperationLogCenter.log(OperationLog.create()
+            .operation(FileLogController.LOG_OPERATION_NAME)
+            .user(WebOptUtils.getCurrentUserCode(request))
+            .unit(fileInfo.getLibraryId())
+            .method("分享").tag(fileId).time(DatetimeOpt.currentUtilDate())
+            .content(fileInfo.getFileName()).newObject(fileInfo));
         return CollectionsOpt.createHashMap("authcode", fileInfo.getAuthCode(),
             "uri", "/checkauth/" + fileId);
     }

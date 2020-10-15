@@ -26,19 +26,11 @@ import java.util.Map;
 @RequestMapping("/log")
 @Api(value = "文件日志", tags = "文件日志")
 public class FileLogController extends BaseController {
+    public static final String LOG_OPERATION_NAME = "FileServerLog";
     private final OperationLogWriter optLogManager;
 
     public FileLogController(OperationLogWriter optLogManager) {
         this.optLogManager = optLogManager;
-    }
-
-    @RequestMapping(method = {RequestMethod.POST})
-    @ApiOperation(value = "新增文件日志")
-    @WrapUpResponseBody
-    public void createFileLog(String userCode,
-                              String method, String fileId, String logDetail) {
-        OperationLogCenter.log(OperationLog.create().operation("FileServerLog").user(userCode)
-            .method(method).tag(fileId).time(DatetimeOpt.currentUtilDate()).content(logDetail));
     }
 
     @ApiOperation(
@@ -48,8 +40,9 @@ public class FileLogController extends BaseController {
     @GetMapping
     @WrapUpResponseBody(contentType = WrapUpContentType.MAP_DICT)
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
+        //TODO 获取当前人员所在库数组 编辑 unitCode in 这个数组
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
-        return this.optLogManager.listOptLog("FileServerLog", searchColumn, pageDesc.getPageNo(), pageDesc.getPageSize());
+        return this.optLogManager.listOptLog(LOG_OPERATION_NAME, searchColumn, pageDesc.getPageNo(), pageDesc.getPageSize());
     }
 
 }
