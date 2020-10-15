@@ -77,7 +77,7 @@ public abstract class AbstractOfficeToPdf {
         } else if (PPT.equalsIgnoreCase(suffix) || PPTX.equalsIgnoreCase(suffix)) {
             return OfficeToPdf.ppt2Pdf(inputFile, pdfFile, suffix);
         } else if (XLS.equalsIgnoreCase(suffix) || XLSX.equalsIgnoreCase(suffix)) {
-            return OfficeToHtml.excel2Html(inputFile, pdfFile,suffix);
+            return OfficeToPdf.excel2Pdf(inputFile, pdfFile);
         }
         return false;
     }
