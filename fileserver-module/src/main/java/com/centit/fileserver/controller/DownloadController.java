@@ -229,11 +229,11 @@ public class DownloadController extends BaseController {
             case AbstractOfficeToPdf.DOCX:
             case AbstractOfficeToPdf.PPT:
             case AbstractOfficeToPdf.PPTX:
+            case AbstractOfficeToPdf.XLS:
+            case AbstractOfficeToPdf.XLSX:
                 sFileType = ".pdf";
                 break;
             case AbstractOfficeToPdf.DOC:
-            case AbstractOfficeToPdf.XLS:
-            case AbstractOfficeToPdf.XLSX:
                 sFileType = ".html";
                 break;
             default:
