@@ -5,10 +5,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
-import com.centit.support.file.FileEncryptWithAes;
-import com.centit.support.file.FileMD5Maker;
-import com.centit.support.file.FileSystemOpt;
-import com.centit.support.file.FileType;
+import com.centit.support.file.*;
 import com.centit.support.image.ImageOpt;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -168,7 +165,7 @@ public class FilePretreatUtils {
     public static String createPdf(FileInfo fileInfo, String sourceFilePath) throws Exception {
 
         String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
-        if (office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
+        if (FileSystemOpt.existFile(pdfTmpFile) || office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
             updateCommonFileInfo(fileInfo, pdfTmpFile);
 
             fileInfo.setFileType("P");

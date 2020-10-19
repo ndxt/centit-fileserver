@@ -216,7 +216,7 @@ public class DownloadController extends BaseController {
                     break;
             }
         }
-        if (!StringBaseOpt.isNvl(authCode)) {
+        if (!StringBaseOpt.isNvl(authCode) && !"undefined".equals(authCode)) {
             return fileInfo.getAuthCode().equals(authCode);
         }
         return false;
