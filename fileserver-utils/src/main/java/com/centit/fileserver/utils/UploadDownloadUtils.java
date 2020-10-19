@@ -232,13 +232,13 @@ public abstract class UploadDownloadUtils {
                 inputStream.skip(pos);
             }
             byte[] buffer = new byte[64 * 1024];
-            int needSize = new Long(fr.getPartSize()).intValue(); //需要传输的字节
-            int length = 0;
+            long needSize = fr.getPartSize(); //需要传输的字节
+            long length = 0;
 
             while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
-                int writeLen = needSize > length ? length : needSize;
+                long writeLen = Math.min(needSize, length);
 
-                bufferOut.write(buffer, 0, writeLen);
+                bufferOut.write(buffer, 0, (int) writeLen);
                 bufferOut.flush();
                 needSize -= writeLen;
             }
