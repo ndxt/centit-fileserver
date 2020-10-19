@@ -47,5 +47,6 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user("admin").unit(fileInfo.getLibraryId())
             .method("文件已加入全文检索").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
+        fileInfoManager.updateObject(fileInfo);
     }
 }

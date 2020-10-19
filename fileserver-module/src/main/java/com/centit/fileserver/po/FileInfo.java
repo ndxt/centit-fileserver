@@ -11,10 +11,7 @@ import com.centit.support.file.FileType;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -115,7 +112,8 @@ public class FileInfo implements Serializable {
     private String libraryId;
     @Column(name = "parent_folder")
     private String parentFolder;
-
+    @Transient
+    private Long fileSize;
     public FileInfo() {
         indexState = "N";
         encryptType = "N";

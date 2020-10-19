@@ -143,8 +143,23 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id获取文件存储信息")
     public void getFileStoreInfo(@PathVariable("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
-
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        fileInfo.setFileState("N".equals(fileInfo.getFileState())?"正常":"删除");
+        switch (fileInfo.getEncryptType()) {
+            case "A":
+                fileInfo.setEncryptType("AES加密文件");
+                break;
+            case "Z":
+                fileInfo.setEncryptType("Zip压缩文件");
+                break;
+            default:
+                fileInfo.setEncryptType("未加密");
+        }
+        fileInfo.setIndexState("I".equals(fileInfo.getIndexState())?"全文检索":"未检索");
+        FileStoreInfo fileStoreInfo=fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+        if(fileStoreInfo!=null){
+            fileInfo.setFileSize(fileStoreInfo.getFileSize());
+        }
         if (fileInfo != null) {
             JsonResultUtils.writeSingleDataJson(fileInfo, response);
         } else {
