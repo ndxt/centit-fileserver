@@ -279,7 +279,8 @@ public class UploadController extends BaseController {
             logger.error(e.getMessage(), e);
             JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_PRETREAT,
-                    "文件上传成功，但是在保存前：" + e.getMessage(), response);
+                    "文件上传成功，但是在保存前：" +
+                        ObjectException.extortExceptionMessage(e), response);
         }
     }
 
