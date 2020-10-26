@@ -1,7 +1,7 @@
 package com.centit.fileserver.config;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
-import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileTaskInfo;
+import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
@@ -91,7 +91,7 @@ public class ServiceConfig {
     }
 
     @Bean
-    public FileOptTaskQueue fileOptTaskQueue() throws Exception {
+    public FileTaskQueue fileOptTaskQueue() throws Exception {
         return new LinkedBlockingQueueFileOptTaskQueue(appHome + "/task");
     }
 
@@ -116,7 +116,7 @@ public class ServiceConfig {
      */
     @Bean
     public FileOptTaskExecutor fileOptTaskExecutor(
-                                        @Autowired FileOptTaskQueue fileOptTaskQueue,
+                                        @Autowired FileTaskQueue fileOptTaskQueue,
                                         @Autowired SaveFileOpt saveFileOpt,
                                         @Autowired CreatePdfOpt createPdfOpt,
                                         @Autowired PdfWatermarkOpt pdfWatermarkOpt,
@@ -127,14 +127,14 @@ public class ServiceConfig {
                                         @Autowired DocumentIndexOpt documentIndexOpt) {
         FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
         fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_SAVE_FILE, saveFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_CREATE_PDF, createPdfOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_PDF_WATERMARK, pdfWatermarkOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ADD_THUMBNAIL, addThumbnailOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ZIP, zipFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_ENCRYPT_ZIP, encryptZipFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_AES_ENCRYPT, encryptFileWithAesOpt);
-        fileOptTaskExecutor.addFileOpt(FileOptTaskInfo.OPT_DOCUMENT_INDEX, documentIndexOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_SAVE_FILE, saveFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_CREATE_PDF, createPdfOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_PDF_WATERMARK, pdfWatermarkOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ADD_THUMBNAIL, addThumbnailOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ZIP, zipFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ENCRYPT_ZIP, encryptZipFileOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_AES_ENCRYPT, encryptFileWithAesOpt);
+        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_DOCUMENT_INDEX, documentIndexOpt);
         return fileOptTaskExecutor;
     }
 

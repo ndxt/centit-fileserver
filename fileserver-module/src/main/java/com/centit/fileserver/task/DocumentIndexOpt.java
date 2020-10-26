@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
  * 全文检索
  */
 @Service
-public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class DocumentIndexOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIndexOpt.class);
 
@@ -33,7 +33,7 @@ public class DocumentIndexOpt extends FileOpt implements Consumer<FileOptTaskInf
     private ESIndexer esObjectIndexer;
 
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         if(esObjectIndexer==null){
             return;
         }

@@ -18,7 +18,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "FILE_INFO")
-public class FileInfo implements Serializable {
+public class FileInfo implements FileBaseInfo, Serializable {
 
     private static final long serialVersionUID = 1L;
 

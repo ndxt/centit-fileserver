@@ -1,7 +1,7 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
-import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileTaskInfo;
+import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,11 +9,11 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
+public class LinkedBlockingQueueFileOptTaskQueue implements FileTaskQueue {
     private static final Logger logger = LoggerFactory.getLogger(LinkedBlockingQueueFileOptTaskQueue.class);
 
     private File taskFile;
-    private LinkedBlockingQueue<FileOptTaskInfo> taskQueue;
+    private LinkedBlockingQueue<FileTaskInfo> taskQueue;
 
     public LinkedBlockingQueueFileOptTaskQueue(String taskFileRoot) throws Exception {
         FileSystemOpt.createDirect(taskFileRoot);
@@ -28,15 +28,15 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileOptTaskQueue {
     }
 
     @Override
-    public boolean add(FileOptTaskInfo task) {
+    public boolean add(FileTaskInfo task) {
         taskQueue.offer(task);
         saveTasksToDisk();
         return true;
     }
 
     @Override
-    public FileOptTaskInfo get() {
-        FileOptTaskInfo task = taskQueue.poll();
+    public FileTaskInfo get() {
+        FileTaskInfo task = taskQueue.poll();
         if (null != task) {
             saveTasksToDisk();
         }

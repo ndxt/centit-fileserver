@@ -1,7 +1,7 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
-import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileTaskInfo;
+import com.centit.fileserver.common.FileTaskQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,24 +13,24 @@ public class FileOptTaskExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(FileOptTaskExecutor.class);
 
-    private FileOptTaskQueue fileOptTaskQueue;
+    private FileTaskQueue fileOptTaskQueue;
 
-    private Map<Integer, Consumer<FileOptTaskInfo>> fileOptList;
+    private Map<Integer, Consumer<FileTaskInfo>> fileOptList;
 
 
     public FileOptTaskExecutor(){
         fileOptList = new HashMap<>(20);
     }
 
-    public void addFileOpt(int taskType, Consumer<FileOptTaskInfo> fileOpt){
+    public void addFileOpt(int taskType, Consumer<FileTaskInfo> fileOpt){
         fileOptList.put(taskType, fileOpt);
     }
 
-    public FileOptTaskQueue getFileOptTaskQueue() {
+    public FileTaskQueue getFileOptTaskQueue() {
         return fileOptTaskQueue;
     }
 
-    public void setFileOptTaskQueue(FileOptTaskQueue fileOptTaskQueue) {
+    public void setFileOptTaskQueue(FileTaskQueue fileOptTaskQueue) {
         this.fileOptTaskQueue = fileOptTaskQueue;
     }
 
@@ -40,7 +40,7 @@ public class FileOptTaskExecutor {
     }
     */
     public void doFileOptJob() {
-        FileOptTaskInfo taskInfo = fileOptTaskQueue.get();
+        FileTaskInfo taskInfo = fileOptTaskQueue.get();
         while(taskInfo != null){
             int taskType = taskInfo.getTaskType();
             fileOptList.get(taskType).accept(taskInfo);

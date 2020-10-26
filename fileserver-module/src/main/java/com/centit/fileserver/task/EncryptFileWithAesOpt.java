@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * AES加密文件
  */
 @Service
-public class EncryptFileWithAesOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class EncryptFileWithAesOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptFileWithAesOpt.class);
 
@@ -26,7 +26,7 @@ public class EncryptFileWithAesOpt extends FileOpt implements Consumer<FileOptTa
     private FileInfoManager fileInfoManager;
 
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         String encryptPass = (String) fileOptTaskInfo.getTaskOptParams().get("password");

@@ -1,6 +1,6 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.*;
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
@@ -246,7 +246,7 @@ public class DownloadController extends BaseController {
 
     private void createPdf(@PathVariable("fileId") String fileId, FileInfo fileInfo, FileStoreInfo fileStoreInfo) {
         if (UploadController.checkPdf(fileInfo)) {
-            FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
+            FileTaskInfo addPdfTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_CREATE_PDF);
             addPdfTaskInfo.setFileId(fileId);
             addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
             createPdfOpt.accept(addPdfTaskInfo);

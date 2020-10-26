@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
@@ -16,12 +16,12 @@ import java.util.function.Consumer;
  * 存储文件
  */
 @Service
-public class SaveFileOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class SaveFileOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(SaveFileOpt.class);
 
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         String fileMd5 = fileOptTaskInfo.getFileMd5();
         long fileSize = fileOptTaskInfo.getFileSize();
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);

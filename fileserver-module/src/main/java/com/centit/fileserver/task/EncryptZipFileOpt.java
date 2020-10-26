@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * zip加密压缩文件
  */
 @Service
-public class EncryptZipFileOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class EncryptZipFileOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptZipFileOpt.class);
 
@@ -26,7 +26,7 @@ public class EncryptZipFileOpt extends FileOpt implements Consumer<FileOptTaskIn
     private FileInfoManager fileInfoManager;
 
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         String encryptPass = (String) fileOptTaskInfo.getTaskOptParams().get("password");

@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * pdf添加水印
  */
 @Service
-public class PdfWatermarkOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class PdfWatermarkOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(PdfWatermarkOpt.class);
 
@@ -26,7 +26,7 @@ public class PdfWatermarkOpt extends FileOpt implements Consumer<FileOptTaskInfo
     private FileInfoManager fileInfoManager;
 
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         String waterMarkStr = (String) fileOptTaskInfo.getTaskOptParams().get("watermark");

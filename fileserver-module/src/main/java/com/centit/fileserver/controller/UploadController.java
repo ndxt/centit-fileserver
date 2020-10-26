@@ -2,8 +2,8 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.common.FileOptTaskInfo;
-import com.centit.fileserver.common.FileOptTaskQueue;
+import com.centit.fileserver.common.FileTaskInfo;
+import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
@@ -77,7 +77,7 @@ public class UploadController extends BaseController {
     protected ESIndexer documentIndexer;
 
     @Autowired
-    private FileOptTaskQueue fileOptTaskQueue;
+    private FileTaskQueue fileOptTaskQueue;
 
     @Autowired
     protected FileInfoManager fileInfoManager;
@@ -297,24 +297,24 @@ public class UploadController extends BaseController {
                 SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
 
             if (!pretreatInfo.containsKey("encryptType")) { // 不加密的文件保存到服务器
-                FileOptTaskInfo saveFileTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_SAVE_FILE);
+                FileTaskInfo saveFileTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_SAVE_FILE);
                 saveFileTaskInfo.setFileMd5(fileMd5);
                 saveFileTaskInfo.setFileSize(size);
                 fileOptTaskQueue.add(saveFileTaskInfo);
             } else  if ("A".equals(pretreatInfo.get("encryptType"))) {
-                FileOptTaskInfo aesEncryptTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_AES_ENCRYPT);
+                FileTaskInfo aesEncryptTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_AES_ENCRYPT);
                 aesEncryptTaskInfo.setFileId(fileId);
                 aesEncryptTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                 aesEncryptTaskInfo.setTaskOptParam("password", pretreatInfo.get("password"));
                 fileOptTaskQueue.add(aesEncryptTaskInfo);
             } else if ("Z".equals(pretreatInfo.get("encryptType"))) {
                 if(pretreatInfo.get("password") == null) {
-                    FileOptTaskInfo zipTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ZIP);
+                    FileTaskInfo zipTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_ZIP);
                     zipTaskInfo.setFileId(fileId);
                     zipTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                     fileOptTaskQueue.add(zipTaskInfo);
                 } else {
-                    FileOptTaskInfo encryptZipTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ENCRYPT_ZIP);
+                    FileTaskInfo encryptZipTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_ENCRYPT_ZIP);
                     encryptZipTaskInfo.setFileId(fileId);
                     encryptZipTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                     encryptZipTaskInfo.setTaskOptParam("password", pretreatInfo.get("password"));
@@ -323,7 +323,7 @@ public class UploadController extends BaseController {
             }
 
             if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false) && checkIndex(fileInfo.getFileType())) {
-                FileOptTaskInfo indexTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_DOCUMENT_INDEX);
+                FileTaskInfo indexTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_DOCUMENT_INDEX);
                 indexTaskInfo.setFileId(fileId);
                 indexTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                 fileOptTaskQueue.add(indexTaskInfo);
@@ -331,14 +331,14 @@ public class UploadController extends BaseController {
 
             if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)||
             checkPdf(fileInfo)) {
-                FileOptTaskInfo addPdfTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_CREATE_PDF);
+                FileTaskInfo addPdfTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_CREATE_PDF);
                 addPdfTaskInfo.setFileId(fileId);
                 addPdfTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                 fileOptTaskQueue.add(addPdfTaskInfo);
             }
 
             if (pretreatInfo.get("watermark") != null) {
-                FileOptTaskInfo pdfWatermarkTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_PDF_WATERMARK);
+                FileTaskInfo pdfWatermarkTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_PDF_WATERMARK);
                 pdfWatermarkTaskInfo.setFileId(fileId);
                 pdfWatermarkTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                 pdfWatermarkTaskInfo.setTaskOptParam("watermark", pretreatInfo.get("watermark"));
@@ -346,7 +346,7 @@ public class UploadController extends BaseController {
             }
 
             if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("thumbnail"),false)) {
-                FileOptTaskInfo thumbnailTaskInfo = new FileOptTaskInfo(FileOptTaskInfo.OPT_ADD_THUMBNAIL);
+                FileTaskInfo thumbnailTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_ADD_THUMBNAIL);
                 thumbnailTaskInfo.setFileId(fileId);
                 thumbnailTaskInfo.setFileSize((long) pretreatInfo.get("fileSize"));
                 thumbnailTaskInfo.setTaskOptParam("width", pretreatInfo.get("width"));

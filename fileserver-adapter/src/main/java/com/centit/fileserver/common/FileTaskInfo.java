@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileOptTaskInfo implements Serializable {
+public class FileTaskInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static final int OPT_SAVE_FILE = 1;
@@ -25,9 +25,9 @@ public class FileOptTaskInfo implements Serializable {
 
     private Map<String, Object> taskOptParams;
 
-    public FileOptTaskInfo() {}
+    public FileTaskInfo() {}
 
-    public FileOptTaskInfo(int taskType) {
+    public FileTaskInfo(int taskType) {
         this.taskType = taskType;
         taskOptParams = new HashMap<>();
     }

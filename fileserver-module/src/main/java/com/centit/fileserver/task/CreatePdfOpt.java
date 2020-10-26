@@ -1,6 +1,6 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileOptTaskInfo;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * 添加pdf副本
  */
 @Service
-public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
+public class CreatePdfOpt extends FileOpt implements Consumer<FileTaskInfo> {
 
     private static final Logger logger = LoggerFactory.getLogger(CreatePdfOpt.class);
 
@@ -38,7 +38,7 @@ public class CreatePdfOpt extends FileOpt implements Consumer<FileOptTaskInfo> {
 
     @SneakyThrows
     @Override
-    public void accept(FileOptTaskInfo fileOptTaskInfo) {
+    public void accept(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
