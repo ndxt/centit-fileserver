@@ -70,6 +70,9 @@ public class UploadController extends BaseController {
     @Value("${file.check.upload.token:false}")
     protected boolean checkUploadToken;
 
+    @Value("${app.runAsBoot:false}")
+    protected static boolean runAsSpringBoot;
+
     @Autowired
     protected FileStore fileStore;
 
@@ -88,6 +91,9 @@ public class UploadController extends BaseController {
     @Autowired
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
 
+    public static void setRunAsSpringBoot(boolean asBoot){
+        runAsSpringBoot = asBoot;
+    }
 
     private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request){
 
@@ -251,7 +257,8 @@ public class UploadController extends BaseController {
         if (!isMultipart) {
             return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
         }
-        InputStream fis = fetchISFromStandardResolver(request, fileInfo, pretreatInfo);
+        InputStream fis = runAsSpringBoot?fetchISFromStandardResolver(request, fileInfo, pretreatInfo)
+            :fetchISFromCommonsResolver(request, fileInfo, pretreatInfo);
         return new ImmutableTriple<>(fileInfo, pretreatInfo, fis);
     }
 
