@@ -71,7 +71,7 @@ public class UploadController extends BaseController {
     protected boolean checkUploadToken;
 
     @Value("${app.runAsBoot:false}")
-    protected static boolean runAsSpringBoot;
+    protected static boolean runAsSpringBoot=false;
 
     @Autowired
     protected FileStore fileStore;
