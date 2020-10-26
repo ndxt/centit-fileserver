@@ -21,7 +21,6 @@ import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 
@@ -46,39 +45,31 @@ public class ServiceConfig {
     @Autowired
     FileServerProperties fileServerProperties;
 
-
-
     @Bean
-    @ConditionalOnProperty(prefix = "fileserver.file-store.os", name = "enabled")
-    public FileStore osFileStore() {
-        String baseHome = fileServerProperties.getFileStore().getOs().getBaseDir();
-        if (StringUtils.isBlank(baseHome)) {
-            baseHome = appHome + "/upload";
+    //@ConditionalOnProperty(prefix = "fileserver.file-store.os", name = "enabled")
+    public FileStore fileStore() {
+        if("oss".equalsIgnoreCase(fileServerProperties.getFileStore().getStoreType())){
+            AliyunOssStore fs = new AliyunOssStore();
+            fs.setEndPoint(fileServerProperties.getFileStore().getOss().getEndPoint());
+            fs.setAccessKeyId(fileServerProperties.getFileStore().getOss().getAccessKeyId());
+            fs.setSecretAccessKey(fileServerProperties.getFileStore().getOss().getSecretAccessKey());
+            fs.setBucketName(fileServerProperties.getFileStore().getOss().getBucketName());
+            return fs;
+        } else if("cos".equalsIgnoreCase(fileServerProperties.getFileStore().getStoreType())){
+            TxyunCosStore cosStore = new TxyunCosStore();
+            cosStore.setRegion(fileServerProperties.getFileStore().getCos().getRegion());
+            cosStore.setAppId(fileServerProperties.getFileStore().getCos().getAppId());
+            cosStore.setSecretId(fileServerProperties.getFileStore().getCos().getSecretId());
+            cosStore.setSecretKey(fileServerProperties.getFileStore().getCos().getSecretKey());
+            cosStore.setBucketName(fileServerProperties.getFileStore().getCos().getBucketName());
+            return cosStore;
+        } else {//if("os".equalsIgnoreCase(fileServerProperties.getFileStore().getStoreType())) {
+            String baseHome = fileServerProperties.getFileStore().getOs().getBaseDir();
+            if (StringUtils.isBlank(baseHome)) {
+                baseHome = appHome + "/upload";
+            }
+            return new OsFileStore(baseHome);
         }
-        return new OsFileStore(baseHome);
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "fileserver.file-store.oss", name = "enabled")
-    public FileStore ossFileStore() {
-        AliyunOssStore fs = new AliyunOssStore();
-        fs.setEndPoint(fileServerProperties.getFileStore().getOss().getEndPoint());
-        fs.setAccessKeyId(fileServerProperties.getFileStore().getOss().getAccessKeyId());
-        fs.setSecretAccessKey(fileServerProperties.getFileStore().getOss().getSecretAccessKey());
-        fs.setBucketName(fileServerProperties.getFileStore().getOss().getBucketName());
-        return fs;
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "fileserver.file-store.cos", name = "enabled")
-    public FileStore cosFileStore() {
-        TxyunCosStore cosStore = new TxyunCosStore();
-        cosStore.setRegion(fileServerProperties.getFileStore().getCos().getRegion());
-        cosStore.setAppId(fileServerProperties.getFileStore().getCos().getAppId());
-        cosStore.setSecretId(fileServerProperties.getFileStore().getCos().getSecretId());
-        cosStore.setSecretKey(fileServerProperties.getFileStore().getCos().getSecretKey());
-        cosStore.setBucketName(fileServerProperties.getFileStore().getCos().getBucketName());
-        return cosStore;
     }
 
 

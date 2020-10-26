@@ -42,6 +42,7 @@ fileserver:
     min-score: 0.5
   fulltext-index-enable: true
   file-store:
+    store-type: os
     os:
       enabled: false
       base-dir: /D/Projects/RunData/file_home/upload/

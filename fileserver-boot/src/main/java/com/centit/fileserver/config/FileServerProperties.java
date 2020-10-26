@@ -17,6 +17,7 @@ public class FileServerProperties {
 
     @Data
     public static class FileStoreConfig {
+        private String storeType;
         private OsConfig os;
         private OssConfig oss;
         private CosConfig cos;
