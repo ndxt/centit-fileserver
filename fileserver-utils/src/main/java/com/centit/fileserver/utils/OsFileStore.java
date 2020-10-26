@@ -1,6 +1,7 @@
 package com.centit.fileserver.utils;
 
 import com.centit.fileserver.common.FileStore;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -14,13 +15,14 @@ import java.io.InputStream;
 public class OsFileStore implements FileStore {
 
     private String fileRoot;
-
+private String prefixPath;
     public OsFileStore(){
 
     }
 
-    public OsFileStore(String fileRoot){
+    public OsFileStore(String fileRoot,String prefixPath){
         setFileRoot(fileRoot);
+        this.prefixPath = prefixPath;
     }
 
     public void setFileRoot(String fileRoot){
@@ -41,7 +43,10 @@ public class OsFileStore implements FileStore {
                     + File.separatorChar + fileMd5.charAt(1)
                     + File.separatorChar + fileMd5.charAt(2);
         FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        if(StringBaseOpt.isNvl(prefixPath)){
+            return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        }
+        return prefixPath+File.separatorChar+pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
     }
 
     private String matchFileToStoreUrl(String fileMd5, long fileSize, String extName){

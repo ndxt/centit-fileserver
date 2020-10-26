@@ -86,7 +86,8 @@ public class ServiceConfig {
             if (StringUtils.isBlank(baseHome)) {
                 baseHome = env.getProperty("app.home") + "/upload";
             }
-            return new OsFileStore(baseHome);
+            String prefixPath=env.getProperty("os.file.base.dir.prefix");
+            return new OsFileStore(baseHome,prefixPath);
         }
     }
 
