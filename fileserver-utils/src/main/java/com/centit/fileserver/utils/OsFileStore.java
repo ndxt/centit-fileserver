@@ -99,7 +99,7 @@ public class OsFileStore implements FileStore {
     }
 
     @Override
-    public String getFileStoreUrl(String fileMd5, long fileSize) {
+    public String matchFileStoreUrl(String fileMd5, long fileSize) {
         return matchFileToStoreUrl(fileMd5,fileSize);
         //return FileSystemOpt.existFile(getFileRoot() + fileUrl) ? fileUrl : null;
     }
@@ -149,7 +149,7 @@ public class OsFileStore implements FileStore {
 
     @Override
     public boolean deleteFile(String fileMd5, long fileSize) throws IOException {
-        return deleteFile( getFileStoreUrl( fileMd5,  fileSize));
+        return deleteFile( matchFileStoreUrl( fileMd5,  fileSize));
     }
 
     @Override
@@ -161,6 +161,6 @@ public class OsFileStore implements FileStore {
 
     @Override
     public String getFileAccessUrl(String fileMd5, long fileSize) {
-        return getFileAccessUrl(getFileStoreUrl(fileMd5,  fileSize));
+        return getFileAccessUrl(matchFileStoreUrl(fileMd5,  fileSize));
     }
 }

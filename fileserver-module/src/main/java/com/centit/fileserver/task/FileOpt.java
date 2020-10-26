@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
-public abstract class FileOpt {
+public abstract class  FileOpt {
 
     private static final Logger logger = LoggerFactory.getLogger(FileOpt.class);
 
@@ -22,7 +22,7 @@ public abstract class FileOpt {
     private String fetchOrSaveFile(String tempFilePath, String fileMd5, long fileSize)
     throws IOException {
         if(fileStore.checkFile(fileMd5, fileSize)){
-            return fileStore.getFileStoreUrl(fileMd5, fileSize);
+            return fileStore.matchFileStoreUrl(fileMd5, fileSize);
         }
         return fileStore.saveFile(tempFilePath, fileMd5, fileSize);
     }

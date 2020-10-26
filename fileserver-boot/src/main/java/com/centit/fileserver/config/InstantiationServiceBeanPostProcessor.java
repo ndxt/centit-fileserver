@@ -1,5 +1,6 @@
 package com.centit.fileserver.config;
 
+import com.centit.fileserver.controller.UploadController;
 import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.CodeRepositoryCache;
@@ -66,6 +67,7 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
 
         // 创建定时任务
         try {
+            UploadController.setRunAsSpringBoot(true);
             Scheduler scheduler = schedulerFactory.getScheduler();
             QuartzJobUtils.registerJobType("bean", JavaBeanJob.class);
             QuartzJobUtils.createOrReplaceSimpleJob(scheduler, "fileOptJob",

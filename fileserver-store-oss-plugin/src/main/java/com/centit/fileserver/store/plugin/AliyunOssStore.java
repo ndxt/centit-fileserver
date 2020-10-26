@@ -118,7 +118,7 @@ public class AliyunOssStore implements FileStore {
     }
 
     @Override
-    public String getFileStoreUrl(String fileMd5, long fileSize) {
+    public String matchFileStoreUrl(String fileMd5, long fileSize) {
         String fileUrl = matchFileToStoreUrl(fileMd5,fileSize);
         OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
         return ossc.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
@@ -192,6 +192,6 @@ public class AliyunOssStore implements FileStore {
 
     @Override
     public String getFileAccessUrl(String fileMd5, long fileSize) {
-        return getFileAccessUrl(getFileStoreUrl(fileMd5,  fileSize));
+        return getFileAccessUrl(matchFileStoreUrl(fileMd5,  fileSize));
     }
 }

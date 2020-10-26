@@ -435,7 +435,7 @@ public class DownloadController extends BaseController {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             fileSize = fileStoreInfo.getFileSize();
-            String filePath = fileStore.getFileStoreUrl(fileInfo.getFileMd5(), fileSize);
+            String filePath = fileStore.matchFileStoreUrl(fileInfo.getFileMd5(), fileSize);
             inputStream = fileStore.loadFileStream(filePath);
         } else {
             StringBuilder fileIdSb = new StringBuilder();
@@ -458,7 +458,7 @@ public class DownloadController extends BaseController {
                     FileInfo si = fileInfoManager.getObjectById(fileIds[i]);
                     FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(si.getFileMd5());
                     if (si != null) {
-                        fileUrls[j] = fileStore.getFileStoreUrl(si.getFileMd5(), fileStoreInfo.getFileSize());
+                        fileUrls[j] = fileStore.matchFileStoreUrl(si.getFileMd5(), fileStoreInfo.getFileSize());
                         fileNames[j] = si.getFileName();
                         j++;
                     }

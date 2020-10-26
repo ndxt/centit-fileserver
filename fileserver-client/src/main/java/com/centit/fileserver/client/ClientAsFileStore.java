@@ -105,7 +105,7 @@ public class ClientAsFileStore implements FileStore {
      * @return 如果不存在返回null checkFile返回为true则这个肯定存在
      */
     @Override
-    public String getFileStoreUrl(String fileMd5, long fileSize) {
+    public String matchFileStoreUrl(String fileMd5, long fileSize) {
         return null;
     }
 

@@ -47,7 +47,7 @@ public class FileStoreInfoManagerImpl
 
         boolean isExist = fileStore.checkFile(fileMd5, size);
         if(isExist){
-            tempFilePath = fileStore.getFileStoreUrl(fileMd5, size);
+            tempFilePath = fileStore.matchFileStoreUrl(fileMd5, size);
         }
         fileStoreInfo = new FileStoreInfo(fileMd5, size, tempFilePath, 0L, !isExist);
         baseDao.saveNewObject(fileStoreInfo);
