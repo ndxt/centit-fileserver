@@ -44,7 +44,7 @@ public class OsFileStore implements FileStore {
         return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
     }
 
-    private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
+    private String matchFileToStoreUrl(String fileMd5, long fileSize, String extName){
         return matchFileToStoreUrl(fileMd5, fileSize);
         /*String pathname = String.valueOf(fileMd5.charAt(0))
                 + File.separatorChar + fileMd5.charAt(1)

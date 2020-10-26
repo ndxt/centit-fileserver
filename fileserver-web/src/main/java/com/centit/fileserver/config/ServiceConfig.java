@@ -71,14 +71,7 @@ public class ServiceConfig {
                 AESSecurityUtils.decryptParameterString(env.getProperty("oos.secretAccessKey")));
             fs.setBucketName(env.getProperty("oos.bucketName"));
             return fs;
-        }else if("os".equals(fileStoreType)){
-
-            String baseHome = env.getProperty("os.file.base.dir");
-            if(StringUtils.isBlank(baseHome)) {
-                baseHome = env.getProperty("app.home") + "/upload";
-            }
-            return new OsFileStore(baseHome);
-        }else {
+        }else if("cos".equals(fileStoreType)){
             TxyunCosStore cosStore = new TxyunCosStore();
             cosStore.setRegion(env.getProperty("cos.region"));
             cosStore.setAppId(env.getProperty("cos.appId"));
@@ -88,6 +81,12 @@ public class ServiceConfig {
                 AESSecurityUtils.decryptParameterString(env.getProperty("cos.secretKey")));
             cosStore.setBucketName(env.getProperty("cos.bucketName"));
             return cosStore;
+        }else {
+            String baseHome = env.getProperty("os.file.base.dir");
+            if (StringUtils.isBlank(baseHome)) {
+                baseHome = env.getProperty("app.home") + "/upload";
+            }
+            return new OsFileStore(baseHome);
         }
     }
 
