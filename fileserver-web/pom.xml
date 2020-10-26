@@ -170,11 +170,7 @@
                 <excludes>
                     <exclude>test/*</exclude>
                     <exclude>prod/*</exclude>
-                    <exclude>system.properties</exclude>
                 </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/${profiles.active}</directory>
             </resource>
         </resources>
     </build>
