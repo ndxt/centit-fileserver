@@ -1,78 +1,46 @@
 package com.centit.fileserver.common;
 
+import com.centit.fileserver.po.FileBaseInfo;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FileTaskInfo implements Serializable {
+@Data
+public class FileTaskInfo implements FileBaseInfo, Serializable {
     private static final long serialVersionUID = 1L;
 
-    public static final int OPT_SAVE_FILE = 1;
-    public static final int OPT_CREATE_PDF = 2;
-    public static final int OPT_PDF_WATERMARK = 3;
-    public static final int OPT_ADD_THUMBNAIL = 4;
-    public static final int OPT_ZIP = 5;
-    public static final int OPT_ENCRYPT_ZIP = 6;
-    public static final int OPT_AES_ENCRYPT = 7;
-    public static final int OPT_DOCUMENT_INDEX = 8;
-
-    private int taskType;
+    private String taskType;
     private String fileId;
     private String fileMd5;
     private Long fileSize;
-    // add other fixed fields
+    private String fileType;
 
+    private String fileName;
+    private String osId;
+    private String optId;
+    private String fileOwner;
+    private String fileUnit;
+    private String libraryId;
 
     private Map<String, Object> taskOptParams;
 
-    public FileTaskInfo() {}
-
-    public FileTaskInfo(int taskType) {
-        this.taskType = taskType;
+    public FileTaskInfo() {
         taskOptParams = new HashMap<>();
     }
 
-    public int getTaskType() {
-        return taskType;
+    public void copy(FileBaseInfo otherFile){
+        fileId = otherFile.getFileId();
+        fileMd5 = otherFile.getFileMd5();
+        fileType = otherFile.getFileType();
+        fileName = otherFile.getFileName();
+        osId = otherFile.getOsId();
+        optId = otherFile.getOptId();
+        fileOwner = otherFile.getFileOwner();
+        fileUnit = otherFile.getFileUnit();
+        libraryId = otherFile.getLibraryId();
     }
 
-    public void setTaskType(int taskType) {
-        this.taskType = taskType;
-    }
-
-    public String getFileId() {
-        return fileId;
-    }
-
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
-    }
-
-    public String getFileMd5() {
-        return fileMd5;
-    }
-
-    public void setFileMd5(String fileMd5) {
-        this.fileMd5 = fileMd5;
-    }
-
-    public Long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public Map<String, Object> getTaskOptParams() {
-        return taskOptParams;
-    }
-
-    public void setTaskOptParams(Map<String, Object> taskOptParams) {
-        this.taskOptParams = taskOptParams;
-    }
-
-    public void setTaskOptParam(String key, Object value) {
-        taskOptParams.put(key, value);
-    }
 }
+

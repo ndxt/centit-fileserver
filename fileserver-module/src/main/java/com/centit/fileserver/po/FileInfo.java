@@ -211,51 +211,38 @@ public class FileInfo implements FileBaseInfo, Serializable {
         //this.attachedType = other.getAttachedType();
     }
 
-    public void copy(FileInfo other) {
-        this.fileName = other.getFileName();
+    public void copy(Object other) {
+        if(other instanceof FileBaseInfo){
+            FileBaseInfo otherFile = (FileBaseInfo)other;
+            this.fileId = otherFile.getFileId();
+            this.fileMd5 = otherFile.getFileMd5();
+            this.fileType = otherFile.getFileType();
+            this.fileName = otherFile.getFileName();
+            this.osId = otherFile.getOsId();
+            this.optId = otherFile.getOptId();
+            this.fileOwner = otherFile.getFileOwner();
+            this.fileUnit = otherFile.getFileUnit();
+            this.libraryId = otherFile.getLibraryId();
+        }
 
-        this.fileShowPath = other.getFileShowPath();
-        this.fileType = other.getFileType();
-
-        //C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
-
-        this.fileState = other.getFileState();
-
-        this.fileDesc = other.getFileDesc();
-
-        //this.indexState = other.getIndexState();
-
-        //this.downloadTimes = other.getDownloadTimes();
-
-        this.osId = other.getOsId();
-
-        this.optId = other.getOptId();
-
-        this.optMethod = other.getOptMethod();
-
-        this.optTag = other.getOptTag();
-
-        this.created = other.getCreated();
-
-        this.createTime = other.getCreateTime();
-
-        //this.fileSize = other.getFileSize();
-
-        //加密算法
-        //this.encryptType=other.getEncryptType();
-
-        this.fileOwner = other.getFileOwner();
-
-        this.fileUnit = other.getFileUnit();
-        this.authCode = other.getAuthCode();
-        this.libraryId = other.libraryId;
-        this.parentFolder = other.parentFolder;
-
-        //this.attachedStorePath=other.getAttachedStorePath();
-
-        /**
-         * 附属文件类别： T：缩略图  P： pdf只读文件
-         */
-        //this.attachedType = other.getAttachedType();
+        if(other instanceof FileInfo){
+            FileInfo otherFile = (FileInfo)other;
+            this.fileShowPath = otherFile.getFileShowPath();
+            //C : 正在上传  N : 正常 Z:空文件 F:文件上传失败  D:已删除
+            this.fileState = otherFile.getFileState();
+            this.fileDesc = otherFile.getFileDesc();
+            this.optMethod = otherFile.getOptMethod();
+            this.optTag = otherFile.getOptTag();
+            this.created = otherFile.getCreated();
+            this.createTime = otherFile.getCreateTime();
+            this.authCode = otherFile.getAuthCode();
+            this.parentFolder = otherFile.getParentFolder();
+            //this.attachedStorePath=otherFile.getAttachedStorePath();
+            /**
+             * 附属文件类别： T：缩略图  P： pdf只读文件
+             */
+            //this.attachedType = otherFile.getAttachedType();
+        }
     }
+
 }

@@ -49,6 +49,7 @@ public class FileStoreInfoManagerImpl
         if(isExist){
             tempFilePath = fileStore.matchFileStoreUrl(fileMd5, size);
         }
+        //存放在临时区
         fileStoreInfo = new FileStoreInfo(fileMd5, size, tempFilePath, 0L, !isExist);
         baseDao.saveNewObject(fileStoreInfo);
     }
