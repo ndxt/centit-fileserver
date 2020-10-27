@@ -1,5 +1,6 @@
 package com.centit.fileserver.pretreat;
 
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
@@ -33,7 +34,7 @@ public abstract class AbstractOfficeToPdf {
         return office2Pdf(FileType.getFileExtName(inputFile), inputFile, pdfFile);
     }
 
-    public static boolean canTransToPdf(FileInfo fileInfo) {
+    public static boolean canTransToPdf(FileBaseInfo fileInfo) {
         if(StringUtils.isBlank(fileInfo.getFileType())){
             return false;
         }

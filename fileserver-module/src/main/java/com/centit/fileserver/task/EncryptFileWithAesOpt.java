@@ -7,7 +7,9 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileSystemOpt;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,15 @@ public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeat
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        String password = StringBaseOpt.castObjectToString(pretreatInfo.containsKey("password"));
+        if("A".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))
+            || StringUtils.isNotBlank(password)){
+            FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
+            taskInfo.copy(fileInfo);
+            taskInfo.setFileSize(fileSize);
+            taskInfo.putOptParam("password", password);
+            return taskInfo;
+        }
         return null;
     }
 
@@ -52,7 +63,7 @@ public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeat
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
-        String encryptPass = (String) fileOptTaskInfo.getTaskOptParams().get("password");
+        String encryptPass = (String) fileOptTaskInfo.getOptParam("password");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {

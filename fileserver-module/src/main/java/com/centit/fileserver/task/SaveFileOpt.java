@@ -10,6 +10,8 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.StringBaseOpt;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,19 +38,6 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         return "save";
     }
 
-    /**
-     * 获取文件预处理信息
-     *
-     * @param fileInfo     文件信息
-     * @param fileSize     文件大小
-     * @param pretreatInfo 预处理信息
-     * @return 文件任务信息 null 表示不匹配不需要处理
-     */
-    @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        return null;
-    }
-
     @Override
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
         String fileMd5 = fileOptTaskInfo.getFileMd5();
@@ -60,5 +49,18 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user("admin")//.unit(fileOptTaskInfo.)
             .method("存储文件完成").tag(fileMd5).time(DatetimeOpt.currentUtilDate()).content(tempFilePath));
+    }
+
+
+    @Override
+    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if(StringUtils.isNotBlank(
+            StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))){
+            return null;
+        }
+        FileTaskInfo saveFileTaskInfo = new FileTaskInfo(getOpeatorName());
+        saveFileTaskInfo.copy(fileInfo);
+        saveFileTaskInfo.setFileSize(fileSize);
+        return saveFileTaskInfo;
     }
 }

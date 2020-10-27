@@ -4,9 +4,13 @@ import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.support.algorithm.BooleanBaseOpt;
+import com.centit.support.algorithm.StringBaseOpt;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +49,15 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if (StringUtils.isNotBlank(
+            StringBaseOpt.castObjectToString(pretreatInfo.get("watermark")))){
+            FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
+            taskInfo.copy(fileInfo);
+            taskInfo.setFileSize(fileSize);
+            taskInfo.putOptParam("watermark",
+                StringBaseOpt.castObjectToString(pretreatInfo.get("watermark")));
+            return taskInfo;
+        }
         return null;
     }
 
@@ -52,7 +65,7 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
-        String waterMarkStr = (String) fileOptTaskInfo.getTaskOptParams().get("watermark");
+        String waterMarkStr = (String) fileOptTaskInfo.getOptParam("watermark");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {

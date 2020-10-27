@@ -128,7 +128,7 @@ public class ServiceConfig {
 
         FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
         fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
-        fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
+
         fileOptTaskExecutor.addFileOperator(saveFileOpt);
         fileOptTaskExecutor.addFileOperator(createPdfOpt);
         fileOptTaskExecutor.addFileOperator(pdfWatermarkOpt);

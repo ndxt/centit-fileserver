@@ -6,12 +6,14 @@ import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -97,6 +99,13 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)
+            && AbstractOfficeToPdf.canTransToPdf(fileInfo)){
+            FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
+            taskInfo.copy(fileInfo);
+            taskInfo.setFileSize(fileSize);
+            return taskInfo;
+        }
         return null;
     }
 

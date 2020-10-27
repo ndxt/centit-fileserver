@@ -24,6 +24,16 @@ public class FileTaskInfo implements Serializable {
         taskOptParams = new HashMap<>();
     }
 
+    public void putOptParam(String name, Object value) {
+        if(value!=null) {
+            taskOptParams.put(name, value);
+        }
+    }
+
+    public Object getOptParam(String name) {
+        return taskOptParams.get(name);
+    }
+
     public void copy(FileBaseInfo otherFile){
         fileId = otherFile.getFileId();
         fileMd5 = otherFile.getFileMd5();

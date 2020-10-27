@@ -130,8 +130,11 @@ public class FileInfo implements FileBaseInfo, Serializable {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
-        if (StringUtils.isNoneBlank(fileName) && StringUtils.isBlank(fileType)) {
-            fileType = FileType.getFileExtName(fileName);
+        if (StringUtils.isNotBlank(fileName)) {
+            String fileExtName = FileType.getFileExtName(fileName);
+            if(StringUtils.isNotBlank(fileExtName)) {
+                fileType = fileExtName;
+            }
         }
     }
 

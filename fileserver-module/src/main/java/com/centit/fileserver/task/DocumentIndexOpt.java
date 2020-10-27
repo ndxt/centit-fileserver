@@ -12,7 +12,9 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.Impl.ESIndexer;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.DatetimeOpt;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         return "index";
     }
 
+    private static boolean canIndex(String fileType) {
+        return StringUtils.equalsAnyIgnoreCase(fileType,
+            "txt", "csv", "doc", "docx", "xls", "xlsx",
+            "ppt", "pptx","pdf", "html", "xml");
+    }
+
     /**
      * 获取文件预处理信息
      * @param fileInfo     文件信息
@@ -51,6 +59,13 @@ public class DocumentIndexOpt implements FileTaskOpeator {
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if(BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false)
+            && canIndex(fileInfo.getFileType())){
+            FileTaskInfo indexTaskInfo = new FileTaskInfo(getOpeatorName());
+            indexTaskInfo.copy(fileInfo);
+            indexTaskInfo.setFileSize(fileSize);
+            return indexTaskInfo;
+        }
         return null;
     }
 
