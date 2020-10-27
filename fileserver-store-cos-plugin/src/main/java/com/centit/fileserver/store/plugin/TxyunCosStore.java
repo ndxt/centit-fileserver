@@ -1,9 +1,9 @@
 package com.centit.fileserver.store.plugin;
 
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
-import com.centit.support.file.FileMD5Maker;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
 import com.qcloud.cos.auth.BasicCOSCredentials;
@@ -13,6 +13,7 @@ import com.qcloud.cos.model.ObjectMetadata;
 import com.qcloud.cos.region.Region;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -28,48 +29,24 @@ public class TxyunCosStore implements FileStore {
     public TxyunCosStore(){
     }
 
-    public String getRegion() {
-        return region;
-    }
-
     public void setRegion(String region) {
         this.region = region;
-    }
-
-    public String getAppId() {
-        return appId;
     }
 
     public void setAppId(String appId) {
         this.appId = appId;
     }
 
-    public String getSecretId() {
-        return secretId;
-    }
-
     public void setSecretId(String secretId) {
         this.secretId = secretId;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
     }
 
     public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
     }
 
-    public String getEndPoint() {
-        return endPoint;
-    }
-
     public void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
-    }
-
-    public String getBucketName() {
-        return bucketName;
     }
 
     public void setBucketName(String bucketName) {
@@ -83,89 +60,47 @@ public class TxyunCosStore implements FileStore {
         return new COSClient(cosCredentials, clientConfig);
     }
 
-    private String matchFileToStoreUrl(String fileMd5, long fileSize){
-        String pathname = fileMd5.charAt(0)
-                    + "/"+ fileMd5.charAt(1)
-                    + "/"+ fileMd5.charAt(2);
-        return pathname +"/" + fileMd5 +"_"+fileSize+".dat";
-    }
 
-    private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
-        String pathname = fileMd5.charAt(0)
-                + "/"+ fileMd5.charAt(1)
-                + "/"+ fileMd5.charAt(2);
-        return pathname +"/" + fileMd5 +"_"+fileSize+"."+extName;
-    }
-
-    public String saveFileByMd5(String sourFilePath, String fileMd5, long fileSize)
-            throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize);
-
+    @Override
+    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
+        String fileStoreUrl = matchFileStoreUrl(fileInfo,fileSize);
         COSClient cosClient = getCOSClient();
-        cosClient.putObject(bucketName, filePath, new File(sourFilePath));
-
-        return filePath;
+        // 如何已经存在就不用再次上传
+        if(!cosClient.doesObjectExist(bucketName, fileStoreUrl)) {
+            ObjectMetadata metadata = cosClient.getObjectMetadata(bucketName, fileStoreUrl);
+            cosClient.putObject(bucketName, fileStoreUrl, is, metadata);
+        }
+        return fileStoreUrl;
     }
 
     @Override
-    public String saveFile(String sourFilePath) throws IOException {
-        File file = new File(sourFilePath);
-        String fileMd5 = FileMD5Maker.makeFileMD5(file);
-        long fileSize = file.length();
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
-    }
-
-    @Override
-    public String saveFile(InputStream is, String fileMd5, long fileSize) throws IOException {
-        String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        COSClient cosClient = getCOSClient();
-        ObjectMetadata metadata = cosClient.getObjectMetadata(bucketName, fileStroeUrl);
-
-        cosClient.putObject(bucketName, fileStroeUrl, is, metadata);
-        return fileStroeUrl;
-    }
-
-    @Override
-    public String saveFile(String sourFilePath, String fileMd5, long fileSize) throws IOException {
+    public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
         /*if(!FileUploadUtils.checkFileCompleted(sourFilePath, fileMd5))
             throw new IOException("文件MD5校验出错："+fileMd5);*/
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
+        return saveFile(new FileInputStream(new File(sourFilePath)), fileInfo, fileSize);
+    }
+
+
+
+    @Override
+    public boolean checkFile(String fileStoreUrl) {
+        COSClient cosClient = getCOSClient();
+        return cosClient.doesObjectExist(bucketName, fileStoreUrl);
     }
 
     @Override
-    public String saveFile(String sourFilePath, String fileMd5, long fileSize, String extName) throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize,extName);
-        COSClient cosClient = getCOSClient();
-        cosClient.putObject(bucketName, filePath, new File(sourFilePath));
-        return filePath;
+    public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
+        return fileInfo.getFileMd5();
+        /*COSClient cosClient = getCOSClient();
+        return cosClient.doesObjectExist(bucketName,
+            fileInfo.getFileMd5()) ? fileInfo.getFileMd5() : null;*/
     }
 
-    @Override
-    public boolean checkFile(String fileMd5, long fileSize) {
-        String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        COSClient cosClient = getCOSClient();
-
-        return cosClient.doesObjectExist(bucketName, fileStroeUrl);
-    }
 
     @Override
-    public String matchFileStoreUrl(String fileMd5, long fileSize) {
-        String fileUrl = matchFileToStoreUrl(fileMd5,fileSize);
+    public long getFileSize(String fileStoreUrl) throws IOException {
         COSClient cosClient = getCOSClient();
-        return cosClient.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
-    }
-
-    @Override
-    public String getFileStoreUrl(String fileMd5, long fileSize, String extName) {
-        String fileUrl = matchFileToStoreUrl(fileMd5,fileSize,extName);
-        COSClient cosClient = getCOSClient();
-        return cosClient.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
-    }
-
-    @Override
-    public long getFileSize(String fileUrl) throws IOException {
-        COSClient cosClient = getCOSClient();
-        ObjectMetadata om = cosClient.getObjectMetadata(bucketName, fileUrl);
+        ObjectMetadata om = cosClient.getObjectMetadata(bucketName, fileStoreUrl);
         return om.getContentLength();
     }
 
@@ -177,52 +112,32 @@ public class TxyunCosStore implements FileStore {
     }
 
     @Override
-    public InputStream loadFileStream(String fileUrl) throws IOException {
+    public InputStream loadFileStream(String fileStoreUrl) throws IOException {
         COSClient cosClient = getCOSClient();
-        COSObject oobj = cosClient.getObject(bucketName, fileUrl);
+        COSObject oobj = cosClient.getObject(bucketName, fileStoreUrl);
         if(oobj==null)
             return null;
         return oobj.getObjectContent();
     }
 
-    @Override
-    public InputStream loadFileStream(String fileMd5, long fileSize) throws IOException {
-        return  loadFileStream(matchFileToStoreUrl(fileMd5,fileSize));
-    }
+
 
     @Override
-    public InputStream loadFileStream(String fileMd5, long fileSize, String extName) throws IOException {
-        return  loadFileStream(matchFileToStoreUrl(fileMd5,fileSize,extName));
-    }
-
-    @Override
-    public File getFile(String fileUrl) throws IOException {
+    public File getFile(String fileStoreUrl) throws IOException {
         COSClient cosClient = getCOSClient();
-        COSObject oobj = cosClient.getObject(bucketName, fileUrl);
+        COSObject oobj = cosClient.getObject(bucketName, fileStoreUrl);
         if(oobj==null)
             return null;
-        File file = new File( SystemTempFileUtils.getRandomTempFilePath());
-        FileIOOpt.writeInputStreamToFile( oobj.getObjectContent(), file);
+        File file = new File(SystemTempFileUtils.getTempFilePath(fileStoreUrl));
+        FileIOOpt.writeInputStreamToFile(oobj.getObjectContent(), file);
         return file;
     }
 
     @Override
-    public boolean deleteFile(String fileUrl) throws IOException {
+    public boolean deleteFile(String fileStoreUrl) throws IOException {
         COSClient cosClient = getCOSClient();
-        cosClient.deleteObject(bucketName, fileUrl);
+        cosClient.deleteObject(bucketName, fileStoreUrl);
         return true;
     }
 
-    @Override
-    public boolean deleteFile(String fileMd5, long fileSize) throws IOException {
-        String fileUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        COSClient cosClient = getCOSClient();
-        cosClient.deleteObject(bucketName, fileUrl);
-        return true;
-    }
-
-    @Override
-    public String getFileAccessUrl(String fileMd5, long fileSize) {
-        return getFileAccessUrl(matchFileStoreUrl(fileMd5,  fileSize));
-    }
 }

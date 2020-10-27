@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Data
-public class FileTaskInfo implements FileBaseInfo, Serializable {
+public class FileTaskInfo implements /*FileBaseInfo,*/ Serializable {
     private static final long serialVersionUID = 1L;
 
     private String taskType;

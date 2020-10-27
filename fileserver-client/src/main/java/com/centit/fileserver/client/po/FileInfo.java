@@ -1,5 +1,6 @@
 package com.centit.fileserver.client.po;
 
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileType;
 import org.apache.commons.lang3.StringUtils;
@@ -7,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.util.Date;
 
-public class FileInfo implements Serializable {
+public class FileInfo implements FileBaseInfo, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +71,7 @@ public class FileInfo implements Serializable {
         downloadTimes = 0l;
     }
 
+    @Override
     public String getFileId() {
         return fileId;
     }
@@ -78,6 +80,7 @@ public class FileInfo implements Serializable {
         this.fileId = fileId;
     }
 
+    @Override
     public String getFileMd5() {
         return fileMd5;
     }
@@ -86,6 +89,7 @@ public class FileInfo implements Serializable {
         this.fileMd5 = fileMd5;
     }
 
+    @Override
     public String getOsId() {
         return osId;
     }
@@ -94,6 +98,7 @@ public class FileInfo implements Serializable {
         this.osId = osId;
     }
 
+    @Override
     public String getFileName() {
         return fileName;
     }
@@ -111,7 +116,7 @@ public class FileInfo implements Serializable {
 //    public void setFileStorePath(String fileStorePath) {
 //        this.fileStorePath = fileStorePath;
 //    }
-
+    @Override
     public String getFileType() {
         return fileType;
     }
@@ -178,7 +183,7 @@ public class FileInfo implements Serializable {
             downloadTimes += 1;
         return downloadTimes;
     }
-
+    @Override
     public String getOptId() {
         return optId;
     }
@@ -237,6 +242,7 @@ public class FileInfo implements Serializable {
         this.encryptType = String;
     }
 
+    @Override
     public String getFileOwner() {
         return fileOwner;
     }
@@ -245,8 +251,14 @@ public class FileInfo implements Serializable {
         this.fileOwner = fileOwner;
     }
 
+    @Override
     public String getFileUnit() {
         return fileUnit;
+    }
+
+    @Override
+    public String getLibraryId() {
+        return null;
     }
 
     public void setFileUnit(String fileUnit) {

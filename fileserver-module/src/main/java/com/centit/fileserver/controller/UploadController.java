@@ -140,7 +140,7 @@ public class UploadController extends BaseController {
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
-     * @param request token size
+     * @param request fileStoreUrl token size
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
@@ -148,6 +148,10 @@ public class UploadController extends BaseController {
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     @WrapUpResponseBody
     public boolean checkFileExists(HttpServletRequest request){
+        String fileStoreUrl = request.getParameter("fileStoreUrl");
+        if(StringUtils.isNotBlank(fileStoreUrl)){
+            return fileStore.checkFile(fileStoreUrl);
+        }
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
             UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);

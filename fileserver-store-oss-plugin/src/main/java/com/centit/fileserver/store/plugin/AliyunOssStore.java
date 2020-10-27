@@ -3,6 +3,7 @@ package com.centit.fileserver.store.plugin;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
@@ -55,86 +56,43 @@ public class AliyunOssStore implements FileStore {
         this.secretAccessKey = secretAccessKey;
     }
 
-    private String matchFileToStoreUrl(String fileMd5, long fileSize){
-        String pathname = fileMd5.charAt(0)
-                    + "/"+ fileMd5.charAt(1)
-                    + "/"+ fileMd5.charAt(2);
-        return pathname +"/" + fileMd5 +"_"+fileSize+".dat";
+    @Override
+    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
+        String fileStroreUrl =  matchFileStoreUrl(fileInfo, fileSize);
+        OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
+        if(!ossc.doesObjectExist(bucketName, fileStroreUrl)) {
+            ossc.putObject(bucketName, fileStroreUrl, is);
+        }
+        return fileStroreUrl;
     }
 
-    private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
-        String pathname = fileMd5.charAt(0)
-                + "/"+ fileMd5.charAt(1)
-                + "/"+ fileMd5.charAt(2);
-        return pathname +"/" + fileMd5 +"_"+fileSize+"."+extName;
+
+    @Override
+    public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
+        String fileStroreUrl =  matchFileStoreUrl(fileInfo, fileSize);
+        OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
+        if(!ossc.doesObjectExist(bucketName, fileStroreUrl)) {
+            ossc.putObject(bucketName, fileStroreUrl, new File(sourFilePath));
+        }
+        return fileStroreUrl;
     }
 
-    public String saveFileByMd5(String sourFilePath, String fileMd5, long fileSize)
-            throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize);
+    @Override
+    public boolean checkFile(String fileStoreUrl) {
+        OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
+        return ossc.doesObjectExist(bucketName, fileStoreUrl);
+    }
 
+    @Override
+    public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
+        return fileInfo.getFileMd5();
+    }
+
+
+    @Override
+    public long getFileSize(String fileStoreUrl) throws IOException {
         OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ossc.putObject(bucketName, filePath, new File(sourFilePath));
-        return filePath;
-    }
-
-    @Override
-    public String saveFile(String sourFilePath) throws IOException {
-        File file = new File(sourFilePath);
-        String fileMd5 = FileMD5Maker.makeFileMD5(file);
-        long fileSize = file.length();
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
-    }
-
-    @Override
-    public String saveFile(InputStream is, String fileMd5, long fileSize) throws IOException {
-        String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ossc.putObject(bucketName, fileStroeUrl, is);
-        return fileStroeUrl;
-    }
-
-    @Override
-    public String saveFile(String sourFilePath, String fileMd5, long fileSize) throws IOException {
-        /*if(!FileUploadUtils.checkFileCompleted(sourFilePath, fileMd5))
-            throw new IOException("文件MD5校验出错："+fileMd5);*/
-        return saveFileByMd5(sourFilePath, fileMd5, fileSize);
-    }
-
-    @Override
-    public String saveFile(String sourFilePath, String fileMd5, long fileSize, String extName) throws IOException {
-        String filePath =  matchFileToStoreUrl(fileMd5,fileSize,extName);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ossc.putObject(bucketName, filePath, new File(sourFilePath));
-        return filePath;
-    }
-
-    @Override
-    public boolean checkFile(String fileMd5, long fileSize) {
-        String fileStroeUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-
-        return ossc.doesObjectExist(bucketName, fileStroeUrl);
-    }
-
-    @Override
-    public String matchFileStoreUrl(String fileMd5, long fileSize) {
-        String fileUrl = matchFileToStoreUrl(fileMd5,fileSize);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        return ossc.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
-    }
-
-    @Override
-    public String getFileStoreUrl(String fileMd5, long fileSize, String extName) {
-        String fileUrl = matchFileToStoreUrl(fileMd5,fileSize,extName);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        return ossc.doesObjectExist(bucketName, fileUrl) ? fileUrl : null;
-    }
-
-    @Override
-    public long getFileSize(String fileUrl) throws IOException {
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ObjectMetadata om = ossc.getObjectMetadata(bucketName, fileUrl);
+        ObjectMetadata om = ossc.getObjectMetadata(bucketName, fileStoreUrl);
         return om.getContentLength();
     }
 
@@ -146,52 +104,31 @@ public class AliyunOssStore implements FileStore {
     }
 
     @Override
-    public InputStream loadFileStream(String fileUrl) throws IOException {
+    public InputStream loadFileStream(String fileStoreUrl) throws IOException {
         OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        OSSObject oobj = ossc.getObject(bucketName, fileUrl);
+        OSSObject oobj = ossc.getObject(bucketName, fileStoreUrl);
         if(oobj==null)
             return null;
         return oobj.getObjectContent();
     }
 
-    @Override
-    public InputStream loadFileStream(String fileMd5, long fileSize) throws IOException {
-        return  loadFileStream(matchFileToStoreUrl(fileMd5,fileSize));
-    }
 
     @Override
-    public InputStream loadFileStream(String fileMd5, long fileSize, String extName) throws IOException {
-        return  loadFileStream(matchFileToStoreUrl(fileMd5,fileSize,extName));
-    }
-
-    @Override
-    public File getFile(String fileUrl) throws IOException {
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        OSSObject oobj = ossc.getObject(bucketName, fileUrl);
+    public File getFile(String fileStoreUrl) throws IOException {
+        OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
+        OSSObject oobj = ossc.getObject(bucketName, fileStoreUrl);
         if(oobj==null)
             return null;
-        File file = new File(SystemTempFileUtils.getRandomTempFilePath());
-        FileIOOpt.writeInputStreamToFile( oobj.getObjectContent(), file);
+        File file = new File(SystemTempFileUtils.getTempFilePath(fileStoreUrl));
+        FileIOOpt.writeInputStreamToFile(oobj.getObjectContent(), file);
         return file;
     }
 
     @Override
-    public boolean deleteFile(String fileUrl) throws IOException {
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ossc.deleteObject(bucketName, fileUrl);
+    public boolean deleteFile(String fileStoreUrl) throws IOException {
+        OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
+        ossc.deleteObject(bucketName, fileStoreUrl);
         return true;
     }
 
-    @Override
-    public boolean deleteFile(String fileMd5, long fileSize) throws IOException {
-        String fileUrl =  matchFileToStoreUrl(fileMd5,fileSize);
-        OSSClient ossc = new OSSClient(endPoint,accessKeyId,secretAccessKey);
-        ossc.deleteObject(bucketName, fileUrl);
-        return true;
-    }
-
-    @Override
-    public String getFileAccessUrl(String fileMd5, long fileSize) {
-        return getFileAccessUrl(matchFileStoreUrl(fileMd5,  fileSize));
-    }
 }
