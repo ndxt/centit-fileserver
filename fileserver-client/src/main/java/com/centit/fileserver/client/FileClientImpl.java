@@ -478,14 +478,22 @@ public class FileClientImpl implements FileClient {
                 appSession.completeQueryUrl("/files/"+fileId), (String) null);
             /*HttpReceiveJSON resJson =*/ HttpReceiveJSON.valueOfJson(jsonStr);
         } catch (IOException e) {
-            logger.error("删除文件出错，文件ID："+fileId, e);
+            logger.error("删除文件出错:"+e.getMessage()+"，文件ID："+fileId, e);
         }
     }
 
-
     @Override
     public String matchFileStoreUrl(FileInfo fi, long fileSize) {
-        return fi.getFileId();
+        try {
+            CloseableHttpClient httpClient = allocHttpClient();
+            String jsonStr = HttpExecutor.jsonPost(HttpExecutorContext.create(httpClient),
+                appSession.completeQueryUrl("/files/matchFileStoreUrl/"+fileSize), fi);
+            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            return resJson.getDataAsString();
+        } catch (IOException e) {
+            logger.error("删除文件出错"+e.getMessage()+"，文件信息："+JSON.toJSONString(fi), e);
+            return null;
+        }
     }
 
 }

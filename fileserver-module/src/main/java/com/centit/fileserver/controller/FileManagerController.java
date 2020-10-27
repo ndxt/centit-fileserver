@@ -179,6 +179,15 @@ public class FileManagerController extends BaseController {
             return -1L;
         }
     }
+
+    @RequestMapping(value = "/matchFileStoreUrl/{fileSize}", method = RequestMethod.POST)
+    @ApiOperation(value = "获取文件存储url")
+    @WrapUpResponseBody
+    public String matchFileStoreUrl(@PathVariable("fileSize") String fileSize,
+                                  @Valid FileInfo fileInfo) {
+        return fileStore.matchFileStoreUrl(fileInfo,
+            NumberBaseOpt.castObjectToLong(fileSize, 0L));
+    }
     /**
      * 更新文件存储信息
      *

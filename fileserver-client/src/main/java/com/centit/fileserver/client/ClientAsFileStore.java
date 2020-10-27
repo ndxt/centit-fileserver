@@ -132,7 +132,8 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public boolean deleteFile(String fileId) throws IOException {
-        return false;
+        fileClient.deleteFile(fileId);
+        return true;
     }
 
 }
