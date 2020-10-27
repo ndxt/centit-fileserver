@@ -1,4 +1,4 @@
-package com.centit.fileserver.po;
+package com.centit.fileserver.common;
 
 public interface FileBaseInfo {
     String getFileId();

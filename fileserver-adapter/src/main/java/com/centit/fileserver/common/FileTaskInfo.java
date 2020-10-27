@@ -1,6 +1,5 @@
 package com.centit.fileserver.common;
 
-import com.centit.fileserver.po.FileBaseInfo;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -14,9 +13,7 @@ public class FileTaskInfo implements FileBaseInfo, Serializable {
     private String taskType;
     private String fileId;
     private String fileMd5;
-    private Long fileSize;
     private String fileType;
-
     private String fileName;
     private String osId;
     private String optId;
@@ -24,9 +21,12 @@ public class FileTaskInfo implements FileBaseInfo, Serializable {
     private String fileUnit;
     private String libraryId;
 
+    private Long fileSize;
+
     private Map<String, Object> taskOptParams;
 
-    public FileTaskInfo() {
+    public FileTaskInfo(String taskType) {
+        this.taskType = taskType;
         taskOptParams = new HashMap<>();
     }
 

@@ -2,14 +2,14 @@ package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.common.FileTaskInfo;
-import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
+import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
@@ -20,7 +20,10 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
-import com.centit.support.algorithm.*;
+import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -52,7 +55,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -91,103 +93,81 @@ public class UploadController extends BaseController {
     @Autowired
     private FileUploadAuthorizedManager fileUploadAuthorizedManager;
 
+    @Autowired
+    FileOptTaskExecutor fileOptTaskExecutor;
 
     public static void setRunAsSpringBoot(boolean asBoot){
         runAsSpringBoot = asBoot;
     }
+
     private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request){
 
         FileInfo fileInfo = new FileInfo();
 
-        fileInfo.setFileMd5(request.getParameter("token"));
-        String fileName =UploadDownloadUtils.getRequestFirstOneParameter(request,"name","fileName");
+        fileInfo.setFileMd5(UploadDownloadUtils
+            .getRequestFirstOneParameter(request, "fileMd5", "token"));
+        fileInfo.setFileName(UploadDownloadUtils
+            .getRequestFirstOneParameter(request,"name","fileName"));
         String fileState = request.getParameter("fileState");
         if(StringUtils.isNotBlank(fileState)) {
             fileInfo.setFileState(fileState);
         }
-
-        fileInfo.setFileName(fileName);//*
         fileInfo.setOsId(request.getParameter("osId"));//*
         fileInfo.setOptId(request.getParameter("optId"));
         fileInfo.setOptMethod(request.getParameter("optMethod"));
         fileInfo.setOptTag(request.getParameter("optTag"));
         //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-        String filePath = request.getParameter("filePath");
-        if(StringUtils.isBlank(filePath)) {
-            filePath = request.getParameter("fileShowPath");
-        }
-        fileInfo.setFileShowPath(filePath);
+        fileInfo.setFileShowPath(UploadDownloadUtils
+            .getRequestFirstOneParameter(request,"filePath", "fileShowPath"));
         fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
         fileInfo.setLibraryId(request.getParameter("libraryId"));
         fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
-
         return fileInfo;
     }
 
     private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request){
-        Map<String, Object> pretreatInfo = new HashMap<>();
-        pretreatInfo.put("fileId", request.getParameter("fileId") );
-        pretreatInfo.put("fileMd5", request.getParameter("token"));
+        Map<String, Object> pretreatInfo = collectRequestParameters(request);
+        pretreatInfo.put("fileMd5",
+            UploadDownloadUtils.getRequestFirstOneParameter(request, "fileMd5", "token"));
         Long fileSize = NumberBaseOpt.parseLong(
             UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-
         pretreatInfo.put("fileSize", fileSize);
-        pretreatInfo.put("index", StringRegularOpt.isTrue(request.getParameter("index")));
-//        pretreatInfo.setIsIsUnzip(StringRegularOpt.isTrue(request.getParameter("unzip")));
-        pretreatInfo.put("pdf", StringRegularOpt.isTrue(request.getParameter("pdf")));
-        pretreatInfo.put("watermark", request.getParameter("watermark"));
-        pretreatInfo.put("thumbnail", StringRegularOpt.isTrue(request.getParameter("thumbnail")));
-        pretreatInfo.put("height", NumberBaseOpt.parseLong(
-                request.getParameter("height"), 200l).intValue());
-        pretreatInfo.put("width", NumberBaseOpt.parseLong(
-                request.getParameter("width"), 300l).intValue());
-        //encryptType 加密方式 N : 没有加密 Z：zipFile D: DES加密
-        String encryptType = request.getParameter("encryptType");
-        if("zip".equalsIgnoreCase(encryptType) || "Z".equals(encryptType)) {
-            pretreatInfo.put("encryptType", "Z");
-        }
-        if("des".equalsIgnoreCase(encryptType) || "D".equals(encryptType)) // 待删除
-        {
-            pretreatInfo.put("encryptType", "A");
-        }
-        //AES 暂未实现
-        if("aes".equalsIgnoreCase(encryptType) || "A".equals(encryptType)) {
-            pretreatInfo.put("encryptType", "A");
-        }
-        pretreatInfo.put("password", request.getParameter("password"));
-
         return pretreatInfo;
     }
 
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
-     * @param token token
-     * @param size 大小
+     * @param request token size
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
             allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     @WrapUpResponseBody
-    public boolean checkFileExists(String token, long size){
-        return fileStore.checkFile(token, size);
+    public boolean checkFileExists(HttpServletRequest request){
+        FileInfo fileInfo = fetchFileInfoFromRequest(request);
+        Long fileSize = NumberBaseOpt.parseLong(
+            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+        return fileStore.checkFile(
+            fileStore.matchFileStoreUrl(fileInfo, fileSize));
     }
 
     /**
      * 获取文件 断点位置，前端根据断点位置续传
-     *
-     * @param token token
-     * @param size 大小
+     * @param request token size
      */
     @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
     @WrapUpResponseBody
-    public JSONObject checkFileRange(String token, long size) {
-        return UploadDownloadUtils.checkFileRange(fileStore, token, size);
+    public JSONObject checkFileRange(HttpServletRequest request) {
+        FileInfo fileInfo = fetchFileInfoFromRequest(request);
+        Long fileSize = NumberBaseOpt.parseLong(
+            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+        return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileSize);
     }
 
     /*
@@ -300,10 +280,10 @@ public class UploadController extends BaseController {
         String fileId = fileInfo.getFileId();
         try {
             // 先保存一个 临时文件； 如果文件已经存在是不会保存的
-            fileStoreInfoManager.saveTempFileInfo(fileMd5,
+            fileStoreInfoManager.saveTempFileInfo(fileInfo,
                 SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
-
-            if (!pretreatInfo.containsKey("encryptType")) { // 不加密的文件保存到服务器
+            fileOptTaskExecutor.addOptTask(fileInfo, size, pretreatInfo);
+            /*if (!pretreatInfo.containsKey("encryptType")) { // 不加密的文件保存到服务器
                 FileTaskInfo saveFileTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_SAVE_FILE);
                 saveFileTaskInfo.setFileMd5(fileMd5);
                 saveFileTaskInfo.setFileSize(size);
@@ -359,7 +339,7 @@ public class UploadController extends BaseController {
                 thumbnailTaskInfo.setTaskOptParam("width", pretreatInfo.get("width"));
                 thumbnailTaskInfo.setTaskOptParam("height", pretreatInfo.get("height"));
                 fileOptTaskQueue.add(thumbnailTaskInfo);
-            }
+            }*/
         }catch(Exception e){
             logger.error(e.getMessage(), e);
         }
@@ -378,37 +358,8 @@ public class UploadController extends BaseController {
             fileMd5, size, fileInfo.getFileName(), fileId);
 
     }
-    private boolean checkIndex(String fileType) {
-        switch (fileType) {
-            case AbstractOfficeToPdf.DOC:
-            case AbstractOfficeToPdf.DOCX:
-            case AbstractOfficeToPdf.XLS:
-            case AbstractOfficeToPdf.XLSX:
-            case AbstractOfficeToPdf.PPT:
-            case AbstractOfficeToPdf.PPTX:
-            case AbstractOfficeToPdf.PDF:
-            case AbstractOfficeToPdf.TXT:
-                return true;
-            default:
-                return false;
-        }
-    }
-    public static boolean checkPdf(FileInfo fileInfo) {
-        if(StringBaseOpt.isNvl(fileInfo.getLibraryId())){
-            return false;
-        }
-        switch (fileInfo.getFileType()) {
-            case AbstractOfficeToPdf.DOC:
-            case AbstractOfficeToPdf.DOCX:
-            case AbstractOfficeToPdf.XLS:
-            case AbstractOfficeToPdf.XLSX:
-            case AbstractOfficeToPdf.PPT:
-            case AbstractOfficeToPdf.PPTX:
-                return true;
-            default:
-                return false;
-        }
-    }
+
+
 
     /**
      * 完成秒传，如果文件不存在会返回失败
@@ -425,7 +376,12 @@ public class UploadController extends BaseController {
                            HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         request.setCharacterEncoding("utf8");
-        if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
+        FileInfo fileInfo = fetchFileInfoFromRequest(request);
+        Long fileSize = NumberBaseOpt.parseLong(
+            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+
+        if (fileStore.checkFile(
+            fileStore.matchFileStoreUrl(fileInfo, fileSize))){// 如果文件已经存在则完成秒传，无需再传。
             Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
             completedFileStoreAndPretreat(token, size, formData.getLeft(),
@@ -481,7 +437,7 @@ public class UploadController extends BaseController {
 
         Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-        if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
+        if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
             return;

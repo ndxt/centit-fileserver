@@ -1,6 +1,7 @@
 package com.centit.fileserver.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.framework.common.ResponseData;
 import com.centit.support.algorithm.CollectionsOpt;
@@ -57,17 +58,17 @@ public abstract class UploadDownloadUtils {
         return null;
     }
 
-    public static JSONObject checkFileRange(FileStore fileStore, String token, long size) {
+    public static JSONObject checkFileRange(FileStore fileStore, FileBaseInfo fileInfo, long size) {
         JSONObject jsonObject;
         // 如果文件已经存在则完成秒传，无需再传
-        if (fileStore.checkFile(token, size)) {//如果文件已经存在 系统实现秒传
+        if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, size))) {//如果文件已经存在 系统实现秒传
             jsonObject = UploadDownloadUtils.
-                makeRangeCheckJson(size, token, true);
+                makeRangeCheckJson(size, fileInfo.getFileMd5(), true);
         } else {
             long tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                SystemTempFileUtils.getTempFilePath(token, size));
+                SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), size));
             jsonObject = UploadDownloadUtils.
-                makeRangeCheckJson(tempFileSize, token, false);
+                makeRangeCheckJson(tempFileSize, fileInfo.getFileMd5(), false);
         }
         return jsonObject;
     }

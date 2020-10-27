@@ -167,10 +167,8 @@ public class FilePretreatUtils {
         String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
         if (FileSystemOpt.existFile(pdfTmpFile) || office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
             updateCommonFileInfo(fileInfo, pdfTmpFile);
-
-            fileInfo.setFileType("P");
+            fileInfo.setFileType("pdf");
             fileInfo.setFileName(FileType.truncateFileExtName(fileInfo.getFileName()) + ".pdf");
-
             return pdfTmpFile;
         } else {
             logger.error("生成PDF文件出错！" + fileInfo.getFileMd5());
@@ -209,7 +207,7 @@ public class FilePretreatUtils {
 
     public static String addThumbnail(FileInfo fileInfo, String sourceFilePath, int width, int height)
         throws IOException {
-        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.jpg";
+        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "_1.jpg";
         if (createImageThumbnail(sourceFilePath, width, height, 100, outFilePath)) {
             fileInfo.setAttachedType("T");
             fileInfo.setAttachedFileMd5(FileMD5Maker.makeFileMD5(new File(outFilePath)));
@@ -223,7 +221,7 @@ public class FilePretreatUtils {
     }
 
     public static String zipFile(FileInfo fileInfo, String sourceFilePath) throws IOException {
-        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
+        String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "_1.ent";
         if (zipFile(sourceFilePath, fileInfo.getFileName(), outFilePath)) {
             fileInfo.setFileMd5(FileMD5Maker.makeFileMD5(new File(outFilePath)));
             fileInfo.setEncryptType("Z");

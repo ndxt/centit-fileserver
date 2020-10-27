@@ -122,19 +122,18 @@ public class ServiceConfig {
                                         @Autowired PdfWatermarkOpt pdfWatermarkOpt,
                                         @Autowired AddThumbnailOpt addThumbnailOpt,
                                         @Autowired ZipFileOpt zipFileOpt,
-                                        @Autowired EncryptZipFileOpt encryptZipFileOpt,
                                         @Autowired EncryptFileWithAesOpt encryptFileWithAesOpt,
                                         @Autowired DocumentIndexOpt documentIndexOpt) {
         FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
         fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_SAVE_FILE, saveFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_CREATE_PDF, createPdfOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_PDF_WATERMARK, pdfWatermarkOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ADD_THUMBNAIL, addThumbnailOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ZIP, zipFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_ENCRYPT_ZIP, encryptZipFileOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_AES_ENCRYPT, encryptFileWithAesOpt);
-        fileOptTaskExecutor.addFileOpt(FileTaskInfo.OPT_DOCUMENT_INDEX, documentIndexOpt);
+
+        fileOptTaskExecutor.addFileOperator(saveFileOpt);
+        fileOptTaskExecutor.addFileOperator(createPdfOpt);
+        fileOptTaskExecutor.addFileOperator(pdfWatermarkOpt);
+        fileOptTaskExecutor.addFileOperator(addThumbnailOpt);
+        fileOptTaskExecutor.addFileOperator(zipFileOpt);
+        fileOptTaskExecutor.addFileOperator(encryptFileWithAesOpt);
+        fileOptTaskExecutor.addFileOperator(documentIndexOpt);
         return fileOptTaskExecutor;
     }
 

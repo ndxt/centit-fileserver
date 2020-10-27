@@ -1,5 +1,7 @@
 package com.centit.fileserver.pretreat;
 
+import com.centit.fileserver.po.FileInfo;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.office.OfficeToHtml;
@@ -51,13 +53,22 @@ public abstract class AbstractOfficeToPdf {
     public final static String TXT = "txt";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);
-    static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
-        String suffix = StringUtils.lowerCase(
-            FileType.getFileExtName(inputFile));
-        return office2Pdf(suffix, inputFile, pdfFile);
+    public static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
+        return office2Pdf(FileType.getFileExtName(inputFile), inputFile, pdfFile);
     }
 
-    static boolean office2Pdf(String suffix, String inputFile, String pdfFile) throws Exception {
+    public static boolean canTransToPdf(FileInfo fileInfo) {
+        if(StringUtils.isBlank(fileInfo.getFileType())){
+            return false;
+        }
+        return StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+            //AbstractOfficeToPdf.DOC,
+            AbstractOfficeToPdf.DOCX,
+            AbstractOfficeToPdf.XLS, AbstractOfficeToPdf.XLSX,
+            AbstractOfficeToPdf.PPT, AbstractOfficeToPdf.PPTX);
+    }
+
+    public static boolean office2Pdf(String suffix, String inputFile, String pdfFile) throws Exception {
 
         File file = new File(inputFile);
         if (!(file.exists())) {

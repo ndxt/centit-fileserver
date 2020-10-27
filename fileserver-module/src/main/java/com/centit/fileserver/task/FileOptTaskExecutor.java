@@ -1,37 +1,49 @@
 package com.centit.fileserver.task;
 
 import com.centit.fileserver.common.FileTaskInfo;
+import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.common.FileTaskQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.centit.fileserver.po.FileInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class FileOptTaskExecutor {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileOptTaskExecutor.class);
+    //private static final Logger logger = LoggerFactory.getLogger(FileOptTaskExecutor.class);
 
     private FileTaskQueue fileOptTaskQueue;
 
-    private Map<Integer, Consumer<FileTaskInfo>> fileOptList;
+    private List<FileTaskOpeator> fileOptList;
+    private Map<String, FileTaskOpeator> fileOptMap;
 
 
     public FileOptTaskExecutor(){
-        fileOptList = new HashMap<>(20);
+        fileOptMap = new HashMap<>(20);
+        fileOptList = new ArrayList<>(20);
     }
 
-    public void addFileOpt(int taskType, Consumer<FileTaskInfo> fileOpt){
-        fileOptList.put(taskType, fileOpt);
-    }
-
-    public FileTaskQueue getFileOptTaskQueue() {
-        return fileOptTaskQueue;
+    public void addFileOperator(FileTaskOpeator fileOpt){
+        fileOptList.add(fileOpt);
+        fileOptMap.put(fileOpt.getOpeatorName(), fileOpt);
     }
 
     public void setFileOptTaskQueue(FileTaskQueue fileOptTaskQueue) {
         this.fileOptTaskQueue = fileOptTaskQueue;
+    }
+
+    public int addOptTask(FileInfo fileInfo, long size, Map<String, Object> pretreatInfo){
+        int tasks = 0;
+        for(FileTaskOpeator fileOpt : fileOptList){
+            FileTaskInfo taskInfo = fileOpt.attachTaskInfo(fileInfo, size, pretreatInfo);
+            if(taskInfo!=null){
+                fileOptTaskQueue.add(taskInfo);
+                tasks++;
+            }
+        }
+        return tasks;
     }
 
     /*@PostConstruct
@@ -42,8 +54,8 @@ public class FileOptTaskExecutor {
     public void doFileOptJob() {
         FileTaskInfo taskInfo = fileOptTaskQueue.get();
         while(taskInfo != null){
-            int taskType = taskInfo.getTaskType();
-            fileOptList.get(taskType).accept(taskInfo);
+            String taskType = taskInfo.getTaskType();
+            fileOptMap.get(taskType).doFileTask(taskInfo);
             taskInfo = fileOptTaskQueue.get();
         }
     }

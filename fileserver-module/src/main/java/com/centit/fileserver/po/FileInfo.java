@@ -1,6 +1,7 @@
 package com.centit.fileserver.po;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.framework.core.dao.DictionaryMap;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.database.orm.GeneratorCondition;
@@ -100,8 +101,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private String attachedFileMd5;
 
     /**
-     * 附属文件类别： T：缩略图  P： pdf只读文件
-     * 预处理生成新文件，将原文件作为附属文件（缩略图除外）
+     * 附属文件类别： 文件扩展名
      */
     @Column(name = "ATTACHED_TYPE")
     private String attachedType;

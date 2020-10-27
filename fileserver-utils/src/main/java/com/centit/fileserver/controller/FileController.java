@@ -1,14 +1,17 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -66,41 +69,34 @@ public abstract class FileController extends BaseController {
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
-     * @param token    token
-     * @param size     大小
+     * @param request  token, size     大小
      * @param response HttpServletResponse
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
         allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public void checkFileExists(String token, long size, HttpServletResponse response) {
-        JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
+    public void checkFileExists(HttpServletRequest request, HttpServletResponse response) {
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        JsonResultUtils.writeOriginalObject(
+            fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize())), response);
     }
+
 
     /**
      * 获取文件 断点位置，前端根据断点位置续传
      *
-     * @param token token
-     * @param size  大小
+     * @param request HttpServletRequest : token, size  大小
      */
     @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
     @WrapUpResponseBody
-    public JSONObject checkFileRange(String token, long size) {
-        return UploadDownloadUtils.checkFileRange(fileStore, token, size);
+    public JSONObject checkFileRange(HttpServletRequest request) {
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileInfo.getFileSize());
     }
 
-    /**
-     * 保存文件
-     * param fs 文件的物理存储接口
-     *
-     * @param fileMd5  加密
-     * @param size     大小
-     * @param fileName 文件名
-     * @param response HttpServletResponse
-     */
     private void completedFileStore(String fileMd5, long size,
                                     String fileName, HttpServletResponse response) {
         String fileId = fileMd5 + "_" + String.valueOf(size) + "." +
@@ -120,69 +116,63 @@ public abstract class FileController extends BaseController {
 
     /**
      * 完成秒传，如果文件不存在会返回失败
-     *
-     * @param token    token
-     * @param size     大小
-     * @param request  HttpServletRequest
+     * @param request  HttpServletRequest token, size
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
     @ApiOperation(value = "文件秒传接口，在作为仅仅存储文件使用时，这个其实是没有必要的，可以不用调用")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
-    public void secondPass(String token, long size,
-                           HttpServletRequest request, HttpServletResponse response)
+    public void secondPass(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         request.setCharacterEncoding("utf8");
-        String fileName = request.getParameter("name");
-        if (StringUtils.isBlank(fileName)) {
-            fileName = request.getParameter("fileName");
-        }
-        if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStore(token, size, fileName, response);
+
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+
+        if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
+            completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), response);
             return;
         } else {
-            String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
+            String tempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileInfo.getFileSize());
             long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
-            if (tempFileSize == size) {
-                fileStore.saveFile(tempFilePath, token, size);
-                completedFileStore(token, size, fileName, response);
+            if (tempFileSize == fileInfo.getFileSize()) {
+                fileStore.saveFile(tempFilePath, fileInfo, fileInfo.getFileSize());
+                completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), response);
                 return;
             }
         }
         JsonResultUtils.writeHttpErrorMessage(
             FileServerConstant.ERROR_FILE_NOT_EXIST,
-            "文件不存在无法实现秒传，MD5：" + token, response);
+            "文件不存在无法实现秒传，MD5：" + fileInfo.getFileMd5(), response);
     }
 
     /**
      * 续传文件（range） 如果文件已经传输完成 对文件进行保存
-     *
-     * @param token    token
-     * @param size     大小
-     * @param request  HttpServletRequest
+     * @param request  HttpServletRequest: token, size
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
     @ApiOperation(value = "断点续传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/range", method = {RequestMethod.POST})
-    public void uploadRange(
-        String token, long size,
-        HttpServletRequest request, HttpServletResponse response)
+    public void uploadRange(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-
-        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
-        if (fileStore.checkFile(token, size)) {// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStore(token, size, fileInfo.getLeft(), response);
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        Pair<String, InputStream> fileStreamInfo = fetchInputStreamFromRequest(request);
+        if(StringUtils.isBlank(fileInfo.getFileName())){
+            fileInfo.setFileName(fileStreamInfo.getLeft());
+        }
+        if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
+            completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(),
+                fileInfo.getFileName(), response);
             return;
         }
 
         FileRangeInfo range = FileRangeInfo.parseRange(request);
         FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileInfo.getFileSize());
         long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
-        if (tempFileSize < size) {//文件还没有传输完成
+        if (tempFileSize < fileInfo.getFileSize()) {//文件还没有传输完成
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
@@ -193,7 +183,7 @@ public abstract class FileController extends BaseController {
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             try (FileOutputStream out = new FileOutputStream(
                 new File(tempFilePath), true)) {
-                long length = FileIOOpt.writeInputStreamToOutputStream(fileInfo.getRight(), out);
+                long length = FileIOOpt.writeInputStreamToOutputStream(fileStreamInfo.getRight(), out);
                 if (length != range.getPartSize()) {
                     JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_RANGE_START,
                         "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。", response);
@@ -203,12 +193,13 @@ public abstract class FileController extends BaseController {
             tempFileSize = range.getRangeStart() + range.getPartSize();
         }
         //range.setRangeStart(rangeStart);
-        if (tempFileSize == size) {
+        if (tempFileSize == fileInfo.getFileSize()) {
             //判断是否传输完成
-            fileStore.saveFile(tempFilePath, token, size);
+            fileStore.saveFile(tempFilePath, fileInfo, fileInfo.getFileSize());
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            if (StringUtils.equals(fileMd5, token)) {
-                completedFileStore(token, size, fileInfo.getLeft(), response);
+            if (StringUtils.equals(fileMd5, fileInfo.getFileMd5())) {
+                completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(),
+                    fileInfo.getFileName(), response);
             } else {
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_MD5_ERROR,
                     "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR + " 文件MD5计算错误。", response);
@@ -216,7 +207,8 @@ public abstract class FileController extends BaseController {
             FileSystemOpt.deleteFile(tempFilePath);
             return;
         }
-        JSONObject json = UploadDownloadUtils.makeRangeUploadJson(tempFileSize, token, token + "_" + size);
+        JSONObject json = UploadDownloadUtils.makeRangeUploadJson(tempFileSize, fileInfo.getFileMd5(),
+            fileInfo.getFileMd5() + "_" + fileInfo.getFileSize());
         JsonResultUtils.writeOriginalJson(json.toString(), response);
     }
 
@@ -233,13 +225,16 @@ public abstract class FileController extends BaseController {
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         request.setCharacterEncoding("utf8");
-        Pair<String, InputStream> fileInfo = fetchInputStreamFromRequest(request);
+        Pair<String, InputStream> fileStreamInfo = fetchInputStreamFromRequest(request);
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
+
         try {
-            int fileSize = FileIOOpt.writeInputStreamToFile(fileInfo.getRight(), tempFilePath);
+            int fileSize = FileIOOpt.writeInputStreamToFile(fileStreamInfo.getRight(), tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            fileStore.saveFile(tempFilePath, fileMd5, fileSize);
-            completedFileStore(fileMd5, fileSize, fileInfo.getLeft(), response);
+            fileInfo.setFileMd5(fileMd5);
+            fileStore.saveFile(tempFilePath, fileInfo, fileSize);
+            completedFileStore(fileMd5, fileSize, fileStreamInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -276,9 +271,108 @@ public abstract class FileController extends BaseController {
         }
 
         Pair<String, Long> md5Size = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
-        InputStream inputStream = fileStore.loadFileStream(md5Size.getLeft(), md5Size.getRight());
+        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        fileInfo.setFileMd5(md5Size.getLeft());
+        InputStream inputStream = fileStore.loadFileStream(
+            fileStore.matchFileStoreUrl(fileInfo, md5Size.getRight()));
         UploadDownloadUtils.downFileRange(request, response,
             inputStream, md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName), request.getParameter("downloadType"), null);
     }
 
+    private static class SimpleFileInfo implements FileBaseInfo {
+        private String fileMd5;
+        private String fileName;
+        private String optId;
+        private String fileOwner;
+        private String fileUnit;
+        private long fileSize;
+
+        public static SimpleFileInfo fetchFromRequest(HttpServletRequest request){
+            SimpleFileInfo fileInfo = new SimpleFileInfo();
+            fileInfo.setFileMd5(UploadDownloadUtils
+                .getRequestFirstOneParameter(request, "token", "fileMd5"));
+            fileInfo.setFileName(UploadDownloadUtils
+                .getRequestFirstOneParameter(request,"name", "fileName"));
+            fileInfo.setOptId(request.getParameter("optId"));
+            fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
+            fileInfo.setFileUnit(request.getParameter("fileUnit"));
+            Long fileSize = NumberBaseOpt.parseLong(
+                UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            fileInfo.setFileSize(fileSize);
+            return fileInfo;
+        }
+        @Override
+        public String getFileId() {
+            return null;
+        }
+
+        @Override
+        public String getFileMd5() {
+            return fileMd5;
+        }
+
+        public void setFileMd5(String fileMd5) {
+            this.fileMd5 = fileMd5;
+        }
+
+        @Override
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        @Override
+        public String getFileType() {
+            return FileType.truncateFileExtName(this.getFileName());
+        }
+
+
+        @Override
+        public String getOsId() {
+            return "filUpload";
+        }
+
+        @Override
+        public String getOptId() {
+            return optId;
+        }
+
+        public void setOptId(String optId) {
+            this.optId = optId;
+        }
+
+        @Override
+        public String getFileOwner() {
+            return fileOwner;
+        }
+
+        public void setFileOwner(String fileOwner) {
+            this.fileOwner = fileOwner;
+        }
+
+        @Override
+        public String getFileUnit() {
+            return fileUnit;
+        }
+
+        public void setFileUnit(String fileUnit) {
+            this.fileUnit = fileUnit;
+        }
+
+        @Override
+        public String getLibraryId() {
+            return "";
+        }
+
+        public long getFileSize() {
+            return fileSize;
+        }
+
+        public void setFileSize(long fileSize) {
+            this.fileSize = fileSize;
+        }
+    }
 }

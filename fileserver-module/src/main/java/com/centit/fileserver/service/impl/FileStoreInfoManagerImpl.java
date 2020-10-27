@@ -2,6 +2,7 @@ package com.centit.fileserver.service.impl;
 
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.dao.FileStoreInfoDao;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
@@ -35,23 +36,21 @@ public class FileStoreInfoManagerImpl
 
     @Override
     @Transactional
-    public void saveTempFileInfo(String fileMd5, String tempFilePath, long size) {
-        if (StringUtils.isBlank(fileMd5)) {
-            return;
-        }
-
-        FileStoreInfo fileStoreInfo = baseDao.getObjectById(fileMd5);
+    public boolean saveTempFileInfo(FileInfo fileInfo, String tempFilePath, long size) {
+        FileStoreInfo fileStoreInfo = baseDao.getObjectById(fileInfo.getFileMd5());
         if(fileStoreInfo != null){
-            return;
+            return false;
         }
-
-        boolean isExist = fileStore.checkFile(fileMd5, size);
+        String fileStoreUrl = fileStore.matchFileStoreUrl(fileInfo, size);
+        boolean isExist = fileStore.checkFile(fileStoreUrl);
         if(isExist){
-            tempFilePath = fileStore.matchFileStoreUrl(fileMd5, size);
+            tempFilePath = fileStoreUrl;
         }
-        //存放在临时区
-        fileStoreInfo = new FileStoreInfo(fileMd5, size, tempFilePath, 0L, !isExist);
+        //存放在临时区  !isExist
+        fileStoreInfo = new FileStoreInfo(fileInfo.getFileMd5(), size,
+            tempFilePath, 0L, !isExist);
         baseDao.saveNewObject(fileStoreInfo);
+        return !isExist;
     }
 
     @Override

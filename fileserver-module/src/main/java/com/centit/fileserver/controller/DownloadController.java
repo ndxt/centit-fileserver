@@ -1,7 +1,7 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.po.*;
 import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.service.FileAccessLogManager;
@@ -61,8 +61,10 @@ public class DownloadController extends BaseController {
 
     @Autowired
     protected FileStore fileStore;
+
     @Autowired
     protected CreatePdfOpt createPdfOpt;
+
     @Value("${jdbc.url}")
     protected String jdbcUrl;
 
@@ -141,22 +143,60 @@ public class DownloadController extends BaseController {
         if (noAuth(request, response, fileInfo)) {
             return;
         }
+        boolean canView = false;
         try {
-            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-            if (StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
-                createPdf(fileId, fileInfo, fileStoreInfo);
-            }
-            fileInfo = fileInfoManager.getObjectById(fileId);
-            if (!StringBaseOpt.isNvl(fileInfo.getAttachedFileMd5())) {
-                previewFile(request, response, fileInfo);
-            } else {
+            if(StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+                "txt", "html", "csv", "pdf", "xml") ){
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 String charset = null;
                 if("txt".equals(fileInfo.getFileType())) {
                     charset = new AutoDetectReader(getFileStream(fileStoreInfo)).getCharset().name();
                 }
                 UploadDownloadUtils.downFileRange(request, response,
                     getFileStream(fileStoreInfo),
-                    fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline",charset);
+                    fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
+                canView = true;
+            } else if(StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())){
+                FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+                if(attachedFileStoreInfo != null) {
+                    UploadDownloadUtils.downFileRange(request, response,
+                        getFileStream(attachedFileStoreInfo),
+                        attachedFileStoreInfo.getFileSize(),
+                        FileType.truncateFileExtName(fileInfo.getFileName())
+                            + "." + fileInfo.getAttachedType(),
+                        "inline", null);
+                    canView = true;
+                }
+            } else {
+                if(AbstractOfficeToPdf.canTransToPdf(fileInfo)){
+                    FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                    FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
+                    addPdfTaskInfo.setFileId(fileId);
+                    addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
+                    createPdfOpt.doFileTask(addPdfTaskInfo);
+                    FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
+                    if(StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())){
+                        FileStoreInfo attachedFileStoreInfo =
+                            fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+                        if(attachedFileStoreInfo!=null) {
+                            canView = true;
+                            UploadDownloadUtils.downFileRange(request, response,
+                                getFileStream(attachedFileStoreInfo),
+                                attachedFileStoreInfo.getFileSize(),
+                                FileType.truncateFileExtName(newFileInfo.getFileName())
+                                    + ".pdf",// + newFileInfo.getAttachedType(),
+                                "inline", null);
+                        }
+                    }
+                }
+            }
+            if(!canView){
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                UploadDownloadUtils.downFileRange(request, response,
+                    getFileStream(fileStoreInfo),
+                    fileStoreInfo.getFileSize(),
+                    fileInfo.getFileName(),
+                    "inline", null);
             }
             fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
         } catch (Exception e) {
@@ -165,10 +205,13 @@ public class DownloadController extends BaseController {
     }
 
     private InputStream getFileStream(FileStoreInfo fileStoreInfo) throws IOException {
-        return fileStoreInfo.getIsTemp() ? new FileInputStream(new File(fileStoreInfo.getFileStorePath())) : fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+        return fileStoreInfo.getIsTemp() ?
+            new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
+            fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
+        //TODO @张宏峰 why
         if(jdbcUrl.startsWith("jdbc:h2")){
             return false;
         }
@@ -222,36 +265,7 @@ public class DownloadController extends BaseController {
         return false;
     }
 
-    private void previewFile(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
-        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-        String sFileType;
-        switch (fileInfo.getFileType()) {
-            case AbstractOfficeToPdf.DOCX:
-            case AbstractOfficeToPdf.PPT:
-            case AbstractOfficeToPdf.PPTX:
-            case AbstractOfficeToPdf.XLS:
-            case AbstractOfficeToPdf.XLSX:
-                sFileType = ".pdf";
-                break;
-            case AbstractOfficeToPdf.DOC:
-                sFileType = ".html";
-                break;
-            default:
-                sFileType = "." + fileInfo.getFileType();
-        }
-        UploadDownloadUtils.downFileRange(request, response,
-            fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-            fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), FileType.truncateFileExtName(fileInfo.getFileName()) + sFileType, "inline",null);
-    }
 
-    private void createPdf(@PathVariable("fileId") String fileId, FileInfo fileInfo, FileStoreInfo fileStoreInfo) {
-        if (UploadController.checkPdf(fileInfo)) {
-            FileTaskInfo addPdfTaskInfo = new FileTaskInfo(FileTaskInfo.OPT_CREATE_PDF);
-            addPdfTaskInfo.setFileId(fileId);
-            addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
-            createPdfOpt.accept(addPdfTaskInfo);
-        }
-    }
 
     /**
      * 根据文件的id下载附属文件
@@ -435,7 +449,7 @@ public class DownloadController extends BaseController {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             fileSize = fileStoreInfo.getFileSize();
-            String filePath = fileStore.matchFileStoreUrl(fileInfo.getFileMd5(), fileSize);
+            String filePath = fileStore.matchFileStoreUrl(fileInfo, fileSize);
             inputStream = fileStore.loadFileStream(filePath);
         } else {
             StringBuilder fileIdSb = new StringBuilder();
@@ -458,7 +472,7 @@ public class DownloadController extends BaseController {
                     FileInfo si = fileInfoManager.getObjectById(fileIds[i]);
                     FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(si.getFileMd5());
                     if (si != null) {
-                        fileUrls[j] = fileStore.matchFileStoreUrl(si.getFileMd5(), fileStoreInfo.getFileSize());
+                        fileUrls[j] = fileStore.matchFileStoreUrl(si, fileStoreInfo.getFileSize());
                         fileNames[j] = si.getFileName();
                         j++;
                     }

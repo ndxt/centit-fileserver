@@ -1,7 +1,5 @@
 package com.centit.fileserver.common;
 
-import com.centit.fileserver.po.FileBaseInfo;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +26,7 @@ public interface FileStore {
      * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
      * @param fileInfo 文件信息
      * @param fileSize long
-     * @return 文件的存储路径
+     * @return 文件的存储路径 fileStoreUrl
      * @throws IOException io异常
      */
     String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize)
