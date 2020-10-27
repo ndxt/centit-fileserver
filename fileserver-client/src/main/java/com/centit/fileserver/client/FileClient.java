@@ -161,7 +161,6 @@ public interface FileClient {
 
     long getFileSizeByFileId(String fileId);
 
-    File getFile(FileInfo fi,long fileSize) throws IOException;
+    void deleteFile(String fileId);
 
-    File getFile(String fileStoreUrl) throws IOException;
 }

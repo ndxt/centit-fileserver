@@ -112,8 +112,10 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private String libraryId;
     @Column(name = "parent_folder")
     private String parentFolder;
+
     @Transient
     private Long fileSize;
+
     public FileInfo() {
         indexState = "N";
         encryptType = "N";

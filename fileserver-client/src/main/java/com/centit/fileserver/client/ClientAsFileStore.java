@@ -54,12 +54,12 @@ public class ClientAsFileStore implements FileStore {
 
     /**
      * 检查文件是否存在，如果存在则实现秒传
-     * @param fileStoreUrl  文件存储的位置URL
+     * @param fileId  文件的ID
      * @return true 文件存在 false 文件不存在
      */
     @Override
-    public boolean checkFile(String fileStoreUrl) {
-        return fileClient.getFileSize(fileStoreUrl)>0;
+    public boolean checkFile(String fileId) {
+        return fileClient.getFileSizeByFileId(fileId)>0;
     }
 
     /**
@@ -89,25 +89,25 @@ public class ClientAsFileStore implements FileStore {
     }
 
     /**
-     * @param fileStoreUrl 文件的url
+     * @param fileId 文件的url
      * @return 文件大小
      * @throws IOException IOException
      */
     @Override
-    public long getFileSize(String fileStoreUrl) throws IOException {
-        return fileClient.getFileSize(fileStoreUrl);
+    public long getFileSize(String fileId) throws IOException {
+        return fileClient.getFileSizeByFileId(fileId);
     }
 
     /**
      * 获取文件
      *
-     * @param fileStoreUrl saveFile 返回的文件路径
+     * @param fileId saveFile 返回的 fileId
      * @return InputStream
      * @throws IOException IOException
      */
     @Override
-    public InputStream loadFileStream(String fileStoreUrl) throws IOException {
-        return new FileInputStream(getFile(fileStoreUrl));
+    public InputStream loadFileStream(String fileId) throws IOException {
+        return new FileInputStream(getFile(fileId));
     }
 
 

@@ -45,7 +45,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
 
     private Date createTime;
 
-//    private Long fileSize;
+    private Long fileSize;
 
     //加密算法
     private String encryptType;
@@ -267,18 +267,19 @@ public class FileInfo implements FileBaseInfo, Serializable {
     public void setLibraryId(String libraryId) {
         this.libraryId = libraryId;
     }
+
     public void setFileUnit(String fileUnit) {
         this.fileUnit = fileUnit;
     }
 
-//    public Long getFileSize() {
-//        return fileSize;
-//    }
-//
-//    public void setFileSize(Long fileSize) {
-//        this.fileSize = fileSize;
-//    }
-//
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
 //    public String getAttachedStorePath() {
 //        return attachedStorePath;
 //    }

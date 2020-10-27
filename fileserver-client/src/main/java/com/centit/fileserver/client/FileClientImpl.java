@@ -226,12 +226,24 @@ public class FileClientImpl implements FileClient {
 
 
     public FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, File file) throws IOException {
+        return uploadFile(httpClient, fi, new FileInputStream(file));
+    }
+
+    public FileInfo uploadFile(FileInfo fi, File file) throws IOException {
+        CloseableHttpClient httpClient = allocHttpClient();
+        FileInfo upres = uploadFile(httpClient, fi, file);
+        releaseHttpClient(httpClient);
+        return upres;
+    }
+
+    @Override
+    public FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, InputStream inputStream) throws IOException {
         appSession.checkAccessToken(httpClient);
 
-        String jsonStr = HttpExecutor.fileUpload(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/upload/file"),
-                JSON.parseObject(JSON.toJSONString(fi) ),
-                file);
+        String jsonStr = HttpExecutor.inputStreamUpload(HttpExecutorContext.create(httpClient),
+            appSession.completeQueryUrl("/upload/file"),
+            JSON.parseObject(JSON.toJSONString(fi) ),
+            inputStream);
 
         HttpReceiveJSON resJson = null;
         try {
@@ -246,21 +258,12 @@ public class FileClientImpl implements FileClient {
         return resJson.getDataAsObject(FileInfo.class);
     }
 
-    public FileInfo uploadFile(FileInfo fi, File file) throws IOException {
-        CloseableHttpClient httpClient = allocHttpClient();
-        FileInfo upres = uploadFile(httpClient, fi, file);
-        releaseHttpClient(httpClient);
-        return upres;
-    }
-
-    @Override
-    public FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, InputStream inputStream) throws IOException {
-        return null;
-    }
-
     @Override
     public FileInfo uploadFile(FileInfo fi, InputStream inputStream) throws IOException {
-        return null;
+        CloseableHttpClient httpClient = allocHttpClient();
+        FileInfo upres = uploadFile(httpClient, fi, inputStream);
+        releaseHttpClient(httpClient);
+        return upres;
     }
 
     public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5, long fileSize) throws IOException{
@@ -445,17 +448,11 @@ public class FileClientImpl implements FileClient {
     }
 
     @Override
-    public String matchFileStoreUrl(FileInfo fi, long fileSize) {
-        return null;
-    }
-
-    @Override
     public long getFileSizeByStoreUrl(String fileStoreUrl){
         try {
             CloseableHttpClient httpClient = allocHttpClient();
             String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
-                appSession.completeQueryUrl("/store/exists"),
-                CollectionsOpt.createHashMap("token", fileStoreUrl, "size", 1l));
+                appSession.completeQueryUrl("/files/size/"+fileStoreUrl));
             HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
             return NumberBaseOpt.castObjectToLong(resJson.getData(), -1L);
         } catch (IOException e) {
@@ -465,21 +462,30 @@ public class FileClientImpl implements FileClient {
 
     @Override
     public long getFileSizeByFileId(String fileId) {
-        return 0;
+        try {
+            FileInfo fi = this.getFileInfo(fileId);
+            return fi != null && fi.getFileSize() != null ? fi.getFileSize() : -1L;
+        } catch (IOException e) {
+            return -2;
+        }
     }
 
     @Override
-    public File getFile(FileInfo fi, long fileSize) throws IOException {
-        return null;
+    public void deleteFile(String fileId) {
+        try {
+            CloseableHttpClient httpClient = allocHttpClient();
+            String jsonStr = HttpExecutor.simpleDelete(HttpExecutorContext.create(httpClient),
+                appSession.completeQueryUrl("/files/"+fileId), (String) null);
+            /*HttpReceiveJSON resJson =*/ HttpReceiveJSON.valueOfJson(jsonStr);
+        } catch (IOException e) {
+            logger.error("删除文件出错，文件ID："+fileId, e);
+        }
     }
 
+
     @Override
-    public File getFile(String md5SizeExt) throws IOException{
-        Pair<String, Long> filePair = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
-        String filePath = SystemTempFileUtils.getTempFilePath(filePair.getLeft(), filePair.getRight());
-        CloseableHttpClient httpClient = allocHttpClient();
-        innerDownloadFileRange(httpClient, "/store/download/" + md5SizeExt, -1, -1, filePath);
-        releaseHttpClient(httpClient);
-        return new File(filePath);
+    public String matchFileStoreUrl(FileInfo fi, long fileSize) {
+        return fi.getFileId();
     }
+
 }

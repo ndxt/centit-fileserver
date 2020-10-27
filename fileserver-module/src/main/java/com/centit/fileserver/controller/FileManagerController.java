@@ -65,6 +65,7 @@ public class FileManagerController extends BaseController {
 
     @Autowired
     protected FileStore fileStore;
+
     @Autowired(required = false)
     private ESSearcher esObjectSearcher;
     @Autowired
@@ -103,7 +104,6 @@ public class FileManagerController extends BaseController {
 
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-     *
      * @param fileId   文件ID
      * @param response HttpServletResponse
      */
@@ -168,6 +168,17 @@ public class FileManagerController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/size/{fileStoreUrl}", method = RequestMethod.GET)
+    @ApiOperation(value = "根据文件的id获取文件存储信息")
+    @WrapUpResponseBody
+    public Long getFileSizeByStoreUrl(@PathVariable("fileStoreUrl") String fileStoreUrl) {
+        try {
+            return fileStore.getFileSize(fileStoreUrl);
+        } catch (IOException e) {
+            logger.error("获取文件长度异常,文件储存路径"+fileStoreUrl+",错误信息："+e.getMessage() , e);
+            return -1L;
+        }
+    }
     /**
      * 更新文件存储信息
      *
@@ -237,7 +248,7 @@ public class FileManagerController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ApiOperation(value = "根据相关的条件查询文件")
-    public void listStroedFiles(PageDesc pageDesc,
+    public void listStoredFiles(PageDesc pageDesc,
                                 HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
