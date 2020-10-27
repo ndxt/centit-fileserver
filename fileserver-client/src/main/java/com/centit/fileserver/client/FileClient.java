@@ -121,6 +121,10 @@ public interface FileClient {
 
     FileInfo uploadFile(FileInfo fi, File file) throws IOException;
 
+    FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, InputStream inputStream) throws IOException;
+
+    FileInfo uploadFile(FileInfo fi, InputStream inputStream) throws IOException;
+
     long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException;
 
     long getFileRangeStart(String fileMd5,long fileSize) throws IOException;
@@ -151,7 +155,13 @@ public interface FileClient {
 
     String storeFile(InputStream file) throws IOException;
 
-    boolean checkFileExists(String fileMd5,long fileSize) throws IOException;
+    String matchFileStoreUrl(FileInfo fi,long fileSize);
 
-    File getFile(String md5SizeExt) throws IOException;
+    long getFileSizeByStoreUrl(String fileStoreUrl);
+
+    long getFileSizeByFileId(String fileId);
+
+    File getFile(FileInfo fi,long fileSize) throws IOException;
+
+    File getFile(String fileStoreUrl) throws IOException;
 }

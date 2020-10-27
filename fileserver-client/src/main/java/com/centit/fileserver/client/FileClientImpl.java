@@ -10,6 +10,7 @@ import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -252,6 +253,16 @@ public class FileClientImpl implements FileClient {
         return upres;
     }
 
+    @Override
+    public FileInfo uploadFile(CloseableHttpClient httpClient, FileInfo fi, InputStream inputStream) throws IOException {
+        return null;
+    }
+
+    @Override
+    public FileInfo uploadFile(FileInfo fi, InputStream inputStream) throws IOException {
+        return null;
+    }
+
     public long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5, long fileSize) throws IOException{
         String uri =  appSession.completeQueryUrl(
                 "/upload/range?token="+fileMd5+"&size="+fileSize);
@@ -434,13 +445,32 @@ public class FileClientImpl implements FileClient {
     }
 
     @Override
-    public boolean checkFileExists(String fileMd5,long fileSize) throws IOException{
-        CloseableHttpClient httpClient = allocHttpClient();
-        String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
-            appSession.completeQueryUrl("/store/exists"),
-            CollectionsOpt.createHashMap("token", fileMd5, "size", fileSize));
-        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
-        return BooleanBaseOpt.castObjectToBoolean(resJson.getData());
+    public String matchFileStoreUrl(FileInfo fi, long fileSize) {
+        return null;
+    }
+
+    @Override
+    public long getFileSizeByStoreUrl(String fileStoreUrl){
+        try {
+            CloseableHttpClient httpClient = allocHttpClient();
+            String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
+                appSession.completeQueryUrl("/store/exists"),
+                CollectionsOpt.createHashMap("token", fileStoreUrl, "size", 1l));
+            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            return NumberBaseOpt.castObjectToLong(resJson.getData(), -1L);
+        } catch (IOException e) {
+            return -2;
+        }
+    }
+
+    @Override
+    public long getFileSizeByFileId(String fileId) {
+        return 0;
+    }
+
+    @Override
+    public File getFile(FileInfo fi, long fileSize) throws IOException {
+        return null;
     }
 
     @Override

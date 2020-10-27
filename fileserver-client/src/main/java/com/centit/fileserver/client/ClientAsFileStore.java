@@ -1,7 +1,9 @@
 package com.centit.fileserver.client;
 
+import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +34,8 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
-        return fileClient.storeFile(is);
+        FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), is);
+        return f!=null?f.getFileId():"";
     }
 
     /**
@@ -45,10 +48,9 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
-        return fileClient.storeFile(new FileInputStream(new File(sourFilePath)));
+        FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), new File(sourFilePath));
+        return f!=null?f.getFileId():"";
     }
-
-
 
     /**
      * 检查文件是否存在，如果存在则实现秒传
@@ -57,12 +59,7 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public boolean checkFile(String fileStoreUrl) {
-        try {
-            return fileClient.checkFileExists(fileStoreUrl, 2l);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            return false;
-        }
+        return fileClient.getFileSize(fileStoreUrl)>0;
     }
 
     /**
@@ -74,18 +71,22 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
-        return null;
+        return fileClient.matchFileStoreUrl(FileInfo.fromFileBaseInfo(fileInfo),
+            fileSize);
     }
 
     /**
-     * @param fileStoreUrl 文件存储的位置URL
+     * @param fileId 等同于 fileStoreUrl 文件存储的位置URL
      * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
      */
     @Override
-    public String getFileAccessUrl(String fileStoreUrl) {
-        return null;
+    public String getFileAccessUrl(String fileId) {
+        try {
+            return fileClient.getFileUrl(fileId, 24 * 60);
+        } catch (Exception e){
+            return "";
+        }
     }
-
 
     /**
      * @param fileStoreUrl 文件的url
@@ -94,7 +95,7 @@ public class ClientAsFileStore implements FileStore {
      */
     @Override
     public long getFileSize(String fileStoreUrl) throws IOException {
-        return 0;
+        return fileClient.getFileSize(fileStoreUrl);
     }
 
     /**
@@ -111,25 +112,26 @@ public class ClientAsFileStore implements FileStore {
 
 
     /**
-     * @param fileStoreUrl 文件的url md5SizeExt
+     * @param fileId 文件的url fileId
      * @return File
      * @throws IOException io异常
      */
     @Override
-    public File getFile(String fileStoreUrl) throws IOException {
-
-        return new File("");
+    public File getFile(String fileId) throws IOException {
+        String filePath = SystemTempFileUtils.getTempFilePath(fileId);
+        fileClient.downloadFile(fileId, filePath);
+        return new File(filePath);
     }
 
     /**
      * 删除文件
      *
-     * @param fileUrl 文件的url
+     * @param fileId 文件的url
      * @return true 删除成功 或者文件本来就不存在  false
      * @throws IOException IOException
      */
     @Override
-    public boolean deleteFile(String fileUrl) throws IOException {
+    public boolean deleteFile(String fileId) throws IOException {
         return false;
     }
 

@@ -62,6 +62,9 @@ public class FileInfo implements FileBaseInfo, Serializable {
      */
     private String attachedType;
 
+    private String libraryId;
+
+
 
     public FileInfo() {
         indexState = "N";
@@ -258,9 +261,12 @@ public class FileInfo implements FileBaseInfo, Serializable {
 
     @Override
     public String getLibraryId() {
-        return null;
+        return this.libraryId;
     }
 
+    public void setLibraryId(String libraryId) {
+        this.libraryId = libraryId;
+    }
     public void setFileUnit(String fileUnit) {
         this.fileUnit = fileUnit;
     }
@@ -308,4 +314,18 @@ public class FileInfo implements FileBaseInfo, Serializable {
         this.attachedType = attachedType;
     }
 
+
+    public static FileInfo fromFileBaseInfo(FileBaseInfo otherFile) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.fileId = otherFile.getFileId();
+        fileInfo.fileMd5 = otherFile.getFileMd5();
+        fileInfo.fileType = otherFile.getFileType();
+        fileInfo.fileName = otherFile.getFileName();
+        fileInfo.osId = otherFile.getOsId();
+        fileInfo.optId = otherFile.getOptId();
+        fileInfo.fileOwner = otherFile.getFileOwner();
+        fileInfo.fileUnit = otherFile.getFileUnit();
+        fileInfo.libraryId = otherFile.getLibraryId();
+        return fileInfo;
+    }
 }
