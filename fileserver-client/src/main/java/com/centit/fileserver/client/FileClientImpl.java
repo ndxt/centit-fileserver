@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
-import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;

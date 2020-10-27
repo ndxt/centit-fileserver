@@ -1,39 +1,15 @@
 package com.centit.fileserver.pretreat;
 
 import com.centit.fileserver.po.FileInfo;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
-import com.centit.support.office.OfficeToHtml;
 import com.centit.support.office.OfficeToPdf;
-import com.centit.support.report.ExcelTypeEnum;
-import com.lowagie.text.Font;
-import com.lowagie.text.pdf.BaseFont;
-import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
-import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.converter.ExcelToHtmlConverter;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hwpf.HWPFDocumentCore;
-import org.apache.poi.hwpf.converter.AbstractWordUtils;
-import org.apache.poi.hwpf.converter.WordToHtmlConverter;
-import org.apache.poi.util.XMLHelper;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.omg.CORBA.portable.InputStream;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author zhf

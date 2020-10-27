@@ -1,8 +1,7 @@
 package com.centit.fileserver.config;
 
-import com.centit.fileserver.common.FileTaskInfo;
-import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.task.*;

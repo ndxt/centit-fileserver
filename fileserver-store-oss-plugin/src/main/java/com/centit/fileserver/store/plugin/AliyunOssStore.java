@@ -7,7 +7,6 @@ import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.file.FileIOOpt;
-import com.centit.support.file.FileMD5Maker;
 
 import java.io.File;
 import java.io.IOException;

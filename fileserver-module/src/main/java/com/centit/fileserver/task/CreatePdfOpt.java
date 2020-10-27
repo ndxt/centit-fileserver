@@ -15,7 +15,6 @@ import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
-import com.centit.support.file.FileType;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * 添加pdf副本
