@@ -217,8 +217,8 @@ public class DownloadController extends BaseController {
             return false;
         }
         if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),request.getParameter("authCode"))) {
-            JsonResultUtils.writeErrorMessageJson("用户"+WebOptUtils.getCurrentUserCode(request)
-                +"所属机构"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);
+            JsonResultUtils.writeErrorMessageJson("用户:"+WebOptUtils.getCurrentUserCode(request)
+                +",所属机构:"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);
             return true;
         }
         return false;
