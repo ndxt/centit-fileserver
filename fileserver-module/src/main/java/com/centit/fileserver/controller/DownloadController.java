@@ -149,7 +149,8 @@ public class DownloadController extends BaseController {
                 "txt", "html", "csv", "pdf", "xml") ){
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 String charset = null;
-                if("txt".equals(fileInfo.getFileType())) {
+                if(StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+                    "txt", "csv")) {
                     charset = new AutoDetectReader(getFileStream(fileStoreInfo)).getCharset().name();
                 }
                 UploadDownloadUtils.downFileRange(request, response,
