@@ -286,22 +286,17 @@ public class DownloadController extends BaseController {
 
         if (null != fileInfo) {
             String at = fileInfo.getAttachedType();
-            if ("N".equals(at)) {
+            if (StringUtils.isBlank(at) || "N".equals(at)) {
                 JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
                 return;
             }
-            String fileName = fileInfo.getFileName();
-            if ("P".equals(at)) {
-                if (fileName.lastIndexOf(".") != -1) {
-                    fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".pdf";
-                }
-            }
+            String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + "." + at;
 
             FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
             UploadDownloadUtils.downFileRange(request, response,
                 fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileInfo.getFileName(), request.getParameter("downloadType"),null);
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName, request.getParameter("downloadType"),null);
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                 "找不到该文件", response);
