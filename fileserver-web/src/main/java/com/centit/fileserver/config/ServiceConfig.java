@@ -87,7 +87,7 @@ public class ServiceConfig {
                 baseHome = env.getProperty("app.home") + "/upload";
             }
             String prefixPath=env.getProperty("os.file.base.dir.prefix");
-            return new OsFileStore(baseHome,prefixPath);
+            return new OsFileStore(baseHome);
         }
     }
 

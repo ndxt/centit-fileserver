@@ -15,14 +15,13 @@ import java.io.InputStream;
 public class OsFileStore implements FileStore {
 
     private String fileRoot;
-private String prefixPath;
+
     public OsFileStore(){
 
     }
 
-    public OsFileStore(String fileRoot,String prefixPath){
+    public OsFileStore(String fileRoot){
         setFileRoot(fileRoot);
-        this.prefixPath = prefixPath;
     }
 
     public void setFileRoot(String fileRoot){
@@ -43,10 +42,7 @@ private String prefixPath;
                     + File.separatorChar + fileMd5.charAt(1)
                     + File.separatorChar + fileMd5.charAt(2);
         FileSystemOpt.createDirect(getFileRoot() + pathname);
-        if(StringBaseOpt.isNvl(prefixPath)){
-            return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
-        }
-        return prefixPath+File.separatorChar+pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
     }
 
     private String matchFileToStoreUrl(String fileMd5, long fileSize, String extName){
