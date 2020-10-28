@@ -26,7 +26,7 @@ create table FILE_UPLOAD_AUTHORIZED  (
 
 create table FILE_INFO  (
    FILE_ID              VARCHAR2(36)                    NOT NULL,
-   FILE_MD5             VARCHAR(36),
+   FILE_MD5             VARCHAR2(36),
    FILE_NAME          VARCHAR2(200),
    FILE_SHOW_PATH     VARCHAR2(1000),
    FILE_TYPE          VARCHAR2(8),
@@ -41,10 +41,10 @@ create table FILE_INFO  (
    CREATE_TIME        DATE,
    INDEX_STATE        CHAR,
    ENCRYPT_TYPE       CHAR,
-   FILE_OWNER         VARCHAR(32),
-   FILE_UNIT          VARCHAR(32),
+   FILE_OWNER         VARCHAR2(32),
+   FILE_UNIT          VARCHAR2(32),
    ATTACHED_FILE_MD5 VARCHAR2(200),
-   ATTACHED_TYPE      VARCHAR2(1),
+   ATTACHED_TYPE      VARCHAR2(8),
    constraint PK_FILE_INFO primary key (FILE_ID)
 );
 
@@ -88,8 +88,7 @@ comment on column FILE_INFO.encrypt_type is
 'N : 没有加密   Z：zipFile    D:DES加密';
 
 comment on column FILE_INFO.attached_type is
-'附属文件类别：N :   没有  T：缩略图  P： pdf只读文件';
-
+'附属文件后缀名';
 
 create index Index_file_md5 on FILE_INFO (
    FILE_MD5 ASC

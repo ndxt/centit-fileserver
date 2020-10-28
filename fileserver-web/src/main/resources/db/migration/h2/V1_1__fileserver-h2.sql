@@ -68,7 +68,7 @@ create table file_info
    file_owner           varchar(32),
    file_unit            varchar(32),
    attached_store_path  varchar(200),
-   attached_type        varchar(1) comment '附属文件类别：N :   没有  T：缩略图  P： pdf只读文件',
+   attached_type        varchar(8) comment '附属文件后缀名',
    auth_code            varchar(32) comment '验证码',
    parent_folder            varchar(32) default '-1' comment '所属文件夹id',
    library_id           varchar(32) comment '库id',
