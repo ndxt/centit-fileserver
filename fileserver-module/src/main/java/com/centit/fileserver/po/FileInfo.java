@@ -152,6 +152,18 @@ public class FileInfo implements FileBaseInfo, Serializable {
 
 
     public void copyNotNullProperty(FileInfo other) {
+        if (StringUtils.isNotBlank(other.getFileMd5())) {
+            this.fileMd5 = other.getFileMd5();
+        }
+
+        if (StringUtils.isNotBlank(other.getFileId())) {
+            this.fileId = other.getFileId();
+        }
+
+        if (StringUtils.isNotBlank(other.getFileState())) {
+            this.fileState = other.getFileState();
+        }
+
         if (StringUtils.isNotBlank(other.getFileName())) {
             this.fileName = other.getFileName();
         }
@@ -169,7 +181,6 @@ public class FileInfo implements FileBaseInfo, Serializable {
         if (StringUtils.isNotBlank(other.getFileState())) {
             this.fileState = other.getFileState();
         }
-
         if (StringUtils.isNotBlank(other.getFileDesc())) {
             this.fileDesc = other.getFileDesc();
         }
