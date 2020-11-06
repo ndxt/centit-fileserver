@@ -209,6 +209,9 @@ public class FileInfo implements FileBaseInfo, Serializable {
         if (StringUtils.isNotBlank(other.getLibraryId())) {
             this.libraryId = other.getLibraryId();
         }
+        if (StringUtils.isNotBlank(other.getFileMd5())) {
+            this.fileMd5 = other.getFileMd5();
+        }
         //this.attachedStorePath=other.getAttachedStorePath();
         /*
          * 附属文件类别： T：缩略图  P： pdf只读文件
