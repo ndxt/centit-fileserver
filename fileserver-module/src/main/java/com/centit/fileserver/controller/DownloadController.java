@@ -79,7 +79,7 @@ public class DownloadController extends BaseController {
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
                 if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
-                    try (InputStream downFile = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                    try (InputStream downFile = getFileStream(fileStore, fileStoreInfo);
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
                         FileEncryptWithAes.decrypt(downFile, diminationFile, password);
                     } catch (Exception e) {
@@ -98,20 +98,14 @@ public class DownloadController extends BaseController {
 
                 FileSystemOpt.deleteFile(tmpFile);
             } else {
-                if (fileStoreInfo.isTemp()) {
+                try {
+                    //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                     UploadDownloadUtils.downFileRange(request, response,
-                        new FileInputStream(new File(fileStoreInfo.getFileStorePath())),
+                        getFileStream(fileStore, fileStoreInfo),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"),null);
-                } else {
-                    try {
-                        InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-                        UploadDownloadUtils.downFileRange(request, response,
-                            inputStream,
-                            fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"),null);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage());
-                        JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
-                    }
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
                 }
             }
         } else {
@@ -151,17 +145,17 @@ public class DownloadController extends BaseController {
                 String charset = null;
                 if(StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
-                    charset = new AutoDetectReader(getFileStream(fileStoreInfo)).getCharset().name();
+                    charset = new AutoDetectReader(getFileStream(fileStore, fileStoreInfo)).getCharset().name();
                 }
                 UploadDownloadUtils.downFileRange(request, response,
-                    getFileStream(fileStoreInfo),
+                    getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
                 canView = true;
             } else if(StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())){
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
                 if(attachedFileStoreInfo != null) {
                     UploadDownloadUtils.downFileRange(request, response,
-                        getFileStream(attachedFileStoreInfo),
+                        getFileStream(fileStore, attachedFileStoreInfo),
                         attachedFileStoreInfo.getFileSize(),
                         FileType.truncateFileExtName(fileInfo.getFileName())
                             + "." + fileInfo.getAttachedType(),
@@ -182,7 +176,7 @@ public class DownloadController extends BaseController {
                         if(attachedFileStoreInfo!=null) {
                             canView = true;
                             UploadDownloadUtils.downFileRange(request, response,
-                                getFileStream(attachedFileStoreInfo),
+                                getFileStream(fileStore, attachedFileStoreInfo),
                                 attachedFileStoreInfo.getFileSize(),
                                 FileType.truncateFileExtName(newFileInfo.getFileName())
                                     + ".pdf",// + newFileInfo.getAttachedType(),
@@ -194,7 +188,7 @@ public class DownloadController extends BaseController {
             if(!canView){
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 UploadDownloadUtils.downFileRange(request, response,
-                    getFileStream(fileStoreInfo),
+                    getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(),
                     fileInfo.getFileName(),
                     "inline", null);
@@ -205,7 +199,7 @@ public class DownloadController extends BaseController {
         }
     }
 
-    private InputStream getFileStream(FileStoreInfo fileStoreInfo) throws IOException {
+    private static InputStream getFileStream(FileStore fileStore, FileStoreInfo fileStoreInfo) throws IOException {
         return fileStoreInfo.getIsTemp() ?
             new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
             fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
