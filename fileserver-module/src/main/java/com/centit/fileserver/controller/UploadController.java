@@ -61,8 +61,6 @@ import java.util.Map;
 public class UploadController extends BaseController {
     public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
     protected Logger logger = LoggerFactory.getLogger(UploadController.class);
-    @Value("${file.check.duplicate:true}")
-    protected boolean checkDuplicate;
 
     @Value("${file.index.keepsingle.showpath:true}")
     protected boolean keepSingleIndexByShowpath;
@@ -278,29 +276,24 @@ public class UploadController extends BaseController {
         fileInfo.setFileMd5(fileMd5);
 //        fileInfo.setFileSize(size);
 //        fileInfo.setFileStorePath(fs.matchFileStoreUrl(fileMd5, size));
-        fileInfoManager.saveNewObject(fileInfo);
-        String fileId = fileInfo.getFileId();
-        try {
-            // 先保存一个 临时文件； 如果文件已经存在是不会保存的
-            fileStoreInfoManager.saveTempFileInfo(fileInfo,
-                SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
-            fileOptTaskExecutor.addOptTask(fileInfo, size, pretreatInfo);
-        }catch(Exception e){
-            logger.error(e.getMessage(), e);
-        }
-
-        if(checkDuplicate){
-            FileInfo duplicateFile = fileInfoManager.getDuplicateFile(fileInfo);
-            if(duplicateFile != null){
-                if(documentIndexer != null ){
-                    documentIndexer.deleteDocument(duplicateFile.getFileId());
-                }
-                fileInfoManager.deleteObject(duplicateFile);
+        FileInfo dbFile  = fileInfoManager.getDuplicateFile(fileInfo);
+        if(dbFile == null) {
+            fileInfoManager.saveNewObject(fileInfo);
+            String fileId = fileInfo.getFileId();
+            try {
+                // 先保存一个 临时文件； 如果文件已经存在是不会保存的
+                fileStoreInfoManager.saveTempFileInfo(fileInfo,
+                    SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
+                fileOptTaskExecutor.addOptTask(fileInfo, size, pretreatInfo);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
+            return UploadDownloadUtils.makeRangeUploadCompleteJson(
+                fileMd5, size, fileInfo.getFileName(), fileId);
+        }else {
+            return UploadDownloadUtils.makeRangeUploadCompleteJson(
+                fileMd5, size, fileInfo.getFileName(), dbFile.getFileId());
         }
-
-        return UploadDownloadUtils.makeRangeUploadCompleteJson(
-            fileMd5, size, fileInfo.getFileName(), fileId);
 
     }
 

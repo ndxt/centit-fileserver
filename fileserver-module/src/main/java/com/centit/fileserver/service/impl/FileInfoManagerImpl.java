@@ -47,10 +47,7 @@ public class FileInfoManagerImpl
         if(StringUtils.isBlank(originalFile.getOptId()))
             originalFile.setOptId("NOTSET");
         this.baseDao.saveNewObject(originalFile);
-
-
     }
-
 
     @Override
     public List<FileInfo> listFileInfo(Map<String, Object> param, PageDesc pageDesc) {
@@ -106,19 +103,17 @@ public class FileInfoManagerImpl
     @Override
     public FileInfo getDuplicateFile(FileInfo originalFile){
         String queryStatement =
-                " where FILE_ID <> ? and FILE_MD5 = ? and file_state='N'" +
-                " and ( FILE_OWNER = ? or FILE_UNIT= ? ) and file_show_path=? and library_id=?";
+                " where FILE_ID <> ? and FILE_MD5 = ? and FILE_NAME = ?" +
+                " and file_show_path=? and library_id=?";
         List<FileInfo> duplicateFiles =
                 baseDao.listObjectsByFilter( queryStatement, new Object[]
-                {originalFile.getFileId(),originalFile.getFileMd5(),/*originalFile.getFileSize(),*/
-                        originalFile.getFileOwner(),originalFile.getFileUnit(),
+                {originalFile.getFileId(),originalFile.getFileMd5(), originalFile.getFileName(),/*originalFile.getFileSize(),*/
                 originalFile.getFileShowPath(),originalFile.getLibraryId()});
         if(duplicateFiles!=null && duplicateFiles.size()>0) {
             return duplicateFiles.get(0);
         }
         return null;
     }
-
 
     /**
      * 同步保存文件
