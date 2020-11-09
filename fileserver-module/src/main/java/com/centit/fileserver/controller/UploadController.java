@@ -246,13 +246,13 @@ public class UploadController extends BaseController {
     @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
     @ApiOperation(value = "处理未转储文件")
     @WrapUpResponseBody
-    public FileOptTaskExecutor addSaveFileOpt(){
+    public JSONArray addSaveFileOpt(){
         JSONArray jsonArray=fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp","T"),null);
         for(Object o:jsonArray) {
                 FileInfo fileInfo=JSONObject.toJavaObject((JSON) o,FileInfo.class);
                 fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
         }
-        return fileOptTaskExecutor;
+        return jsonArray;
     }
     /**
      * 处理文件信息 并按照指令对文件进行加工

@@ -16,7 +16,7 @@ import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.model.StandardPasswordEncoderImpl;
-import com.centit.framework.session.redis.RedisSessionPersistenceConfig;
+
 import com.centit.search.document.FileDocument;
 import com.centit.search.document.ObjectDocument;
 import com.centit.search.service.ESServerConfig;
@@ -39,7 +39,7 @@ import org.springframework.core.env.Environment;
  */
 @ComponentScan(basePackages = "com.centit",
         excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
-@Import({RedisSessionPersistenceConfig.class,
+@Import({
         SpringSecurityDaoConfig.class,
         SpringSecurityCasConfig.class,
         IPOrStaticAppSystemBeanConfig.class,
