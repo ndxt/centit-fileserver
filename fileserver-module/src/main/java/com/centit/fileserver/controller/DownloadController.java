@@ -172,7 +172,7 @@ public class DownloadController extends BaseController {
                     FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
                     if(StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())){
                         FileStoreInfo attachedFileStoreInfo =
-                            fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+                            fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
                         if(attachedFileStoreInfo!=null) {
                             canView = true;
                             UploadDownloadUtils.downFileRange(request, response,

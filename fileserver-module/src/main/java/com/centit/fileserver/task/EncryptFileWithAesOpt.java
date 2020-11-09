@@ -47,7 +47,7 @@ public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeat
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        String password = StringBaseOpt.castObjectToString(pretreatInfo.containsKey("password"));
+        String password = StringBaseOpt.castObjectToString(pretreatInfo.get("password"));
         if("A".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))
             || StringUtils.isNotBlank(password)){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
