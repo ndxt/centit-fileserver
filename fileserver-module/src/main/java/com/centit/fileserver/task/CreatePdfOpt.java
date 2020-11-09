@@ -57,7 +57,7 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
         }
 
         FileInfo pdfFileInfo = new FileInfo();
-        pdfFileInfo.copyNotNullProperty(fileInfo);
+        pdfFileInfo.copy(fileInfo);
 
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         if(!new File(originalTempFilePath).exists()){

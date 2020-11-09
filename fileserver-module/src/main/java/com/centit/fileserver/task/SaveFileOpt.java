@@ -54,8 +54,9 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
 
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        if(StringUtils.isNotBlank(
-            StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))){
+        if(StringUtils.equalsAnyIgnoreCase(
+            StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")),
+            "A","Z")){
             return null;
         }
         FileTaskInfo saveFileTaskInfo = new FileTaskInfo(getOpeatorName());
