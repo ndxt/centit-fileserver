@@ -92,6 +92,7 @@ public class FileInfoManagerImpl
                 + " [ :unitCode | and a.FILE_UNIT = :unitCode ]"
                 + " [ :beginDate | and a.CREATE_TIME >= :beginDate ]"
                 + " [ :endDate | and a.CREATE_TIME < :endDate ]"
+                    + " [ :isTemp | and b.is_temp = :isTemp ]"
                 + " order by a.CREATE_TIME desc";
         //System.out.println(qap.getQuery());
         JSONArray dataList = DictionaryMapUtils.mapJsonArray(

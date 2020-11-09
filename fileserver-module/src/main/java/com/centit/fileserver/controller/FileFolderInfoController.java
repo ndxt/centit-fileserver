@@ -12,6 +12,8 @@ import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.common.ObjectException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -137,6 +139,9 @@ public class FileFolderInfoController extends BaseController {
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
     public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+        if(StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())){
+            throw new ObjectException("库id不能为空");
+        }
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
             "folderName", fileFolderInfo.getFolderName(), "libraryId", fileFolderInfo.getLibraryId()), null);
         if (fileFolderInfos == null || fileFolderInfos.size() == 0) {

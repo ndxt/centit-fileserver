@@ -43,7 +43,9 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         String fileMd5 = fileOptTaskInfo.getFileMd5();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileOptTaskInfo.getFileId());
-        if(fileInfo==null) return;
+        if(null==fileInfo) {
+            return;
+        }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
         save(tempFilePath, fileInfo, fileSize);
         logger.info("存储文件完成");

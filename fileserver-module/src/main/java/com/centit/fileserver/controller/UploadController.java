@@ -1,6 +1,7 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
@@ -53,6 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -241,7 +243,17 @@ public class UploadController extends BaseController {
             :fetchISFromCommonsResolver(request, fileInfo, pretreatInfo);
         return new ImmutableTriple<>(fileInfo, pretreatInfo, fis);
     }
-
+    @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
+    @ApiOperation(value = "处理未转储文件")
+    @WrapUpResponseBody
+    public FileOptTaskExecutor addSaveFileOpt(){
+        JSONArray jsonArray=fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp","T"),null);
+        for(Object o:jsonArray) {
+                FileInfo fileInfo=JSONObject.toJavaObject((JSON) o,FileInfo.class);
+                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+        }
+        return fileOptTaskExecutor;
+    }
     /**
      * 处理文件信息 并按照指令对文件进行加工
      * param fs 文件的物理存储接口

@@ -77,6 +77,9 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(null==fileInfo) {
+            return;
+        }
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
         esObjectIndexer.mergeDocument(fileDoc);
