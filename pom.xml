@@ -63,7 +63,6 @@
         <module>fileserver-utils</module>
         <module>fileserver-web</module>
         <module>fileserver-client</module>
-        <module>fileserver-demo</module>
         <module>fileserver-view</module>
         <module>fileserver-module</module>
         <module>fileserver-boot</module>

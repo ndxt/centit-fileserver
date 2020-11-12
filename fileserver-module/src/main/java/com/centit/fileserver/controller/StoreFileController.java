@@ -1,6 +1,8 @@
 package com.centit.fileserver.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileRangeInfo;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.FileStore;
@@ -48,11 +50,12 @@ public class StoreFileController extends BaseController {
 
     @Resource
     protected FileStore fileStore;
+    @Resource
+    private FileStoreInfoManager fileStoreInfoManager;
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      * @param token token
      * @param size 大小
-     * @param request HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
@@ -60,10 +63,24 @@ public class StoreFileController extends BaseController {
             allowedHeaders="*", methods=RequestMethod.GET)
     @RequestMapping(value="/exists", method = RequestMethod.GET)
     public void checkFileExists(String  token,long size ,
-            HttpServletRequest request, HttpServletResponse response)
+             HttpServletResponse response)
             throws IOException {
 
         JsonResultUtils.writeOriginalObject(fileStore.checkFile(token, size), response);
+    }
+    @CrossOrigin(origins = "*",allowCredentials="true",maxAge=86400,
+        allowedHeaders="*", methods=RequestMethod.GET)
+    @RequestMapping(value="/existsbyfileid", method = RequestMethod.GET)
+    public void checkFileByFileId(String  fileId ,
+                                 HttpServletResponse response)
+        throws IOException {
+        FileStoreInfo fileStoreInfo=fileStoreInfoManager.getObjectById(fileId);
+        if(fileStoreInfo!=null){
+            File file=fileStore.getFile(fileStoreInfo.getFileStorePath());
+            JsonResultUtils.writeOriginalObject(file.exists(), response);
+            return;
+        }
+        JsonResultUtils.writeOriginalObject(false, response);
     }
 
     /**

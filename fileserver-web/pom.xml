@@ -80,7 +80,6 @@
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-app-config</artifactId>
         </dependency>
-
         <!-- server runtime library -->
         <dependency>
             <groupId>com.sun</groupId>

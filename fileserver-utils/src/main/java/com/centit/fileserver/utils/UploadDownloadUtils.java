@@ -1,5 +1,6 @@
 package com.centit.fileserver.utils;
 
+
 import com.alibaba.fastjson.JSONObject;
 import com.centit.framework.common.ObjectException;
 import com.centit.framework.common.ResponseData;
@@ -41,8 +42,9 @@ public abstract class UploadDownloadUtils {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             fileName = request.getParameter("name");
-            if(StringUtils.isBlank(fileName))
+            if(StringUtils.isBlank(fileName)) {
                 fileName = request.getParameter("fileName");
+            }
             return new ImmutablePair<>(fileName, request.getInputStream());
         }
 
@@ -53,8 +55,9 @@ public abstract class UploadDownloadUtils {
             if (! fi.isFormField())  {
                 fileName = fi.getName();
                 fis = fi.getInputStream();
-                if(fis!=null)
+                if(fis!=null) {
                     break;
+                }
             }
         }
 

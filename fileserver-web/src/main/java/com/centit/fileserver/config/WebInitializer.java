@@ -21,16 +21,21 @@ public class WebInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         initializeSpringConfig(servletContext);
-        initializeSystemSpringMvcConfig(servletContext);
-        initializeSpringMvcConfig(servletContext);
+        String [] servletUrlPatterns = {"/system/*","/fileserver/*"};
+        registerServletConfig(servletContext, "system",
+            "/system/*",
+            SystemSpringMvcConfig.class);
+        registerServletConfig(servletContext, "fileserver",
+            "/fileserver/*",
+            NormalSpringMvcConfig.class);
         WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
         //WebConfig.registerResponseCorsFilter(servletContext);
-        WebConfig.registerCharacterEncodingFilter(servletContext);
-        WebConfig.registerHttpPutFormContentFilter(servletContext);
-        WebConfig.registerHiddenHttpMethodFilter(servletContext);
+        WebConfig.registerCharacterEncodingFilter(servletContext,servletUrlPatterns);
+        WebConfig.registerHttpPutFormContentFilter(servletContext,servletUrlPatterns);
+        WebConfig.registerHiddenHttpMethodFilter(servletContext,servletUrlPatterns);
         WebConfig.registerRequestThreadLocalFilter(servletContext);
-        WebConfig.registerSpringSecurityFilter(servletContext);
+        WebConfig.registerSpringSecurityFilter(servletContext,servletUrlPatterns);
 
         Properties properties = PropertiesReader.getClassPathProperties("/system.properties");
         String jdbcUrl = properties.getProperty("jdbc.url");
@@ -50,32 +55,17 @@ public class WebInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(springContext));
     }
 
-    /**
-     * 加载Servlet 配置
-     * @param servletContext ServletContext
-     */
-    private void initializeSystemSpringMvcConfig(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(SystemSpringMvcConfig.class);
-        ServletRegistration.Dynamic system  = servletContext.addServlet("system", new DispatcherServlet(context));
-        system.addMapping("/system/*");
-        system.setLoadOnStartup(1);
-        system.setAsyncSupported(true);
-    }
 
-    /**
-     * 加载Servlet 项目配置
-     * @param servletContext ServletContext
-     */
-    private void initializeSpringMvcConfig(ServletContext servletContext) {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(NormalSpringMvcConfig.class);
-        ServletRegistration.Dynamic fileserver  = servletContext.addServlet("fileserver", new DispatcherServlet(context));
-        //String servletName = SysParametersUtils.getStringValue("app.servlet.name","service");
-        //system.addMapping("/"+ servletName+"/*");
-        fileserver.addMapping("/fileserver/*");
-        fileserver.setLoadOnStartup(1);
-        fileserver.setAsyncSupported(true);
+    public static ServletRegistration.Dynamic registerServletConfig(ServletContext servletContext,
+                                                                    String servletName, String servletUrlPattern,
+                                                                    Class<?>... annotatedClasses ) {
+        AnnotationConfigWebApplicationContext contextSer = new AnnotationConfigWebApplicationContext();
+        contextSer.register(annotatedClasses);
+        ServletRegistration.Dynamic servlet  = servletContext.addServlet(servletName,
+            new DispatcherServlet(contextSer));
+        servlet.addMapping(servletUrlPattern);
+        servlet.setLoadOnStartup(1);
+        servlet.setAsyncSupported(true);
+        return servlet;
     }
-
  }

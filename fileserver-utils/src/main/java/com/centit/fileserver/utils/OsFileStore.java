@@ -1,5 +1,6 @@
 package com.centit.fileserver.utils;
 
+import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -8,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 public class OsFileStore implements FileStore {
 
@@ -34,19 +36,17 @@ public class OsFileStore implements FileStore {
     }
 
     private String matchFileToStoreUrl(String fileMd5, long fileSize){
-        String pathname = String.valueOf(fileMd5.charAt(0))
-                    + File.separatorChar + fileMd5.charAt(1)
-                    + File.separatorChar + fileMd5.charAt(2);
-        FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        return matchFileToStoreUrl(fileMd5,fileSize,"dat");
     }
 
     private String matchFileToStoreUrl(String fileMd5, long fileSize,String extName){
         String pathname = String.valueOf(fileMd5.charAt(0))
                 + File.separatorChar + fileMd5.charAt(1)
                 + File.separatorChar + fileMd5.charAt(2);
-        FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+"."+extName;
+        String prefixPath = "tzsp" + File.separatorChar + DatetimeOpt.getYear(new Date())+ File.separatorChar;
+        FileSystemOpt.createDirect(getFileRoot()+prefixPath + pathname);
+
+        return prefixPath+pathname + File.separatorChar + fileMd5 +"_"+fileSize+"."+extName;
     }
 
     @Override
