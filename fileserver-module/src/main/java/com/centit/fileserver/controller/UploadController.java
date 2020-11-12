@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
@@ -146,13 +147,25 @@ public class UploadController extends BaseController {
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     @WrapUpResponseBody
     public boolean checkFileExists(HttpServletRequest request){
+
         String fileStoreUrl = request.getParameter("fileStoreUrl");
         if(StringUtils.isNotBlank(fileStoreUrl)){
             return fileStore.checkFile(fileStoreUrl);
         }
+
+        String fileId = request.getParameter("fileId");
+        if(StringUtils.isNotBlank(fileId)){
+            FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+            if(fileInfo!=null) {
+                FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                return fileStore.checkFile(storeInfo.getFileStorePath());
+            }
+        }
+
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
             UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+
         return fileStore.checkFile(
             fileStore.matchFileStoreUrl(fileInfo, fileSize));
     }

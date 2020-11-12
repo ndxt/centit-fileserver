@@ -1,7 +1,6 @@
 package com.centit.fileserver.pretreat;
 
 import com.centit.fileserver.common.FileBaseInfo;
-import com.centit.fileserver.po.FileInfo;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.office.OfficeToPdf;
