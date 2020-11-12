@@ -38,6 +38,7 @@
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-office</artifactId>
+            <version>2.2-SNAPSHOT</version>
         </dependency>
 
         <dependency>
