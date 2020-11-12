@@ -21,12 +21,12 @@ public class WebInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         initializeSpringConfig(servletContext);
-        String [] servletUrlPatterns = {"/system/*","/fileserver/*"};
+        String [] servletUrlPatterns = {"/system/*","/service/*"};
         registerServletConfig(servletContext, "system",
             "/system/*",
             SystemSpringMvcConfig.class);
-        registerServletConfig(servletContext, "fileserver",
-            "/fileserver/*",
+        registerServletConfig(servletContext, "service",
+            "/service/*",
             NormalSpringMvcConfig.class);
         WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
