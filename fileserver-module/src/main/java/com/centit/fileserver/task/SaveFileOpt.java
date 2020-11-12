@@ -44,6 +44,9 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileOptTaskInfo.getFileId());
         if(null==fileInfo) {
+            OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+                .user("admin")//.unit(fileOptTaskInfo.)
+                .method("存储文件失败").tag(fileMd5).time(DatetimeOpt.currentUtilDate()).content(fileOptTaskInfo.getFileId()+"没有对应fileInfo"));
             return;
         }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
