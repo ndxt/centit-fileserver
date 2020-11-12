@@ -1,5 +1,6 @@
 package com.centit.fileserver.task;
 
+import com.alibaba.fastjson.JSON;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
@@ -46,7 +47,10 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         if(null==fileInfo) {
             OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
                 .user("admin")//.unit(fileOptTaskInfo.)
-                .method("存储文件失败").tag(fileMd5).time(DatetimeOpt.currentUtilDate()).content(fileOptTaskInfo.getFileId()+"没有对应fileInfo"));
+                .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
+                .content("文件存储失败"+fileOptTaskInfo.getFileId()+"没有对应fileInfo")
+                .oldObject(fileOptTaskInfo));
+            logger.error("文件存储失败，找不到对应的文件信息："+ JSON.toJSONString(fileOptTaskInfo));
             return;
         }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
@@ -54,7 +58,8 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         logger.info("存储文件完成");
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user("admin")//.unit(fileOptTaskInfo.)
-            .method("存储文件完成").tag(fileMd5).time(DatetimeOpt.currentUtilDate()).content(tempFilePath));
+            .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
+            .content("存储文件完成:" + tempFilePath));
     }
 
 
