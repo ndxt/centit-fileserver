@@ -156,16 +156,15 @@ public class UploadController extends BaseController {
         String fileId = request.getParameter("fileId");
         if(StringUtils.isNotBlank(fileId)){
             FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-            if(fileInfo!=null) {
-                FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                return fileStore.checkFile(storeInfo.getFileStorePath());
-            }
+            if(fileInfo==null) return false;
+            FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            if(storeInfo==null) return false;
+            return fileStore.checkFile(storeInfo.getFileStorePath());
         }
 
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
             UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-
         return fileStore.checkFile(
             fileStore.matchFileStoreUrl(fileInfo, fileSize));
     }
