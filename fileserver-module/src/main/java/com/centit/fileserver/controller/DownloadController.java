@@ -224,11 +224,9 @@ public class DownloadController extends BaseController {
     }
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
-        //TODO @张宏峰 why
-        if(jdbcUrl.startsWith("jdbc:h2")){
-            return false;
-        }
-        if (!checkAuth(fileInfo, WebOptUtils.getCurrentUserCode(request),request.getParameter("authCode"))) {
+        String userCode=WebOptUtils.getCurrentUserCode(request);
+        userCode=StringBaseOpt.isNvl(userCode)?request.getParameter("userCode"):userCode;
+        if (!checkAuth(fileInfo,userCode ,request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户:"+WebOptUtils.getCurrentUserCode(request)
                 +",所属机构:"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);
             return true;
@@ -239,7 +237,7 @@ public class DownloadController extends BaseController {
     private boolean checkAuth(FileInfo fileInfo, String userCode,String authCode) {
         String[] unitPath = fileLibraryInfoManager.getUnits(userCode);
 
-        if (!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
+        if (!"undefined".equals(userCode)&&!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
                 //个人
@@ -273,7 +271,7 @@ public class DownloadController extends BaseController {
             }
         }
         if (!StringBaseOpt.isNvl(authCode) && !"undefined".equals(authCode)) {
-            return fileInfo.getAuthCode().equals(authCode);
+            return authCode.equals(fileInfo.getAuthCode());
         }
         return false;
     }

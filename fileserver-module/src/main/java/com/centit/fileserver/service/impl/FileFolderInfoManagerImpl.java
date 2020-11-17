@@ -48,7 +48,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
         FileFolderInfo oldFileFolder = getFileFolderInfo(fileFolderInfo.getFolderId());
         List<FileFolderInfo> fileFolderInfos = listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
             "folderName", fileFolderInfo.getFolderName(), "libraryId", fileFolderInfo.getLibraryId()), null);
-        if (fileFolderInfos.size() == 1) {
+        if (fileFolderInfos.size() == 1 && !fileFolderInfos.get(0).getFolderId().equals(fileFolderInfo.getFolderId())) {
             fileFolderInfo.setMsg("100文件夹已存在");
             return fileFolderInfo;
         }
