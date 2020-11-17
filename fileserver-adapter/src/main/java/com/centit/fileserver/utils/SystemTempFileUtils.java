@@ -26,6 +26,10 @@ public abstract class SystemTempFileUtils {
             TEMP_FILE_DIRECTORY = tempFileDirectory + File.separatorChar;
         }
     }
+    public static String getTempFilePath(String fileId){
+        return getTempDirectory() //SysParametersUtils.getTempHome()+ File.separatorChar
+            + fileId +".tmp";
+    }
 
     public static String getTempFilePath(String fileMd5, long size){
         return getTempDirectory() // SysParametersUtils.getTempHome() + File.separatorChar
@@ -38,11 +42,6 @@ public abstract class SystemTempFileUtils {
         }
         return TEMP_FILE_DIRECTORY; // SysParametersUtils.getTempHome()
                     //+ File.separatorChar ;
-    }
-
-    public static String getTempFilePath(String fileId){
-        return getTempDirectory() //SysParametersUtils.getTempHome()+ File.separatorChar
-            + fileId +".tmp";
     }
 
     public static String getRandomTempFilePath(){

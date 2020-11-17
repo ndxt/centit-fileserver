@@ -187,7 +187,8 @@ public abstract class UploadDownloadUtils {
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,
-                                     InputStream inputStream, long fSize, String fileName, String downloadType, String charset)
+                                     InputStream inputStream, long fSize, String fileName,
+                                     String downloadType, String charset)
         throws IOException {
         // 下载
         //String extName = FileType.getFileExtName(fileName);

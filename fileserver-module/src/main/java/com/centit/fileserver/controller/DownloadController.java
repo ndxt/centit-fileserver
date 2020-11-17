@@ -18,6 +18,7 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
@@ -53,6 +54,7 @@ public class DownloadController extends BaseController {
 
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
+
     @Autowired
     private FileLibraryInfoManager fileLibraryInfoManager;
 
@@ -113,6 +115,22 @@ public class DownloadController extends BaseController {
                 FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
         }
     }
+
+    @RequestMapping(value = "/downloadTemp/{tempfileId}", method = RequestMethod.GET)
+    @ApiOperation(value = "下载另失去临时文件")
+    public void downloadTempFile(@PathVariable("tempfileId") String tempfileId, HttpServletRequest request,
+                                         HttpServletResponse response) throws IOException {
+        File zipFile = new File(SystemTempFileUtils.getTempFilePath(tempfileId));
+        if(!zipFile.exists()){
+            throw new ObjectException("临时文件不存在："+tempfileId);
+        }
+        UploadDownloadUtils.downFileRange(request, response,
+            new FileInputStream(zipFile), zipFile.length(),
+            UploadDownloadUtils
+                .getRequestFirstOneParameter(request,"name","fileName"),
+            request.getParameter("downloadType"),null);
+    }
+
 
     @RequestMapping(value = "/downloadwithauth/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据权限下载文件，可以传入authCode分享码")
