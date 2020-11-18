@@ -183,7 +183,7 @@ public class FileFolderInfoController extends BaseController {
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
             .method("文件夹打包下载").tag(folderId).time(DatetimeOpt.currentUtilDate()).content(folderInfo.getFolderName()).newObject(zipFile));
-        return "redirect:../download/downloadTemp/"+tempFileId+"?name="+ URLEncoder.encode(folderInfo.getFolderName(), "UTF-8")+".zip";
+        return tempFileId+"?name="+ URLEncoder.encode(folderInfo.getFolderName(), "UTF-8")+".zip";
     }
 
     /**
