@@ -117,7 +117,7 @@ public class DownloadController extends BaseController {
     }
 
     @RequestMapping(value = "/downloadTemp/{tempfileId}", method = RequestMethod.GET)
-    @ApiOperation(value = "下载另失去临时文件")
+    @ApiOperation(value = "下载临时文件")
     public void downloadTempFile(@PathVariable("tempfileId") String tempfileId, HttpServletRequest request,
                                          HttpServletResponse response) throws IOException {
         File zipFile = new File(SystemTempFileUtils.getTempFilePath(tempfileId));
