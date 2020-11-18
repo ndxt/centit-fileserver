@@ -11,6 +11,8 @@ import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
+import com.centit.support.database.utils.QueryAndNamedParams;
+import com.centit.support.database.utils.QueryUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
@@ -148,13 +150,14 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
             "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,"+
-        "max(a.file_type) fileType,max(a.download_times) downloadTimes,max(file_owner) owner " +
+            "max(a.file_type) fileType,max(a.download_times) downloadTimes,max(file_owner) owner " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
-            "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
-            "where file_state='N' and parent_folder=:parentFolder and library_id=:libraryId " +
+            "left join file_favorite c on a.file_id=c.file_id [:favoriteUser | and c.favorite_user=:favoriteUser] " +
+            "where file_state='N' [:parentFolder | and parent_folder=:parentFolder] [:libraryId | and library_id=:libraryId] " +
             "group by FILE_NAME";
+        QueryAndNamedParams qap = QueryUtils.translateQuery( sqlsen, searchColumn);
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
-            sqlsen, searchColumn);
+            qap.getQuery(), qap.getParams());
         List<FileShowInfo> files = new ArrayList<>();
         if(objects !=null){
             for(Object[] objs:objects){

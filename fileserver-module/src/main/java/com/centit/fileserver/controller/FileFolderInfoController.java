@@ -7,12 +7,11 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
+import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
-import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.algorithm.StringBaseOpt;
-import com.centit.support.algorithm.UuidOpt;
-import com.centit.support.algorithm.ZipCompressor;
+import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -174,12 +175,15 @@ public class FileFolderInfoController extends BaseController {
 
     @RequestMapping(value = "/zip/{folderId}", method = RequestMethod.GET)
     @ApiOperation(value = "将文件夹打包成zip文件下载")
-    public String downloadAsZip(@PathVariable String folderId) {
+    public String downloadAsZip(@PathVariable String folderId,HttpServletRequest request) throws UnsupportedEncodingException {
         FileFolderInfo folderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
-        String tempfileId = UuidOpt.getUuidAsString32();
-        String zipFile = SystemTempFileUtils.getTempFilePath(tempfileId);
+        String tempFileId = UuidOpt.getUuidAsString32();
+        String zipFile = SystemTempFileUtils.getTempFilePath(tempFileId);
         compressFolder(zipFile, folderId);
-        return "redirect:../download/downloadTemp/"+tempfileId+"?name="+folderInfo.getFolderName()+".zip";
+        OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+            .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
+            .method("文件夹打包下载").tag(folderId).time(DatetimeOpt.currentUtilDate()).content(folderInfo.getFolderName()).newObject(zipFile));
+        return "redirect:../download/downloadTemp/"+tempFileId+"?name="+ URLEncoder.encode(folderInfo.getFolderName(), "UTF-8")+".zip";
     }
 
     /**
