@@ -13,6 +13,7 @@ import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
+import com.centit.support.file.FileSystemOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,8 +140,17 @@ public class FileFolderInfoController extends BaseController {
             for(FileShowInfo file : fileList){
                 FileInfo fi= fileInfoManager.getObjectById(file.getAccessToken());
                 FileStoreInfo fsi = fileStoreInfoManager.getObjectById(fi.getFileMd5());
-                ZipCompressor.compressFile(
-                    fileStore.loadFileStream(fsi.getFileStorePath()), fi.getFileName(), out, basedir);
+                InputStream inputStream=fileStore.loadFileStream(fsi.getFileStorePath());
+                if(inputStream==null){
+                    String tempFile = SystemTempFileUtils.getTempFilePath(fsi.getFileMd5(),fsi.getFileSize());
+                    if(FileSystemOpt.existFile(tempFile)){
+                        inputStream= new FileInputStream(new File(tempFile));
+                    }
+                }
+                if(inputStream!=null) {
+                    ZipCompressor.compressFile(inputStream
+                        , fi.getFileName(), out, basedir);
+                }
                 currSize += fsi.getFileSize();
                 if(currSize > MAX_ZIP_FILE_SIZE){
                     throw new ObjectException("zip文件大小超过约定的最大值！");

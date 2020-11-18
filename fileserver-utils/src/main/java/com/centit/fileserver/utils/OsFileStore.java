@@ -87,7 +87,10 @@ public class OsFileStore implements FileStore {
 
     @Override
     public InputStream loadFileStream(String fileStoreUrl) throws IOException {
-        return new FileInputStream(new File(getFileRoot() + fileStoreUrl));
+        if(FileSystemOpt.existFile(getFileRoot() + fileStoreUrl)){
+            return new FileInputStream(new File(getFileRoot() + fileStoreUrl));
+        }
+        return null;
     }
 
     @Override
