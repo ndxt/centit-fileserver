@@ -173,8 +173,9 @@ public class FileFolderInfoController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/zip/{folderId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/zip/{folderId}", method = {RequestMethod.GET})
     @ApiOperation(value = "将文件夹打包成zip文件下载")
+    @WrapUpResponseBody
     public String downloadAsZip(@PathVariable String folderId,HttpServletRequest request) throws UnsupportedEncodingException {
         FileFolderInfo folderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
         String tempFileId = UuidOpt.getUuidAsString32();
