@@ -83,7 +83,7 @@
 
         <dependency>
             <groupId>com.centit.framework</groupId>
-            <artifactId>framework-session-redis</artifactId>
+            <artifactId>framework-session-core</artifactId>
         </dependency>
 
         <dependency>
@@ -170,18 +170,18 @@
                 </configuration>
             </plugin>
         </plugins>
-       <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>test/*</exclude>
-                    <exclude>prod/*</exclude>
-                    <exclude>system.properties</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/${profiles.active}</directory>
-            </resource>
-        </resources>
+<!--       <resources>-->
+<!--            <resource>-->
+<!--                <directory>src/main/resources</directory>-->
+<!--                <excludes>-->
+<!--                    <exclude>test/*</exclude>-->
+<!--                    <exclude>prod/*</exclude>-->
+<!--                    <exclude>system.properties</exclude>-->
+<!--                </excludes>-->
+<!--            </resource>-->
+<!--            <resource>-->
+<!--                <directory>src/main/resources/${profiles.active}</directory>-->
+<!--            </resource>-->
+<!--        </resources>-->
     </build>
 </project>

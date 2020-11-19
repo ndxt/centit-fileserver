@@ -16,6 +16,7 @@ import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.model.StandardPasswordEncoderImpl;
+import com.centit.framework.session.SimpleMapSessionRepository;
 import com.centit.search.document.FileDocument;
 import com.centit.search.document.ObjectDocument;
 import com.centit.search.service.ESServerConfig;
@@ -32,6 +33,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.MapSessionRepository;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.security.SpringSessionBackedSessionRegistry;
+
+import java.util.HashMap;
 
 /**
  * Created by codefan on 17-7-18.
@@ -44,6 +53,7 @@ import org.springframework.core.env.Environment;
         IPOrStaticAppSystemBeanConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableSpringHttpSession
 public class ServiceConfig {
 
     @Value("${app.home:./}")
@@ -55,6 +65,16 @@ public class ServiceConfig {
     }*/
     @Autowired
     private Environment env;
+    @Bean
+    public FindByIndexNameSessionRepository sessionRepository() {
+        return new SimpleMapSessionRepository();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry(
+        @Autowired FindByIndexNameSessionRepository sessionRepository){
+        return new SpringSessionBackedSessionRegistry(sessionRepository);
+    }
 
     @Bean
     public FileStore fileStore(){
