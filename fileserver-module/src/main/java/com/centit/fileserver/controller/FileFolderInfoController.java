@@ -14,6 +14,7 @@ import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
+import com.centit.support.file.FileType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +48,7 @@ import java.util.zip.ZipOutputStream;
 @Api(value = "FILE_FOLDER_INFO", tags = "文件夹信息")
 public class FileFolderInfoController extends BaseController {
 
-    private static final long MAX_ZIP_FILE_SIZE = 2*1024*1024*1024l;
+    private static final long MAX_ZIP_FILE_SIZE = 4*1024*1024*1024l;
 
     @Autowired
     private FileInfoManager fileInfoManager;
@@ -151,9 +152,12 @@ public class FileFolderInfoController extends BaseController {
                     ZipCompressor.compressFile(inputStream
                         , fi.getFileName(), out, basedir);
                 }
-                currSize += fsi.getFileSize();
-                if(currSize > MAX_ZIP_FILE_SIZE){
-                    throw new ObjectException("zip文件大小超过约定的最大值！");
+
+                if(currSize>0) {
+                    currSize += fsi.getFileSize();
+                    if (currSize > MAX_ZIP_FILE_SIZE) {
+                        throw new ObjectException("zip文件大小超过约定的最大值！");
+                    }
                 }
             }
         }
@@ -176,12 +180,29 @@ public class FileFolderInfoController extends BaseController {
             addFolder(out, "", folderId, 0);
             out.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ObjectException(e);
         }
     }
 
-    @RequestMapping(value = "/zip/{folderId}", method = {RequestMethod.GET})
+    @RequestMapping(value = "/downloadZip/{folderId}", method = {RequestMethod.GET})
     @ApiOperation(value = "将文件夹打包成zip文件下载")
+    public void downloadAsZipStream(@PathVariable String folderId, HttpServletRequest request,
+                    HttpServletResponse response) throws IOException{
+        FileFolderInfo folderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
+        response.setContentType(FileType.mapExtNameToMimeType("zip"));
+        response.setHeader("Content-Disposition", "attachment; filename="
+                + URLEncoder.encode(folderInfo.getFolderName(), "UTF-8")+".zip");
+
+        ZipOutputStream out = ZipCompressor.convertToZipOutputStream(response.getOutputStream());
+        addFolder(out, "", folderId, 0);
+        out.close();
+        OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+            .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
+            .method("文件夹打包下载").tag(folderId).time(DatetimeOpt.currentUtilDate()).content(folderInfo.getFolderName()));
+    }
+
+    @RequestMapping(value = "/zip/{folderId}", method = {RequestMethod.GET})
+    @ApiOperation(value = "将文件夹打包成zip, 并返回临时文件的路径")
     @WrapUpResponseBody
     public String downloadAsZip(@PathVariable String folderId,HttpServletRequest request) throws UnsupportedEncodingException {
         FileFolderInfo folderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
@@ -215,7 +236,8 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
-    public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+    public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request,
+                                     HttpServletResponse response) {
         if(StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())){
             throw new ObjectException("库id不能为空");
         }
