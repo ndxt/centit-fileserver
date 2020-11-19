@@ -41,6 +41,7 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by codefan on 17-7-18.
@@ -66,14 +67,8 @@ public class ServiceConfig {
     @Autowired
     private Environment env;
     @Bean
-    public FindByIndexNameSessionRepository sessionRepository() {
-        return new SimpleMapSessionRepository();
-    }
-
-    @Bean
-    public SessionRegistry sessionRegistry(
-        @Autowired FindByIndexNameSessionRepository sessionRepository){
-        return new SpringSessionBackedSessionRegistry(sessionRepository);
+    public MapSessionRepository sessionRepository() {
+        return new MapSessionRepository(new ConcurrentHashMap<>());
     }
 
     @Bean
