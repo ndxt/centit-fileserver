@@ -153,7 +153,7 @@ public class FileFolderInfoController extends BaseController {
                         , fi.getFileName(), out, basedir);
                 }
 
-                if(currSize>0) {
+                if(currSize >= 0) {
                     currSize += fsi.getFileSize();
                     if (currSize > MAX_ZIP_FILE_SIZE) {
                         throw new ObjectException("zip文件大小超过约定的最大值！");
