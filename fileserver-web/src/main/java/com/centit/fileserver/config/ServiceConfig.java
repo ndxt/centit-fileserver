@@ -36,11 +36,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSessionRepository;
-import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -66,10 +64,7 @@ public class ServiceConfig {
     }*/
     @Autowired
     private Environment env;
-    @Bean
-    public MapSessionRepository sessionRepository() {
-        return new MapSessionRepository(new ConcurrentHashMap<>());
-    }
+
 
     @Bean
     public FileStore fileStore(){
@@ -215,5 +210,20 @@ public class ServiceConfig {
     }
     //这个bean必须要有 可以配置不同策略的session保存方案
 
+    @Bean
+    public MapSessionRepository sessionRepository() {
+        return new MapSessionRepository(new ConcurrentHashMap<>());
+    }
+    /*
+    @Bean
+    public FindByIndexNameSessionRepository sessionRepository() {
+        return new SimpleMapSessionRepository();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry(
+        @Autowired FindByIndexNameSessionRepository sessionRepository){
+        return new SpringSessionBackedSessionRegistry(sessionRepository);
+    }*/
 }
 

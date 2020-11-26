@@ -70,7 +70,16 @@ public class DownloadController extends BaseController {
     @Value("${jdbc.url}")
     protected String jdbcUrl;
 
-
+   /* @RequestMapping(value = "/testBigFile", method = RequestMethod.GET)
+    @ApiOperation(value = "测试大文件下载")
+    public void downloadTempFile(HttpServletRequest request,
+                                 HttpServletResponse response) throws IOException {
+        File bigFile = new File("/D/temp/bigFile.mkv");
+        UploadDownloadUtils.downFileRange(request, response,
+            new FileInputStream(bigFile),
+            bigFile.length(), "bigFile.mkv", request.getParameter("downloadType"), null);
+    }
+*/
     public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo) {
