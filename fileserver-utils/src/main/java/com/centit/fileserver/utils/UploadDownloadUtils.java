@@ -221,14 +221,14 @@ public abstract class UploadDownloadUtils {
             pos = fr.getRangeStart();
             if (fr.getPartSize() < fr.getFileSize()) {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                // Content-Range: bytes 500-999/1234
-                response.setHeader("Content-Range", fr.getResponseRange());
             }
         }
         response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
+        // Content-Range: bytes 500-999/1234
+        response.setHeader("Content-Range", fr.getResponseRange());
         //logger.debug("Content-Range :" + contentRange);
         try (ServletOutputStream out = response.getOutputStream();
-             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
+            BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
             if (pos > 0) {
                 inputStream.skip(pos);
             }
