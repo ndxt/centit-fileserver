@@ -227,18 +227,18 @@ public abstract class UploadDownloadUtils {
         // Content-Range: bytes 500-999/1234
         response.setHeader("Content-Range", fr.getResponseRange());
         //logger.debug("Content-Range :" + contentRange);
+        BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
+            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream);
         try (ServletOutputStream out = response.getOutputStream();
             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
             if (pos > 0) {
-                inputStream.skip(pos);
+                bis.skip(pos);
             }
             byte[] buffer = new byte[64 * 1024];
             long needSize = fr.getPartSize(); //需要传输的字节
-            long length = 0;
-
-            while ((needSize > 0) && ((length = inputStream.read(buffer, 0, buffer.length)) != -1)) {
+            long length;
+            while ((needSize > 0) && ((length = bis.read(buffer, 0, buffer.length)) != -1)) {
                 long writeLen = Math.min(needSize, length);
-
                 bufferOut.write(buffer, 0, (int) writeLen);
                 bufferOut.flush();
                 needSize -= writeLen;
@@ -247,7 +247,7 @@ public abstract class UploadDownloadUtils {
             //bufferOut.close();
             //out.close();
         } catch (SocketException e) {
-            logger.info("客户端断开链接：" + e.getMessage(), e);
+            logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
         }
     }
 
