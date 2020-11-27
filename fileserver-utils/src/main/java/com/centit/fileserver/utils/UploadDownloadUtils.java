@@ -58,6 +58,16 @@ public abstract class UploadDownloadUtils {
         return null;
     }
 
+    public static String getRequestFirstOneHeader(HttpServletRequest request, String... params) {
+        for (String p : params) {
+            String value = request.getHeader(p);
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     public static JSONObject checkFileRange(FileStore fileStore, FileBaseInfo fileInfo, long size) {
         JSONObject jsonObject;
         // 如果文件已经存在则完成秒传，无需再传
@@ -209,7 +219,7 @@ public abstract class UploadDownloadUtils {
                 + URLEncoder.encode(fileName, "UTF-8"));
         long pos = 0;
 
-        FileRangeInfo fr = FileRangeInfo.parseRange(request.getHeader("Range"));
+        FileRangeInfo fr = FileRangeInfo.parseRange(request);
 
         if (fr == null) {
             fr = new FileRangeInfo(0, fSize - 1, fSize);

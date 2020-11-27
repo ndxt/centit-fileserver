@@ -21,7 +21,9 @@ public class FileRangeInfo implements Serializable {
      * @return FileRangeInfo
      */
     public static FileRangeInfo parseRange(HttpServletRequest req){
-        return parseRange(req.getHeader("content-range"));
+        //request.getHeader("Range")
+        return parseRange(UploadDownloadUtils.getRequestFirstOneHeader(req,
+            "Range","Content-Range","range","content-range"));
     }
 
     public static FileRangeInfo parseRange(String range){
