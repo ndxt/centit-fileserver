@@ -238,7 +238,7 @@ public abstract class UploadDownloadUtils {
         response.setHeader("Content-Range", fr.getResponseRange());
         //logger.debug("Content-Range :" + contentRange);
         BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
-            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream);
+            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
         try (ServletOutputStream out = response.getOutputStream();
             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
             if (pos > 0) {
