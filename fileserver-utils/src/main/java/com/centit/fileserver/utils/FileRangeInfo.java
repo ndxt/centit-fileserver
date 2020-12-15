@@ -1,5 +1,7 @@
 package com.centit.fileserver.utils;
 
+import com.centit.framework.common.WebOptUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -22,7 +24,7 @@ public class FileRangeInfo implements Serializable {
      */
     public static FileRangeInfo parseRange(HttpServletRequest req){
         //request.getHeader("Range")
-        return parseRange(UploadDownloadUtils.getRequestFirstOneHeader(req,
+        return parseRange(WebOptUtils.getRequestFirstOneHeader(req,
             "Range","Content-Range","range","content-range"));
     }
 

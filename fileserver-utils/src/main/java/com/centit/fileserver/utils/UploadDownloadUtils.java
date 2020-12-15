@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.framework.common.ResponseData;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.common.ObjectException;
@@ -48,26 +49,6 @@ public abstract class UploadDownloadUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(UploadDownloadUtils.class);
 
-    public static String getRequestFirstOneParameter(HttpServletRequest request, String... params) {
-        for (String p : params) {
-            String value = request.getParameter(p);
-            if (StringUtils.isNotBlank(value)) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    public static String getRequestFirstOneHeader(HttpServletRequest request, String... params) {
-        for (String p : params) {
-            String value = request.getHeader(p);
-            if (StringUtils.isNotBlank(value)) {
-                return value;
-            }
-        }
-        return null;
-    }
-
     public static JSONObject checkFileRange(FileStore fileStore, FileBaseInfo fileInfo, long size) {
         JSONObject jsonObject;
         // 如果文件已经存在则完成秒传，无需再传
@@ -84,7 +65,7 @@ public abstract class UploadDownloadUtils {
     }
 
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
-        String fileName = getRequestFirstOneParameter(request, "name", "fileName");
+        String fileName = WebOptUtils.getRequestFirstOneParameter(request, "name", "fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             return new ImmutablePair<>(fileName, request.getInputStream());

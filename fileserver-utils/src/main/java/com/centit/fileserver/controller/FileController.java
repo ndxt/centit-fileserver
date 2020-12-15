@@ -289,15 +289,15 @@ public abstract class FileController extends BaseController {
 
         public static SimpleFileInfo fetchFromRequest(HttpServletRequest request){
             SimpleFileInfo fileInfo = new SimpleFileInfo();
-            fileInfo.setFileMd5(UploadDownloadUtils
+            fileInfo.setFileMd5(WebOptUtils
                 .getRequestFirstOneParameter(request, "token", "fileMd5"));
-            fileInfo.setFileName(UploadDownloadUtils
+            fileInfo.setFileName(WebOptUtils
                 .getRequestFirstOneParameter(request,"name", "fileName"));
             fileInfo.setOptId(request.getParameter("optId"));
             fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
             fileInfo.setFileUnit(request.getParameter("fileUnit"));
             Long fileSize = NumberBaseOpt.parseLong(
-                UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+                WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
             fileInfo.setFileSize(fileSize);
             return fileInfo;
         }

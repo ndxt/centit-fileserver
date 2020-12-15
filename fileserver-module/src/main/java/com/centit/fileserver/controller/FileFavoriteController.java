@@ -41,31 +41,30 @@ public class FileFavoriteController  extends BaseController {
         this.fileFavoriteMag = fileFavoriteMag;
     }
 
-
     /**
      * 查询所有   文件收藏  列表
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
-	@ApiOperation(value = "查询所有文件收藏列表")
-	@WrapUpResponseBody
+    @ApiOperation(value = "查询所有文件收藏列表")
+    @WrapUpResponseBody
     public PageQueryResult<FileFavorite> list(HttpServletRequest request, PageDesc pageDesc) {
         Map<String, Object> searchColumn = collectRequestParameters(request);
         List<FileFavorite> fileFavorites = fileFavoriteMag.listFileFavorite(
             searchColumn, pageDesc);
-		return PageQueryResult.createResult(fileFavorites,pageDesc);
+        return PageQueryResult.createResult(fileFavorites,pageDesc);
     }
 
     /**
      * 查询单个  文件收藏
 
-	 * @param favoriteId  favorite_id
+     * @param favoriteId  favorite_id
      * @return {data:{}}
      */
     @RequestMapping(value = "/{favoriteId}", method = {RequestMethod.GET})
-	@ApiOperation(value = "查询单个文件收藏")
-	@WrapUpResponseBody
-	public FileFavorite getFileFavorite(@PathVariable String favoriteId) {
+    @ApiOperation(value = "查询单个文件收藏")
+    @WrapUpResponseBody
+    public FileFavorite getFileFavorite(@PathVariable String favoriteId) {
 
         return fileFavoriteMag.getFileFavorite( favoriteId);
     }
@@ -76,10 +75,10 @@ public class FileFavoriteController  extends BaseController {
      * @param fileFavorite  {@link FileFavorite}
      */
     @RequestMapping(method = {RequestMethod.POST})
-	@ApiOperation(value = "新增文件收藏")
-	@WrapUpResponseBody
+    @ApiOperation(value = "新增文件收藏")
+    @WrapUpResponseBody
     public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request, HttpServletResponse response) {
-    	if(StringBaseOpt.isNvl(fileFavorite.getFavoriteUser())) {
+        if(StringBaseOpt.isNvl(fileFavorite.getFavoriteUser())) {
             fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
         }
         fileFavoriteMag.createFileFavorite(fileFavorite);
@@ -89,14 +88,14 @@ public class FileFavoriteController  extends BaseController {
     /**
      * 删除单个  文件收藏
 
-	 * @param favoriteId  favorite_id
+     * @param favoriteId  favorite_id
      */
     @RequestMapping(value = "/{favoriteId}", method = {RequestMethod.DELETE})
-	@ApiOperation(value = "删除单个文件收藏")
-	@WrapUpResponseBody
-	public void deleteFileFavorite(@PathVariable String favoriteId) {
+    @ApiOperation(value = "删除单个文件收藏")
+    @WrapUpResponseBody
+    public void deleteFileFavorite(@PathVariable String favoriteId) {
 
-    	fileFavoriteMag.deleteFileFavorite( favoriteId);
+        fileFavoriteMag.deleteFileFavorite( favoriteId);
 
 
     }
@@ -104,12 +103,12 @@ public class FileFavoriteController  extends BaseController {
     /**
      * 新增或保存 文件收藏
 
-	 * @param fileFavorite  {@link FileFavorite}
+     * @param fileFavorite  {@link FileFavorite}
      */
     @RequestMapping(method = {RequestMethod.PUT})
-	@ApiOperation(value = "更新文件收藏")
-	@WrapUpResponseBody
+    @ApiOperation(value = "更新文件收藏")
+    @WrapUpResponseBody
     public void updateFileFavorite(@RequestBody FileFavorite fileFavorite) {
-		fileFavoriteMag.updateFileFavorite(fileFavorite);
+        fileFavoriteMag.updateFileFavorite(fileFavorite);
     }
 }

@@ -103,9 +103,9 @@ public class UploadController extends BaseController {
 
         FileInfo fileInfo = new FileInfo();
 
-        fileInfo.setFileMd5(UploadDownloadUtils
+        fileInfo.setFileMd5(WebOptUtils
             .getRequestFirstOneParameter(request, "fileMd5", "token"));
-        fileInfo.setFileName(UploadDownloadUtils
+        fileInfo.setFileName(WebOptUtils
             .getRequestFirstOneParameter(request,"name","fileName"));
         String fileState = request.getParameter("fileState");
         if(StringUtils.isNotBlank(fileState)) {
@@ -116,7 +116,7 @@ public class UploadController extends BaseController {
         fileInfo.setOptMethod(request.getParameter("optMethod"));
         fileInfo.setOptTag(request.getParameter("optTag"));
         //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-        fileInfo.setFileShowPath(UploadDownloadUtils
+        fileInfo.setFileShowPath(WebOptUtils
             .getRequestFirstOneParameter(request,"filePath", "fileShowPath"));
         fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
@@ -129,9 +129,9 @@ public class UploadController extends BaseController {
     private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request){
         Map<String, Object> pretreatInfo = collectRequestParameters(request);
         pretreatInfo.put("fileMd5",
-            UploadDownloadUtils.getRequestFirstOneParameter(request, "fileMd5", "token"));
+            WebOptUtils.getRequestFirstOneParameter(request, "fileMd5", "token"));
         Long fileSize = NumberBaseOpt.parseLong(
-            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
         pretreatInfo.put("fileSize", fileSize);
         return pretreatInfo;
     }
@@ -164,7 +164,7 @@ public class UploadController extends BaseController {
 
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
-            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
         return fileStore.checkFile(
             fileStore.matchFileStoreUrl(fileInfo, fileSize));
     }
@@ -180,7 +180,7 @@ public class UploadController extends BaseController {
     public JSONObject checkFileRange(HttpServletRequest request) {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
-            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
         return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileSize);
     }
 
@@ -340,7 +340,7 @@ public class UploadController extends BaseController {
         request.setCharacterEncoding("utf8");
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
-            UploadDownloadUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
 
         if (fileStore.checkFile(
             fileStore.matchFileStoreUrl(fileInfo, fileSize))){// 如果文件已经存在则完成秒传，无需再传。

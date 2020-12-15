@@ -33,7 +33,7 @@ import java.util.Map;
 @Api(value = "FILE_LIBRARY_ACCESS", tags = "项目库授权信息")
 public class FileLibraryAccessController  extends BaseController {
 
-	private final FileLibraryAccessManager fileLibraryAccessMag;
+    private final FileLibraryAccessManager fileLibraryAccessMag;
 
     public FileLibraryAccessController(FileLibraryAccessManager fileLibraryAccessMag) {
         this.fileLibraryAccessMag = fileLibraryAccessMag;
@@ -45,27 +45,27 @@ public class FileLibraryAccessController  extends BaseController {
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
-	@ApiOperation(value = "查询所有项目库授权信息列表")
-	@WrapUpResponseBody
+    @ApiOperation(value = "查询所有项目库授权信息列表")
+    @WrapUpResponseBody
     public PageQueryResult<FileLibraryAccess> list(HttpServletRequest request, PageDesc pageDesc) {
         Map<String, Object> searchColumn = collectRequestParameters(request);
         List<FileLibraryAccess> fileLibraryAccesss = fileLibraryAccessMag.listFileLibraryAccess(
             searchColumn, pageDesc);
-		return PageQueryResult.createResult(fileLibraryAccesss,pageDesc);
+        return PageQueryResult.createResult(fileLibraryAccesss,pageDesc);
     }
 
     /**
      * 查询单个  项目库授权信息
 
-	 * @param accessId  access_id
+     * @param accessId  access_id
      * @return {data:{}}
      */
     @RequestMapping(value = "/{accessId}", method = {RequestMethod.GET})
-	@ApiOperation(value = "查询单个项目库授权信息")
-	@WrapUpResponseBody
-	public FileLibraryAccess getFileLibraryAccess(@PathVariable String accessId) {
+    @ApiOperation(value = "查询单个项目库授权信息")
+    @WrapUpResponseBody
+    public FileLibraryAccess getFileLibraryAccess(@PathVariable String accessId) {
 
-    	return fileLibraryAccessMag.getFileLibraryAccess( accessId);
+        return fileLibraryAccessMag.getFileLibraryAccess( accessId);
     }
 
     /**
@@ -74,10 +74,10 @@ public class FileLibraryAccessController  extends BaseController {
      * @param fileLibraryAccess  {@link FileLibraryAccess}
      */
     @RequestMapping(method = {RequestMethod.POST})
-	@ApiOperation(value = "新增项目库授权信息")
-	@WrapUpResponseBody
+    @ApiOperation(value = "新增项目库授权信息")
+    @WrapUpResponseBody
     public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess,HttpServletRequest request, HttpServletResponse response) {
-    	fileLibraryAccess.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+        fileLibraryAccess.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryAccessMag.createFileLibraryAccess(fileLibraryAccess);
         JsonResultUtils.writeSingleDataJson(fileLibraryAccess,response);
     }
@@ -85,24 +85,24 @@ public class FileLibraryAccessController  extends BaseController {
     /**
      * 删除单个  项目库授权信息
 
-	 * @param accessId  access_id
+     * @param accessId  access_id
      */
     @RequestMapping(value = "/{accessId}", method = {RequestMethod.DELETE})
-	@ApiOperation(value = "删除单个项目库授权信息")
-	@WrapUpResponseBody
-	public void deleteFileLibraryAccess(@PathVariable String accessId) {
-    	fileLibraryAccessMag.deleteFileLibraryAccess( accessId);
+    @ApiOperation(value = "删除单个项目库授权信息")
+    @WrapUpResponseBody
+    public void deleteFileLibraryAccess(@PathVariable String accessId) {
+        fileLibraryAccessMag.deleteFileLibraryAccess( accessId);
     }
 
     /**
      * 更新 项目库授权信息
 
-	 * @param fileLibraryAccess  {@link FileLibraryAccess}
+     * @param fileLibraryAccess  {@link FileLibraryAccess}
      */
     @RequestMapping( method = {RequestMethod.PUT})
-	@ApiOperation(value = "更新项目库授权信息")
-	@WrapUpResponseBody
+    @ApiOperation(value = "更新项目库授权信息")
+    @WrapUpResponseBody
     public void updateFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess) {
-		fileLibraryAccessMag.updateFileLibraryAccess(fileLibraryAccess);
+        fileLibraryAccessMag.updateFileLibraryAccess(fileLibraryAccess);
     }
 }

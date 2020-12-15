@@ -135,7 +135,7 @@ public class DownloadController extends BaseController {
         }
         UploadDownloadUtils.downFileRange(request, response,
             new FileInputStream(zipFile), zipFile.length(),
-            UploadDownloadUtils
+            WebOptUtils
                 .getRequestFirstOneParameter(request,"name","fileName"),
             request.getParameter("downloadType"),null);
     }
