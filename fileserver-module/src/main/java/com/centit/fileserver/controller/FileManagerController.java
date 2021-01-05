@@ -12,12 +12,12 @@ import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseMapData;
 import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
-import com.centit.framework.ip.po.OsInfo;
-import com.centit.framework.ip.service.IntegrationEnvironment;
+import com.centit.framework.model.basedata.IOsInfo;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Impl.ESSearcher;
@@ -59,9 +59,6 @@ public class FileManagerController extends BaseController {
 
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
-
-    @Autowired
-    private IntegrationEnvironment integrationEnvironment;
 
     @Autowired
     protected FileStore fileStore;
@@ -280,10 +277,9 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/oss", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统中的所有OS")
     public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
-        List<OsInfo> osinfoList = integrationEnvironment.listOsInfos();
+        List<? extends IOsInfo> osinfoList = CodeRepositoryUtil.listOsInfo();
         JsonResultUtils.writeSingleDataJson(osinfoList, response);
     }
-
 
     /**
      * 获取系统所有操作
