@@ -168,7 +168,7 @@ public class FilePretreatUtils {
     public static String createPdf(FileInfo fileInfo, String sourceFilePath) throws Exception {
 
         String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
-        if (FileSystemOpt.existFile(pdfTmpFile) || office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
+        if ( office2Pdf(fileInfo.getFileType(), sourceFilePath, pdfTmpFile)) {
             updateCommonFileInfo(fileInfo, pdfTmpFile);
             fileInfo.setFileType("pdf");
             fileInfo.setFileName(FileType.truncateFileExtName(fileInfo.getFileName()) + ".pdf");

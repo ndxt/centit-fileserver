@@ -180,7 +180,7 @@ public class DownloadController extends BaseController {
                 canView = true;
             } else if(StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())){
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-                if(attachedFileStoreInfo != null) {
+                if(attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize()>0) {
                     UploadDownloadUtils.downFileRange(request, response,
                         getFileStream(fileStore, attachedFileStoreInfo),
                         attachedFileStoreInfo.getFileSize(),
@@ -188,29 +188,11 @@ public class DownloadController extends BaseController {
                             + "." + fileInfo.getAttachedType(),
                         "inline", null);
                     canView = true;
+                }else{
+                    canView = reGetPdf(fileId, request, response, fileInfo);
                 }
             } else {
-                if(AbstractOfficeToPdf.canTransToPdf(fileInfo)){
-                    FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                    FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
-                    addPdfTaskInfo.setFileId(fileId);
-                    addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
-                    createPdfOpt.doFileTask(addPdfTaskInfo);
-                    FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
-                    if(StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())){
-                        FileStoreInfo attachedFileStoreInfo =
-                            fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
-                        if(attachedFileStoreInfo!=null) {
-                            canView = true;
-                            UploadDownloadUtils.downFileRange(request, response,
-                                getFileStream(fileStore, attachedFileStoreInfo),
-                                attachedFileStoreInfo.getFileSize(),
-                                FileType.truncateFileExtName(newFileInfo.getFileName())
-                                    + ".pdf",// + newFileInfo.getAttachedType(),
-                                "inline", null);
-                        }
-                    }
-                }
+                canView = reGetPdf(fileId, request, response, fileInfo);
             }
             if(!canView){
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
@@ -224,6 +206,32 @@ public class DownloadController extends BaseController {
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
+    }
+
+    private boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
+        boolean canView=false;
+        if (AbstractOfficeToPdf.canTransToPdf(fileInfo)) {
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
+            addPdfTaskInfo.setFileId(fileId);
+            addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
+            createPdfOpt.doFileTask(addPdfTaskInfo);
+            FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
+            if (StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())) {
+                FileStoreInfo attachedFileStoreInfo =
+                    fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
+                if (attachedFileStoreInfo != null) {
+                    canView = true;
+                    UploadDownloadUtils.downFileRange(request, response,
+                        getFileStream(fileStore, attachedFileStoreInfo),
+                        attachedFileStoreInfo.getFileSize(),
+                        FileType.truncateFileExtName(newFileInfo.getFileName())
+                            + ".pdf",// + newFileInfo.getAttachedType(),
+                        "inline", null);
+                }
+            }
+        }
+        return canView;
     }
 
     private static InputStream getFileStream(FileStore fileStore, FileStoreInfo fileStoreInfo) throws IOException {
