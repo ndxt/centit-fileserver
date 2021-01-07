@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * FileFolderInfo  Service.
@@ -53,16 +54,18 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
             return fileFolderInfo;
         }
         fileFolderInfoDao.updateObject(fileFolderInfo);
-        if (!oldFileFolder.getFolderPath().equals(fileFolderInfo.getFolderPath()) ||
-            !oldFileFolder.getLibraryId().equals(fileFolderInfo.getLibraryId())) {
-            String oldPath = oldFileFolder.getFolderPath() + "/" + oldFileFolder.getFolderId();
-            String newPath = fileFolderInfo.getFolderPath() + "/" + fileFolderInfo.getFolderId();
-            DatabaseOptUtils.doExecuteSql(fileFolderInfoDao,
-                "update file_folder_info set library_id=?,folder_path=replace(folder_path,?,?) where folder_path like ?",
-                new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
-            DatabaseOptUtils.doExecuteSql(fileFolderInfoDao,
-                "update file_info set library_id=?,file_show_path=replace(file_show_path,?,?) where file_show_path like ?",
-                new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
+        if(!StringBaseOpt.isNvl(fileFolderInfo.getFolderPath()) && !StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())) {
+            if (!oldFileFolder.getFolderPath().equals(fileFolderInfo.getFolderPath()) ||
+                !oldFileFolder.getLibraryId().equals(fileFolderInfo.getLibraryId())) {
+                String oldPath = oldFileFolder.getFolderPath() + "/" + oldFileFolder.getFolderId();
+                String newPath = fileFolderInfo.getFolderPath() + "/" + fileFolderInfo.getFolderId();
+                DatabaseOptUtils.doExecuteSql(fileFolderInfoDao,
+                    "update file_folder_info set library_id=?,folder_path=replace(folder_path,?,?) where folder_path like ?",
+                    new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
+                DatabaseOptUtils.doExecuteSql(fileFolderInfoDao,
+                    "update file_info set library_id=?,file_show_path=replace(file_show_path,?,?) where file_show_path like ?",
+                    new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
+            }
         }
         if (!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
             OperationLogCenter.log(OperationLog.create()
