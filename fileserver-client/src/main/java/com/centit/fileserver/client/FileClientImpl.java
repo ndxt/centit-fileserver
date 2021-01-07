@@ -460,7 +460,7 @@ public class FileClientImpl implements FileClient {
     public long getFileSizeByFileId(String fileId) {
         try {
             FileInfo fi = this.getFileInfo(fileId);
-            return fi != null && fi.getFileSize() != null ? fi.getFileSize() : -1L;
+            return fi != null ? fi.getFileSize() : -1L;
         } catch (IOException e) {
             return -2;
         }

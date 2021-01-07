@@ -6,6 +6,7 @@ import com.centit.fileserver.common.FileStore;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
@@ -366,4 +367,104 @@ public abstract class UploadDownloadUtils {
         IOUtils.copy(downloadFile, response.getOutputStream());
     }
 
+    public static FileBaseInfo createFileBaseInfo(HttpServletRequest request){
+        return new SimpleFileInfo(request);
+    }
+
+    public static FileBaseInfo createFileBaseInfo(HttpServletRequest request, String fileMd5, long fileSize){
+        return new SimpleFileInfo(request, fileMd5, fileSize);
+    }
+
+    public static FileBaseInfo createFileBaseInfo(String fileIdIncludeMd5AndSize){
+        return new SimpleFileInfo(fileIdIncludeMd5AndSize);
+    }
+
+    private static class SimpleFileInfo implements FileBaseInfo {
+        private String fileId;
+        private String fileMd5;
+        private String fileName;
+        private String optId;
+        private String fileOwner;
+        private String fileUnit;
+        private long fileSize;
+        public SimpleFileInfo(String fileIdIncludeMd5AndSize){
+            Pair<String, Long> md5Size = SystemTempFileUtils.fetchMd5AndSize(fileIdIncludeMd5AndSize);
+            this.fileId = fileIdIncludeMd5AndSize;
+            this.fileMd5 = md5Size.getLeft();
+            this.fileSize = md5Size.getRight();
+        }
+
+        public SimpleFileInfo(HttpServletRequest request){
+            this.fileMd5 = WebOptUtils
+                .getRequestFirstOneParameter(request, "token", "fileMd5");
+            this.fileName = WebOptUtils
+                .getRequestFirstOneParameter(request,"name", "fileName");
+            this.optId = request.getParameter("optId");
+            this.fileOwner = WebOptUtils.getCurrentUserCode(request);
+            this.fileUnit = request.getParameter("fileUnit");
+            Long fileSize = NumberBaseOpt.parseLong(
+                WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+            this.fileSize = fileSize;
+        }
+
+        public SimpleFileInfo(HttpServletRequest request, String fileMd5, long fileSize){
+            this(request);
+            if(StringUtils.isNotBlank(fileMd5)) {
+                this.fileMd5 = fileMd5;
+            }
+            if(fileSize>0) {
+                this.fileSize = fileSize;
+            }
+        }
+
+        @Override
+        public String getFileId() {
+            return fileId;
+        }
+
+        @Override
+        public String getFileMd5() {
+            return fileMd5;
+        }
+
+        @Override
+        public String getFileName() {
+            return fileName;
+        }
+
+        @Override
+        public String getFileType() {
+            return FileType.truncateFileExtName(this.getFileName());
+        }
+
+        @Override
+        public String getOsId() {
+            return "filUpload";
+        }
+
+        @Override
+        public String getOptId() {
+            return optId;
+        }
+
+        @Override
+        public String getFileOwner() {
+            return fileOwner;
+        }
+
+        @Override
+        public String getFileUnit() {
+            return fileUnit;
+        }
+
+        @Override
+        public String getLibraryId() {
+            return "";
+        }
+
+        @Override
+        public long getFileSize() {
+            return fileSize;
+        }
+    }
 }

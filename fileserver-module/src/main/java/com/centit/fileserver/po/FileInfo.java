@@ -114,7 +114,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private String parentFolder;
 
     @Transient
-    private Long fileSize;
+    private long fileSize;
 
     public FileInfo() {
         indexState = "N";
@@ -204,7 +204,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
         if (other.getCreateTime() != null) {
             this.createTime = other.getCreateTime();
         }
-        //this.fileSize = other.getFileSize();
+        this.fileSize = other.getFileSize();
         //加密算法
         //this.encryptType=other.getEncryptType();
         if (StringUtils.isNotBlank(other.getFileOwner())) {

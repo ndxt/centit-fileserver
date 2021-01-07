@@ -10,5 +10,5 @@ public interface FileBaseInfo {
     String getFileOwner();
     String getFileUnit();
     String getLibraryId();
-    //long getFileSize();
+    long getFileSize();
 }

@@ -8,10 +8,8 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
-import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -77,7 +75,7 @@ public abstract class FileController extends BaseController {
         allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public void checkFileExists(HttpServletRequest request, HttpServletResponse response) {
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
         JsonResultUtils.writeOriginalObject(
             fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize())), response);
     }
@@ -93,7 +91,7 @@ public abstract class FileController extends BaseController {
     @RequestMapping(value = "/range", method = {RequestMethod.GET})
     @WrapUpResponseBody
     public JSONObject checkFileRange(HttpServletRequest request) {
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
         return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileInfo.getFileSize());
     }
 
@@ -127,7 +125,7 @@ public abstract class FileController extends BaseController {
         throws IOException {
         request.setCharacterEncoding("utf8");
 
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
 
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), response);
@@ -157,14 +155,14 @@ public abstract class FileController extends BaseController {
     @RequestMapping(value = "/range", method = {RequestMethod.POST})
     public void uploadRange(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
         Pair<String, InputStream> fileStreamInfo = fetchInputStreamFromRequest(request);
-        if(StringUtils.isBlank(fileInfo.getFileName())){
-            fileInfo.setFileName(fileStreamInfo.getLeft());
-        }
+        String fileName = StringUtils.isBlank(fileInfo.getFileName())? fileStreamInfo.getLeft()
+            :fileInfo.getFileName();
+
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(),
-                fileInfo.getFileName(), response);
+                fileName, response);
             return;
         }
 
@@ -199,7 +197,7 @@ public abstract class FileController extends BaseController {
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
             if (StringUtils.equals(fileMd5, fileInfo.getFileMd5())) {
                 completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(),
-                    fileInfo.getFileName(), response);
+                    fileName, response);
             } else {
                 JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_MD5_ERROR,
                     "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR + " 文件MD5计算错误。", response);
@@ -226,13 +224,14 @@ public abstract class FileController extends BaseController {
         throws IOException {
         request.setCharacterEncoding("utf8");
         Pair<String, InputStream> fileStreamInfo = fetchInputStreamFromRequest(request);
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
+
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
 
         try {
             int fileSize = FileIOOpt.writeInputStreamToFile(fileStreamInfo.getRight(), tempFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
-            fileInfo.setFileMd5(fileMd5);
+            FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request, fileMd5, fileSize);
+
             fileStore.saveFile(tempFilePath, fileInfo, fileSize);
             completedFileStore(fileMd5, fileSize, fileStreamInfo.getLeft(), response);
             FileSystemOpt.deleteFile(tempFilePath);
@@ -271,108 +270,13 @@ public abstract class FileController extends BaseController {
         }
 
         Pair<String, Long> md5Size = SystemTempFileUtils.fetchMd5AndSize(md5SizeExt);
-        SimpleFileInfo fileInfo = SimpleFileInfo.fetchFromRequest(request);
-        fileInfo.setFileMd5(md5Size.getLeft());
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(
+            request, md5Size.getLeft(), md5Size.getRight());
         InputStream inputStream = fileStore.loadFileStream(
             fileStore.matchFileStoreUrl(fileInfo, md5Size.getRight()));
         UploadDownloadUtils.downFileRange(request, response,
             inputStream, md5Size.getRight(), UploadDownloadUtils.encodeDownloadFilename(fileName), request.getParameter("downloadType"), null);
     }
 
-    private static class SimpleFileInfo implements FileBaseInfo {
-        private String fileMd5;
-        private String fileName;
-        private String optId;
-        private String fileOwner;
-        private String fileUnit;
-        private long fileSize;
 
-        public static SimpleFileInfo fetchFromRequest(HttpServletRequest request){
-            SimpleFileInfo fileInfo = new SimpleFileInfo();
-            fileInfo.setFileMd5(WebOptUtils
-                .getRequestFirstOneParameter(request, "token", "fileMd5"));
-            fileInfo.setFileName(WebOptUtils
-                .getRequestFirstOneParameter(request,"name", "fileName"));
-            fileInfo.setOptId(request.getParameter("optId"));
-            fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
-            fileInfo.setFileUnit(request.getParameter("fileUnit"));
-            Long fileSize = NumberBaseOpt.parseLong(
-                WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-            fileInfo.setFileSize(fileSize);
-            return fileInfo;
-        }
-        @Override
-        public String getFileId() {
-            return null;
-        }
-
-        @Override
-        public String getFileMd5() {
-            return fileMd5;
-        }
-
-        public void setFileMd5(String fileMd5) {
-            this.fileMd5 = fileMd5;
-        }
-
-        @Override
-        public String getFileName() {
-            return fileName;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
-        }
-
-        @Override
-        public String getFileType() {
-            return FileType.truncateFileExtName(this.getFileName());
-        }
-
-
-        @Override
-        public String getOsId() {
-            return "filUpload";
-        }
-
-        @Override
-        public String getOptId() {
-            return optId;
-        }
-
-        public void setOptId(String optId) {
-            this.optId = optId;
-        }
-
-        @Override
-        public String getFileOwner() {
-            return fileOwner;
-        }
-
-        public void setFileOwner(String fileOwner) {
-            this.fileOwner = fileOwner;
-        }
-
-        @Override
-        public String getFileUnit() {
-            return fileUnit;
-        }
-
-        public void setFileUnit(String fileUnit) {
-            this.fileUnit = fileUnit;
-        }
-
-        @Override
-        public String getLibraryId() {
-            return "";
-        }
-
-        public long getFileSize() {
-            return fileSize;
-        }
-
-        public void setFileSize(long fileSize) {
-            this.fileSize = fileSize;
-        }
-    }
 }

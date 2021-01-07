@@ -9,7 +9,6 @@ import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
-import com.centit.framework.session.jdbc.JdbcSessionPersistenceConfig;
 import com.centit.framework.staticsystem.config.StaticSystemBeanConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,7 @@ import org.springframework.core.env.Environment;
 @Configuration
 @ComponentScan(basePackages = "com.centit",
         excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
-@Import({JdbcSessionPersistenceConfig.class,
-        SpringSecurityDaoConfig.class,
+@Import({SpringSecurityDaoConfig.class,
         SpringSecurityCasConfig.class,
         StaticSystemBeanConfig.class})
 public class ServiceConfig {

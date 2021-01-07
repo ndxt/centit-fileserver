@@ -272,8 +272,9 @@ public class FileInfo implements FileBaseInfo, Serializable {
         this.fileUnit = fileUnit;
     }
 
-    public Long getFileSize() {
-        return fileSize;
+    @Override
+    public long getFileSize() {
+        return fileSize == null? -1 : fileSize;
     }
 
     public void setFileSize(Long fileSize) {
