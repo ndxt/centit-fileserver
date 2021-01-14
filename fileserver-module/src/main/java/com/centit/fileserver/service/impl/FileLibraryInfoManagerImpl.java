@@ -83,7 +83,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     public List<IUnitInfo> listUnitPathsByUserCode(String userCode) {
         List<IUnitInfo> result = new ArrayList<>(10);
         for (String unit : getUnits(userCode)) {
-            result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
+            if(CodeRepositoryUtil.getUnitInfoByCode(unit)!=null) {
+                result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
+            }
         }
         return result;
     }
