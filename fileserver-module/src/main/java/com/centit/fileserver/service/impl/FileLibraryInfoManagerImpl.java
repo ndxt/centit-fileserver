@@ -38,7 +38,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     private FileLibraryInfoDao fileLibraryInfoDao;
     @Value("${top.enable:false}")
     protected boolean topEnable;
-    @Value("${top.unit}")
+    @Value("${top.unit:root}")
     protected String topUnit;
 
     @Override
