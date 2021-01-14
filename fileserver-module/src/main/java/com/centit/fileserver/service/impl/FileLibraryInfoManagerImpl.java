@@ -7,6 +7,7 @@ import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.framework.model.basedata.IUserInfo;
+import com.centit.framework.model.basedata.IUserUnit;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -134,43 +135,34 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public String[] getUnits(String userCode) {
-        String[] split = null;
-        IUserInfo userInfo=CodeRepositoryUtil.getUserInfoByCode(userCode);
-        if(userInfo!=null) {
-            String primaryUnit = userInfo.getPrimaryUnit();
-            if (!StringBaseOpt.isNvl(primaryUnit)) {
-                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(primaryUnit);
+    public List<String> getUnits(String userCode) {
+        List<String> list = new LinkedList<>();
+        List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(userCode);
+        if (uulist != null && uulist.size() > 0) {
+            Iterator var6 = uulist.iterator();
+            while(var6.hasNext()) {
+                IUserUnit uu = (IUserUnit)var6.next();
+                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(uu.getUnitCode());
                 if (unitInfo != null) {
-                    split = StringUtils.split(
+                    String[] temp = StringUtils.split(
                         unitInfo.getUnitPath(), SEPARATOR);
+                    for(int i = 0; i < temp.length; i++) {
+                        if(!list.contains(temp[i])) {
+                            list.add(temp[i]);
+                        }
+                    }
+
                 }
             }
         }
         if (topEnable) {
             if (!StringBaseOpt.isNvl(topUnit)) {
-                boolean isFind = false;
-                if (split != null) {
-                    for (String s : split) {
-                        if (s.contains(topUnit)) {
-                            isFind = true;
-                            break;
-                        }
-                    }
-                }
-                if (!isFind) {
-                    List<String> result = new ArrayList<>();
-                    if (split != null) {
-                        result = new ArrayList<>(Arrays.asList(split));
-                    }
-                    if(topUnit!=null) {
-                        result.add(topUnit);
-                    }
-                    return result.toArray(new String[0]);
+                if(!list.contains(topUnit)) {
+                    list.add(topUnit);
                 }
             }
         }
-        return split;
+        return list;
     }
 
 

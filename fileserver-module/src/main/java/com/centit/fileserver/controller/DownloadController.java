@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.zip.ZipOutputStream;
 
 @Controller
@@ -248,7 +249,7 @@ public class DownloadController extends BaseController {
     }
 
     private boolean checkAuth(FileInfo fileInfo, String userCode,String authCode) {
-        String[] unitPath = fileLibraryInfoManager.getUnits(userCode);
+        List<String> unitPath = fileLibraryInfoManager.getUnits(userCode);
 
         if (!"undefined".equals(userCode)&&!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
