@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-es-client</artifactId>
-            <version>${centit.common.module.version}</version>
+            <version>${centit.commons.modules.version}</version>
         </dependency>
 
         <dependency>

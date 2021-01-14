@@ -36,6 +36,9 @@ public class DocumentIndexOpt implements FileTaskOpeator {
     @Autowired(required = false)
     private ESIndexer esObjectIndexer;
 
+    public DocumentIndexOpt(){
+        this.esObjectIndexer = null;
+    }
     /**
      * @return 任务转换器名称
      */

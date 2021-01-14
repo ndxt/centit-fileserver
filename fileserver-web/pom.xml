@@ -20,12 +20,12 @@
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>opt-log-module</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>${centit.log.modules.version}</version>
         </dependency>
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-quartz-extend</artifactId>
-            <version>${centit.common.module.version}</version>
+            <version>${centit.commons.modules.version}</version>
         </dependency>
 
         <dependency>
@@ -170,7 +170,7 @@
                 </configuration>
             </plugin>
         </plugins>
-      <resources>
+        <resources>
            <resource>
                <directory>src/main/resources</directory>
                <excludes>
