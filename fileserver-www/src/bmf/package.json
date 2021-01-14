@@ -1,0 +1,45 @@
+{
+  "name": "browser-md5-file",
+  "version": "1.1.1",
+  "description": "MD5 file in browser.",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "browser": "dist/index.umd.js",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "release": "standard-version"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forsigner/browser-md5-file.git"
+  },
+  "keywords": [
+    "md5",
+    "browser",
+    "md5 file browser"
+  ],
+  "author": "forsigner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/forsigner/browser-md5-file/issues"
+  },
+  "homepage": "https://github.com/forsigner/browser-md5-file#readme",
+  "devDependencies": {
+    "rollup": "^0.66.0",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "standard-version": "^4.4.0"
+  },
+  "dependencies": {
+    "spark-md5": "^2.0.2"
+  },
+  "__npminstall_done": "Wed Jun 26 2019 10:07:02 GMT+0800 (GMT+08:00)",
+  "_from": "browser-md5-file@1.1.1",
+  "_resolved": "https://registry.npm.taobao.org/browser-md5-file/download/browser-md5-file-1.1.1.tgz"
+}
