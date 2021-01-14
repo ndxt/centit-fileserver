@@ -30,7 +30,6 @@ import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,9 +65,6 @@ public class DownloadController extends BaseController {
 
     @Autowired
     protected CreatePdfOpt createPdfOpt;
-
-    @Value("${jdbc.url}")
-    protected String jdbcUrl;
 
     @RequestMapping(value = "/testBigFile", method = RequestMethod.GET)
     @ApiOperation(value = "测试大文件下载")
