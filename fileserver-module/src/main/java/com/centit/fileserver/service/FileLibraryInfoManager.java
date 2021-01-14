@@ -5,6 +5,7 @@ import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.framework.model.basedata.IUnitInfo;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * FileLibraryInfo  Service.
@@ -27,5 +28,5 @@ public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInf
     List<IUnitInfo> listUnitPathsByUserCode(String userCode);
     void initPersonLibrary(String userCode);
     void initUnitLibrary(String unitCode,String userCode);
-    List<String> getUnits(String userCode);
+    Set<String> getUnits(String userCode);
 }

@@ -6,7 +6,6 @@ import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
-import com.centit.framework.model.basedata.IUserInfo;
 import com.centit.framework.model.basedata.IUserUnit;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
@@ -135,8 +134,8 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<String> getUnits(String userCode) {
-        List<String> list = new LinkedList<>();
+    public Set<String> getUnits(String userCode) {
+        Set<String> treeSet = new TreeSet<>();
         List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(userCode);
         if (uulist != null && uulist.size() > 0) {
             Iterator var6 = uulist.iterator();
@@ -146,23 +145,14 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                 if (unitInfo != null) {
                     String[] temp = StringUtils.split(
                         unitInfo.getUnitPath(), SEPARATOR);
-                    for(int i = 0; i < temp.length; i++) {
-                        if(!list.contains(temp[i])) {
-                            list.add(temp[i]);
-                        }
-                    }
-
+                    treeSet.addAll(Arrays.asList(temp));
                 }
             }
         }
         if (topEnable) {
-            if (!StringBaseOpt.isNvl(topUnit)) {
-                if(!list.contains(topUnit)) {
-                    list.add(topUnit);
-                }
-            }
+            treeSet.add(topUnit);
         }
-        return list;
+        return treeSet;
     }
 
 
