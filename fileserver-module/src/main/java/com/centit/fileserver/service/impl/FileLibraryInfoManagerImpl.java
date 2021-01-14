@@ -161,7 +161,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                     if (split != null) {
                         result = new ArrayList<>(Arrays.asList(split));
                     }
-                    result.add(topUnit);
+                    if(topUnit!=null) {
+                        result.add(topUnit);
+                    }
                     return result.toArray(new String[0]);
                 }
             }
