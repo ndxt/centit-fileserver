@@ -36,7 +36,6 @@ devServer: {
                 '/fileserver/': '/',
             },
         }
-
     },
 }
 
