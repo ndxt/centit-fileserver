@@ -16,6 +16,31 @@ npm install
 npm run serve
 ```
 
-### 其他配置参考
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### 如果修改后台地址
+
+修改 [vue.config.js](http://gitlab.centit.com/gitlab/ctm/products/centit-fileserver/-/blob/master/fileserver-www/vue.config.js)
+
+``` javascript
+
+devServer: {
+    proxy: {
+        '/api': {
+            // 举个例子如果后台地址是 http://localhost:8080/fileserver
+            target: 'http://localhost:8080/fileserver',
+            pathRewrite: {
+                '/api': '',
+            },
+            cookiePathRewrite: {
+                '/fileserver/': '/',
+            },
+        }
+
+    },
+}
+
+```
+
+重新启动即可
 
