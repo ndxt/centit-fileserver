@@ -29,9 +29,6 @@ public class FileInfoManagerImpl
         extends BaseEntityManagerImpl<FileInfo, String, FileInfoDao>
      implements FileInfoManager {
 
-    @Value("${spring.datasource.url}")
-    private String connUrl;
-
     @Autowired//(name ="fileInfoDao")
     @NotNull
     @Override
@@ -137,7 +134,7 @@ public class FileInfoManagerImpl
     @Override
     public JSONArray listFileOwners(String osId, String optId) {
         String queryStatement;
-        DBType dbt = DBType.mapDBType(connUrl);
+        DBType dbt = baseDao.getDBtype();
         if(dbt==DBType.MySql){
             queryStatement = "select ifnull(ifnull(FILE_OWNER,FILE_UNIT),'') as FILE_OWNER, " +
                     "count(1) as FILE_COUNT " +

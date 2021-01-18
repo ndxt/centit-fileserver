@@ -36,9 +36,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     private static final char SEPARATOR = '/';
     @Autowired
     private FileLibraryInfoDao fileLibraryInfoDao;
-    @Value("${top.enable:false}")
+    @Value("${extend.library.enable:false}")
     protected boolean topEnable;
-    @Value("${top.unit:root}")
+    @Value("${extend.library.unitcode:root}")
     protected String topUnit;
 
     @Override

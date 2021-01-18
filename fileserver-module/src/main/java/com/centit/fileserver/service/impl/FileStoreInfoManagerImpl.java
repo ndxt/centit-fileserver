@@ -21,9 +21,6 @@ public class FileStoreInfoManagerImpl
         extends BaseEntityManagerImpl<FileStoreInfo, String, FileStoreInfoDao>
      implements FileStoreInfoManager {
 
-    @Value("${spring.datasource.url}")
-    private String connUrl;
-
     @Autowired
     private FileStore fileStore;
 

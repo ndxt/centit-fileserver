@@ -72,6 +72,7 @@ session:
     host: 192.168.134.9
     port: 6379
 
-top:
-  enable: false
-  unit: U00001
+extend:
+  library:
+    enable: false
+    unit: U00001

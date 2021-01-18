@@ -51,11 +51,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-view</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.centit.product</groupId>
