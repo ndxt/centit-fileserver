@@ -45,6 +45,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Import({
         SpringSecurityDaoConfig.class,
         SpringSecurityCasConfig.class,
+        //StaticSystemBeanConfig.class,
+        //SystemBeanConfig.class,
         IPOrStaticAppSystemBeanConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)

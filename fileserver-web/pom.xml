@@ -70,11 +70,62 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-core-web</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-config</artifactId>
+        </dependency>
+        <!-- 切换组织机构开始 参见 https://www.yuque.com/centit/manual/createporject  -->
+
+       <!-- 在 ServiceConfig 启用StaticSystemBeanConfig 配置类，
+          系统用户在json文件中配置，也可以用jdbc通过ExtendedSqlMap.xml文件
+          中的SQL语句访问现有的数据库获得系统用户
+           StaticSystemBeanConfig.class,
+           //SystemBeanConfig.class,
+           //IPOrStaticAppSystemBeanConfig.class,-->
+        <!--<dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-system-static</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-system-static-config</artifactId>
+        </dependency>-->
+
+        <!-- 从先腾的集成平台中获取用户信息
+            //StaticSystemBeanConfig.class,
+            //SystemBeanConfig.class,
+            IPOrStaticAppSystemBeanConfig.class,-->
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-app</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>centit-ip-app-config</artifactId>
+        </dependency>
+
+        <!-- 内置先腾的系统维护服务
+           //StaticSystemBeanConfig.class,
+           SystemBeanConfig.class,
+           //IPOrStaticAppSystemBeanConfig.class,-->
+        <!--<dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-system-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-system-config</artifactId>
+        </dependency>-->
+
+        <!-- 切换组织机构结束 -->
 
         <dependency>
             <groupId>com.centit.framework</groupId>
@@ -83,22 +134,7 @@
 
         <dependency>
             <groupId>com.centit.framework</groupId>
-            <artifactId>framework-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-core-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-jdbc-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>centit-ip-app-config</artifactId>
         </dependency>
         <!-- swagger2 -->
         <dependency>
