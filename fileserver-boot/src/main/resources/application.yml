@@ -34,6 +34,14 @@ framework:
     password: 000000
 
 fileserver:
+  run-as-springboot: true
+  index:
+    keepsingle:
+      showpath: true
+  check:
+    duplicate: true
+    upload:
+      token: false
   elastic-search:
     os-id: FILE_SVR
     server-host-ip: 192.168.132.110

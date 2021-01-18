@@ -65,13 +65,13 @@ public class UploadController extends BaseController {
     public static final String UPLOAD_FILE_TOKEN_NAME = "uploadToken";
     protected Logger logger = LoggerFactory.getLogger(UploadController.class);
 
-    @Value("${file.index.keepsingle.showpath:true}")
+    @Value("${fileserver.index.keepsingle.showpath:true}")
     protected boolean keepSingleIndexByShowpath;
 
-    @Value("${file.check.upload.token:false}")
+    @Value("${fileserver.check.upload.token:false}")
     protected boolean checkUploadToken;
 
-    @Value("${app.runAsBoot:false}")
+    @Value("${fileserver.run-as-springboot:false}")
     protected static boolean runAsSpringBoot;
 
     @Autowired
