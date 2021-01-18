@@ -43,9 +43,10 @@
 </template>
 
 <script>
-import { checkAuth, downs, downsPreview } from '@/api/file'
-import columns from '../my/columns'
-export default {
+  import {checkAuth, downs, downsPreview} from '@/api/file'
+  import columns from '../my/columns'
+
+  export default {
   name: 'sharePage',
   data () {
     return {

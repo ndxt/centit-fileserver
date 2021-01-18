@@ -24,10 +24,10 @@
 </template>
 
 <script>
-import Clipboard from 'clipboard'
-import { authCode } from '@/api/file'
+  import Clipboard from 'clipboard'
+  import {authCode} from '@/api/file'
 
-export default {
+  export default {
   name: 'FileShareModal',
   data () {
     return {

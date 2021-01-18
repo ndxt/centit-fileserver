@@ -31,10 +31,10 @@
 </template>
 
 <script>
-import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { folderNew } from '@/api/file'
+  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+  import {folderNew} from '@/api/file'
 
-export default {
+  export default {
   name: 'FolderCreateModal',
   inject: ['getLibraryIds'],
   mixins: [

@@ -5,8 +5,9 @@
 </template>
 
 <script>
-import LoginForm from '@centit/module-core/src/components/LoginForm'
-export default {
+  import LoginForm from '@centit/module-core/src/components/LoginForm'
+
+  export default {
   name: 'Login',
   components: {
     LoginForm,

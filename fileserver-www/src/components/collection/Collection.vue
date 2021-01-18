@@ -38,20 +38,16 @@
 </template>
 
 <script>
-import FileList from '../file/FileList'
-import columns from './columns'
-import FileViewModal from '../file/FileViewModal'
-import FileCopyModal from '../file/FileCopyModal'
-import FileShareModal from '../file/FileShareModal'
-import FolderViewModal from '../folder/FolderViewModal'
+  import FileList from '../file/FileList'
+  import columns from './columns'
+  import FileViewModal from '../file/FileViewModal'
+  import FileCopyModal from '../file/FileCopyModal'
+  import FileShareModal from '../file/FileShareModal'
+  import FolderViewModal from '../folder/FolderViewModal'
 
-import {
-  GetFavoriteList,
-  queryUserVerLocal,
-  deletefavorite,
-} from '@/api/file'
+  import {deletefavorite, GetFavoriteList, queryUserVerLocal,} from '@/api/file'
 
-export default {
+  export default {
   name: 'Collection',
   components: {
     FileList,

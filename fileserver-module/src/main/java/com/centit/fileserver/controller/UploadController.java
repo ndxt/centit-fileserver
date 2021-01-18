@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
@@ -80,8 +79,8 @@ public class UploadController extends BaseController {
     @Autowired(required = false)
     protected ESIndexer documentIndexer;
 
-    @Autowired
-    private FileTaskQueue fileOptTaskQueue;
+   /* @Autowired
+    private FileTaskQueue fileOptTaskQueue;*/
 
     @Autowired
     protected FileInfoManager fileInfoManager;

@@ -21,12 +21,10 @@
 </template>
 
 <script>
-import { folder, addFolder, folderNew, addMes, getlibrarylist } from '@/api/file'
-import {
-  mapState,
-} from 'vuex'
+  import {addFolder, addMes, folder, folderNew, getlibrarylist} from '@/api/file'
+  import {mapState,} from 'vuex'
 
-export default {
+  export default {
   name: 'FileCopyModal',
   inject: ['getLibraryIds'],
   data () {

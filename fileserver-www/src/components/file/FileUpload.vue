@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import zpaUpload from '../zpa/form/ZpaUpload'
+  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+  import zpaUpload from '../zpa/form/ZpaUpload'
 
-export default {
+  export default {
   name: 'UploadFileOperator',
   inject: ['getLibraryIds'],
   mixins: [

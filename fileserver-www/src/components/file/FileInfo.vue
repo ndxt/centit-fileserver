@@ -29,9 +29,9 @@
 </template>
 
 <script>
-import { seeFileMes } from '@/api/file'
+  import {seeFileMes} from '@/api/file'
 
-export default {
+  export default {
   name: 'FileInfo',
   data () {
     return {

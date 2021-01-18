@@ -88,12 +88,12 @@
 </template>
 
 <script>
-import Clipboard from 'clipboard'
-import { downsPreview } from '@/api/file'
-import FileCardList from './FileCardList'
-import FileVideoPlayer from './FileVideoPlayer'
+  import Clipboard from 'clipboard'
+  import {downsPreview} from '@/api/file'
+  import FileCardList from './FileCardList'
+  import FileVideoPlayer from './FileVideoPlayer'
 
-export default {
+  export default {
   name: 'MainContent',
   inject: ['getLibraryIds'],
   components: {

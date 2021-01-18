@@ -10,12 +10,12 @@
   </ModalOperator>
 </template>
 <script>
-import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { addFolder, addMes } from '@/api/file'
-import FileInfo from './FileInfo'
-import FileLog from './FileLog'
+  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+  import {addFolder, addMes} from '@/api/file'
+  import FileInfo from './FileInfo'
+  import FileLog from './FileLog'
 
-export default {
+  export default {
   name: 'FileViewModal',
   mixins: [
     ModalOperatorMixin,

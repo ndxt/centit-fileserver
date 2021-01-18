@@ -34,15 +34,9 @@
   </zpa-column>
 </template>
 <script>
-import {
-  GetSearch,
-  downs,
-  downsPreview,
-  newfavorite,
-  deletefavorite
-} from '@/api/file'
+  import {deletefavorite, downs, downsPreview, GetSearch, newfavorite} from '@/api/file'
 
-export default {
+  export default {
   name: 'Search',
   data () {
     return {

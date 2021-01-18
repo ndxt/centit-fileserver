@@ -10,10 +10,11 @@
 </template>
 
 <script>
-import LibraryInfo from './LibraryInfo'
-import { updatelibraryr, seeLibrary } from '@/api/file'
-import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-export default {
+  import LibraryInfo from './LibraryInfo'
+  import {seeLibrary, updatelibraryr} from '@/api/file'
+  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+
+  export default {
   name: 'EditLibraryOperator',
 
   components: {

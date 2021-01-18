@@ -140,22 +140,12 @@
 </template>
 
 <script>
-import {
-  mapState,
-  mapMutations,
-} from 'vuex'
-import AddLibrary from '../library/AddLibrary'
-import {
-  getlibrarylist,
-  getunitpath,
-  seeLibrary,
-  updatelibraryr,
-  initpersonlib,
-  initunitlib,
-} from '@/api/file'
-import FileRemoveConfirm from '../file/FileRemoveConfirm'
+  import {mapMutations, mapState,} from 'vuex'
+  import AddLibrary from '../library/AddLibrary'
+  import {getlibrarylist, getunitpath, initpersonlib, initunitlib, seeLibrary, updatelibraryr,} from '@/api/file'
+  import FileRemoveConfirm from '../file/FileRemoveConfirm'
 
-export default {
+  export default {
   name: 'MainMenu',
   components: {
     AddLibrary,
