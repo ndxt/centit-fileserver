@@ -23,24 +23,29 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 ### 如何修改后台地址
 
 修改 [vue.config.js](http://gitlab.centit.com/gitlab/ctm/products/centit-fileserver/-/blob/master/fileserver-www/vue.config.js)
+需要添加代理：
 
 ``` javascript
 
 devServer: {
     proxy: {
-        '/api': {
-            // 举个例子如果后台地址是 http://localhost:8080/fileserver
-            target: 'http://localhost:8080/fileserver',
-            pathRewrite: {
-                '/api': '',
-            },
-            cookiePathRewrite: {
-                '/fileserver/': '/',
-            },
-        }
-    },
+          '/api/admin': {
+                target: 'http://localhost:8888/fileserver',
+                pathRewrite: {
+                    '/api/admin': '',
+                },
+                cookiePathRewrite: {
+                  '/fileserver/': '/api',
+                },
+          },
+          '/api/file': {
+                target: 'http://localhost:8888/fileserver',
+                pathRewrite: {
+                    '/api/file': '',
+                },
+          },
+    }
 }
-
 ```
 
 重新启动即可
