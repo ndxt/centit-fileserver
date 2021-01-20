@@ -8,11 +8,11 @@
 </template>
 
 <script>
-  import LibraryInfo from './LibraryInfo'
-  import {addLibrary} from '@/api/file'
-  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+import LibraryInfo from './LibraryInfo'
+import { addLibrary } from '@/api/file'
+import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
 
-  export default {
+export default {
   name: 'AddLibraryOperator',
 
   components: {

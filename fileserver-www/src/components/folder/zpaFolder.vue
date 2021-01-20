@@ -75,10 +75,10 @@
 </template>
 
 <script>
-  import Uploader from '@/components/zpa/form/uploader'
-  import {folderNew} from '@/api/file'
+import Uploader from '@/components/zpa/form/uploader'
+import { folderNew } from '@/api/file'
 
-  export default {
+export default {
   name: 'UploadFolder',
   data () {
     return {

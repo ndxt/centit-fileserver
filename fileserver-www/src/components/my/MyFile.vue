@@ -88,19 +88,19 @@
 </template>
 
 <script>
-  import FileList from '../file/FileList'
-  import FolderCreateModal from '../folder/FolderCreateModal'
-  import FileUpload from '../file/FileUpload'
-  import columns from './columns'
-  import FileViewModal from '../file/FileViewModal'
-  import FolderViewModal from '../folder/FolderViewModal'
-  import FileCopyModal from '../file/FileCopyModal'
-  import FileShareModal from '../file/FileShareModal'
-  import FileRemoveConfirm from '../file/FileRemoveConfirm'
-  import FolderUpload from '../folder/FolderUpload'
-  import {downs, folder, newfavorite, prev, queryUserVerLocal, seeLibrary} from '@/api/file'
+import FileList from '../file/FileList'
+import FolderCreateModal from '../folder/FolderCreateModal'
+import FileUpload from '../file/FileUpload'
+import columns from './columns'
+import FileViewModal from '../file/FileViewModal'
+import FolderViewModal from '../folder/FolderViewModal'
+import FileCopyModal from '../file/FileCopyModal'
+import FileShareModal from '../file/FileShareModal'
+import FileRemoveConfirm from '../file/FileRemoveConfirm'
+import FolderUpload from '../folder/FolderUpload'
+import { downs, folder, newfavorite, prev, queryUserVerLocal, seeLibrary } from '@/api/file'
 
-  export default {
+export default {
   name: 'MyFile',
   components: {
     FileList,

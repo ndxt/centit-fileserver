@@ -10,11 +10,11 @@
 </template>
 
 <script>
-  import MainLayout from './components/commons/MainLayout'
-  import MainHeader from './components/commons/MainHeader'
-  import MainMenu from './components/commons/MainMenu'
+import MainLayout from './components/commons/MainLayout'
+import MainHeader from './components/commons/MainHeader'
+import MainMenu from './components/commons/MainMenu'
 
-  export default {
+export default {
   name: 'App',
 
   components: {

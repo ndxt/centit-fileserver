@@ -53,10 +53,14 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  checkLogin({ router, to, from, store }, false)
-    .then(result => {
-      if (result) next()
-    })
+  if (to.name === 'sharePage') {
+    next()
+  } else {
+    checkLogin({ router, to, from, store }, false)
+      .then(result => {
+        if (result) next()
+      })
+  }
 })
 
 export default router

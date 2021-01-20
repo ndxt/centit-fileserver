@@ -29,11 +29,11 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import columns from './columns'
-  import {getlog} from '@/api/file'
+import { mapState } from 'vuex'
+import columns from './columns'
+import { getlog } from '@/api/file'
 
-  export default {
+export default {
   name: 'Log',
   data () {
     return {

@@ -35,10 +35,10 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import UserDropMenu from './UserDropMenu'
+import { mapState } from 'vuex'
+import UserDropMenu from './UserDropMenu'
 
-  export default {
+export default {
   name: 'MainHeader',
   components: {
     UserDropMenu,

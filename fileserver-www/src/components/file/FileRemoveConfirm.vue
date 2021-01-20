@@ -28,11 +28,11 @@
 </template>
 
 <script>
-  import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-  import {delectFile, deleteFolder, deletelibrary} from '@/api/file'
-  import Clipboard from 'clipboard'
+import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
+import { delectFile, deleteFolder, deletelibrary } from '@/api/file'
+import Clipboard from 'clipboard'
 
-  export default {
+export default {
   name: 'FileRemoveConfirm',
 
   mixins: [

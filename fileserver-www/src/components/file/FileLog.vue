@@ -13,9 +13,9 @@
 </template>
 
 <script>
-  import {log} from '@/api/file'
+import { log } from '@/api/file'
 
-  export default {
+export default {
   name: 'FileLog',
 
   props: {
