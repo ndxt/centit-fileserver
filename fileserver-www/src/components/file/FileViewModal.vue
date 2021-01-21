@@ -1,17 +1,17 @@
 <template>
-  <ModalOperator width="800" title="详情">
+  <ModalOperator :config="{ title: '文件详情', width: 720 }">
     <div slot="button" class="colorLook">
       详情
     </div>
     <TabList :tabData="tabs">
-      <FileInfo slot="fileInfo" v-model="fileId" :fileName="fileName" @inputVal="inputVal"/>
-      <FileLog slot="fileLog" v-model="fileId" />
+      <FileInfo slot="fileInfo" v-model="dataInfo" :fileName="fileName" @inputVal="inputVal"/>
+      <FileLog slot="fileLog" v-model="dataLog" />
     </TabList>
   </ModalOperator>
 </template>
 <script>
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { addFolder, addMes } from '@/api/file'
+import { addFolder, addMes, seeFileMes, log } from '@/api/file'
 import FileInfo from './FileInfo'
 import FileLog from './FileLog'
 
@@ -38,8 +38,8 @@ export default {
         },
       ],
       current: {},
-      paramsObj: {},
       inputValName: '',
+      dataInfo: [],
       dataLog: []
     }
   },
@@ -56,14 +56,25 @@ export default {
   },
   mounted () {
     this.current = this.params
-    this.paramsObj.fileName = this.params.fileName
-    this.paramsObj.createFolder = this.params.createFolder
-    this.paramsObj.uploadFile = this.params.uploadFile
-    this.paramsObj.fileName = this.params.fileName
   },
   methods: {
     addFolder,
-    onSubmit () {
+    seeFileMes,
+    log,
+    reload () {
+      seeFileMes(this.fileId)
+        .then(res => {
+          this.dataInfo = res
+        })
+      log(this.fileId)
+        .then(res => {
+          this.dataLog = res
+        })
+    },
+    beforeOpen () {
+      this.reload()
+    },
+    submit () {
       // 修改文件名
       if (this.current.versions !== 0 && this.inputValName !== '' && this.inputValName !== this.params.fileName.substring(0, this.params.fileName.lastIndexOf('.'))) {
         this.params.fileName = this.inputValName + this.params.fileName.substring(this.params.fileName.lastIndexOf('.'))
@@ -72,28 +83,6 @@ export default {
           .then(res => {
             this.$emit('update', '')
           })
-      }
-      // 修改文件夹名
-      if (this.current.versions === 0) {
-        const arr = []
-        for (const i in this.paramsObj) {
-          if (this.current[i] !== this.paramsObj[i]) {
-            arr.push(1)
-          }
-        }
-        if (arr.length !== 0) {
-          const params = {
-            folderId: this.current.folderId,
-            folderName: this.current.fileName,
-            folderPath: this.current.fileShowPath, // 地址
-            isCreateFolder: this.current.createFolder,
-            isUpload: this.current.uploadFile
-          }
-          addFolder(params)
-            .then(res => {
-              this.$emit('update', '')
-            })
-        }
       }
     },
     inputVal (i) {
@@ -104,8 +93,8 @@ export default {
 </script>
 
 <style scoped>
-.colorLook {
-  cursor: pointer;
-  color: #3CB5A2;
-}
+  .colorLook {
+    cursor: pointer;
+    color: #3CB5A2;
+  }
 </style>

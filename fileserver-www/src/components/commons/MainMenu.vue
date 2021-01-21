@@ -4,87 +4,85 @@
       <Icon v-if="!isCollapsed" type="md-arrow-dropright" size="26" color="#fff"/>
       <Icon v-if="isCollapsed" type="md-arrow-dropleft" size="26" color="#fff"/>
     </div>
-    <div class="Menu">
-      <div class="content" v-if="isCollapsed">
-        <ul>
-          <li @click="goto('Homelist')">
-            <div class="zpa-row">
-              <div class="zpa-column cname"><span><Icon type="md-home" size="26" color="#fff"/>首页</span></div>
-            </div>
-          </li>
-          <li v-for="(i,index) in menu" :key="index"
-              @click="goto(i.libraryId,i.createUser,i.isCreateFolder,i.isUpload,i.libraryName,i.libraryType,i.ownUnit,i.ownUser)">
-            <div class="zpa-row">
-              <div class="zpa-column cname">
+    <div class="content" v-if="isCollapsed">
+      <ul>
+        <li @click="goto('Homelist')">
+          <div class="zpa-row">
+            <div class="zpa-column cname"><span><Icon type="md-home" size="26" color="#fff"/>首页</span></div>
+          </div>
+        </li>
+        <li v-for="(i,index) in menu" :key="index"
+            @click="goto(i.libraryId,i.createUser,i.isCreateFolder,i.isUpload,i.libraryName,i.libraryType,i.ownUnit,i.ownUser)">
+          <div class="zpa-row">
+            <div class="zpa-column cname">
                 <span>
                   <img :src="i.url" alt="" v-if="i.libraryType !== 'P'" style="vertical-align: middle">
                    <Icon v-if="i.libraryType === 'P'" type="md-person" size="26" color="#fff" :title="i.libraryName"/>
                   {{ i.libraryName }}
                 </span>
-              </div>
-              <div class="dropdown" v-if="i.libraryType === 'I'">
-                <Dropdown transfer>
-                  <a href="javascript:void(0)">
-                    <Icon type="md-more" size="20"/>
-                  </a>
-                  <DropdownMenu slot="list">
-                    <DropdownItem v-for="(j,index) in handle" :key="index" @click.native="onClickItem(j,i)">
-                      {{ j }}
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
             </div>
-          </li>
-          <AddLibrary @success="submit">
-            <li class="ivu-menu-item">
-              <Icon type="ios-add-circle-outline" size="26" color="#fff"/>
-              <span>创建项目库</span>
-            </li>
-          </AddLibrary>
-        </ul>
-      </div>
-      <div class="content isCollapsed" v-if="!isCollapsed">
-        <ul>
-          <li @click="goto('Homelist')">
-            <div class="zpa-row">
-              <div class="zpa-column cname"><span><Icon type="md-home" size="26" color="#fff"/></span></div>
+            <div class="dropdown" v-if="i.libraryType === 'I'">
+              <Dropdown transfer>
+                <a href="javascript:void(0)">
+                  <Icon type="md-more" size="20"/>
+                </a>
+                <DropdownMenu slot="list">
+                  <DropdownItem v-for="(j,index) in handle" :key="index" @click.native="onClickItem(j,i)">
+                    {{ j }}
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
+          </div>
+        </li>
+        <AddLibrary @success="submit">
+          <li class="ivu-menu-item">
+            <Icon type="ios-add-circle-outline" size="26" color="#fff"/>
+            <span>创建项目库</span>
           </li>
-          <li v-for="(i,index) in menu" :key="index"
-              @click="goto(i.libraryId,i.createUser,i.isCreateFolder,i.isUpload,i.libraryName,i.libraryType,i.ownUnit,i.ownUser)">
-            <div class="zpa-row">
-              <div class="zpa-column cname">
+        </AddLibrary>
+      </ul>
+    </div>
+    <div class="content isCollapsed" v-if="!isCollapsed">
+      <ul>
+        <li @click="goto('Homelist')">
+          <div class="zpa-row">
+            <div class="zpa-column cname"><span><Icon type="md-home" size="26" color="#fff"/></span></div>
+          </div>
+        </li>
+        <li v-for="(i,index) in menu" :key="index"
+            @click="goto(i.libraryId,i.createUser,i.isCreateFolder,i.isUpload,i.libraryName,i.libraryType,i.ownUnit,i.ownUser)">
+          <div class="zpa-row">
+            <div class="zpa-column cname">
                   <span>
                   <img :src="i.url" alt="" v-if="i.libraryType !== 'P'" style="vertical-align: middle">
                     <Icon v-if="i.libraryType === 'P'" type="md-person" size="26" color="#fff" :title="i.libraryName"/>
                 </span>
-              </div>
             </div>
+          </div>
+        </li>
+        <AddLibrary @success="submit">
+          <li class="ivu-menu-item">
+            <Icon type="ios-add-circle-outline" size="26" color="#fff"/>
+            <span>创建项目库</span>
           </li>
-          <AddLibrary @success="submit">
-            <li class="ivu-menu-item">
-              <Icon type="ios-add-circle-outline" size="26" color="#fff"/>
-              <span>创建项目库</span>
-            </li>
-          </AddLibrary>
-        </ul>
-      </div>
+        </AddLibrary>
+      </ul>
     </div>
     <Modal
-        v-model="show"
-        title="库的属性"
-        draggable
-        :width="500"
-        @on-ok="ok"
+      v-model="show"
+      title="库的属性"
+      draggable
+      :width="500"
+      @on-ok="ok"
     >
       <zpa-form ref="Form">
         <zpa-form-group>
           <zpa-text-input
-              label="库名称"
-              required
-              v-model="params.libraryName"
-              :disabled="params.libraryType !== 'I'"
+            label="库名称"
+            required
+            v-model="params.libraryName"
+            :disabled="params.libraryType !== 'I'"
           />
           <!--  <zpa-select
               required
@@ -96,36 +94,36 @@
               disabled
             />-->
           <zpa-text-input
-              label="库所属人员"
-              v-model="params.ownName"
-              disabled
+            label="库所属人员"
+            v-model="params.ownName"
+            disabled
           />
           <zpa-select
-              label="所属机构"
-              v-model="params.ownUnit"
-              :query="() => getunitpath(currentUser.userCode)"
-              textField="unitName"
-              valueField="unitCode"
-              :disabled="params.libraryType !== 'I'"
+            label="所属机构"
+            v-model="params.ownUnit"
+            :query="() => getunitpath(currentUser.userCode)"
+            textField="unitName"
+            valueField="unitCode"
+            :disabled="params.libraryType !== 'I'"
           />
           <UserSelect
-              v-if="params.libraryType === 'I'"
-              label="访问库人员"
-              multiple
-              v-model="params.fileLibraryAccesss"
+            v-if="params.libraryType === 'I'"
+            label="访问库人员"
+            multiple
+            v-model="params.fileLibraryAccesss"
           />
           <zpa-radio-group
-              v-if="params.libraryType === 'I'"
-              :values="[{text: '是', value: 'T'}, {text: '否', value: 'F'}]"
-              label="可创建文件夹"
-              v-model="params.isCreateFolder"
+            v-if="params.libraryType === 'I'"
+            :values="[{text: '是', value: 'T'}, {text: '否', value: 'F'}]"
+            label="可创建文件夹"
+            v-model="params.isCreateFolder"
           />
 
           <zpa-radio-group
-              v-if="params.libraryType === 'I'"
-              :values="[{text: '是', value: 'T'}, {text: '否', value: 'F'}]"
-              label="可上传文件"
-              v-model="params.isUpload"
+            v-if="params.libraryType === 'I'"
+            :values="[{text: '是', value: 'T'}, {text: '否', value: 'F'}]"
+            label="可上传文件"
+            v-model="params.isUpload"
           />
         </zpa-form-group>
       </zpa-form>
@@ -140,9 +138,19 @@
 </template>
 
 <script>
-import { mapMutations, mapState, } from 'vuex'
+import {
+  mapState,
+  mapMutations,
+} from 'vuex'
 import AddLibrary from '../library/AddLibrary'
-import { getlibrarylist, getunitpath, initpersonlib, initunitlib, seeLibrary, updatelibraryr, } from '@/api/file'
+import {
+  getlibrarylist,
+  getunitpath,
+  seeLibrary,
+  updatelibraryr,
+  initpersonlib,
+  initunitlib,
+} from '@/api/file'
 import FileRemoveConfirm from '../file/FileRemoveConfirm'
 
 export default {
@@ -314,87 +322,90 @@ export default {
 </script>
 
 <style scoped lang="less">
-.MenuContainer {
-  height: 100%;
-  width: 280px;
-  flex: 0 0 280px;
-  overflow: hidden;
-  transition: width ease-in 200ms;
-
-  &.isCollapsed {
-    width: 100px;
-    flex-basis: 100px;
-  }
-
-  .Menu {
-    flex: auto;
-  }
-
-  .Footer {
-    flex: 0 0 32px;
-  }
-}
-
-.content {
-  display: flex;
-  height: 100%;
-  flex: auto;
-  overflow: auto;
-
-  a {
-    color: #fff;
-  }
-
-  ul {
+  .MenuContainer {
+    height: 100%;
+    width: 280px;
     flex: 0 0 280px;
-    background: none;
+    overflow: hidden;
+    transition: width ease-in 200ms;
+    display: flex;
+    flex-flow: column;
 
-    li {
-      color: #fff;
-      border-bottom: 1px solid #47B3B0;
-      padding: 14px 24px;
-      position: relative;
-      cursor: pointer;
-      z-index: 1;
-      transition: all .2s ease-in-out;
+    &.isCollapsed {
+      width: 100px;
+      flex-basis: 100px;
+    }
 
-      &:hover {
-        background: rgb(81, 190, 169, .7);
-        color: #fff;
-      }
+    .Menu {
+      flex: 1;
+    }
 
+    .Footer {
+      flex: 0 0 32px;
+      height: 32px;
+      margin-bottom: 80px;
     }
   }
 
-  .dropdown {
-    text-align: right;
+  .content {
+    display: flex;
+    flex: 1;
+    overflow: auto;
+
+    a {
+      color: #fff;
+    }
+
+    ul {
+      flex: 0 0 280px;
+      background: none;
+
+      li {
+        color: #fff;
+        border-bottom: 1px solid #47B3B0;
+        padding: 14px 24px;
+        position: relative;
+        cursor: pointer;
+        z-index: 1;
+        transition: all .2s ease-in-out;
+
+        &:hover {
+          background: rgb(81, 190, 169, .7);
+          color: #fff;
+        }
+
+      }
+    }
+
+    .dropdown {
+      text-align: right;
+    }
+
+    .ivu-menu-light.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
+      background: rgb(81, 190, 169, .7);
+      color: #fff;
+    }
   }
 
-  .ivu-menu-light.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
-    background: rgb(81, 190, 169, .7);
+  .isCollapsed {
+    ul {
+      flex: 0 0 100px;
+    }
+  }
+
+  .mycollection, .log {
     color: #fff;
+    cursor: pointer;
   }
-}
 
-.isCollapsed {
-  ul {
-    flex: 0 0 100px;
+  .ivu-icon {
+    margin-right: 13px;
   }
-}
 
-.mycollection, .log {
-  color: #fff;
-  cursor: pointer;
-}
-
-.ivu-icon {
-  margin-right: 13px;
-}
-
-.cname {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
+  .cname {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 
 </style>

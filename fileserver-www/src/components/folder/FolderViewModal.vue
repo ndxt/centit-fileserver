@@ -1,13 +1,10 @@
 <template>
-  <div>
-    <ModalOperator width="700" title="详情">
-      <div slot="button" class="colorLook">
-        详情
-      </div>
-      <FolderInfo v-model="current" ref="paper" />
-    </ModalOperator>
-
-  </div>
+  <ModalOperator :config="{ title: '文件夹详情', width: 720 }">
+    <div slot="button" class="colorLook">
+      详情
+    </div>
+    <FolderInfo v-model="current" ref="paper" />
+  </ModalOperator>
 </template>
 
 <script>
@@ -81,8 +78,8 @@ export default {
 </script>
 
 <style scoped>
-.colorLook {
-  cursor: pointer;
-  color: #3CB5A2;
-}
+  .colorLook {
+    cursor: pointer;
+    color: #3CB5A2;
+  }
 </style>

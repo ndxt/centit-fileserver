@@ -1,6 +1,6 @@
 <template>
   <div class="over" >
-    <div class="flexs" v-for="(i,key) in data" :key="key">
+    <div class="flexs" v-for="(i,key) in value" :key="key">
       <div>
         <span>{{i.userCode}}</span>
         <i>{{i.optMethodText}}</i>
@@ -13,36 +13,14 @@
 </template>
 
 <script>
-import { log } from '@/api/file'
-
 export default {
   name: 'FileLog',
-
   props: {
-    value: String,
-  },
-  data () {
-    return {
-      data: []
-    }
+    value: Array,
   },
   methods: {
-    log,
-    reload () {
-      log(this.value)
-        .then(res => {
-          this.data = res
-        })
-    },
-  },
-  mounted () {
-    this.reload()
-  },
-  watch: {
-    value () {
-      this.reload()
-    },
-  },
+    reload () {}
+  }
 }
 </script>
 <style lang="less">

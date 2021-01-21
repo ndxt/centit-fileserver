@@ -1,4 +1,4 @@
-import apiFactory from '@centit/api-core'
+import apiFactory, { createUrlParams } from '@centit/api-core'
 import $ from 'jquery'
 const api = apiFactory.create('file', { useFormData: true })
 const apis = apiFactory.create('file', { useFormData: false })
@@ -190,15 +190,15 @@ export function queryUserVerLocal (params) {
   return api.get(`/fileserver/local/userfile/${params.params.fileShowPath}/${params.params.fileName || ''}`)
     .then(res => {
       const arr = []
-      res.data.forEach((i, key) => {
+      res.forEach((i, key) => {
         let handle
         if (i.favoriteId) {
           handle = ['分享', '复制到', '移动到', '删除']
         } else {
           handle = ['分享', '收藏', '复制到', '移动到', '删除']
         }
-        res.data[key].handle = handle
-        arr.push(res.data[key])
+        res[key].handle = handle
+        arr.push(res[key])
       })
       return arr
     })
@@ -208,17 +208,33 @@ export function queryUserVerLocal (params) {
  * 文件--下载按钮
  * @param params
  */
-export function downs (param) {
-  const ctx = window.$contextPath || '/'
-  window.open(`${ctx}api/file/fileserver/download/downloadwithauth/${param}`)
+export function downs (param, userCode) {
+  const baseURL = apiFactory.baseURL
+  window.open(`${baseURL}/file/fileserver/download/downloadwithauth/${param}?userCode=${userCode}`)
+}
+/**
+ * 文件分享--下载按钮
+ * @param params
+ */
+export function downsShare (param, authCode) {
+  const baseURL = apiFactory.baseURL
+  window.open(`${baseURL}/file/fileserver/download/downloadwithauth/${param}?authCode=${authCode}`)
 }
 /**
  * 文件--预览
  * @param params
  */
-export function downsPreview (param) {
-  const ctx = window.$contextPath || '/'
-  window.open(`${ctx}api/file/fileserver/download/preview/${param}`)
+export function downsPreview (param, userCode) {
+  const baseURL = apiFactory.baseURL
+  window.open(`${baseURL}/file/fileserver/download/preview/${param}?userCode=${userCode}`)
+}
+/**
+ * 文件分享--预览
+ * @param params
+ */
+export function downsPreviewShare (param, authCode) {
+  const baseURL = apiFactory.baseURL
+  window.open(`${baseURL}/file/fileserver/download/preview/${param}?authCode=${authCode}`)
 }
 /**
  * 删除单个文件库
@@ -339,6 +355,12 @@ export function getlog ({ params = {}, sort = {}, page = {} } = {}) {
       ...page,
     },
   })
+    .then(res => {
+      if (!res) {
+        return []
+      }
+      return res
+    })
 }
 
 /**
@@ -360,7 +382,7 @@ export function GetSearch ({ params = {}, sort = {}, page = {} } = {}) {
       ...sort,
       ...page,
     },
-  }).then(res => res.data)
+  })
 }
 /**
  * 初始化更新个人库
@@ -394,7 +416,7 @@ export function flashUpload (token, size, params) {
       size,
       ...params,
     },
-  }).then(res => res.data || res)
+  })
 }
 
 export function getFileRange (token, size, params) {
@@ -471,4 +493,11 @@ export function uploadFile (file, params, { onUploadProgress } = {}) {
       'Content-Type': 'application/octet-stream',
     },
   }).then(res => res.data)
+}
+/**
+ * 下载文件夹
+ */
+export function zipDown (folderId) {
+  const baseURL = apiFactory.baseURL
+  window.open(`${baseURL}/file/fileserver/folder/downloadZip/${folderId}`)
 }

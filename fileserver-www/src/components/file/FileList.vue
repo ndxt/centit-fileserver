@@ -1,14 +1,14 @@
 <template>
   <div class="zpa-column">
     <zpa-row
-        style="flex: none; margin-bottom: -15px;justify-content: space-between;    padding: 8px 16px;align-items: center;">
+      style="flex: none; margin-bottom: -15px;justify-content: space-between;    padding: 8px 16px;align-items: center;">
       <div class="breads">
         <Breadcrumb separator=">">
           <BreadcrumbItem
-              v-for="(name, i) in breadcrumb"
-              :key="i"
-              class="bread"
-              @click.native="getRoute(name,i)"
+            v-for="(name, i) in breadcrumb"
+            :key="i"
+            class="bread"
+            @click.native="getRoute(name,i)"
           >{{ name.fileName }}
           </BreadcrumbItem>
         </Breadcrumb>
@@ -32,16 +32,16 @@
     </zpa-row>
     <div class="zpa-column lists" v-show="!shape">
       <DataList
-          :sortRule="sortType"
-          ref="Table"
-          :columns="mainmenu"
-          :query="getQuery"
-          :operWidth="170"
-          isHidePage
-          showLoading
-          @on-dblclick-row="dblclickRow"
-          :border="false"
-          size="large"
+        :sortRule="sortType"
+        ref="Table"
+        :columns="mainmenu"
+        :query="getQuery"
+        :operWidth="170"
+        isHidePage
+        showLoading
+        @on-dblclick-row="dblclickRow"
+        :border="false"
+        size="large"
       >
         <!--文件名-->
         <template slot="fileName" slot-scope="{row}">
@@ -72,11 +72,11 @@
       </DataList>
     </div>
     <FileCardList
-        v-show="shape"
-        ref="Papers"
-        :query="getQuery"
-        @on-dblclick-row="dblclickRow"
-        @on-selected-change="middleMethods"
+      v-show="shape"
+      ref="Papers"
+      :query="getQuery"
+      @on-dblclick-row="dblclickRow"
+      @on-selected-change="middleMethods"
     >
     </FileCardList>
     <FileVideoPlayer
@@ -92,6 +92,7 @@ import Clipboard from 'clipboard'
 import { downsPreview } from '@/api/file'
 import FileCardList from './FileCardList'
 import FileVideoPlayer from './FileVideoPlayer'
+import { mapState } from 'vuex'
 
 export default {
   name: 'MainContent',
@@ -139,18 +140,18 @@ export default {
         img = 'files'
       }
       if (img === 'webm' ||
-        img === 'ogg' ||
-        img === '3gp' ||
-        img === 'avi' ||
-        img === 'flv' ||
-        img === 'mkv' ||
-        img === 'mov' ||
-        img === 'mpg' ||
-        img === 'swf' ||
-        img === 'ts' ||
-        img === 'vob' ||
-        img === 'mxf' ||
-        img === 'rm') {
+          img === 'ogg' ||
+          img === '3gp' ||
+          img === 'avi' ||
+          img === 'flv' ||
+          img === 'mkv' ||
+          img === 'mov' ||
+          img === 'mpg' ||
+          img === 'swf' ||
+          img === 'ts' ||
+          img === 'vob' ||
+          img === 'mxf' ||
+          img === 'rm') {
         return require('../../assets/img/mp4.png')
       }
       return require('../../assets/img/' + img + '.png')
@@ -231,20 +232,20 @@ export default {
 
     preview (row) {
       const fileType = row.fileType
-      downsPreview(row.accessToken || row.fileId)
+      downsPreview(row.accessToken || row.fileId, this.currentUser.userCode)
       if (fileType === 'mp4' || fileType === 'webm' ||
-        fileType === 'ogg' ||
-        fileType === '3gp' ||
-        fileType === 'avi' ||
-        fileType === 'flv' ||
-        fileType === 'mkv' ||
-        fileType === 'mov' ||
-        fileType === 'mpg' ||
-        fileType === 'swf' ||
-        fileType === 'ts' ||
-        fileType === 'vob' ||
-        fileType === 'mxf' ||
-        fileType === 'rm') {
+          fileType === 'ogg' ||
+          fileType === '3gp' ||
+          fileType === 'avi' ||
+          fileType === 'flv' ||
+          fileType === 'mkv' ||
+          fileType === 'mov' ||
+          fileType === 'mpg' ||
+          fileType === 'swf' ||
+          fileType === 'ts' ||
+          fileType === 'vob' ||
+          fileType === 'mxf' ||
+          fileType === 'rm') {
         this.showVideo = true
         this.videoSrc.type = fileType
         this.videoSrc.src = downsPreview(row.accessToken || row.fileId)
@@ -262,6 +263,9 @@ export default {
     getQuery () {
       return !this.root ? this.general() : this.version()
     },
+    ...mapState('core', {
+      currentUser: 'userInfo',
+    }),
   },
   mounted () {
     this.reload()
@@ -270,107 +274,107 @@ export default {
 </script>
 
 <style scoped lang="less">
-.demo-badge-alone {
-  width: 5px;
-  height: 5px;
-}
+  .demo-badge-alone {
+    width: 5px;
+    height: 5px;
+  }
 
-.breads {
-  background: #fff;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  flex: 1;
-  position: relative;
-  height: 30px;
-  border-radius: 5px;
+  .breads {
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    flex: 1;
+    position: relative;
+    height: 30px;
+    border-radius: 5px;
 
-  .bread {
+    .bread {
+      cursor: pointer;
+    }
+
+    .imgCopyAddress {
+      position: absolute;
+      right: 10px;
+      cursor: pointer;
+    }
+  }
+
+  .iconstyle {
+    margin-right: 10px;
+    width: 30px;
+    position: relative;
+    top: 5px;
     cursor: pointer;
   }
 
-  .imgCopyAddress {
+  b {
+    left: 20px;
     position: absolute;
-    right: 10px;
-    cursor: pointer;
+    width: 15px;
+    height: 15px;
+    background: #e4393c;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 0px;
+    z-index: 2;
   }
-}
 
-.iconstyle {
-  margin-right: 10px;
-  width: 30px;
-  position: relative;
-  top: 5px;
-  cursor: pointer;
-}
+  .btnOp {
+    width: 353px;
+    display: flex;
+    justify-content: space-between;
+    margin-left: 10px;
+    align-items: center;
+  }
 
-b {
-  left: 20px;
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  background: #e4393c;
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  bottom: 0px;
-  z-index: 2;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper-checked:first-child {
+    border-color: transparent;
+    background: #999;
+    color: #fff;
+  }
 
-.btnOp {
-  width: 353px;
-  display: flex;
-  justify-content: space-between;
-  margin-left: 10px;
-  align-items: center;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper-checked {
+    background: #999;
+    border-color: transparent;
+    color: #fff;
+    box-shadow: none;
+  }
 
-.ivu-radio-group-button .ivu-radio-wrapper-checked:first-child {
-  border-color: transparent;
-  background: #999;
-  color: #fff;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper-checked.ivu-radio-focus:first-child {
+    box-shadow: none;
+  }
 
-.ivu-radio-group-button .ivu-radio-wrapper-checked {
-  background: #999;
-  border-color: transparent;
-  color: #fff;
-  box-shadow: none;
-}
+  .lists {
+    margin: 16px;
+    background: #fff;
+    padding: 8px;
+  }
 
-.ivu-radio-group-button .ivu-radio-wrapper-checked.ivu-radio-focus:first-child {
-  box-shadow: none;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper-checked:before {
+    background: transparent;
+    opacity: .1;
+  }
 
-.lists {
-  margin: 16px;
-  background: #fff;
-  padding: 8px;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper:after {
+    height: 36px;
+    left: -1px;
+    top: -3px;
+    background: transparent;
+    opacity: 0;
+  }
 
-.ivu-radio-group-button .ivu-radio-wrapper-checked:before {
-  background: transparent;
-  opacity: .1;
-}
+  .ivu-radio-group-button .ivu-radio-wrapper:hover {
+    position: relative;
+    color: #ddd;
+  }
 
-.ivu-radio-group-button .ivu-radio-wrapper:after {
-  height: 36px;
-  left: -1px;
-  top: -3px;
-  background: transparent;
-  opacity: 0;
-}
-
-.ivu-radio-group-button .ivu-radio-wrapper:hover {
-  position: relative;
-  color: #ddd;
-}
-
-.ivu-btn:hover {
-  color: #747b8b;
-  background-color: #fff;
-  border-color: #e3e5e8;
-}
+  .ivu-btn:hover {
+    color: #747b8b;
+    background-color: #fff;
+    border-color: #e3e5e8;
+  }
 </style>

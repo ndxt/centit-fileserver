@@ -50,29 +50,29 @@
           @update="loading()"
           ref="See"
         />
-        <span v-if="props.row.versions" class="colorDown" @click="onClickItem('下载文件', props.row)">
-          {{ props.row.versions > 1 ? '下载最新' : '下载' }}
+        <span class="colorDown" @click="onClickItem('下载文件', props.row)">
+          {{props.row.versions === 0 ? '打包下载' : props.row.versions > 1 ? '下载最新' : '下载'}}
         </span>
         <Dropdown transfer trigger="click">
           <Icon type="md-more" size="20"/>
-            <DropdownMenu slot="list" v-if="props.row.versions">
-              <DropdownItem
-                v-for="(i, key) in props.row.handle"
-                :key="key"
-                @click.native="() => onClickItem(i, props.row)"
-              >
-                {{ i }}
-              </DropdownItem>
-            </DropdownMenu>
-            <DropdownMenu slot="list" v-else>
-              <DropdownItem
-                  v-for="(i, key) in props.row.handle"
-                  :key="key"
-                  @click.native="() => onClickItem(i, props.row)"
-              >
-                {{ i }}
-              </DropdownItem>
-            </DropdownMenu>
+          <DropdownMenu slot="list" v-if="props.row.versions">
+            <DropdownItem
+              v-for="(i, key) in props.row.handle"
+              :key="key"
+              @click.native="() => onClickItem(i, props.row)"
+            >
+              {{ i }}
+            </DropdownItem>
+          </DropdownMenu>
+          <DropdownMenu slot="list" v-else>
+            <DropdownItem
+              v-for="(i, key) in props.row.handle"
+              :key="key"
+              @click.native="() => onClickItem(i, props.row)"
+            >
+              {{ i }}
+            </DropdownItem>
+          </DropdownMenu>
         </Dropdown>
       </div>
     </FileList>
@@ -98,7 +98,8 @@ import FileCopyModal from '../file/FileCopyModal'
 import FileShareModal from '../file/FileShareModal'
 import FileRemoveConfirm from '../file/FileRemoveConfirm'
 import FolderUpload from '../folder/FolderUpload'
-import { downs, folder, newfavorite, prev, queryUserVerLocal, seeLibrary } from '@/api/file'
+import { folder, newfavorite, queryUserVerLocal, downs, seeLibrary, prev, zipDown } from '@/api/file'
+import { mapState } from 'vuex'
 
 export default {
   name: 'MyFile',
@@ -150,6 +151,12 @@ export default {
     },
   },
 
+  computed: {
+    ...mapState('core', {
+      currentUser: 'userInfo',
+    }),
+  },
+
   methods: {
     folder,
     newfavorite,
@@ -190,7 +197,11 @@ export default {
         this.$refs.See.$children[0].operator.current = row
         this.$refs.See.$children[0].open()
       } else if (i === '下载文件') {
-        downs(row.accessToken)
+        if (row.versions === 0) {
+          zipDown(row.folderId)
+        } else {
+          downs(row.accessToken, this.currentUser.userCode)
+        }
       } else if (i === '查看版本') {
         this.$refs.fileList.dblclickRow(row)
       }
@@ -252,22 +263,22 @@ export default {
 
 <style scoped>
 
-.colorDown {
-  cursor: pointer;
-  color: #3B96C7;
-}
+  .colorDown {
+    cursor: pointer;
+    color: #3B96C7;
+  }
 
-.opreator {
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-}
+  .opreator {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+  }
 
-.gray {
-  filter: grayscale(1);
-}
+  .gray {
+    filter: grayscale(1);
+  }
 
-.ivu-dropdown-item {
-  height: 30px;
-}
+  .ivu-dropdown-item {
+    height: 30px;
+  }
 </style>
