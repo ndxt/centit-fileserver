@@ -183,7 +183,7 @@ public abstract class UploadDownloadUtils {
                     new File(tempFilePath), true)) {
                 int length = FileIOOpt.writeInputStreamToOutputStream(
                         fileInputStream, out);
-                if (length < range.getPartSize()) {
+                if (length != range.getPartSize()) {
                     throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
                             "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
                     //return -1l;
