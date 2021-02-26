@@ -1,11 +1,14 @@
 package com.centit.fileserver.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.po.FileLibraryAccess;
 import com.centit.fileserver.service.FileLibraryAccessManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
@@ -47,11 +50,10 @@ public class FileLibraryAccessController  extends BaseController {
     @RequestMapping(method = RequestMethod.GET)
     @ApiOperation(value = "查询所有项目库授权信息列表")
     @WrapUpResponseBody
-    public PageQueryResult<FileLibraryAccess> list(HttpServletRequest request, PageDesc pageDesc) {
+    public JSONArray list(HttpServletRequest request, PageDesc pageDesc) {
         Map<String, Object> searchColumn = collectRequestParameters(request);
-        List<FileLibraryAccess> fileLibraryAccesss = fileLibraryAccessMag.listFileLibraryAccess(
-            searchColumn, pageDesc);
-        return PageQueryResult.createResult(fileLibraryAccesss,pageDesc);
+        return DictionaryMapUtils.objectsToJSONArray(fileLibraryAccessMag.listFileLibraryAccess(
+            searchColumn, pageDesc));
     }
 
     /**
