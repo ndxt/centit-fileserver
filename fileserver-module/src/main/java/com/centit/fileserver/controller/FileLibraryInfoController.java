@@ -7,6 +7,7 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
+import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.support.image.ImageOpt;
@@ -72,8 +73,8 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(value = "/{libraryId}", method = {RequestMethod.GET})
     @ApiOperation(value = "查询单个文件库信息")
     @WrapUpResponseBody
-    public FileLibraryInfo getFileLibraryInfo(@PathVariable String libraryId) {
-        return fileLibraryInfoMag.getFileLibraryInfo(libraryId);
+    public Object getFileLibraryInfo(@PathVariable String libraryId) {
+        return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibraryInfo(libraryId));
     }
 
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
