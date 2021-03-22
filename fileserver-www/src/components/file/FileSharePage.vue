@@ -5,9 +5,10 @@
       width="400"
       v-model="showFls"
       @on-ok="ok"
+      :mask-closable="false"
     >
       <zpa-form ref="Form">
-        <zpa-text-input :span="12" label="请输入验证码" v-model="params.authCode" :labelWidth="110"/>
+        <zpa-text-input :span="12" label="请输入验证码" v-model="params.authCode" :labelWidth="100"/>
       </zpa-form>
     </Modal>
     <div v-if="!showFls">
@@ -65,15 +66,32 @@ export default {
       this.params.fileId = arr[1]
       checkAuth(this.params)
         .then(res => {
-          this.showFls = false
-          this.datas.push(res)
-          this.$refs.Table.load()
+          if (res.value === '') {
+            this.$Message.error('验证码错误，请重新输入！')
+            this.showFls = true
+          } else {
+            this.showFls = false
+            this.datas.push(res)
+            this.$refs.Table.load()
+          }
         })
     },
     ok () {
-      if (this.params.authCode !== '') {
+      if (!this.isNull(this.params.authCode)) {
         this.reload()
+      } else {
+        this.$Message.error('验证码不能为空！')
+        setTimeout(() => {
+          this.showFls = true
+        }, 50)
       }
+    },
+    isNull (str) {
+      // eslint-disable-next-line eqeqeq
+      if (str == '') return true
+      var regu = '^[ ]+$'
+      var re = new RegExp(regu)
+      return re.test(str)
     },
     getQuery () {
       return this.datas
