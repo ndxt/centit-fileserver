@@ -135,6 +135,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public Set<String> getUnits(String userCode) {
+        if(userCode==null) {
+            return null;
+        }
         Set<String> treeSet = new TreeSet<>();
         List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(userCode);
         if (uulist != null && uulist.size() > 0) {

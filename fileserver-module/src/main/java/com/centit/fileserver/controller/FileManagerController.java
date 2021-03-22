@@ -24,6 +24,7 @@ import com.centit.search.service.Impl.ESSearcher;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
+import com.centit.support.json.JSONOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -358,7 +359,7 @@ public class FileManagerController extends BaseController {
         if (fileInfo.getAuthCode().equals(authCode)) {
             return fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("files",fileId),null).getJSONObject(0);
         }
-        return null;
+        return JSONOpt.objectToJSONObject("");
     }
 
     @ApiOperation(value = "全文检索")
