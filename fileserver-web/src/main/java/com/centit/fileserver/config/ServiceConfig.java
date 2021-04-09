@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
         IPOrStaticAppSystemBeanConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableSpringHttpSession
+//@EnableSpringHttpSession
 public class ServiceConfig {
 
     @Value("${app.home:./}")
@@ -208,10 +208,10 @@ public class ServiceConfig {
     }
     //这个bean必须要有 可以配置不同策略的session保存方案
 
-    @Bean
-    public MapSessionRepository sessionRepository() {
-        return new MapSessionRepository(new ConcurrentHashMap<>());
-    }
+//    @Bean
+//    public MapSessionRepository sessionRepository() {
+//        return new MapSessionRepository(new ConcurrentHashMap<>());
+//    }
     /*
     @Bean
     public FindByIndexNameSessionRepository sessionRepository() {
