@@ -1,5 +1,6 @@
 package com.centit.fileserver.controller;
 
+import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.po.*;
@@ -24,8 +25,10 @@ import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.security.Md5Encoder;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +104,7 @@ public class DownloadController extends BaseController {
                 }
                 try (InputStream inputStream = new FileInputStream(tmpFile)) {
                     UploadDownloadUtils.downFileRange(request, response,
-                        inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"),null);
+                        inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
                 }
 
                 FileSystemOpt.deleteFile(tmpFile);
@@ -110,7 +113,7 @@ public class DownloadController extends BaseController {
                     //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                     UploadDownloadUtils.downFileRange(request, response,
                         getFileStream(fileStore, fileStoreInfo),
-                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"),null);
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                     JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
@@ -125,16 +128,16 @@ public class DownloadController extends BaseController {
     @RequestMapping(value = "/downloadTemp/{tempfileId}", method = RequestMethod.GET)
     @ApiOperation(value = "下载临时文件")
     public void downloadTempFile(@PathVariable("tempfileId") String tempfileId, HttpServletRequest request,
-                                         HttpServletResponse response) throws IOException {
+                                 HttpServletResponse response) throws IOException {
         File zipFile = new File(SystemTempFileUtils.getTempFilePath(tempfileId));
-        if(!zipFile.exists()){
-            throw new ObjectException("临时文件不存在："+tempfileId);
+        if (!zipFile.exists()) {
+            throw new ObjectException("临时文件不存在：" + tempfileId);
         }
         UploadDownloadUtils.downFileRange(request, response,
             new FileInputStream(zipFile), zipFile.length(),
             WebOptUtils
-                .getRequestFirstOneParameter(request,"name","fileName"),
-            request.getParameter("downloadType"),null);
+                .getRequestFirstOneParameter(request, "name", "fileName"),
+            request.getParameter("downloadType"), null);
     }
 
 
@@ -153,6 +156,38 @@ public class DownloadController extends BaseController {
         fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
     }
 
+    @ApiOperation(value = "store文件预览")
+    @ApiImplicitParam(
+        name = "md5SizeExt", value = "文件的Md5码_文件的大小.文件格式 MD5_SIZE.EXT，",
+        required = true, paramType = "path", dataType = "String"
+    )
+    @RequestMapping(value = "/previewstore", method = RequestMethod.GET)
+    public void previewStoreFile(String md5SizeExt,
+                                 HttpServletRequest request,
+                                 HttpServletResponse response) throws Exception {
+        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(
+            md5SizeExt);
+        InputStream inputStream = null;
+        long size=fileInfo.getFileSize();
+        String fileName=md5SizeExt;
+        if (request.getParameter("downloadType").equals("inline") && AbstractOfficeToPdf.canTransToPdf(FileType.getFileExtName(md5SizeExt))) {
+            String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
+            String filePath = fileStore.getFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize())).getPath();
+            if(AbstractOfficeToPdf.office2Pdf(FileType.getFileExtName(md5SizeExt),filePath,pdfTmpFile)){
+                File pdfFile=new File(pdfTmpFile);
+                size=pdfFile.length();
+                inputStream=new FileInputStream(pdfFile);
+                fileName=fileInfo.getFileMd5()+".pdf";
+            }
+        }
+        if(inputStream==null) {
+            inputStream = fileStore.loadFileStream(
+                fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()));
+        }
+        UploadDownloadUtils.downFileRange(request, response,
+            inputStream, size, fileName, request.getParameter("downloadType"), null);
+    }
+
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
@@ -163,11 +198,11 @@ public class DownloadController extends BaseController {
         }
         boolean canView = false;
         try {
-            if(StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
-                "txt", "html", "csv", "pdf", "xml") ){
+            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+                "txt", "html", "csv", "pdf", "xml")) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 String charset = null;
-                if(StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+                if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
                     charset = new AutoDetectReader(getFileStream(fileStore, fileStoreInfo)).getCharset().name();
                 }
@@ -175,9 +210,9 @@ public class DownloadController extends BaseController {
                     getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
                 canView = true;
-            } else if(StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())){
+            } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-                if(attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize()>0) {
+                if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
                     UploadDownloadUtils.downFileRange(request, response,
                         getFileStream(fileStore, attachedFileStoreInfo),
                         attachedFileStoreInfo.getFileSize(),
@@ -185,13 +220,13 @@ public class DownloadController extends BaseController {
                             + "." + fileInfo.getAttachedType(),
                         "inline", null);
                     canView = true;
-                }else{
+                } else {
                     canView = reGetPdf(fileId, request, response, fileInfo);
                 }
             } else {
                 canView = reGetPdf(fileId, request, response, fileInfo);
             }
-            if(!canView){
+            if (!canView) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 UploadDownloadUtils.downFileRange(request, response,
                     getFileStream(fileStore, fileStoreInfo),
@@ -206,8 +241,8 @@ public class DownloadController extends BaseController {
     }
 
     private boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
-        boolean canView=false;
-        if (AbstractOfficeToPdf.canTransToPdf(fileInfo)) {
+        boolean canView = false;
+        if (AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())) {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
             addPdfTaskInfo.setFileId(fileId);
@@ -238,20 +273,20 @@ public class DownloadController extends BaseController {
     }
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
-        String userCode=WebOptUtils.getCurrentUserCode(request);
-        userCode=StringBaseOpt.isNvl(userCode)?request.getParameter("userCode"):userCode;
-        if (!checkAuth(fileInfo,userCode ,request.getParameter("authCode"))) {
-            JsonResultUtils.writeErrorMessageJson("用户:"+WebOptUtils.getCurrentUserCode(request)
-                +",所属机构:"+WebOptUtils.getCurrentUnitCode(request)+"没有权限;或者验证码"+request.getParameter("authCode")+"不正确", response);
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
+        if (!checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
+            JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
+                + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
             return true;
         }
         return false;
     }
 
-    private boolean checkAuth(FileInfo fileInfo, String userCode,String authCode) {
+    private boolean checkAuth(FileInfo fileInfo, String userCode, String authCode) {
         Set<String> unitPath = fileLibraryInfoManager.getUnits(userCode);
 
-        if (!"undefined".equals(userCode)&&!StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
+        if (!"undefined".equals(userCode) && !StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
                 //个人
@@ -273,7 +308,7 @@ public class DownloadController extends BaseController {
                     if (userCode.equals(fileLibraryInfo.getOwnUser())) {
                         return true;
                     }
-                    if(fileLibraryInfo.getFileLibraryAccesss()!=null) {
+                    if (fileLibraryInfo.getFileLibraryAccesss() != null) {
                         for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
                             if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
                                 return true;
@@ -289,7 +324,6 @@ public class DownloadController extends BaseController {
         }
         return false;
     }
-
 
 
     /**
@@ -320,7 +354,7 @@ public class DownloadController extends BaseController {
             FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
             UploadDownloadUtils.downFileRange(request, response,
                 fileStore.loadFileStream(attachedFileStoreInfo.getFileStorePath()),
-                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName, request.getParameter("downloadType"),null);
+                fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName, request.getParameter("downloadType"), null);
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
                 "找不到该文件", response);
@@ -511,6 +545,6 @@ public class DownloadController extends BaseController {
 
         UploadDownloadUtils.downFileRange(request, response,
             inputStream,
-            fileSize, fileName, request.getParameter("downloadType"),null);
+            fileSize, fileName, request.getParameter("downloadType"), null);
     }
 }

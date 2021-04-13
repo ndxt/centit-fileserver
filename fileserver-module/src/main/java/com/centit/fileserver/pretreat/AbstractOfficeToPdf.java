@@ -33,11 +33,11 @@ public abstract class AbstractOfficeToPdf {
         return office2Pdf(FileType.getFileExtName(inputFile), inputFile, pdfFile);
     }
 
-    public static boolean canTransToPdf(FileBaseInfo fileInfo) {
-        if(StringUtils.isBlank(fileInfo.getFileType())){
+    public static boolean canTransToPdf(String fileType) {
+        if(StringUtils.isBlank(fileType)){
             return false;
         }
-        return StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
+        return StringUtils.equalsAnyIgnoreCase(fileType,
             //AbstractOfficeToPdf.DOC,
             AbstractOfficeToPdf.DOCX,
             AbstractOfficeToPdf.XLS, AbstractOfficeToPdf.XLSX,

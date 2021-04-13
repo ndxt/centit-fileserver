@@ -100,7 +100,7 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)
-            && AbstractOfficeToPdf.canTransToPdf(fileInfo)){
+            && AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
             taskInfo.copy(fileInfo);
             taskInfo.setFileSize(fileSize);
