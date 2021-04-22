@@ -26,12 +26,17 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--   <dependency>
+               <groupId>com.centit.support</groupId>
+               <artifactId>centit-es-client</artifactId>
+               <version>${centit.commons.modules.version}</version>
+           </dependency>-->
+
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-es-client</artifactId>
-            <version>${centit.commons.modules.version}</version>
+            <version>5.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-core-web</artifactId>
@@ -46,8 +51,8 @@
             <artifactId>centit-report-utils</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>com.centit.support</groupId>-->
-            <!--<artifactId>centit-office</artifactId>-->
+        <!--<groupId>com.centit.support</groupId>-->
+        <!--<artifactId>centit-office</artifactId>-->
         <!--</dependency>-->
 
         <dependency>
@@ -99,11 +104,11 @@
         </dependency>
 
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.poi</groupId>-->
-<!--            <artifactId>poi-scratchpad</artifactId>-->
-<!--            <version>3.16</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.poi</groupId>-->
+        <!--            <artifactId>poi-scratchpad</artifactId>-->
+        <!--            <version>3.16</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-extend</artifactId>

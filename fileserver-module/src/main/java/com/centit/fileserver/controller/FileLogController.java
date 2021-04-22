@@ -51,7 +51,7 @@ public class FileLogController extends BaseController {
             for(int i=0;i<fileLibraryInfos.size();i++){
                 units[i]=fileLibraryInfos.get(i).getLibraryId();
             }
-            searchColumn.put("units_in",units);
+            searchColumn.put("unitCode_in",units);
         }
         return this.optLogManager.listOptLog(LOG_OPERATION_NAME, searchColumn, pageDesc.getPageNo(), pageDesc.getPageSize());
     }

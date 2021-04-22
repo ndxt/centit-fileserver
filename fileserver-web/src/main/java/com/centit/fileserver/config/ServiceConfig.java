@@ -16,6 +16,7 @@ import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.model.StandardPasswordEncoderImpl;
+import com.centit.framework.system.service.ElkOptLogManager;
 import com.centit.search.document.FileDocument;
 import com.centit.search.document.ObjectDocument;
 import com.centit.search.service.ESServerConfig;
@@ -184,12 +185,19 @@ public class ServiceConfig {
         return notificationCenter;
     }
 
-    @Bean
+   /* @Bean
     @Lazy(value = false)
     public OperationLogWriter operationLogWriter() {
         TextOperationLogWriterImpl operationLog = new TextOperationLogWriterImpl();
         operationLog.setOptLogHomePath(appHome+"/logs");
         operationLog.init();
+        return operationLog;
+    }*/
+
+    @Bean
+    @Lazy(value = false)
+    public OperationLogWriter optLogManager() {
+        ElkOptLogManager operationLog = new ElkOptLogManager();
         return operationLog;
     }
 
