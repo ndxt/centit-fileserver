@@ -417,7 +417,6 @@ public class UploadController extends BaseController {
                 JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
                 JsonResultUtils.writeOriginalJson(json.toString(), response);
             }
-            System.out.println("断点上传接口，日志入库开始");
             OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
                 .unit(formData.getLeft().getLibraryId())
                 .user(WebOptUtils.getCurrentUserCode(request))
@@ -425,7 +424,6 @@ public class UploadController extends BaseController {
                 .time(DatetimeOpt.currentUtilDate())
                 .content(formData.getLeft().getFileName())
                 .newObject(formData.getLeft()));
-            System.out.println("断点上传接口，日志入库结束");
         }catch (ObjectException e){
             logger.error(e.getMessage(),e);
             JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),
