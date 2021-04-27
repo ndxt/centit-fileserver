@@ -3,7 +3,9 @@ package com.centit.fileserver.service.impl;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
+import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.framework.model.basedata.IUserUnit;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,10 +84,12 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public List<IUnitInfo> listUnitPathsByUserCode(String userCode) {
+        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         List<IUnitInfo> result = new ArrayList<>(10);
         for (String unit : getUnits(userCode)) {
-            if(CodeRepositoryUtil.getUnitInfoByCode(unit)!=null) {
-                result.add(CodeRepositoryUtil.getUnitInfoByCode(unit));
+            if(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit)!=null) {
+                result.add(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit));
             }
         }
         return result;
@@ -122,11 +127,13 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     private FileLibraryInfo getUnitLibraryInfo(String unitCode, String userCode) {
+        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.setCreateUser(userCode);
         fileLibraryInfo.setOwnUser(userCode);
         fileLibraryInfo.setOwnUnit(unitCode);
-        fileLibraryInfo.setLibraryName(CodeRepositoryUtil.getUnitName(unitCode));
+        fileLibraryInfo.setLibraryName(CodeRepositoryUtil.getUnitName(topUnit, unitCode));
         fileLibraryInfo.setLibraryType("O");
         fileLibraryInfo.setIsCreateFolder("T");
         fileLibraryInfo.setIsUpload("T");
@@ -138,13 +145,15 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         if(userCode==null) {
             return null;
         }
+        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Set<String> treeSet = new TreeSet<>();
-        List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(userCode);
+        List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(topUnit, userCode);
         if (uulist != null && uulist.size() > 0) {
             Iterator var6 = uulist.iterator();
             while(var6.hasNext()) {
                 IUserUnit uu = (IUserUnit)var6.next();
-                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(uu.getUnitCode());
+                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(topUnit, uu.getUnitCode());
                 if (unitInfo != null) {
                     String[] temp = StringUtils.split(
                         unitInfo.getUnitPath(), SEPARATOR);
@@ -166,7 +175,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
             return null;
         }
         if (!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())) {
-            fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(fileLibraryInfo.getOwnUser()));
+            HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
+            String topUnit = WebOptUtils.getCurrentTopUnit(request);
+            fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(topUnit, fileLibraryInfo.getOwnUser()));
         }
         return fileLibraryInfo;
     }

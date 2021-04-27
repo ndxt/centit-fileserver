@@ -145,7 +145,8 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         }
         return dirs;
     }
-    public List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn){
+
+    public List<FileShowInfo> listFolderFiles(String topUnit, Map<String, Object> searchColumn){
         String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
             "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
             "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
@@ -158,6 +159,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         QueryAndNamedParams qap = QueryUtils.translateQuery( sqlsen, searchColumn);
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
             qap.getQuery(), qap.getParams());
+
         List<FileShowInfo> files = new ArrayList<>();
         if(objects !=null){
             for(Object[] objs:objects){
@@ -175,7 +177,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setFileShowPath(StringBaseOpt.objectToString(objs[6]));
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
                 file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[9]));
-                file.setOwnerName(CodeRepositoryUtil.getUserName(StringBaseOpt.objectToString(objs[10])));
+                file.setOwnerName(CodeRepositoryUtil.getUserName(topUnit, StringBaseOpt.objectToString(objs[10])));
                 files.add(file);
             }
         }

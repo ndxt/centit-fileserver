@@ -49,9 +49,6 @@ public class LocalFileController extends BaseController {
     private FileStoreInfoManager fileStoreInfoManager;
 
     @Autowired
-    private FileAccessLogManager fileAccessLogManager;
-
-    @Autowired
     protected FileStore fileStore;
 
     /**
@@ -65,7 +62,9 @@ public class LocalFileController extends BaseController {
     @ApiOperation(value = "获取当前用户的文件类别")
     public void getFileCatalog(HttpServletRequest request, HttpServletResponse response) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
-        JsonResultUtils.writeSingleDataJson(localFileManager.listUserUnit(userCode), response);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        JsonResultUtils.writeSingleDataJson(
+            localFileManager.listUserUnit(topUnit, userCode), response);
     }
 
     /**

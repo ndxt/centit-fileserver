@@ -12,7 +12,7 @@ public interface LocalFileManager{
     String LOCAL_OPT_ID = "LOCAL_FILE";
     String FILE_PATH_SPLIT = "/";
 
-    Set<IUnitInfo> listUserUnit(String userCode);
+    Set<IUnitInfo> listUserUnit(String topUnit, String userCode);
 
     /**
      * 获取用户文件列表
@@ -20,8 +20,8 @@ public interface LocalFileManager{
      * @param fileShowPath 文件目录
      * @return 文件列表
      */
-    List<FileShowInfo> listUserFiles(String userCode,String fileShowPath);
-    List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn);
+    List<FileShowInfo> listUserFiles(String userCode, String fileShowPath);
+    List<FileShowInfo> listFolderFiles(String topUnit, Map<String, Object> searchColumn);
 
 
     List<FileShowInfo> listUnitFiles(String unitCode,String fileShowPath);

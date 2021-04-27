@@ -7,7 +7,9 @@ import com.centit.fileserver.po.*;
 import com.centit.fileserver.service.FileFavoriteManager;
 import com.centit.fileserver.service.FileFolderInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
+import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
+import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +56,9 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
 
     @Override
     public List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc) {
+        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+
         param.put("withFile", "1");
         List<FileFavorite> list = fileFavoriteDao.listObjects(param, pageDesc);
         list.forEach(e -> {
@@ -60,7 +66,8 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
             if (fileInfo != null) {
                 e.setFileName(fileInfo.getFileName());
                 e.setFileType(fileInfo.getFileType());
-                e.setUploadUser(CodeRepositoryUtil.getUserName(fileInfo.getFileOwner()));
+                e.setUploadUser(CodeRepositoryUtil.getUserName(topUnit,
+                    fileInfo.getFileOwner()));
                 e.setLibraryId(fileInfo.getLibraryId());
                 e.setParentFolder(fileInfo.getParentFolder());
                 e.setShowPath(getShowPath(fileInfo.getFileShowPath(), fileInfo.getLibraryId()));

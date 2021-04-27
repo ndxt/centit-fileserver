@@ -278,7 +278,8 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/oss", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统中的所有OS")
     public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
-        List<? extends IOsInfo> osinfoList = CodeRepositoryUtil.listOsInfo();
+        List<? extends IOsInfo> osinfoList = CodeRepositoryUtil.listOsInfo(
+            WebOptUtils.getCurrentTopUnit(request));
         JsonResultUtils.writeSingleDataJson(osinfoList, response);
     }
 

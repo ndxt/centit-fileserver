@@ -112,15 +112,18 @@ public class FileFolderInfoController extends BaseController {
 
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
-        List<FileShowInfo> fileShowInfos = localFileManager.listFolderFiles(searchColumn);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+
+        List<FileShowInfo> fileShowInfos = localFileManager.listFolderFiles(topUnit, searchColumn);
+
         for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
-            FileShowInfo fileShowInfo = fileFolderToFileShow(fileFolderInfo);
+            FileShowInfo fileShowInfo = fileFolderToFileShow(topUnit, fileFolderInfo);
             fileShowInfos.add(fileShowInfo);
         }
         return fileShowInfos;
     }
 
-    private FileShowInfo fileFolderToFileShow(FileFolderInfo fileFolderInfo) {
+    private FileShowInfo fileFolderToFileShow(String topUnit, FileFolderInfo fileFolderInfo) {
         FileShowInfo fileShowInfo = new FileShowInfo();
         fileShowInfo.setFileName(fileFolderInfo.getFolderName());
         fileShowInfo.setFileShowPath(fileFolderInfo.getFolderPath());
@@ -130,13 +133,14 @@ public class FileFolderInfoController extends BaseController {
         fileShowInfo.setCreateFolder(fileFolderInfo.getIsCreateFolder());
         fileShowInfo.setUploadFile(fileFolderInfo.getIsUpload());
         fileShowInfo.setCreateTime(fileFolderInfo.getCreateTime());
-        fileShowInfo.setOwnerName(CodeRepositoryUtil.getUserName(fileFolderInfo.getCreateUser()));
+        fileShowInfo.setOwnerName(CodeRepositoryUtil.getUserName(topUnit, fileFolderInfo.getCreateUser()));
         return fileShowInfo;
     }
 
-    private void addFolder(ZipOutputStream out, String basedir, String folderId, long currSize) throws IOException {
+    private void addFolder(String topUnit, ZipOutputStream out, String basedir, String folderId, long currSize) throws IOException {
         List<FileShowInfo> fileList =
-            localFileManager.listFolderFiles(CollectionsOpt.createHashMap("parentFolder",folderId));
+            localFileManager.listFolderFiles(topUnit,
+                CollectionsOpt.createHashMap("parentFolder",folderId));
         if(fileList!=null){
             for(FileShowInfo file : fileList){
                 FileInfo fi= fileInfoManager.getObjectById(file.getAccessToken());
@@ -165,19 +169,19 @@ public class FileFolderInfoController extends BaseController {
             CollectionsOpt.createHashMap("parentFolder",folderId), null);
         if(fileFolderInfos!=null){
             for(FileFolderInfo fileFolderInfo : fileFolderInfos){
-                addFolder(out, basedir+fileFolderInfo.getFolderName() + "/" , fileFolderInfo.getFolderId(), currSize);
+                addFolder(topUnit, out, basedir+fileFolderInfo.getFolderName() + "/" , fileFolderInfo.getFolderId(), currSize);
             }
         }
     }
 
-    private void compressFolder(String zipFilePathName, String folderId) {
+    private void compressFolder(String topUnit, String zipFilePathName, String folderId) {
         try {
             File zipFile = new File(zipFilePathName);
             FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
             /*CheckedOutputStream cos = new CheckedOutputStream(fileOutputStream,
                     new CRC32());*/
             ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream);
-            addFolder(out, "", folderId, 0);
+            addFolder(topUnit, out, "", folderId, 0);
             out.close();
         } catch (Exception e) {
             throw new ObjectException(e);
@@ -192,9 +196,9 @@ public class FileFolderInfoController extends BaseController {
         response.setContentType(FileType.mapExtNameToMimeType("zip"));
         response.setHeader("Content-Disposition", "attachment; filename="
                 + URLEncoder.encode(folderInfo.getFolderName(), "UTF-8")+".zip");
-
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         ZipOutputStream out = ZipCompressor.convertToZipOutputStream(response.getOutputStream());
-        addFolder(out, "", folderId, 0);
+        addFolder(topUnit, out, "", folderId, 0);
         out.close();
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
@@ -208,7 +212,8 @@ public class FileFolderInfoController extends BaseController {
         FileFolderInfo folderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
         String tempFileId = UuidOpt.getUuidAsString32();
         String zipFile = SystemTempFileUtils.getTempFilePath(tempFileId);
-        compressFolder(zipFile, folderId);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        compressFolder(topUnit, zipFile, folderId);
         OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
             .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
             .method("文件夹打包下载").tag(folderId).time(DatetimeOpt.currentUtilDate()).content(folderInfo.getFolderName()).newObject(zipFile));

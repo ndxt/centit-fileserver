@@ -26,8 +26,8 @@ public class LocalFileManagerImpl implements LocalFileManager {
     protected FileInfoDao fileInfoDao;
 
     @Override
-    public Set<IUnitInfo> listUserUnit(String userCode) {
-        return CodeRepositoryUtil.getUserUnits(userCode);
+    public Set<IUnitInfo> listUserUnit(String topUnit, String userCode) {
+        return CodeRepositoryUtil.getUserUnits(topUnit, userCode);
     }
 
     /**
@@ -54,8 +54,8 @@ public class LocalFileManagerImpl implements LocalFileManager {
     }
 
     @Override
-    public List<FileShowInfo> listFolderFiles(Map<String, Object> searchColumn) {
-        return fileInfoDao.listFolderFiles(searchColumn);
+    public List<FileShowInfo> listFolderFiles(String topUnit, Map<String, Object> searchColumn) {
+        return fileInfoDao.listFolderFiles(topUnit, searchColumn);
     }
 
     @Override
