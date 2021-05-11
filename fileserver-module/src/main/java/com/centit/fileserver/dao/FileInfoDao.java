@@ -295,7 +295,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
                 "where FILE_OWNER = :uc and file_state='N' " +
                     "and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
-                    "and FILE_NAME=:fn";
+                    "and FILE_NAME=:fn order by a.CREATE_TIME desc";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, CollectionsOpt.createHashMap(
                             "favoriteUser",userCode,
@@ -307,7 +307,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 "left join file_favorite c on a.file_id=c.file_id and c.favorite_user=:favoriteUser " +
                 "where  file_state='N' " +
                     "and FILE_SHOW_PATH=:fsp " +
-                    "and FILE_NAME=:fn";
+                    "and FILE_NAME=:fn order by a.CREATE_TIME desc";
             objects = (List<Object[]>)DatabaseOptUtils.listObjectsByNamedSql(this,
                     sqlsen, CollectionsOpt.createHashMap(
                             "favoriteUser",userCode,
