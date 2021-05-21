@@ -43,6 +43,8 @@ public class FileFavoriteController  extends BaseController {
 
     /**
      * 查询所有   文件收藏  列表
+     * @param request HttpServletRequest
+     * @param pageDesc PageDesc
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
@@ -71,13 +73,15 @@ public class FileFavoriteController  extends BaseController {
 
     /**
      * 新增 文件收藏
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileFavorite  {@link FileFavorite}
      */
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件收藏")
     @WrapUpResponseBody
-    public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request, HttpServletResponse response) {
+    public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request,
+                                   HttpServletResponse response) {
         if(StringBaseOpt.isNvl(fileFavorite.getFavoriteUser())) {
             fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
         }

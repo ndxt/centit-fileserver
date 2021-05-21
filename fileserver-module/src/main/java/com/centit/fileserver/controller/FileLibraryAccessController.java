@@ -45,6 +45,8 @@ public class FileLibraryAccessController  extends BaseController {
 
     /**
      * 查询所有   项目库授权信息  列表
+     * @param request HttpServletRequest
+     * @param pageDesc 分页信息
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
@@ -72,13 +74,15 @@ public class FileLibraryAccessController  extends BaseController {
 
     /**
      * 新增 项目库授权信息
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileLibraryAccess  {@link FileLibraryAccess}
      */
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增项目库授权信息")
     @WrapUpResponseBody
-    public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess,HttpServletRequest request, HttpServletResponse response) {
+    public void createFileLibraryAccess(@RequestBody FileLibraryAccess fileLibraryAccess,HttpServletRequest request,
+                                        HttpServletResponse response) {
         fileLibraryAccess.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryAccessMag.createFileLibraryAccess(fileLibraryAccess);
         JsonResultUtils.writeSingleDataJson(fileLibraryAccess,response);

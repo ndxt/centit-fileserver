@@ -100,7 +100,9 @@ public class FileFolderInfoController extends BaseController {
 
     /**
      * 查询所有   文件夹信息  列表
-     *
+     * @param request HttpServletRequest
+     * @param folderId String
+     * @param libraryId String
      * @return {data:[]}
      */
     @RequestMapping(value = "/{libraryId}/{folderId}", method = RequestMethod.GET)
@@ -235,7 +237,8 @@ public class FileFolderInfoController extends BaseController {
 
     /**
      * 新增 文件夹信息
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileFolderInfo {@link FileFolderInfo}
      */
     @RequestMapping(method = {RequestMethod.POST})
@@ -273,13 +276,15 @@ public class FileFolderInfoController extends BaseController {
 
     /**
      * 新增或保存 文件夹信息
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileFolderInfo {@link FileFolderInfo}
      */
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件夹信息")
     @WrapUpResponseBody
-    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request, HttpServletResponse response) {
+    public void updateFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request,
+                                     HttpServletResponse response) {
         fileFolderInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
         JsonResultUtils.writeSingleDataJson(fileFolderInfoMag.updateFileFolderInfo(fileFolderInfo), response);
     }

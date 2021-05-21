@@ -48,7 +48,7 @@ public class FileLibraryInfoController extends BaseController {
 
     /**
      * 查询所有   文件库信息  列表
-     *
+     * @param request HttpServletRequest
      * @return {data:[]}
      */
     @RequestMapping(method = RequestMethod.GET)
@@ -133,13 +133,15 @@ public class FileLibraryInfoController extends BaseController {
 
     /**
      * 新增 文件库信息
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileLibraryInfo {@link FileLibraryInfo}
      */
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件库信息")
     @WrapUpResponseBody
-    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request, HttpServletResponse response) {
+    public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
+                                      HttpServletResponse response) {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         if (fileLibraryInfo.getFileLibraryAccesss() != null) {
             fileLibraryInfo.getFileLibraryAccesss().forEach(e -> e.setCreateUser(fileLibraryInfo.getCreateUser()));
@@ -162,13 +164,15 @@ public class FileLibraryInfoController extends BaseController {
 
     /**
      * 更新 文件库信息
-     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
      * @param fileLibraryInfo {@link FileLibraryInfo}
      */
     @RequestMapping(method = {RequestMethod.PUT})
     @ApiOperation(value = "更新文件库信息")
     @WrapUpResponseBody
-    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request, HttpServletResponse response) {
+    public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
+                                      HttpServletResponse response) {
         fileLibraryInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryInfoMag.updateFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);

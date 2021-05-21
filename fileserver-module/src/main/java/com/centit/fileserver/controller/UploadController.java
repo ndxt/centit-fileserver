@@ -139,6 +139,7 @@ public class UploadController extends BaseController {
      * 判断文件是否存在，如果文件已经存在可以实现秒传
      *
      * @param request fileStoreUrl token size
+     * @return 是否存在
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
@@ -171,6 +172,7 @@ public class UploadController extends BaseController {
     /**
      * 获取文件 断点位置，前端根据断点位置续传
      * @param request token size
+     * @return 文件信息
      */
     @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)

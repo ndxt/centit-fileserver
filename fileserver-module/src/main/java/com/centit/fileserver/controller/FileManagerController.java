@@ -73,9 +73,9 @@ public class FileManagerController extends BaseController {
 
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
-     *
-     * @param fileId   文件ID
+     * @param request HttpServletRequest
      * @param response HttpServletResponse
+     * @param fileId   文件ID
      */
     @RequestMapping(value = "/{fileId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "根据文件的id逻辑删除文件(同时删除文件和数据库记录)")
@@ -134,7 +134,7 @@ public class FileManagerController extends BaseController {
 
     /**
      * 根据文件的id获取文件存储信息
-     *
+     * @param request HttpServletRequest
      * @param fileId   文件ID
      * @param response HttpServletResponse
      */

@@ -39,6 +39,7 @@ public class FilePretreatUtils {
      * @param inputFile office文件
      * @param pdfFile   PDF文件
      * @return 布尔值
+     * @throws Exception 异常
      */
     public static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
         return AbstractOfficeToPdf.office2Pdf(inputFile, pdfFile);

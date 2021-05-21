@@ -176,6 +176,8 @@ public abstract class UploadDownloadUtils {
      * @param inputStream InputStream
      * @param fSize       long
      * @param fileName    fileName
+     * @param downloadType  下载方式
+     * @param charset    编码
      * @throws IOException IOException
      */
     public static void downFileRange(HttpServletRequest request, HttpServletResponse response,

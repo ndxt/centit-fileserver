@@ -85,6 +85,7 @@ public abstract class FileController extends BaseController {
      * 获取文件 断点位置，前端根据断点位置续传
      *
      * @param request HttpServletRequest : token, size  大小
+     * @return 文件信息
      */
     @ApiOperation(value = "检查续传点，如果signal为continue请续传，如果为secondpass表示文件已存在需要调用秒传接口")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.GET)
