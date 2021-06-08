@@ -435,7 +435,7 @@ export function uploadFileRange (range, file, params, { onUploadProgress } = {})
   const end = range.end
 
   // eslint-disable-next-line no-undef
-  return $.ajax(createUrlParams('api/file/fileserver/upload/range', {
+  return $.ajax(createUrlParams(apiFactory.baseURL + '/file/fileserver/upload/range', {
     token: file.token,
     name: file.name,
     size,
