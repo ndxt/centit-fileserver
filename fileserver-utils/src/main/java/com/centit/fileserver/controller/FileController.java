@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,7 +128,6 @@ public abstract class FileController extends BaseController {
         request.setCharacterEncoding("utf8");
 
         FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
-
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), response);
             return;
@@ -156,11 +156,15 @@ public abstract class FileController extends BaseController {
     @RequestMapping(value = "/range", method = {RequestMethod.POST})
     public void uploadRange(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
+        request.setCharacterEncoding("utf8");
         FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(request);
         Pair<String, InputStream> fileStreamInfo = fetchInputStreamFromRequest(request);
         String fileName = StringUtils.isBlank(fileInfo.getFileName())? fileStreamInfo.getLeft()
             :fileInfo.getFileName();
-
+        if(!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
+            fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
+        }
+//        fileName= URLDecoder.decode(fileName,"utf-8");
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()))) {// 如果文件已经存在则完成秒传，无需再传。
             completedFileStore(fileInfo.getFileMd5(), fileInfo.getFileSize(),
                 fileName, response);
