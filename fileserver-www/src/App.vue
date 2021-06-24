@@ -13,6 +13,8 @@
 import MainLayout from './components/commons/MainLayout'
 import MainHeader from './components/commons/MainHeader'
 import MainMenu from './components/commons/MainMenu'
+import { getCurrposition } from '@/api/admin'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'App',
@@ -29,10 +31,16 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(['setCurrentUser']),
     changeLibrary (library) {
       this.library = library
     }
-  }
+  },
+  async mounted () {
+    await getCurrposition().then(res => {
+      this.setCurrentUser = res
+    })
+  },
 }
 </script>
 

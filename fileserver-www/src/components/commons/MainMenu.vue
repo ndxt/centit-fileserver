@@ -152,6 +152,7 @@ import {
   initunitlib,
 } from '@/api/file'
 import FileRemoveConfirm from '../file/FileRemoveConfirm'
+import apiFactory from '@centit/api-core'
 
 export default {
   name: 'MainMenu',
@@ -289,8 +290,10 @@ export default {
         this.setLibraryInfo(libraries)
         this.menu = libraries
         for (let i = 0; i < this.menu.length; i++) {
-          const ctx = window.$contextPath || ''
-          this.menu[i].url = `${ctx}/api/file/fileserver/library/libraryimage/${this.menu[i].libraryName}?blue=255&green=255&red=255&size=30`
+          // const ctx = window.$contextPath || ''
+          const ctx = apiFactory.baseURL || ''
+          console.log(apiFactory.baseURL)
+          this.menu[i].url = `${ctx}/file/fileserver/library/libraryimage/${this.menu[i].libraryName}?blue=255&green=255&red=255&size=30`
         }
       })
     },
