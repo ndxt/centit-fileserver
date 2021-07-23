@@ -148,8 +148,12 @@ public abstract class UploadDownloadUtils {
 
     public static String encodeDownloadFilename(String paramName) {
         try {
-            return new String(
+            String enCodeName= new String(
                 StringEscapeUtils.unescapeHtml4(paramName).getBytes("GBK"), "ISO8859-1");
+            if(!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(enCodeName))) {
+                return paramName;
+            }
+            return enCodeName;
         } catch (UnsupportedEncodingException e) {
             logger.error("转换文件名 " + paramName + " 报错：" + e.getMessage(), e);
             return paramName;
