@@ -493,7 +493,7 @@ public class UploadController extends BaseController {
                 }
                 fileInfo.setFileName(fileName);
                 completedFileStoreAndPretreat(fileMd5, fileSize,
-                    formData.getLeft(), formData.getMiddle(), request, response);
+                    fileInfo, formData.getMiddle(), request, response);
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
                 JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
