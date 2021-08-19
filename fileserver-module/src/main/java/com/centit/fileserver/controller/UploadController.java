@@ -54,6 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public class UploadController extends BaseController {
         runAsSpringBoot = asBoot;
     }
 
-    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request){
+    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
 
         FileInfo fileInfo = new FileInfo();
 
@@ -156,7 +157,9 @@ public class UploadController extends BaseController {
         String fileId = request.getParameter("fileId");
         if(StringUtils.isNotBlank(fileId)){
             FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-            if(fileInfo==null) return false;
+            if(fileInfo==null) {
+                return false;
+            }
             FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if(storeInfo==null) return false;
             return fileStore.checkFile(storeInfo.getFileStorePath());
@@ -484,6 +487,11 @@ public class UploadController extends BaseController {
             if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
                 FileInfo fileInfo = formData.getLeft();
                 fileInfo.setFileMd5(fileMd5);
+                String fileName = fileInfo.getFileName();
+                if(!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
+                    fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
+                }
+                fileInfo.setFileName(fileName);
                 completedFileStoreAndPretreat(fileMd5, fileSize,
                     formData.getLeft(), formData.getMiddle(), request, response);
             } else {
