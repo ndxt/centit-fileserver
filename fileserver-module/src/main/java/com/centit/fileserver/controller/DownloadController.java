@@ -377,7 +377,10 @@ public class DownloadController extends BaseController {
                                  HttpServletResponse response) throws IOException {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-
+        String fileName = request.getParameter("fileName");
+        if(!StringBaseOpt.isNvl(fileName)){
+            fileInfo.setFileName(fileName);
+        }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
