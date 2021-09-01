@@ -2,6 +2,7 @@ package com.centit.fileserver.utils;
 
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileSystemOpt;
 
@@ -90,7 +91,7 @@ public class OsFileStore implements FileStore {
         if(FileSystemOpt.existFile(getFileRoot() + fileStoreUrl)){
             return new FileInputStream(new File(getFileRoot() + fileStoreUrl));
         }
-        return null;
+        throw new ObjectException(getFileRoot() + fileStoreUrl+"无此文件");
     }
 
     @Override
