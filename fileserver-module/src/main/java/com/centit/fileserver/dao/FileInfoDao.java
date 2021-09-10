@@ -398,16 +398,10 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         return objects;
     }
 
-    public FileInfo getListVersionFileByPath(String libraryCode, String fileShowPath, String fileName) {
+    public FileInfo getListVersionFileByPath(String libraryCode, String parentFolder, String fileName) {
         List<FileInfo> objects = null;
-        if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String hqlsen =  "where FILE_UNIT = ? and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
-                "and FILE_NAME = ? order by CREATE_TIME desc";
-            objects =  this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, fileName});
-        }else{
-            String hqlsen = "where FILE_UNIT = ? and FILE_SHOW_PATH = ? and FILE_NAME = ? order CREATE_TIME by desc";
-            objects = this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, fileShowPath, fileName});
-        }
+        String hqlsen = "where FILE_UNIT = ? and parent_folder = ? and FILE_NAME = ? order CREATE_TIME by desc";
+        objects = this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, parentFolder, fileName});
         return objects!=null && objects.size()>0 ? objects.get(0) : null;
     }
 }

@@ -41,5 +41,5 @@ public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
 
     JSONArray listFilesByOwner(String osId, String optId,String owner);
 
-    FileInfo getListVersionFileByPath(String libraryCode, String fileShowPath,String fileName);
+    FileInfo getListVersionFileByPath(String libraryCode, List<String> fileShowPath,String fileName);
 }

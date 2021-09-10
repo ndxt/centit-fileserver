@@ -101,7 +101,7 @@ public class ViewFileController extends BaseController {
                 return;
             }
             FileInfo fileInfo = fileInfoManager.getListVersionFileByPath(t.getLeft(),
-                StringUtils.join(t.getMiddle()), t.getRight());
+                t.getMiddle(), t.getRight());
 
             if ( fileInfo==null || noAuth(request, response, fileInfo)) {
                 return;

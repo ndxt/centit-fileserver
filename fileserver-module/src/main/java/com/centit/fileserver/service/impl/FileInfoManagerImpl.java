@@ -2,7 +2,9 @@ package com.centit.fileserver.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.centit.fileserver.controller.FileLogController;
+import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.dao.FileInfoDao;
+import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.framework.components.OperationLogCenter;
@@ -27,6 +29,9 @@ import java.util.Map;
 public class FileInfoManagerImpl
         extends BaseEntityManagerImpl<FileInfo, String, FileInfoDao>
      implements FileInfoManager {
+
+    @Autowired
+    protected FileFolderInfoDao fileFolderInfoDao;
 
     @Autowired//(name ="fileInfoDao")
     @NotNull
@@ -169,7 +174,8 @@ public class FileInfoManagerImpl
     }
 
     @Override
-    public FileInfo getListVersionFileByPath(String libraryCode, String fileShowPath, String fileName){
-        return baseDao.getListVersionFileByPath(libraryCode, fileShowPath, fileName);
+    public FileInfo getListVersionFileByPath(String libraryCode, List<String> fileShowPath, String fileName){
+        FileFolderInfo ffi = fileFolderInfoDao.getFolderInfo(libraryCode, fileShowPath);
+        return baseDao.getListVersionFileByPath(libraryCode,ffi!=null?  ffi.getFolderId() : null, fileName);
     }
 }

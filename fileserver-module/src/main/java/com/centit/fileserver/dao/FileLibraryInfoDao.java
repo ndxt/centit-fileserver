@@ -27,26 +27,15 @@ public class FileLibraryInfoDao extends BaseDaoImpl<FileLibraryInfo, String> {
     @Override
     public Map<String, String> getFilterField() {
         Map<String, String> filterField = new HashMap<String, String>();
-
         filterField.put("libraryId", CodeBook.EQUAL_HQL_ID);
-
-
         filterField.put("libraryName", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("libraryType", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("createUser", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("createTime", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("ownUnit", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("ownUser", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("isCreateFolder", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("isUpload", CodeBook.EQUAL_HQL_ID);
-
         filterField.put("authCode", CodeBook.EQUAL_HQL_ID);
 
         return filterField;
