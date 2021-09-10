@@ -10,6 +10,7 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.task.CreatePdfOpt;
+import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
@@ -90,7 +91,7 @@ public class DownloadController extends BaseController {
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
                 if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
-                    try (InputStream downFile = getFileStream(fileStore, fileStoreInfo);
+                    try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
                         FileEncryptWithAes.decrypt(downFile, diminationFile, password);
                     } catch (Exception e) {
@@ -112,7 +113,7 @@ public class DownloadController extends BaseController {
                 try {
                     //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                     UploadDownloadUtils.downFileRange(request, response,
-                        getFileStream(fileStore, fileStoreInfo),
+                        FileIOUtils.getFileStream(fileStore, fileStoreInfo),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
                 } catch (Exception e) {
                     logger.error(e.getMessage());
@@ -204,32 +205,34 @@ public class DownloadController extends BaseController {
                 String charset = null;
                 if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
-                    charset = new AutoDetectReader(getFileStream(fileStore, fileStoreInfo)).getCharset().name();
+                    charset = new AutoDetectReader(FileIOUtils.getFileStream(fileStore, fileStoreInfo)).getCharset().name();
                 }
                 UploadDownloadUtils.downFileRange(request, response,
-                    getFileStream(fileStore, fileStoreInfo),
+                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
                 canView = true;
             } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
                 if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
                     UploadDownloadUtils.downFileRange(request, response,
-                        getFileStream(fileStore, attachedFileStoreInfo),
+                        FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo),
                         attachedFileStoreInfo.getFileSize(),
                         FileType.truncateFileExtName(fileInfo.getFileName())
                             + "." + fileInfo.getAttachedType(),
                         "inline", null);
                     canView = true;
                 } else {
-                    canView = reGetPdf(fileId, request, response, fileInfo);
+                    canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
+                        fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
                 }
             } else {
-                canView = reGetPdf(fileId, request, response, fileInfo);
+                canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
+                    fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
             }
             if (!canView) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 UploadDownloadUtils.downFileRange(request, response,
-                    getFileStream(fileStore, fileStoreInfo),
+                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(),
                     fileInfo.getFileName(),
                     "inline", null);
@@ -240,87 +243,13 @@ public class DownloadController extends BaseController {
         }
     }
 
-    private boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) throws IOException {
-        boolean canView = false;
-        if (AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())) {
-            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-            FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
-            addPdfTaskInfo.setFileId(fileId);
-            addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
-            createPdfOpt.doFileTask(addPdfTaskInfo);
-            FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
-            if (StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())) {
-                FileStoreInfo attachedFileStoreInfo =
-                    fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
-                if (attachedFileStoreInfo != null) {
-                    canView = true;
-                    UploadDownloadUtils.downFileRange(request, response,
-                        getFileStream(fileStore, attachedFileStoreInfo),
-                        attachedFileStoreInfo.getFileSize(),
-                        FileType.truncateFileExtName(newFileInfo.getFileName())
-                            + ".pdf",// + newFileInfo.getAttachedType(),
-                        "inline", null);
-                }
-            }
-        }
-        return canView;
-    }
-
-    private static InputStream getFileStream(FileStore fileStore, FileStoreInfo fileStoreInfo) throws IOException {
-        return fileStoreInfo.getIsTemp() ?
-            new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
-            fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-    }
-
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
         userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
-        if (!checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
+        if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
                 + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
             return true;
-        }
-        return false;
-    }
-
-    private boolean checkAuth(FileInfo fileInfo, String userCode, String authCode) {
-        Set<String> unitPath = fileLibraryInfoManager.getUnits(userCode);
-
-        if (!"undefined".equals(userCode) && !StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
-            FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(fileInfo.getLibraryId());
-            switch (fileLibraryInfo.getLibraryType()) {
-                //个人
-                case "P":
-                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
-                        return true;
-                    }
-                    break;
-                //机构
-                case "O":
-                    for (String s : unitPath) {
-                        if (s.contains(fileLibraryInfo.getOwnUnit())) {
-                            return true;
-                        }
-                    }
-                    break;
-                //项目
-                case "I":
-                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
-                        return true;
-                    }
-                    if (fileLibraryInfo.getFileLibraryAccesss() != null) {
-                        for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
-                            if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
-                                return true;
-                            }
-                        }
-                    }
-                default:
-                    break;
-            }
-        }
-        if (!StringBaseOpt.isNvl(authCode) && !"undefined".equals(authCode)) {
-            return authCode.equals(fileInfo.getAuthCode());
         }
         return false;
     }

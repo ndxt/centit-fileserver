@@ -168,4 +168,8 @@ public class FileInfoManagerImpl
         return dataList;
     }
 
+    @Override
+    public FileInfo getListVersionFileByPath(String libraryCode, String fileShowPath, String fileName){
+        return baseDao.getListVersionFileByPath(libraryCode, fileShowPath, fileName);
+    }
 }

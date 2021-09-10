@@ -385,17 +385,30 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
         return files;
     }
 
-    public List<FileInfo> listFileStoreInfo(String fileShowPath,String fileName) {
+    public List<FileInfo> listFileStoreInfo(String libraryCode, String fileShowPath,String fileName) {
         List<FileInfo> objects = null;
         if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
-            String hqlsen =  "where (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
-                    "and FILE_NAME = ?";
-            objects =  this.listObjectsByFilter(hqlsen,new Object[]{fileName});
+            String hqlsen =  "where FILE_UNIT = ? and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
+                    "and FILE_NAME = ? order by CREATE_TIME desc";
+            objects =  this.listObjectsByFilter(hqlsen,new Object[]{libraryCode , fileName});
         }else{
-            String hqlsen = "where  FILE_SHOW_PATH = ? and FILE_NAME = ?";
-            objects = this.listObjectsByFilter(hqlsen,new Object[]{fileShowPath,fileName});
+            String hqlsen = "where FILE_UNIT = ? and FILE_SHOW_PATH = ? and FILE_NAME = ? order by CREATE_TIME desc";
+            objects = this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, fileShowPath,fileName});
         }
         return objects;
+    }
+
+    public FileInfo getListVersionFileByPath(String libraryCode, String fileShowPath, String fileName) {
+        List<FileInfo> objects = null;
+        if (StringUtils.isBlank(fileShowPath) || StringUtils.equals(fileShowPath,".")) {
+            String hqlsen =  "where FILE_UNIT = ? and (FILE_SHOW_PATH is null or FILE_SHOW_PATH='' or FILE_SHOW_PATH='/') " +
+                "and FILE_NAME = ? order by CREATE_TIME desc";
+            objects =  this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, fileName});
+        }else{
+            String hqlsen = "where FILE_UNIT = ? and FILE_SHOW_PATH = ? and FILE_NAME = ? order CREATE_TIME by desc";
+            objects = this.listObjectsByFilter(hqlsen,new Object[]{libraryCode, fileShowPath, fileName});
+        }
+        return objects!=null && objects.size()>0 ? objects.get(0) : null;
     }
 }
 

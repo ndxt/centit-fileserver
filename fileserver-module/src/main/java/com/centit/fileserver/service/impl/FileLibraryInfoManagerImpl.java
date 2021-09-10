@@ -1,6 +1,8 @@
 package com.centit.fileserver.service.impl;
 
 import com.centit.fileserver.dao.FileLibraryInfoDao;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileLibraryAccess;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.WebOptUtils;
@@ -185,6 +187,49 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     @Override
     public void deleteFileLibraryInfo(String libraryId) {
         fileLibraryInfoDao.deleteObjectById(libraryId);
+    }
+
+    @Override
+    public boolean checkAuth(FileInfo fileInfo, String userCode, String authCode) {
+        Set<String> unitPath = this.getUnits(userCode);
+
+        if (!"undefined".equals(userCode) && !StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
+            FileLibraryInfo fileLibraryInfo = this.getFileLibraryInfo(fileInfo.getLibraryId());
+            switch (fileLibraryInfo.getLibraryType()) {
+                //个人
+                case "P":
+                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
+                        return true;
+                    }
+                    break;
+                //机构
+                case "O":
+                    for (String s : unitPath) {
+                        if (s.contains(fileLibraryInfo.getOwnUnit())) {
+                            return true;
+                        }
+                    }
+                    break;
+                //项目
+                case "I":
+                    if (userCode.equals(fileLibraryInfo.getOwnUser())) {
+                        return true;
+                    }
+                    if (fileLibraryInfo.getFileLibraryAccesss() != null) {
+                        for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
+                            if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
+                                return true;
+                            }
+                        }
+                    }
+                default:
+                    break;
+            }
+        }
+        if (!StringBaseOpt.isNvl(authCode) && !"undefined".equals(authCode)) {
+            return authCode.equals(fileInfo.getAuthCode());
+        }
+        return false;
     }
 
 }

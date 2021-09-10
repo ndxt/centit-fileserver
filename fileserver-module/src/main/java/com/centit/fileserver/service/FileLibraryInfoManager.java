@@ -1,5 +1,6 @@
 package com.centit.fileserver.service;
 
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.framework.model.basedata.IUnitInfo;
@@ -29,4 +30,6 @@ public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInf
     void initPersonLibrary(String userCode);
     void initUnitLibrary(String unitCode,String userCode);
     Set<String> getUnits(String userCode);
+
+    boolean checkAuth(FileInfo fileInfo, String userCode, String authCode);
 }
