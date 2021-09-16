@@ -1,9 +1,13 @@
 package com.centit.fileserver.client;
 
+import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.framework.appclient.HttpReceiveJSON;
+import com.centit.framework.appclient.RestfulHttpRequest;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +17,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ClientAsFileStore implements FileStore {
+public class ClientAsFileStore implements FileStore, OperateFileLibrary {
 
     @Setter
     private FileClient fileClient;
 
     private Logger logger = LoggerFactory.getLogger(ClientAsFileStore.class);
 
-    public ClientAsFileStore(){
+    public ClientAsFileStore() {
 
     }
 
     /**
      * 保存文件
-     * @param is InputStream
+     *
+     * @param is       InputStream
      * @param fileInfo 文件信息
      * @param fileSize long
      * @return 文件的存储路径
@@ -35,36 +40,39 @@ public class ClientAsFileStore implements FileStore {
     @Override
     public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
         FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), is);
-        return f!=null?f.getFileId():"";
+        return f != null ? f.getFileId() : "";
     }
 
     /**
      * 保存文件
+     *
      * @param sourFilePath 临时文件路径，这个应该是操作系统的路径
-     * @param fileInfo 文件信息
-     * @param fileSize long
+     * @param fileInfo     文件信息
+     * @param fileSize     long
      * @return 文件的存储路径 fileStoreUrl
      * @throws IOException io异常
      */
     @Override
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
         FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), new File(sourFilePath));
-        return f!=null?f.getFileId():"";
+        return f != null ? f.getFileId() : "";
     }
 
     /**
      * 检查文件是否存在，如果存在则实现秒传
-     * @param fileId  文件的ID
+     *
+     * @param fileId 文件的ID
      * @return true 文件存在 false 文件不存在
      */
     @Override
     public boolean checkFile(String fileId) {
-        return fileClient.getFileSizeByFileId(fileId)>0;
+        return fileClient.getFileSizeByFileId(fileId) > 0;
     }
 
     /**
      * 获取文件的存储路径 url，通过这个路径 fileStroe可以获得这个文件
      * 如果不存在返回null checkFile返回为true则这个肯定存在
+     *
      * @param fileInfo 文件信息
      * @param fileSize long 文件的大小
      * @return 如果不存在返回null checkFile返回为true则这个肯定存在
@@ -83,7 +91,7 @@ public class ClientAsFileStore implements FileStore {
     public String getFileAccessUrl(String fileId) {
         try {
             return fileClient.getFileUrl(fileId, 24 * 60);
-        } catch (Exception e){
+        } catch (Exception e) {
             return "";
         }
     }
@@ -134,6 +142,18 @@ public class ClientAsFileStore implements FileStore {
     public boolean deleteFile(String fileId) throws IOException {
         fileClient.deleteFile(fileId);
         return true;
+    }
+
+    @Override
+    public JSONObject insertFileLibrary(JSONObject fileLibrary) {
+        HttpReceiveJSON fileLibraryInfo = HttpReceiveJSON.valueOfJson(fileClient.insertFileLibrary(fileLibrary));
+        RestfulHttpRequest.checkHttpReceiveJSON(fileLibraryInfo);
+        return fileLibraryInfo.getJSONObject();
+    }
+
+    @Override
+    public JSONObject getFileLibrary(String libraryId) {
+        return null;
     }
 
 }

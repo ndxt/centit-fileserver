@@ -1,5 +1,8 @@
 package com.centit.fileserver.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileLibraryInfo;
@@ -35,7 +38,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibraryInfo, String, FileLibraryInfoDao>
-    implements FileLibraryInfoManager {
+    implements FileLibraryInfoManager, OperateFileLibrary {
 
     private static final Logger logger = LoggerFactory.getLogger(FileLibraryInfoManager.class);
     private static final char SEPARATOR = '/';
@@ -54,6 +57,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public void createFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
+        if (fileLibraryInfo.getWorkGroups() != null) {
+            fileLibraryInfo.getWorkGroups().forEach(e -> e.getWorkGroupParameter().setUserCode(fileLibraryInfo.getCreateUser()));
+        }
         fileLibraryInfoDao.saveNewObject(fileLibraryInfo);
         fileLibraryInfoDao.saveObjectReferences(fileLibraryInfo);
     }
@@ -242,5 +248,17 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         return false;
     }
 
+    @Override
+    public JSONObject insertFileLibrary(JSONObject fileLibrary) {
+        FileLibraryInfo fileLibraryInfo=JSON.toJavaObject(fileLibrary,FileLibraryInfo.class);
+        createFileLibraryInfo(fileLibraryInfo);
+        return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
+    }
+
+    @Override
+    public JSONObject getFileLibrary(String libraryId) {
+        FileLibraryInfo fileLibraryInfo=getFileLibraryInfo(libraryId);
+        return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
+    }
 }
 

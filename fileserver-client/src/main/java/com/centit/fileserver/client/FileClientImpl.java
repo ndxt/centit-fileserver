@@ -7,6 +7,7 @@ import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
+import com.centit.framework.appclient.RestfulHttpRequest;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.common.ObjectException;
@@ -513,6 +514,16 @@ public class FileClientImpl implements FileClient {
         } catch (IOException e) {
             logger.error("删除文件出错:" + e.getMessage() + "，文件ID：" + fileId, e);
         }
+    }
+
+    @Override
+    public String insertFileLibrary(JSONObject fileLibrary) {
+        return RestfulHttpRequest.jsonPost(appSession,"/library",fileLibrary);
+    }
+
+    @Override
+    public JSONObject getFileLibrary(String libraryId) {
+        return RestfulHttpRequest.getResponseData(appSession,"/library/"+libraryId).getJSONObject();
     }
 
     @Override
