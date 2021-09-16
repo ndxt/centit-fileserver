@@ -2,7 +2,6 @@ package com.centit.fileserver.service.impl;
 
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.po.FileLibraryAccess;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.WebOptUtils;
@@ -11,6 +10,7 @@ import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.framework.model.basedata.IUserUnit;
+import com.centit.product.po.WorkGroup;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -60,14 +60,24 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public List<FileLibraryInfo> listFileLibraryInfo(String userCode) {
-        String where = " where 1=1 and ((own_user=:userCode) or "
-            + "(library_type='O' and own_unit in (:ownunit)) "
-            + "or (library_type='I' and library_id in (select library_id from file_library_access where access_usercode=:accessuser)))";
         Map<String, Object> map = new HashMap<>();
-        map.put("userCode", userCode);
-        map.put("ownunit", getUnits(userCode));
-        map.put("accessuser", userCode);
-        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(where, map);
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("where 1=1");
+        if (StringUtils.isNotBlank(userCode)){
+            map.put("userCode", userCode);
+            sqlBuilder.append(" and ( ");
+            sqlBuilder.append(" own_user=:userCode ");
+        }
+        if (getUnits(userCode)!=null && getUnits(userCode).size()>0){
+            map.put("ownunit", getUnits(userCode));
+            sqlBuilder.append(" or (library_type='O' and own_unit in (:ownunit)) ");
+        }
+        if (StringUtils.isNotBlank(userCode)){
+            map.put("accessuser", userCode);
+            sqlBuilder.append(" or (library_type='I' and library_id in (select group_id from work_group where user_code=:accessuser))");
+            sqlBuilder.append(")");
+        }
+        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder.toString(), map);
         boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
             userCode.equals(fileLibraryInfo.getOwnUser()));
         if (!hasPerson) {
@@ -215,9 +225,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                     if (userCode.equals(fileLibraryInfo.getOwnUser())) {
                         return true;
                     }
-                    if (fileLibraryInfo.getFileLibraryAccesss() != null) {
-                        for (FileLibraryAccess fileLibraryAccess : fileLibraryInfo.getFileLibraryAccesss()) {
-                            if (userCode.equals(fileLibraryAccess.getAccessUsercode())) {
+                    if (fileLibraryInfo.getWorkGroups() != null) {
+                        for (WorkGroup workGroup : fileLibraryInfo.getWorkGroups()) {
+                            if (userCode.equals(workGroup.getCreator())) {
                                 return true;
                             }
                         }

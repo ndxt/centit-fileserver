@@ -1,5 +1,6 @@
 package com.centit.fileserver.po;
 
+import com.centit.product.po.WorkGroup;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
@@ -111,7 +112,7 @@ public class FileLibraryInfo implements java.io.Serializable {
 
     @ApiModelProperty(value = "项目库对应权限")
     @OneToMany(mappedBy = "fileLibraryInfo", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "library_id", referencedColumnName = "library_id")
-    private List<FileLibraryAccess> fileLibraryAccesss;
+    @JoinColumn(name = "library_id", referencedColumnName = "group_id")
+    private List<WorkGroup> workGroups;
 
 }
