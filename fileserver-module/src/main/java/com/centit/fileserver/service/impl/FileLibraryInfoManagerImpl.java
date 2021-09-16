@@ -227,7 +227,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                     }
                     if (fileLibraryInfo.getWorkGroups() != null) {
                         for (WorkGroup workGroup : fileLibraryInfo.getWorkGroups()) {
-                            if (userCode.equals(workGroup.getCreator())) {
+                            if (userCode.equals(workGroup.getWorkGroupParameter().getUserCode())) {
                                 return true;
                             }
                         }
