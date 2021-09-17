@@ -58,7 +58,11 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     @Override
     public void createFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
         if (fileLibraryInfo.getWorkGroups() != null) {
-            fileLibraryInfo.getWorkGroups().forEach(e -> e.getWorkGroupParameter().setUserCode(fileLibraryInfo.getCreateUser()));
+            fileLibraryInfo.getWorkGroups().forEach(e -> {
+                if (StringBaseOpt.isNvl(e.getCreator())) {
+                    e.setCreator(fileLibraryInfo.getCreateUser());
+                }
+            });
         }
         fileLibraryInfoDao.saveNewObject(fileLibraryInfo);
         fileLibraryInfoDao.saveObjectReferences(fileLibraryInfo);
@@ -69,16 +73,16 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         Map<String, Object> map = new HashMap<>();
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("where 1=1");
-        if (StringUtils.isNotBlank(userCode)){
+        if (StringUtils.isNotBlank(userCode)) {
             map.put("userCode", userCode);
             sqlBuilder.append(" and ( ");
             sqlBuilder.append(" own_user=:userCode ");
         }
-        if (getUnits(userCode)!=null && getUnits(userCode).size()>0){
+        if (getUnits(userCode) != null && getUnits(userCode).size() > 0) {
             map.put("ownunit", getUnits(userCode));
             sqlBuilder.append(" or (library_type='O' and own_unit in (:ownunit)) ");
         }
-        if (StringUtils.isNotBlank(userCode)){
+        if (StringUtils.isNotBlank(userCode)) {
             map.put("accessuser", userCode);
             sqlBuilder.append(" or (library_type='I' and library_id in (select group_id from work_group where user_code=:accessuser))");
             sqlBuilder.append(")");
@@ -106,7 +110,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         List<IUnitInfo> result = new ArrayList<>(10);
         for (String unit : getUnits(userCode)) {
-            if(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit)!=null) {
+            if (CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit) != null) {
                 result.add(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit));
             }
         }
@@ -160,17 +164,17 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public Set<String> getUnits(String userCode) {
-        if(userCode==null) {
+        if (userCode == null) {
             return null;
         }
         HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Set<String> treeSet = new TreeSet<>();
-        List<? extends IUserUnit> uulist=CodeRepositoryUtil.listUserUnits(topUnit, userCode);
+        List<? extends IUserUnit> uulist = CodeRepositoryUtil.listUserUnits(topUnit, userCode);
         if (uulist != null && uulist.size() > 0) {
             Iterator var6 = uulist.iterator();
-            while(var6.hasNext()) {
-                IUserUnit uu = (IUserUnit)var6.next();
+            while (var6.hasNext()) {
+                IUserUnit uu = (IUserUnit) var6.next();
                 IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(topUnit, uu.getUnitCode());
                 if (unitInfo != null) {
                     String[] temp = StringUtils.split(
@@ -250,14 +254,14 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public JSONObject insertFileLibrary(JSONObject fileLibrary) {
-        FileLibraryInfo fileLibraryInfo=JSON.toJavaObject(fileLibrary,FileLibraryInfo.class);
+        FileLibraryInfo fileLibraryInfo = JSON.toJavaObject(fileLibrary, FileLibraryInfo.class);
         createFileLibraryInfo(fileLibraryInfo);
         return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
     }
 
     @Override
     public JSONObject getFileLibrary(String libraryId) {
-        FileLibraryInfo fileLibraryInfo=getFileLibraryInfo(libraryId);
+        FileLibraryInfo fileLibraryInfo = getFileLibraryInfo(libraryId);
         return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
     }
 }
