@@ -1,5 +1,7 @@
 package com.centit.fileserver.controller;
 
+import com.centit.fileserver.common.IFileLibrary;
+import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
@@ -14,6 +16,7 @@ import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +43,8 @@ import java.util.List;
 public class FileLibraryInfoController extends BaseController {
 
     private final FileLibraryInfoManager fileLibraryInfoMag;
+    @Autowired
+    private OperateFileLibrary operateFileLibrary;
 
     public FileLibraryInfoController(FileLibraryInfoManager fileLibraryInfoMag) {
         this.fileLibraryInfoMag = fileLibraryInfoMag;
@@ -74,6 +79,13 @@ public class FileLibraryInfoController extends BaseController {
     @WrapUpResponseBody
     public Object getFileLibraryInfo(@PathVariable String libraryId) {
         return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibraryInfo(libraryId));
+    }
+
+    @RequestMapping(value = "/instance", method = {RequestMethod.GET})
+    @ApiOperation(value = "返回文件库实例")
+    @WrapUpResponseBody
+    public IFileLibrary getInstance(){
+        return  new FileLibraryInfo();
     }
 
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
@@ -144,6 +156,13 @@ public class FileLibraryInfoController extends BaseController {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
+    }
+
+    @RequestMapping(method = {RequestMethod.POST},value = "/addlibrary")
+    @ApiOperation(value = "通过新增文件库信息")
+    @WrapUpResponseBody
+    public IFileLibrary createFileLibraryInfo(@RequestBody IFileLibrary fileLibrary) {
+        return operateFileLibrary.insertFileLibrary(fileLibrary);
     }
 
     /**

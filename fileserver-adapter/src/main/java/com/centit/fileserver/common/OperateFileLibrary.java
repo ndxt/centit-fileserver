@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
  * @author zhf
  */
 public interface OperateFileLibrary {
-    JSONObject insertFileLibrary(JSONObject fileLibrary);
-    JSONObject getFileLibrary(String libraryId);
+    IFileLibrary insertFileLibrary(IFileLibrary fileLibrary);
+    IFileLibrary getFileLibrary(String libraryId);
+    IFileLibrary getInstance();
 }

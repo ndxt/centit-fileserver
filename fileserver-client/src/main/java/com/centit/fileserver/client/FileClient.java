@@ -3,6 +3,7 @@ package com.centit.fileserver.client;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
+import com.centit.fileserver.common.IFileLibrary;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;
@@ -164,7 +165,8 @@ public interface FileClient {
 
     void deleteFile(String fileId);
 
-    String insertFileLibrary(JSONObject fileLibrary);
-    JSONObject getFileLibrary(String libraryId);
+    String insertFileLibrary(IFileLibrary fileLibrary);
+    IFileLibrary getFileLibrary(String libraryId);
+    IFileLibrary getInstance();
 
 }

@@ -2,6 +2,7 @@ package com.centit.fileserver.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.centit.fileserver.common.IFileLibrary;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
@@ -42,6 +43,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     private static final Logger logger = LoggerFactory.getLogger(FileLibraryInfoManager.class);
     private static final char SEPARATOR = '/';
+    private static final String WORKGROUP_ROLECODE_MEMBER="组员";
     @Autowired
     private FileLibraryInfoDao fileLibraryInfoDao;
     @Value("${extend.library.enable:false}")
@@ -61,6 +63,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
             fileLibraryInfo.getWorkGroups().forEach(e -> {
                 if (StringBaseOpt.isNvl(e.getCreator())) {
                     e.setCreator(fileLibraryInfo.getCreateUser());
+                }
+                if (StringBaseOpt.isNvl(e.getWorkGroupParameter().getRoleCode())) {
+                    e.getWorkGroupParameter().setRoleCode(WORKGROUP_ROLECODE_MEMBER);
                 }
             });
         }
@@ -253,16 +258,21 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public JSONObject insertFileLibrary(JSONObject fileLibrary) {
-        FileLibraryInfo fileLibraryInfo = JSON.toJavaObject(fileLibrary, FileLibraryInfo.class);
+    public IFileLibrary insertFileLibrary(IFileLibrary fileLibrary) {
+        FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
+        fileLibraryInfo.copyNotNull(fileLibrary);
         createFileLibraryInfo(fileLibraryInfo);
-        return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
+        return fileLibraryInfo;
     }
 
     @Override
-    public JSONObject getFileLibrary(String libraryId) {
-        FileLibraryInfo fileLibraryInfo = getFileLibraryInfo(libraryId);
-        return JSONObject.parseObject(JSONObject.toJSONString(fileLibraryInfo));
+    public IFileLibrary getFileLibrary(String libraryId) {
+        return getFileLibraryInfo(libraryId);
+    }
+
+    @Override
+    public IFileLibrary getInstance() {
+        return new FileLibraryInfo();
     }
 }
 

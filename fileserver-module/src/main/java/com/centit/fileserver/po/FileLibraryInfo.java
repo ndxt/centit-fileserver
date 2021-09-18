@@ -1,5 +1,6 @@
 package com.centit.fileserver.po;
 
+import com.centit.fileserver.common.IFileLibrary;
 import com.centit.product.po.WorkGroup;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
@@ -11,6 +12,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,7 +26,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "FILE_LIBRARY_INFO")
-public class FileLibraryInfo implements java.io.Serializable {
+public class FileLibraryInfo implements java.io.Serializable, IFileLibrary {
     private static final long serialVersionUID = 1L;
 
 
@@ -114,5 +116,20 @@ public class FileLibraryInfo implements java.io.Serializable {
     @OneToMany(mappedBy = "fileLibraryInfo", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "library_id", referencedColumnName = "group_id")
     private List<WorkGroup> workGroups;
+
+    public void copyNotNull(IFileLibrary fileLibrary){
+        if(fileLibrary.getLibraryId()!=null){
+            libraryId = fileLibrary.getLibraryId();
+        }
+        if(fileLibrary.getLibraryName()!=null){
+            libraryName = fileLibrary.getLibraryName();
+        }
+        if(fileLibrary.getLibraryType()!=null){
+            libraryType = fileLibrary.getLibraryType();
+        }
+        if(fileLibrary.getCreateUser()!=null){
+            createUser = fileLibrary.getCreateUser();
+        }
+    }
 
 }
