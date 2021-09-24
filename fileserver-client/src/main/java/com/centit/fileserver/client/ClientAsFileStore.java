@@ -3,8 +3,8 @@ package com.centit.fileserver.client;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
+import com.centit.fileserver.common.FileLibrary;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.common.IFileLibrary;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.HttpReceiveJSON;
@@ -146,20 +146,16 @@ public class ClientAsFileStore implements FileStore, OperateFileLibrary {
     }
 
     @Override
-    public IFileLibrary insertFileLibrary(IFileLibrary fileLibrary) {
+    public FileLibrary insertFileLibrary(FileLibrary fileLibrary) {
         HttpReceiveJSON fileLibraryInfo = HttpReceiveJSON.valueOfJson(fileClient.insertFileLibrary(fileLibrary));
         RestfulHttpRequest.checkHttpReceiveJSON(fileLibraryInfo);
-        return fileLibraryInfo.getDataAsObject(IFileLibrary.class);
+        return fileLibraryInfo.getDataAsObject(FileLibrary.class);
     }
 
     @Override
-    public IFileLibrary getFileLibrary(String libraryId) {
+    public FileLibrary getFileLibrary(String libraryId) {
         return fileClient.getFileLibrary(libraryId);
     }
 
-    @Override
-    public IFileLibrary getInstance() {
-        return fileClient.getInstance();
-    }
 
 }

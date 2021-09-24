@@ -1,6 +1,7 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.common.IFileLibrary;
+
+import com.centit.fileserver.common.FileLibrary;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.po.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -81,13 +82,6 @@ public class FileLibraryInfoController extends BaseController {
         return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibraryInfo(libraryId));
     }
 
-    @RequestMapping(value = "/instance", method = {RequestMethod.GET})
-    @ApiOperation(value = "返回文件库实例")
-    @WrapUpResponseBody
-    public IFileLibrary getInstance(){
-        return  new FileLibraryInfo();
-    }
-
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
     @ApiOperation(value = "根据用户查询机构全路径")
     @WrapUpResponseBody
@@ -161,7 +155,7 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST},value = "/addlibrary")
     @ApiOperation(value = "通过新增文件库信息")
     @WrapUpResponseBody
-    public IFileLibrary createFileLibraryInfo(@RequestBody IFileLibrary fileLibrary) {
+    public FileLibrary createFileLibraryInfo(@RequestBody FileLibrary fileLibrary) {
         return operateFileLibrary.insertFileLibrary(fileLibrary);
     }
 

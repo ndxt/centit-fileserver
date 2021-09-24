@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
-import com.centit.fileserver.common.IFileLibrary;
+import com.centit.fileserver.common.FileLibrary;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
@@ -16,7 +16,6 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.network.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
@@ -518,19 +517,15 @@ public class FileClientImpl implements FileClient {
     }
 
     @Override
-    public String insertFileLibrary(IFileLibrary fileLibrary) {
-        return RestfulHttpRequest.jsonPost(appSession,"/library/addlibrary",fileLibrary);
+    public String insertFileLibrary(FileLibrary fileLibrary) {
+        return RestfulHttpRequest.jsonPost(appSession, "/library/addlibrary", fileLibrary);
     }
 
     @Override
-    public IFileLibrary getFileLibrary(String libraryId) {
-        return RestfulHttpRequest.getResponseData(appSession,"/library/"+libraryId).getDataAsObject(IFileLibrary.class);
+    public FileLibrary getFileLibrary(String libraryId) {
+        return RestfulHttpRequest.getResponseData(appSession, "/library/" + libraryId).getDataAsObject(FileLibrary.class);
     }
 
-    @Override
-    public IFileLibrary getInstance() {
-        return RestfulHttpRequest.getResponseData(appSession,"/library/instance").getDataAsObject(IFileLibrary.class);
-    }
 
     @Override
     public String matchFileStoreUrl(FileInfo fi, long fileSize) {

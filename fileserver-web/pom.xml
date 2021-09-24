@@ -40,6 +40,11 @@
             <artifactId>centit-es-client</artifactId>
             <version>5.2-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-dubbo-config</artifactId>
+            <version>5.2-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>com.centit.support</groupId>
@@ -199,7 +204,6 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <!--  end -->

@@ -1,9 +1,8 @@
 package com.centit.fileserver.client;
 
-import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
-import com.centit.fileserver.common.IFileLibrary;
+import com.centit.fileserver.common.FileLibrary;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;
@@ -12,7 +11,7 @@ import java.io.InputStream;
 
 public interface FileClient {
 
-    CloseableHttpClient allocHttpClient() ;
+    CloseableHttpClient allocHttpClient();
 
     void releaseHttpClient(CloseableHttpClient httpClient);
 
@@ -26,16 +25,18 @@ public interface FileClient {
     /*
         请求上传文件
      */
-    String applyUploadFiles(CloseableHttpClient httpClient, int maxUploadFiles) throws IOException ;
+    String applyUploadFiles(CloseableHttpClient httpClient, int maxUploadFiles) throws IOException;
 
-    String applyUploadFiles(int maxUploadFiles) throws IOException ;
+    String applyUploadFiles(int maxUploadFiles) throws IOException;
 
     default String applyUploadFile() throws IOException {
         return applyUploadFiles(1);
     }
+
     /**
      * 文件下载url
-     * @param fileId 文件ID
+     *
+     * @param fileId     文件ID
      * @param expireTime 失效期限  按照分钟计算
      * @return 文件下载url
      * @throws IOException IOException
@@ -44,7 +45,8 @@ public interface FileClient {
 
     /**
      * 附属文件下载url
-     * @param fileId 文件ID
+     *
+     * @param fileId     文件ID
      * @param expireTime 失效期限  按照分钟计算
      * @return String
      * @throws IOException IOException
@@ -53,8 +55,9 @@ public interface FileClient {
 
     /**
      * 文件下载url
+     *
      * @param httpClient CloseableHttpClient
-     * @param fileId 文件ID
+     * @param fileId     文件ID
      * @param expireTime 失效期限  按照分钟计算
      * @return 文件下载url
      * @throws IOException IOException
@@ -63,8 +66,9 @@ public interface FileClient {
 
     /**
      * 附属文件下载url
+     *
      * @param httpClient CloseableHttpClient
-     * @param fileId 文档ID
+     * @param fileId     文档ID
      * @param expireTime 失效期限  按照分钟计算
      * @return 附属文件下载url
      * @throws IOException IOException
@@ -73,8 +77,9 @@ public interface FileClient {
 
     /**
      * 附属文件下载url 不限制时间，限制下载次数
-     * @param httpClient CloseableHttpClient
-     * @param fileId 文档ID
+     *
+     * @param httpClient   CloseableHttpClient
+     * @param fileId       文档ID
      * @param downloadTime 下载次数
      * @return 附属文件下载url
      * @throws IOException IOException
@@ -83,8 +88,9 @@ public interface FileClient {
 
     /**
      * 文件下载url 不限制时间，限制下载次数
-     * @param httpClient CloseableHttpClient
-     * @param fileId 文档ID
+     *
+     * @param httpClient   CloseableHttpClient
+     * @param fileId       文档ID
      * @param downloadTime 下载次数
      * @return 附属文件下载url
      * @throws IOException IOException
@@ -93,21 +99,23 @@ public interface FileClient {
 
     /**
      * 附属文件下载url 不限制时间，限制下载次数
-     * @param fileId 文档ID
+     *
+     * @param fileId       文档ID
      * @param downloadTime 下载次数
      * @return 附属文件下载url
      * @throws IOException IOException
      */
-    String getAttachFileUrlLimitTimes(String fileId, int downloadTime) throws IOException ;
+    String getAttachFileUrlLimitTimes(String fileId, int downloadTime) throws IOException;
 
     /**
      * 文件下载url 不限制时间，限制下载次数
-     * @param fileId 文档ID
+     *
+     * @param fileId       文档ID
      * @param downloadTime 下载次数
      * @return 附属文件下载url
      * @throws IOException IOException
      */
-    String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException ;
+    String getFileUrlLimitTimes(String fileId, int downloadTime) throws IOException;
 
     FileInfo getFileInfo(CloseableHttpClient httpClient, String fileId) throws IOException;
 
@@ -127,9 +135,9 @@ public interface FileClient {
 
     FileInfo uploadFile(FileInfo fi, InputStream inputStream) throws IOException;
 
-    long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5,long fileSize) throws IOException;
+    long getFileRangeStart(CloseableHttpClient httpClient, String fileMd5, long fileSize) throws IOException;
 
-    long getFileRangeStart(String fileMd5,long fileSize) throws IOException;
+    long getFileRangeStart(String fileMd5, long fileSize) throws IOException;
 
     long getFileRangeStart(CloseableHttpClient httpClient, File file) throws IOException;
 
@@ -137,27 +145,27 @@ public interface FileClient {
 
 
     FileInfo uploadFileRange(CloseableHttpClient httpClient, FileInfo fi,
-                                         File file, long rangeStart, long rangeSize) throws IOException;
+                             File file, long rangeStart, long rangeSize) throws IOException;
 
     FileInfo uploadFileRange(FileInfo fi,
-                                         File file, long rangeStart, long rangeSize) throws IOException;
+                             File file, long rangeStart, long rangeSize) throws IOException;
 
 
     void downloadFileRange(CloseableHttpClient httpClient,
-                                  String fileId, int offset, int lenght, String filePath) throws IOException;
+                           String fileId, int offset, int lenght, String filePath) throws IOException;
 
     void downloadFileRange(String fileId, int offset, int lenght,
-                                  String filePath) throws IOException;
+                           String filePath) throws IOException;
 
     void downloadFile(CloseableHttpClient httpClient,
-                             String fileId, String filePath) throws IOException;
+                      String fileId, String filePath) throws IOException;
 
     void downloadFile(String fileId,
-                             String filePath) throws IOException;
+                      String filePath) throws IOException;
 
     String storeFile(InputStream file) throws IOException;
 
-    String matchFileStoreUrl(FileInfo fi,long fileSize);
+    String matchFileStoreUrl(FileInfo fi, long fileSize);
 
     long getFileSizeByStoreUrl(String fileStoreUrl);
 
@@ -165,8 +173,9 @@ public interface FileClient {
 
     void deleteFile(String fileId);
 
-    String insertFileLibrary(IFileLibrary fileLibrary);
-    IFileLibrary getFileLibrary(String libraryId);
-    IFileLibrary getInstance();
+    String insertFileLibrary(FileLibrary fileLibrary);
+
+    FileLibrary getFileLibrary(String libraryId);
+
 
 }
