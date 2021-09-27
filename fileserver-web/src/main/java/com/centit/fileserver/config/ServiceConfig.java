@@ -8,10 +8,8 @@ import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
-import com.centit.framework.components.impl.TextOperationLogWriterImpl;
 import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
-import com.centit.framework.dubbo.config.DubboConfig;
 import com.centit.framework.ip.app.config.IPOrStaticAppSystemBeanConfig;
 import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
@@ -34,10 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
-import org.springframework.session.MapSessionRepository;
-import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by codefan on 17-7-18.
@@ -50,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
         //StaticSystemBeanConfig.class,
         //SystemBeanConfig.class,
         IPOrStaticAppSystemBeanConfig.class,
-        JdbcConfig.class, DubboConfig.class})
+        JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 //@EnableSpringHttpSession
 public class ServiceConfig {

@@ -41,11 +41,10 @@
             <version>5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-dubbo-config</artifactId>
-            <version>5.2-SNAPSHOT</version>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-dubbo-server-config</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-quartz-extend</artifactId>
