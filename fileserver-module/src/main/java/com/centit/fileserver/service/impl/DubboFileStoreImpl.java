@@ -131,6 +131,11 @@ public class DubboFileStoreImpl implements FileStore {
         return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
     }
 
+    /**
+     * 弃用
+     * @param fileStoreUrl  文件存储的位置URL
+     * @return
+     */
     @Override
     public String getFileAccessUrl(String fileStoreUrl) {
         return null;
@@ -153,7 +158,6 @@ public class DubboFileStoreImpl implements FileStore {
     }
 
     /**
-     * dubbo 调用不支持返回file类型  废弃  可以loadFileStream()方法
      * @param fileId
      * @return
      * @throws IOException
