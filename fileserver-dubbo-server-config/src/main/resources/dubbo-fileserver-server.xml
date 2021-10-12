@@ -8,8 +8,9 @@
 	 http://code.alibabatech.com/schema/dubbo
 	 http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <!-- 声明需要暴露的服务接口 -->
+    <dubbo:protocol name="dubbo" port="20885"/>
     <dubbo:service interface="com.centit.fileserver.common.OperateFileLibrary" ref="fileLibraryInfoManagerImpl" protocol="dubbo">
-        <dubbo:method name="insertFileLibrary" retries="0" />
+<!--        <dubbo:method name="insertFileLibrary" retries="0" />-->
     </dubbo:service>
 
 
