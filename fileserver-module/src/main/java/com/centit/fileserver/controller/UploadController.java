@@ -168,8 +168,7 @@ public class UploadController extends BaseController {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Long fileSize = NumberBaseOpt.parseLong(
             WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-        return fileStore.checkFile(
-            fileStore.matchFileStoreUrl(fileInfo, fileSize));
+        return fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, fileSize));
     }
 
     /**
@@ -453,8 +452,7 @@ public class UploadController extends BaseController {
         }
         request.setCharacterEncoding("utf8");
 
-        Triple<FileInfo, Map<String, Object>, InputStream> formData
-                = fetchUploadFormFromRequest(request);
+        Triple<FileInfo, Map<String, Object>, InputStream> formData = fetchUploadFormFromRequest(request);
         FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
         String token = formData.getLeft().getFileMd5();
         boolean needCheck = !StringUtils.isBlank(token);

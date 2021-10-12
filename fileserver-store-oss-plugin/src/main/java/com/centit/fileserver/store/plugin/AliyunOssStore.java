@@ -56,7 +56,7 @@ public class AliyunOssStore implements FileStore {
     }
 
     @Override
-    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
+    public String saveFile( FileBaseInfo fileInfo, long fileSize,InputStream is) throws IOException {
         String fileStroreUrl =  matchFileStoreUrl(fileInfo, fileSize);
         OSSClient ossc = new OSSClient(endPoint, accessKeyId, secretAccessKey);
         if(!ossc.doesObjectExist(bucketName, fileStroreUrl)) {

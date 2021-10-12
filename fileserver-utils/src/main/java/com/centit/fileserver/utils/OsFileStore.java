@@ -47,7 +47,7 @@ public class OsFileStore implements FileStore {
     }
 
     @Override
-    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize)
+    public String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
             throws IOException {
         String fileStroeUrl =  matchFileStoreUrl(fileInfo, fileSize);
         String filePath = getFileRoot() + fileStroeUrl;

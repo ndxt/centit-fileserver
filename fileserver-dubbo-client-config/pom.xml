@@ -17,5 +17,17 @@
             <artifactId>framework-dubbo-client-config</artifactId>
             <version>${centit.framework.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-adapter</artifactId>
+            <version>5.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>hessian</artifactId>
+            <version>4.0.7</version>
+        </dependency>
     </dependencies>
 </project>

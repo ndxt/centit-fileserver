@@ -39,7 +39,7 @@ public class ClientAsFileStore implements FileStore, OperateFileLibrary {
      * @throws IOException io异常
      */
     @Override
-    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
+    public String saveFile( FileBaseInfo fileInfo, long fileSize,InputStream is) throws IOException {
         FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), is);
         return f != null ? f.getFileId() : "";
     }

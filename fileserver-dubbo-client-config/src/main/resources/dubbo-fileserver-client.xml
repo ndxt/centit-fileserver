@@ -11,6 +11,9 @@
     <!-- 生成远程服务代理，可以和本地bean一样使用; init默认false，即懒加载，可改为ture(饥饿加载)-->
     <dubbo:reference id="aa" interface="com.centit.fileserver.common.OperateFileLibrary" init="false"/>
 
+
+    <dubbo:reference  protocol="hessian" id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"  timeout="100000"  check="false" init="false"/>
+
     <!--<dubbo:reference id="userService" interface="com.kami.service.UserService" >
         <dubbo:method name="findOne" cache="lru" />
     </dubbo:reference>-->

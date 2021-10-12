@@ -62,7 +62,7 @@ public class TxyunCosStore implements FileStore {
 
 
     @Override
-    public String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize) throws IOException {
+    public String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is) throws IOException {
         String fileStoreUrl = matchFileStoreUrl(fileInfo,fileSize);
         COSClient cosClient = getCOSClient();
         // 如何已经存在就不用再次上传
@@ -77,7 +77,7 @@ public class TxyunCosStore implements FileStore {
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
         /*if(!FileUploadUtils.checkFileCompleted(sourFilePath, fileMd5))
             throw new IOException("文件MD5校验出错："+fileMd5);*/
-        return saveFile(new FileInputStream(new File(sourFilePath)), fileInfo, fileSize);
+        return saveFile( fileInfo, fileSize,new FileInputStream(new File(sourFilePath)));
     }
 
 

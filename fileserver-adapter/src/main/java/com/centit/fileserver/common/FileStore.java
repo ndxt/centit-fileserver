@@ -20,7 +20,7 @@ public interface FileStore {
      * @return 文件的存储路径
      * @throws IOException io异常
      */
-    String saveFile(InputStream is, FileBaseInfo fileInfo, long fileSize)
+    String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
             throws IOException;
 
     /**
@@ -88,4 +88,8 @@ public interface FileStore {
      */
     boolean deleteFile(String fileStoreUrl) throws IOException;
 
+
+    default FileInfo getFileInfo(String fileId){
+        return null;
+    };
 }
