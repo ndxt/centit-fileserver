@@ -23,11 +23,12 @@
             <version>5.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
         <dependency>
             <groupId>com.caucho</groupId>
             <artifactId>hessian</artifactId>
-            <version>4.0.7</version>
+            <version>4.0.65</version>
         </dependency>
+
     </dependencies>
 </project>
