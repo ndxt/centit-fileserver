@@ -162,7 +162,8 @@ public class DubboFileStoreImpl implements FileStore {
     public File getFile(String fileId) throws IOException {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        return fileStoreInfo.getIsTemp() ? new File(fileStoreInfo.getFileStorePath()) : osFileStore.getFile(fileStoreInfo.getFileStorePath());
+        File file = fileStoreInfo.getIsTemp() ? new File(fileStoreInfo.getFileStorePath()) : osFileStore.getFile(fileStoreInfo.getFileStorePath());
+        return file;
     }
 
     @Override
