@@ -16,9 +16,9 @@
 
 
 
-    <dubbo:protocol name="hessian" port="8087" server="servlet" contextpath="file_server"/>
+    <dubbo:protocol name="hessian" port="8087" server="servlet"  contextpath="file_server"/>
 
-    <dubbo:service protocol="hessian" interface="com.centit.fileserver.common.FileStore" ref="dubboFileStore" timeout="100000" />
+    <dubbo:service protocol="hessian"  interface="com.centit.fileserver.common.FileStore" ref="dubboFileStore" timeout="100000" />
 
 
 

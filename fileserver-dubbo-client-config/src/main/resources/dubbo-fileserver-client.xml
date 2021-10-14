@@ -12,7 +12,7 @@
     <dubbo:reference id="operateFileLibrary" interface="com.centit.fileserver.common.OperateFileLibrary" init="false"/>
 
 
-    <dubbo:reference  protocol="hessian" id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"  timeout="100000"  check="false" init="false"/>
+    <dubbo:reference  protocol="hessian" id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"   timeout="100000"  check="false" init="false"/>
 
     <!--<dubbo:reference id="userService" interface="com.kami.service.UserService" >
         <dubbo:method name="findOne" cache="lru" />
