@@ -8,29 +8,11 @@
 	 http://code.alibabatech.com/schema/dubbo
 	 http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <!-- 声明需要暴露的服务接口 -->
-    <dubbo:protocol name="dubbo" port="20885"/>
+
     <dubbo:service interface="com.centit.fileserver.common.OperateFileLibrary" ref="fileLibraryInfoManagerImpl" protocol="dubbo">
 <!--        <dubbo:method name="insertFileLibrary" retries="0" />-->
     </dubbo:service>
 
-
-
-
-    <dubbo:protocol name="hessian" port="8080" server="servlet"  contextpath="file_server"/>
-
     <dubbo:service protocol="hessian"  interface="com.centit.fileserver.common.FileStore" ref="dubboFileStore" timeout="100000" />
-
-
-
-
-
-    <!--<dubbo:service interface="com.kami.service.UserService" ref="userServiceImpl" protocol="rmi"/>-->
-
-    <!--<dubbo:service interface="com.kami.service.UserService" ref="userServiceImpl" protocol="dubbo">-->
-    <!--<dubbo:method name="findOne" cache="lru" />-->
-    <!--</dubbo:service>-->
-
-    <!-- Spring使用xml方式注册Bean -->
-    <!--     <bean id="operateFileLibraryImpl" class="com.centit.fileserver.service.impl.FileLibraryInfoManagerImpl"/>-->
 
 </beans>
