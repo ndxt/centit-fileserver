@@ -1,7 +1,5 @@
 package com.centit.fileserver.common;
 
-import com.alibaba.fastjson.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
