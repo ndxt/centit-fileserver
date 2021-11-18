@@ -112,6 +112,11 @@
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-remoting-http</artifactId>
+            <version>3.0.4</version>
+        </dependency>
         <!-- 切换组织机构开始 参见 https://www.yuque.com/centit/manual/createporject  -->
 
        <!-- 在 ServiceConfig 启用StaticSystemBeanConfig 配置类，

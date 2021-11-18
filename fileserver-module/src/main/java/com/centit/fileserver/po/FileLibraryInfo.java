@@ -1,7 +1,8 @@
 package com.centit.fileserver.po;
 
 import com.centit.fileserver.common.FileLibrary;
-import com.centit.product.po.WorkGroup;
+
+import com.centit.product.adapter.po.WorkGroup;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
