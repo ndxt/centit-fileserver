@@ -3,10 +3,10 @@ package com.centit.fileserver.task;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
-import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
@@ -87,7 +87,7 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
         esObjectIndexer.mergeDocument(fileDoc);
         logger.info("文件已加入全文检索");
-        OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+        OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
             .user("admin").unit(fileInfo.getLibraryId())
             .method("文件已加入全文检索").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
         fileInfoManager.updateObject(fileInfo);

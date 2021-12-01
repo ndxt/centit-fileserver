@@ -10,6 +10,7 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
 import com.centit.fileserver.task.FileOptTaskExecutor;
+import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
@@ -54,7 +55,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,46 +95,6 @@ public class UploadController extends BaseController {
     @Autowired
     FileOptTaskExecutor fileOptTaskExecutor;
 
-    public static void setRunAsSpringBoot(boolean asBoot){
-        runAsSpringBoot = asBoot;
-    }
-
-    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
-
-        FileInfo fileInfo = new FileInfo();
-
-        fileInfo.setFileMd5(WebOptUtils
-            .getRequestFirstOneParameter(request, "fileMd5", "token"));
-        fileInfo.setFileName(WebOptUtils
-            .getRequestFirstOneParameter(request,"name","fileName"));
-        String fileState = request.getParameter("fileState");
-        if(StringUtils.isNotBlank(fileState)) {
-            fileInfo.setFileState(fileState);
-        }
-        fileInfo.setOsId(request.getParameter("osId"));//*
-        fileInfo.setOptId(request.getParameter("optId"));
-        fileInfo.setOptMethod(request.getParameter("optMethod"));
-        fileInfo.setOptTag(request.getParameter("optTag"));
-        //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-        fileInfo.setFileShowPath(WebOptUtils
-            .getRequestFirstOneParameter(request,"filePath", "fileShowPath"));
-        fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
-        fileInfo.setFileUnit(request.getParameter("fileUnit"));
-        fileInfo.setFileDesc(request.getParameter("fileDesc"));
-        fileInfo.setLibraryId(request.getParameter("libraryId"));
-        fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
-        return fileInfo;
-    }
-
-    private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request){
-        Map<String, Object> pretreatInfo = collectRequestParameters(request);
-        pretreatInfo.put("fileMd5",
-            WebOptUtils.getRequestFirstOneParameter(request, "fileMd5", "token"));
-        Long fileSize = NumberBaseOpt.parseLong(
-            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-        pretreatInfo.put("fileSize", fileSize);
-        return pretreatInfo;
-    }
 
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
@@ -144,24 +104,26 @@ public class UploadController extends BaseController {
      */
     @ApiOperation(value = "检查文件是否存在")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400,
-            allowedHeaders = "*", methods = RequestMethod.GET)
+        allowedHeaders = "*", methods = RequestMethod.GET)
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     @WrapUpResponseBody
-    public boolean checkFileExists(HttpServletRequest request){
+    public boolean checkFileExists(HttpServletRequest request) {
 
         String fileStoreUrl = request.getParameter("fileStoreUrl");
-        if(StringUtils.isNotBlank(fileStoreUrl)){
+        if (StringUtils.isNotBlank(fileStoreUrl)) {
             return fileStore.checkFile(fileStoreUrl);
         }
 
         String fileId = request.getParameter("fileId");
-        if(StringUtils.isNotBlank(fileId)){
+        if (StringUtils.isNotBlank(fileId)) {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-            if(fileInfo==null) {
+            if (fileInfo == null) {
                 return false;
             }
             FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-            if(storeInfo==null) return false;
+            if (storeInfo == null) {
+                return false;
+            }
             return fileStore.checkFile(storeInfo.getFileStorePath());
         }
 
@@ -173,6 +135,7 @@ public class UploadController extends BaseController {
 
     /**
      * 获取文件 断点位置，前端根据断点位置续传
+     *
      * @param request token size
      * @return 文件信息
      */
@@ -187,10 +150,184 @@ public class UploadController extends BaseController {
         return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileSize);
     }
 
-    /*
-     * 这个是spring boot中无法正确运行，spring boot中不能获取 CommonsMultipartResolver
+    @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
+    @ApiOperation(value = "处理未转储文件")
+    @WrapUpResponseBody
+    public JSONArray addSaveFileOpt() {
+        JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
+        for (Object o : jsonArray) {
+            FileInfo fileInfo = JSONObject.toJavaObject((JSON) o, FileInfo.class);
+            fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+        }
+        return jsonArray;
+    }
+
+    /**
+     * 完成秒传，如果文件不存在会返回失败
+     *
+     * @param token    token
+     * @param size     大小
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
      */
-    protected InputStream fetchISFromCommonsResolver(HttpServletRequest request, FileInfo fileInfo,Map<String, Object> pretreatInfo) throws IOException {
+    @ApiOperation(value = "文件秒传接口，需要post文件基本信息和预处理信息")
+    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
+    @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
+    public void secondPass(String token, long size,
+                           HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+        request.setCharacterEncoding("utf8");
+        FileInfo fileInfo = fetchFileInfoFromRequest(request);
+        Long fileSize = NumberBaseOpt.parseLong(
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+
+        if (fileStore.checkFile(
+            fileStore.matchFileStoreUrl(fileInfo, fileSize))) {
+            Triple<FileInfo, Map<String, Object>, InputStream> formData
+                = fetchUploadFormFromRequest(request);
+            completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                formData.getMiddle(), request, response);
+        } else {
+            //临时文件大小相等 说明上传已完成，也可以秒传
+            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
+                SystemTempFileUtils.getTempFilePath(token, size));
+            if (tempFileSize == size) {
+                Triple<FileInfo, Map<String, Object>, InputStream> formData
+                    = fetchUploadFormFromRequest(request);
+                completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                    formData.getMiddle(), request, response);
+            } else {
+                JsonResultUtils.writeHttpErrorMessage(
+                    FileServerConstant.ERROR_FILE_NOT_EXIST,
+                    "文件不存在无法实现秒传，MD5(uploadedSize/fileSize)："
+                        + token + "(" + tempFileSize + "/" + size + ")", response);
+            }
+        }
+    }
+
+    /**
+     * 续传文件（range） 如果文件已经传输完成 对文件进行保存
+     *
+     * @param token    token
+     * @param size     大小
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @ApiOperation(value = "断点续传接口")
+    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
+    @RequestMapping(value = "/range", method = {RequestMethod.POST})
+    public void uploadFileRange(
+        String token, long size,
+        HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+        if (checkUploadToken && checkUploadAuthorization(request, response)) {
+            return;
+        }
+
+        Triple<FileInfo, Map<String, Object>, InputStream> formData
+            = fetchUploadFormFromRequest(request);
+        if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {
+            completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                formData.getMiddle(), request, response);
+            return;
+        }
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
+
+        try {
+            long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
+            if (uploadSize == size) {
+                completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                    formData.getMiddle(), request, response);
+
+            } else {
+                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token + "_" + size);
+                JsonResultUtils.writeOriginalJson(json.toString(), response);
+            }
+            OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
+                .unit(formData.getLeft().getLibraryId())
+                .user(WebOptUtils.getCurrentUserCode(request))
+                .method("上传").tag(formData.getLeft().getFileId())
+                .time(DatetimeOpt.currentUtilDate())
+                .content(formData.getLeft().getFileName())
+                .newObject(formData.getLeft()));
+        } catch (ObjectException e) {
+            logger.error(e.getMessage(), e);
+            JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),
+                e.getMessage(), response);
+        }
+
+    }
+
+    /**
+     * 上传整个文件适用于IE8
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @throws IOException IOException
+     */
+    @ApiOperation(value = "文件整体上传结构，适用于IE8")
+    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
+    @RequestMapping(value = {"/file", "/upload"}, method = RequestMethod.POST)
+    public void uploadFile(HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+        if (checkUploadToken && checkUploadAuthorization(request, response)) {
+            return;
+        }
+        request.setCharacterEncoding("utf8");
+
+        Triple<FileInfo, Map<String, Object>, InputStream> formData = fetchUploadFormFromRequest(request);
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+        String token = formData.getLeft().getFileMd5();
+        boolean needCheck = !StringUtils.isBlank(token);
+        Long size = NumberBaseOpt.parseLong(
+            request.getParameter("size"), -1l);
+        if (size < 1) {
+            size = NumberBaseOpt.parseLong(
+                request.getParameter("fileSize"), -1l);
+        }
+        String tempFilePath = needCheck ?
+            SystemTempFileUtils.getTempFilePath(token, size) :
+            SystemTempFileUtils.getRandomTempFilePath();
+        try {
+            if (FileSystemOpt.existFile(tempFilePath)) {
+                FileSystemOpt.deleteFile(tempFilePath);
+            }
+            int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
+            File tempFile = new File(tempFilePath);
+            String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
+
+            boolean isValid = fileSize != 0;
+            if (needCheck) {
+                isValid = size == (long) fileSize && token.equals(fileMd5);
+            } else {
+                String renamePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
+                tempFile.renameTo(new File(renamePath));
+            }
+
+            if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
+                FileInfo fileInfo = formData.getLeft();
+                fileInfo.setFileMd5(fileMd5);
+                String fileName = fileInfo.getFileName();
+                if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
+                    fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
+                }
+                fileInfo.setFileName(fileName);
+                completedFileStoreAndPretreat(fileMd5, fileSize,
+                    fileInfo, formData.getMiddle(), request, response);
+            } else {
+                FileSystemOpt.deleteFile(tempFilePath);
+                JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
+        }
+    }
+
+    private InputStream fetchISFromCommonsResolver(HttpServletRequest request, FileInfo fileInfo, Map<String, Object> pretreatInfo) throws IOException {
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
         Map<String, MultipartFile> map = multiRequest.getFileMap();
@@ -208,7 +345,7 @@ public class UploadController extends BaseController {
                 }
             } else {
                 String fn = fi.getName();
-                if(StringUtils.isBlank(fileInfo.getFileName()) && StringUtils.isNotBlank(fn)){
+                if (StringUtils.isBlank(fileInfo.getFileName()) && StringUtils.isNotBlank(fn)) {
                     fileInfo.setFileName(fn);
                 }
                 fis = fi.getInputStream();
@@ -217,7 +354,44 @@ public class UploadController extends BaseController {
         return fis;
     }
 
-    protected InputStream fetchISFromStandardResolver(HttpServletRequest request, FileInfo fileInfo,Map<String, Object> pretreatInfo) throws IOException {
+    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
+
+        FileInfo fileInfo = new FileInfo();
+
+        fileInfo.setFileMd5(WebOptUtils
+            .getRequestFirstOneParameter(request, "fileMd5", "token"));
+        fileInfo.setFileName(WebOptUtils
+            .getRequestFirstOneParameter(request, "name", "fileName"));
+        String fileState = request.getParameter("fileState");
+        if (StringUtils.isNotBlank(fileState)) {
+            fileInfo.setFileState(fileState);
+        }
+        fileInfo.setOsId(request.getParameter("osId"));//*
+        fileInfo.setOptId(request.getParameter("optId"));
+        fileInfo.setOptMethod(request.getParameter("optMethod"));
+        fileInfo.setOptTag(request.getParameter("optTag"));
+        //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
+        fileInfo.setFileShowPath(WebOptUtils
+            .getRequestFirstOneParameter(request, "filePath", "fileShowPath"));
+        fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
+        fileInfo.setFileUnit(request.getParameter("fileUnit"));
+        fileInfo.setFileDesc(request.getParameter("fileDesc"));
+        fileInfo.setLibraryId(request.getParameter("libraryId"));
+        fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
+        return fileInfo;
+    }
+
+    private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request) {
+        Map<String, Object> pretreatInfo = collectRequestParameters(request);
+        pretreatInfo.put("fileMd5",
+            WebOptUtils.getRequestFirstOneParameter(request, "fileMd5", "token"));
+        Long fileSize = NumberBaseOpt.parseLong(
+            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
+        pretreatInfo.put("fileSize", fileSize);
+        return pretreatInfo;
+    }
+
+    private InputStream fetchISFromStandardResolver(HttpServletRequest request, FileInfo fileInfo, Map<String, Object> pretreatInfo) throws IOException {
         MultipartResolver resolver = new StandardServletMultipartResolver();
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
         Map<String, MultipartFile> map = multiRequest.getFileMap();
@@ -226,15 +400,15 @@ public class UploadController extends BaseController {
         for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
             MultipartFile cMultipartFile = entry.getValue();
             org.springframework.core.io.Resource resource = cMultipartFile.getResource();
-            if(resource.isFile()) {
+            if (resource.isFile()) {
                 String fileName = resource.getFilename();
-                if(StringUtils.isNotBlank(fileName)){
+                if (StringUtils.isNotBlank(fileName)) {
                     fileInfo.setFileName(fileName);
                 }
                 fis = cMultipartFile.getInputStream();
             } else {
                 String resourceName = resource.getFilename();
-                if("fileInfo".equals(resourceName)){
+                if ("fileInfo".equals(resourceName)) {
                     FileInfo info = JSON.parseObject(cMultipartFile.getInputStream(), FileInfo.class);
                     fileInfo.copyNotNullProperty(info);
                 } else if ("pretreatInfo".equals(resourceName)) {
@@ -246,45 +420,36 @@ public class UploadController extends BaseController {
         return fis;
     }
 
-    protected Triple<FileInfo, Map<String, Object>, InputStream>
-        fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
+    private Triple<FileInfo, Map<String, Object>, InputStream>
+    fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
         Map<String, Object> pretreatInfo = fetchPretreatInfoFromRequest(request);
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             return new ImmutableTriple<>(fileInfo, pretreatInfo, request.getInputStream());
         }
-        InputStream fis = runAsSpringBoot?fetchISFromStandardResolver(request, fileInfo, pretreatInfo)
-            :fetchISFromCommonsResolver(request, fileInfo, pretreatInfo);
+        InputStream fis = runAsSpringBoot ? fetchISFromStandardResolver(request, fileInfo, pretreatInfo)
+            : fetchISFromCommonsResolver(request, fileInfo, pretreatInfo);
         return new ImmutableTriple<>(fileInfo, pretreatInfo, fis);
     }
-    @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
-    @ApiOperation(value = "处理未转储文件")
-    @WrapUpResponseBody
-    public JSONArray addSaveFileOpt(){
-        JSONArray jsonArray=fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp","T"),null);
-        for(Object o:jsonArray) {
-                FileInfo fileInfo=JSONObject.toJavaObject((JSON) o,FileInfo.class);
-                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
-        }
-        return jsonArray;
-    }
+
     /**
      * 处理文件信息 并按照指令对文件进行加工
      * param fs 文件的物理存储接口
-     * @param fileMd5 加密
-     * @param size 大小
-     * @param fileInfo 文件对象
+     *
+     * @param fileMd5      加密
+     * @param size         大小
+     * @param fileInfo     文件对象
      * @param pretreatInfo PretreatInfo对象
-     * @param response HttpServletResponse
+     * @param response     HttpServletResponse
      */
     private void completedFileStoreAndPretreat(String fileMd5, long size,
-                                      FileInfo fileInfo, Map<String, Object> pretreatInfo,
-                                      HttpServletRequest request,
-                                      HttpServletResponse response) {
+                                               FileInfo fileInfo, Map<String, Object> pretreatInfo,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response) {
         try {
             JSONObject json = storeAndPretreatFile(fileMd5, size, fileInfo, pretreatInfo);
-            if(checkUploadToken){
+            if (checkUploadToken) {
                 String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
                 fileUploadAuthorizedManager.consumeAuthorization(uploadToken);
             }
@@ -292,19 +457,17 @@ public class UploadController extends BaseController {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_PRETREAT,
-                    "文件上传成功，但是在保存前：" +
-                        ObjectException.extortExceptionMessage(e), response);
+                FileServerConstant.ERROR_FILE_PRETREAT,
+                "文件上传成功，但是在保存前：" +
+                    ObjectException.extortExceptionMessage(e), response);
         }
     }
 
     private JSONObject storeAndPretreatFile(String fileMd5, long size,
-                                            FileInfo fileInfo, Map<String, Object> pretreatInfo)  {
+                                            FileInfo fileInfo, Map<String, Object> pretreatInfo) {
         fileInfo.setFileMd5(fileMd5);
-//        fileInfo.setFileSize(size);
-//        fileInfo.setFileStorePath(fs.matchFileStoreUrl(fileMd5, size));
-        FileInfo dbFile  = fileInfoManager.getDuplicateFile(fileInfo);
-        if(dbFile == null) {
+        FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
+        if (dbFile == null) {
             fileInfoManager.saveNewObject(fileInfo);
             String fileId = fileInfo.getFileId();
             try {
@@ -317,188 +480,22 @@ public class UploadController extends BaseController {
             }
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
                 fileMd5, size, fileInfo.getFileName(), fileId);
-        }else {
+        } else {
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
                 fileMd5, size, fileInfo.getFileName(), dbFile.getFileId());
         }
 
     }
 
-
-
-    /**
-     * 完成秒传，如果文件不存在会返回失败
-     * @param token token
-     * @param size 大小
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @ApiOperation(value = "文件秒传接口，需要post文件基本信息和预处理信息")
-    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
-    @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
-    public void secondPass(String token, long size,
-                           HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        request.setCharacterEncoding("utf8");
-        FileInfo fileInfo = fetchFileInfoFromRequest(request);
-        Long fileSize = NumberBaseOpt.parseLong(
-            WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
-
-        if (fileStore.checkFile(
-            fileStore.matchFileStoreUrl(fileInfo, fileSize))){// 如果文件已经存在则完成秒传，无需再传。
-            Triple<FileInfo, Map<String, Object>, InputStream> formData
-                    = fetchUploadFormFromRequest(request);
-            completedFileStoreAndPretreat(token, size, formData.getLeft(),
-                formData.getMiddle(), request, response);
-        } else {
-            //临时文件大小相等 说明上传已完成，也可以秒传
-            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                SystemTempFileUtils.getTempFilePath(token, size));
-            if(tempFileSize == size){
-                Triple<FileInfo, Map<String, Object>, InputStream> formData
-                    = fetchUploadFormFromRequest(request);
-                completedFileStoreAndPretreat(token, size, formData.getLeft(),
-                    formData.getMiddle(), request, response);
-            } else {
-                JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "文件不存在无法实现秒传，MD5(uploadedSize/fileSize)："
-                        + token+"("+tempFileSize+"/"+size+")", response);
-            }
-        }
-    }
-
-    protected boolean checkUploadAuthorization(HttpServletRequest request, HttpServletResponse response){
+    private boolean checkUploadAuthorization(HttpServletRequest request, HttpServletResponse response) {
 
         String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
-        if( fileUploadAuthorizedManager.checkAuthorization(uploadToken)<1){
+        if (fileUploadAuthorizedManager.checkAuthorization(uploadToken) < 1) {
             JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_FORBIDDEN,
-                    "没有权限上传文件,请检查参数:" + UPLOAD_FILE_TOKEN_NAME, response);
-            return false;
+                FileServerConstant.ERROR_FILE_FORBIDDEN,
+                "没有权限上传文件,请检查参数:" + UPLOAD_FILE_TOKEN_NAME, response);
+            return true;
         }
-        return true;
-    }
-
-    /**
-     * 续传文件（range） 如果文件已经传输完成 对文件进行保存
-     * @param token token
-     * @param size 大小
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @ApiOperation(value = "断点续传接口")
-    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
-    @RequestMapping(value = "/range", method = {RequestMethod.POST})
-    public void uploadFileRange(
-            String token, long size,
-            HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        if(checkUploadToken && !checkUploadAuthorization(request, response)){
-            return;
-        }
-
-        Triple<FileInfo, Map<String, Object>, InputStream> formData
-                = fetchUploadFormFromRequest(request);
-        if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {// 如果文件已经存在则完成秒传，无需再传。
-            completedFileStoreAndPretreat(token, size, formData.getLeft(),
-                    formData.getMiddle(), request, response);
-            return;
-        }
-        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
-
-        try {
-            long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
-            if (uploadSize == size) {
-                //上传到临时区成功
-                completedFileStoreAndPretreat(token, size, formData.getLeft(),
-                    formData.getMiddle(), request, response);
-
-            } else /*if (uploadSize > 0)*/ {
-                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token+"_"+size);
-                JsonResultUtils.writeOriginalJson(json.toString(), response);
-            }
-            OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
-                .unit(formData.getLeft().getLibraryId())
-                .user(WebOptUtils.getCurrentUserCode(request))
-                .method("上传").tag(formData.getLeft().getFileId())
-                .time(DatetimeOpt.currentUtilDate())
-                .content(formData.getLeft().getFileName())
-                .newObject(formData.getLeft()));
-        }catch (ObjectException e){
-            logger.error(e.getMessage(),e);
-            JsonResultUtils.writeHttpErrorMessage(e.getExceptionCode(),
-                    e.getMessage(), response);
-        }
-
-    }
-
-    /**
-     * 上传整个文件适用于IE8
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @ApiOperation(value = "文件整体上传结构，适用于IE8")
-    @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
-    @RequestMapping(value = {"/file", "/upload"}, method = RequestMethod.POST)
-    public void uploadFile(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        if(checkUploadToken && !checkUploadAuthorization(request, response)){
-            return;
-        }
-        request.setCharacterEncoding("utf8");
-
-        Triple<FileInfo, Map<String, Object>, InputStream> formData = fetchUploadFormFromRequest(request);
-        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String token = formData.getLeft().getFileMd5();
-        boolean needCheck = !StringUtils.isBlank(token);
-        Long size = NumberBaseOpt.parseLong(
-            request.getParameter("size"), -1l);
-        if(size<1){
-            size= NumberBaseOpt.parseLong(
-                request.getParameter("fileSize"), -1l);
-        }
-        String tempFilePath = needCheck ?
-            SystemTempFileUtils.getTempFilePath(token, size) :
-            SystemTempFileUtils.getRandomTempFilePath();
-        try {
-            // 整体上传清除 残留文件
-            if(FileSystemOpt.existFile(tempFilePath)) {// 临时文件已存在
-                FileSystemOpt.deleteFile(tempFilePath);
-            }
-            int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
-            File tempFile = new File(tempFilePath);
-            String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
-
-            boolean isValid = fileSize != 0;
-            if (needCheck) {
-                isValid = size == (long)fileSize && token.equals(fileMd5);
-            } else {
-                String renamePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
-                tempFile.renameTo(new File(renamePath));
-            }
-
-            if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
-                FileInfo fileInfo = formData.getLeft();
-                fileInfo.setFileMd5(fileMd5);
-                String fileName = fileInfo.getFileName();
-                if(!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
-                    fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
-                }
-                fileInfo.setFileName(fileName);
-                completedFileStoreAndPretreat(fileMd5, fileSize,
-                    fileInfo, formData.getMiddle(), request, response);
-            } else {
-                FileSystemOpt.deleteFile(tempFilePath);
-                JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
-            }
-        } catch (Exception e) {
-            logger.error(e.getMessage(),e);
-            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
-        }
+        return false;
     }
 }

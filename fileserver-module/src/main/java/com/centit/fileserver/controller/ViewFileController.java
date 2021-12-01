@@ -49,8 +49,6 @@ public class ViewFileController extends BaseController {
     @Autowired
     private FileLibraryInfoManager fileLibraryInfoManager;
 
-    @Autowired
-    private FileAccessLogManager fileAccessLogManager;
 
     @Autowired
     protected FileStore fileStore;

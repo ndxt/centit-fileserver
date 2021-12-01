@@ -46,147 +46,38 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * @author zhf
+ */
 @Controller
 @RequestMapping("/download")
 @Api(value = "文件下载", tags = "文件下载")
 public class DownloadController extends BaseController {
-
     private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
-
     @Autowired
     private FileInfoManager fileInfoManager;
-
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
-
     @Autowired
     private FileLibraryInfoManager fileLibraryInfoManager;
-
     @Autowired
     private FileAccessLogManager fileAccessLogManager;
-
     @Autowired
     protected FileStore fileStore;
-
     @Autowired
     protected CreatePdfOpt createPdfOpt;
 
-    @RequestMapping(value = "/testBigFile", method = RequestMethod.GET)
-    @ApiOperation(value = "测试大文件下载")
-    public void downloadTempFile(HttpServletRequest request,
-                                 HttpServletResponse response) throws IOException {
-        File bigFile = new File("/D/temp/bigFile.mkv");
-        UploadDownloadUtils.downFileRange(request, response,
-            new FileInputStream(bigFile),
-            bigFile.length(), "bigFile.mkv", request.getParameter("downloadType"), null);
-    }
-
-    public static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
-                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (null != fileInfo) {
-
-            //对加密的进行特殊处理，ZIP加密的无需处理
-            String password = request.getParameter("password");
-            if ("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password)) {
-                String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
-                File tmpFile = new File(tmpFilePath);
-                if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
-                    try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
-                         OutputStream diminationFile = new FileOutputStream(tmpFile)) {
-                        FileEncryptWithAes.decrypt(downFile, diminationFile, password);
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
-                        JsonResultUtils.writeHttpErrorMessage(
-                            FileServerConstant.ERROR_FILE_ENCRYPT,
-                            "解码文件失败：" + e.getMessage(),
-                            response);
-                        return;
-                    }
-                }
-                try (InputStream inputStream = new FileInputStream(tmpFile)) {
-                    UploadDownloadUtils.downFileRange(request, response,
-                        inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
-                }
-
-                FileSystemOpt.deleteFile(tmpFile);
-            } else {
-                try {
-                    //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-                    UploadDownloadUtils.downFileRange(request, response,
-                        FileIOUtils.getFileStream(fileStore, fileStoreInfo),
-                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
-                    JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
-                }
-            }
-        } else {
-            JsonResultUtils.writeHttpErrorMessage(
-                FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
-        }
-    }
-
-    @RequestMapping(value = "/downloadTemp/{tempfileId}", method = RequestMethod.GET)
-    @ApiOperation(value = "下载临时文件")
-    public void downloadTempFile(@PathVariable("tempfileId") String tempfileId, HttpServletRequest request,
-                                 HttpServletResponse response) throws IOException {
-        File zipFile = new File(SystemTempFileUtils.getTempFilePath(tempfileId));
-        if (!zipFile.exists()) {
-            throw new ObjectException("临时文件不存在：" + tempfileId);
-        }
-        UploadDownloadUtils.downFileRange(request, response,
-            new FileInputStream(zipFile), zipFile.length(),
-            WebOptUtils
-                .getRequestFirstOneParameter(request, "name", "fileName"),
-            request.getParameter("downloadType"), null);
-    }
-
-
     @RequestMapping(value = "/downloadwithauth/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据权限下载文件，可以传入authCode分享码")
-    public void downloadWithauthByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
+    public void downloadWithAuthByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                          HttpServletResponse response) throws IOException {
-
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (noAuth(request, response, fileInfo)) {
             return;
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
         fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
-    }
-
-    @ApiOperation(value = "store文件预览")
-    @ApiImplicitParam(
-        name = "md5SizeExt", value = "文件的Md5码_文件的大小.文件格式 MD5_SIZE.EXT，",
-        required = true, paramType = "path", dataType = "String"
-    )
-    @RequestMapping(value = "/previewstore", method = RequestMethod.GET)
-    public void previewStoreFile(String md5SizeExt,
-                                 HttpServletRequest request,
-                                 HttpServletResponse response) throws Exception {
-        FileBaseInfo fileInfo = UploadDownloadUtils.createFileBaseInfo(
-            md5SizeExt);
-        InputStream inputStream = null;
-        long size=fileInfo.getFileSize();
-        String fileName=md5SizeExt;
-        if (request.getParameter("downloadType").equals("inline") && AbstractOfficeToPdf.canTransToPdf(FileType.getFileExtName(md5SizeExt))) {
-            String pdfTmpFile = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.pdf";
-            String filePath = fileStore.getFile(fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize())).getPath();
-            if(AbstractOfficeToPdf.office2Pdf(FileType.getFileExtName(md5SizeExt),filePath,pdfTmpFile)){
-                File pdfFile=new File(pdfTmpFile);
-                size=pdfFile.length();
-                inputStream=new FileInputStream(pdfFile);
-                fileName=fileInfo.getFileMd5()+".pdf";
-            }
-        }
-        if(inputStream==null) {
-            inputStream = fileStore.loadFileStream(
-                fileStore.matchFileStoreUrl(fileInfo, fileInfo.getFileSize()));
-        }
-        UploadDownloadUtils.downFileRange(request, response,
-            inputStream, size, fileName, request.getParameter("downloadType"), null);
     }
 
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
@@ -242,19 +133,6 @@ public class DownloadController extends BaseController {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }
-
-    private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
-        String userCode = WebOptUtils.getCurrentUserCode(request);
-        userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
-        if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
-            JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
-                + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
-            return true;
-        }
-        return false;
-    }
-
-
     /**
      * 根据文件的id下载附属文件
      * 这个需要权限 控制 用于内部服务之间文件传输
@@ -315,99 +193,6 @@ public class DownloadController extends BaseController {
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
         fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request));
     }
-
-    /**
-     * 根据文件的 access_token 下载文件
-     *
-     * @param token    token
-     * @param request  HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @RequestMapping(value = "/file/{token}", method = RequestMethod.GET)
-    @ApiOperation(value = "根据文件token下载文件")
-    public void downloadByAccessToken(
-        @PathVariable("token") String token, HttpServletRequest request,
-        HttpServletResponse response) throws IOException {
-        // 根据访问日志的id和授权的token查看是否已经被授权
-        FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
-        if (fileAccessLog != null) {
-            if (fileAccessLog.checkValid(false)) {
-                FileInfo fileInfo = fileInfoManager.getObjectById(fileAccessLog.getFileId());
-                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
-                // 记录访问日志
-                fileAccessLog.chargeAccessTimes();
-                fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
-                fileAccessLog.setLastAccessHost(request.getLocalAddr());
-                fileAccessLogManager.updateObject(fileAccessLog);
-            } else {
-                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-                    "没有权限访问该文件或者访问授权已过期！", response);
-            }
-        } else {
-            JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                "找不到该文件或者您没有权限访问该文件！", response);
-        }
-    }
-
-    /**
-     * 根据access_token下载附属文件
-     *
-     * @param token    token
-     * @param request  HttpServletRequest
-     * @param response HttpServletResponse
-     * @throws IOException IOException
-     */
-    @RequestMapping(value = "/attach/{token}", method = RequestMethod.GET)
-    @ApiOperation(value = "根据文件的token下载附属文件")
-    public void downloadAttachByAccessToken(
-        @PathVariable("token") String token, HttpServletRequest request,
-        HttpServletResponse response) throws IOException {
-        // 根据访问日志的id和授权的token查看是否已经被授权
-        FileAccessLog fileAccessLog = fileAccessLogManager.getObjectById(token);
-        // 判断权限
-        if (fileAccessLog != null) {
-            if (fileAccessLog.checkValid(true)) {
-                downloadAttach(fileAccessLog.getFileId(), request, response);
-                // 记录访问日志
-                fileAccessLog.chargeAccessTimes();
-                fileAccessLog.setLastAccessTime(DatetimeOpt.currentUtilDate());
-                fileAccessLog.setLastAccessHost(request.getLocalAddr());
-                fileAccessLogManager.updateObject(fileAccessLog);
-            } else {
-                JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_FORBIDDEN,
-                    "没有权限访问该文件或者访问授权已过期！", response);
-            }
-        } else {
-            JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                "找不到该文件或者您没有权限访问该文件！", response);
-        }
-    }
-
-
-    private void compressFiles(String zipFilePathName, String[] fileUrls, String[] fileNames, int len) {
-        try {
-            File zipFile = new File(zipFilePathName);
-            FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
-
-            ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream);
-            // new ZipOutputStream(cos);
-            String basedir = "";
-
-            for (int i = 0; i < len; i++) {
-                try (InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
-                    ZipCompressor.compressFile(fis, fileNames[i], out, basedir);
-                } catch (Exception e) {
-                    logger.info("获取文件" + fileUrls[i] + "出错！");
-                }
-            }
-            out.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * 批量下载文件
      *
@@ -418,7 +203,7 @@ public class DownloadController extends BaseController {
      * @throws IOException 异常
      */
     @RequestMapping(value = "/batchdownload", method = RequestMethod.GET)
-    @ApiOperation(value = "批量下载文件")
+    @ApiOperation(value = "批量下载文件，返回压缩文件")
     public void batchDownloadFile(String[] fileIds,
                                   String fileName,
                                   HttpServletRequest request,
@@ -478,5 +263,82 @@ public class DownloadController extends BaseController {
         UploadDownloadUtils.downFileRange(request, response,
             inputStream,
             fileSize, fileName, request.getParameter("downloadType"), null);
+    }
+
+    private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
+                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (null != fileInfo) {
+
+            //对加密的进行特殊处理，ZIP加密的无需处理
+            String password = request.getParameter("password");
+            if ("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password)) {
+                String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
+                File tmpFile = new File(tmpFilePath);
+                if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
+                    try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
+                         OutputStream diminationFile = new FileOutputStream(tmpFile)) {
+                        FileEncryptWithAes.decrypt(downFile, diminationFile, password);
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                        JsonResultUtils.writeHttpErrorMessage(
+                            FileServerConstant.ERROR_FILE_ENCRYPT,
+                            "解码文件失败：" + e.getMessage(),
+                            response);
+                        return;
+                    }
+                }
+                try (InputStream inputStream = new FileInputStream(tmpFile)) {
+                    UploadDownloadUtils.downFileRange(request, response,
+                        inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
+                }
+
+                FileSystemOpt.deleteFile(tmpFile);
+            } else {
+                try {
+                    //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                    UploadDownloadUtils.downFileRange(request, response,
+                        FileIOUtils.getFileStream(fileStore, fileStoreInfo),
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
+                }
+            }
+        } else {
+            JsonResultUtils.writeHttpErrorMessage(
+                FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
+        }
+    }
+
+    private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
+        if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
+            JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
+                + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
+            return true;
+        }
+        return false;
+    }
+    private void compressFiles(String zipFilePathName, String[] fileUrls, String[] fileNames, int len) {
+        try {
+            File zipFile = new File(zipFilePathName);
+            FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
+
+            ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream);
+            // new ZipOutputStream(cos);
+            String basedir = "";
+
+            for (int i = 0; i < len; i++) {
+                try (InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
+                    ZipCompressor.compressFile(fis, fileNames[i], out, basedir);
+                } catch (Exception e) {
+                    logger.info("获取文件" + fileUrls[i] + "出错！");
+                }
+            }
+            out.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

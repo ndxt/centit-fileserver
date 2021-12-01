@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
-import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
@@ -44,19 +44,19 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         String fileMd5 = fileOptTaskInfo.getFileMd5();
         long fileSize = fileOptTaskInfo.getFileSize();
         FileInfo fileInfo = fileInfoManager.getObjectById(fileOptTaskInfo.getFileId());
-        if(null==fileInfo) {
-            OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
-                .user("admin")//.unit(fileOptTaskInfo.)
+        if (null == fileInfo) {
+            OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
+                .user("admin")
                 .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
-                .content("文件存储失败"+fileOptTaskInfo.getFileId()+"没有对应fileInfo")
+                .content("文件存储失败" + fileOptTaskInfo.getFileId() + "没有对应fileInfo")
                 .oldObject(fileOptTaskInfo));
-            logger.error("文件存储失败，找不到对应的文件信息："+ JSON.toJSONString(fileOptTaskInfo));
+            logger.error("文件存储失败，找不到对应的文件信息：" + JSON.toJSONString(fileOptTaskInfo));
             return;
         }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
         save(tempFilePath, fileInfo, fileSize);
         logger.info("存储文件完成");
-        OperationLogCenter.log(OperationLog.create().operation(FileLogController.LOG_OPERATION_NAME)
+        OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
             .user("admin")//.unit(fileOptTaskInfo.)
             .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
             .content("存储文件完成:" + tempFilePath));
@@ -65,9 +65,9 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
 
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        if(StringUtils.equalsAnyIgnoreCase(
+        if (StringUtils.equalsAnyIgnoreCase(
             StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")),
-            "A","Z")){
+            "A", "Z")) {
             return null;
         }
         FileTaskInfo saveFileTaskInfo = new FileTaskInfo(getOpeatorName());

@@ -111,17 +111,6 @@ public class FileLibraryInfoController extends BaseController {
         return ImageOpt.createNameIcon(name, size, new Color(red, green, blue), border);
     }
 
-    private String getUserCode(HttpServletRequest request) {
-        String userCode =  (String) collectRequestParameters(request).get("userCode");
-        if (StringUtils.isBlank(userCode)||"undefined".equals(userCode)) {
-            userCode = WebOptUtils.getCurrentUserCode(request);
-        }
-        if (StringUtils.isBlank(userCode)) {
-            return null;
-        }
-        return userCode;
-    }
-
     @RequestMapping(value = "/initpersonlib", method = {RequestMethod.POST})
     @ApiOperation(value = "初始化个人文件库")
     @WrapUpResponseBody
@@ -187,4 +176,14 @@ public class FileLibraryInfoController extends BaseController {
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
 
+    private String getUserCode(HttpServletRequest request) {
+        String userCode =  (String) collectRequestParameters(request).get("userCode");
+        if (StringUtils.isBlank(userCode)||"undefined".equals(userCode)) {
+            userCode = WebOptUtils.getCurrentUserCode(request);
+        }
+        if (StringUtils.isBlank(userCode)) {
+            return null;
+        }
+        return userCode;
+    }
 }

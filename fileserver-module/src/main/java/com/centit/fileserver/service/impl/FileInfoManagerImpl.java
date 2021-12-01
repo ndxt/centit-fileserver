@@ -1,12 +1,12 @@
 package com.centit.fileserver.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.centit.fileserver.controller.FileLogController;
 import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileInfoManager;
+import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
@@ -43,10 +43,12 @@ public class FileInfoManagerImpl
     @Override
     public void saveNewObject(FileInfo originalFile){
 
-        if(StringUtils.isBlank(originalFile.getOsId()))
+        if(StringUtils.isBlank(originalFile.getOsId())) {
             originalFile.setOsId("NOTSET");
-        if(StringUtils.isBlank(originalFile.getOptId()))
+        }
+        if(StringUtils.isBlank(originalFile.getOptId())) {
             originalFile.setOptId("NOTSET");
+        }
         this.baseDao.saveNewObject(originalFile);
     }
 
@@ -70,7 +72,7 @@ public class FileInfoManagerImpl
     public  void writeDownloadFileLog(FileInfo fileInfo, String userCode) {
         fileInfo.addDownloadTimes();
         OperationLogCenter.log(OperationLog.create()
-            .operation(FileLogController.LOG_OPERATION_NAME).user(userCode)
+            .operation(FileIOUtils.LOG_OPERATION_NAME).user(userCode)
             .unit(fileInfo.getLibraryId())
             .method("下载").tag(fileInfo.getFileId())
             .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
