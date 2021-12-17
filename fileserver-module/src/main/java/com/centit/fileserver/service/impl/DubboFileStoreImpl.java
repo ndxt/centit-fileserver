@@ -13,6 +13,7 @@ import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.search.service.Impl.ESIndexer;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -102,9 +103,10 @@ public class DubboFileStoreImpl implements FileStore {
         return "文件保存失败！";
     }
 
+    //请调用另一个实现方法
     @Override
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize){
-        return null;
+        throw new ObjectException("This function is not been implemented. Please call another implementation method saveFile() ") ;
     }
 
     @Override
@@ -154,7 +156,7 @@ public class DubboFileStoreImpl implements FileStore {
 
     @Override
     public InputStream loadFileStream(String fileId) throws IOException {
-        return new FileInputStream(getFile(fileId));
+        throw new ObjectException("This function is not been implemented , Please call method getFile()") ;
     }
 
     /**
