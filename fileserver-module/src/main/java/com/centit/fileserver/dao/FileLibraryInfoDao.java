@@ -1,6 +1,6 @@
 package com.centit.fileserver.dao;
 
-import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;
 import org.slf4j.Logger;

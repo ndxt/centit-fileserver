@@ -1,9 +1,8 @@
 package com.centit.fileserver.controller;
 
 
-import com.centit.fileserver.common.FileLibrary;
 import com.centit.fileserver.common.OperateFileLibrary;
-import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
@@ -144,7 +143,7 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST},value = "/addlibrary")
     @ApiOperation(value = "通过新增文件库信息")
     @WrapUpResponseBody
-    public FileLibrary createFileLibraryInfo(@RequestBody FileLibrary fileLibrary) {
+    public FileLibraryInfo createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibrary) {
         return operateFileLibrary.insertFileLibrary(fileLibrary);
     }
 

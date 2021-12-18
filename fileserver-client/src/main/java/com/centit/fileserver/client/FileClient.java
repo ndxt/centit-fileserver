@@ -2,7 +2,7 @@ package com.centit.fileserver.client;
 
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
-import com.centit.fileserver.common.FileLibrary;
+import com.centit.fileserver.common.FileLibraryInfo;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;
@@ -173,9 +173,9 @@ public interface FileClient {
 
     void deleteFile(String fileId);
 
-    String insertFileLibrary(FileLibrary fileLibrary);
+    String insertFileLibrary(FileLibraryInfo fileLibrary);
 
-    FileLibrary getFileLibrary(String libraryId);
+    FileLibraryInfo getFileLibrary(String libraryId);
 
 
 }

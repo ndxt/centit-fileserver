@@ -1,6 +1,6 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;

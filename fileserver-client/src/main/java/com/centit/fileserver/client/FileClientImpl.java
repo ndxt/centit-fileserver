@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileAccessLog;
 import com.centit.fileserver.client.po.FileInfo;
-import com.centit.fileserver.common.FileLibrary;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
@@ -517,13 +517,13 @@ public class FileClientImpl implements FileClient {
     }
 
     @Override
-    public String insertFileLibrary(FileLibrary fileLibrary) {
+    public String insertFileLibrary(FileLibraryInfo fileLibrary) {
         return RestfulHttpRequest.jsonPost(appSession, "/library/addlibrary", fileLibrary);
     }
 
     @Override
-    public FileLibrary getFileLibrary(String libraryId) {
-        return RestfulHttpRequest.getResponseData(appSession, "/library/" + libraryId).getDataAsObject(FileLibrary.class);
+    public FileLibraryInfo getFileLibrary(String libraryId) {
+        return RestfulHttpRequest.getResponseData(appSession, "/library/" + libraryId).getDataAsObject(FileLibraryInfo.class);
     }
 
 

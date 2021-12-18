@@ -1,5 +1,6 @@
 package com.centit.fileserver.service.impl;
 
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.dao.FileFavoriteDao;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.dao.FileStoreInfoDao;

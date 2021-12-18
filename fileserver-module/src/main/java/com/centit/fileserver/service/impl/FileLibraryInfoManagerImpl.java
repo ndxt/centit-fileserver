@@ -1,11 +1,9 @@
 package com.centit.fileserver.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
-import com.centit.fileserver.common.FileLibrary;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.po.FileLibraryInfo;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
@@ -258,7 +256,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public FileLibrary insertFileLibrary(FileLibrary fileLibrary) {
+    public FileLibraryInfo insertFileLibrary(FileLibraryInfo fileLibrary) {
         FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.copyNotNull(fileLibrary);
         fileLibraryInfoDao.mergeObject(fileLibraryInfo);
@@ -266,9 +264,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public FileLibrary getFileLibrary(String libraryId) {
+    public FileLibraryInfo getFileLibrary(String libraryId) {
         FileLibraryInfo fileLibraryInfo= getFileLibraryInfo(libraryId);
-        FileLibrary fileLibrary = new FileLibrary();
+        FileLibraryInfo fileLibrary = new FileLibraryInfo();
         fileLibrary.copyNotNull(fileLibraryInfo);
         return fileLibrary;
     }
