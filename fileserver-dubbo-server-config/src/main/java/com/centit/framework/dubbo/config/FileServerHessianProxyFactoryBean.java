@@ -15,5 +15,10 @@ public class FileServerHessianProxyFactoryBean extends HessianProxyFactory {
     public boolean isOverloadEnabled() {
         return true;
     }
+
+    @Override
+    public void setChunkedPost(boolean isChunked) {
+        super.setChunkedPost(false);
+    }
 }
 
