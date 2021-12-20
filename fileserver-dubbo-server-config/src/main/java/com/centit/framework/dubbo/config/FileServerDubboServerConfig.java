@@ -46,7 +46,7 @@ public class FileServerDubboServerConfig  {
             if (MBeanServerFactory.findMBeanServer(null).size() > 0) {
                 server = MBeanServerFactory.findMBeanServer(null).get(0);
             } else {
-                logger.error("获取hessian协议端口异常,no MBeanServer!");
+                logger.error("Obtaining the Hessian protocol port is abnormal,messageInfo：no MBeanServer!");
                 return 8080;
             }
             Set names = server.queryNames(new ObjectName("Catalina:type=Connector,*"),
@@ -55,11 +55,11 @@ public class FileServerDubboServerConfig  {
             if (iterator.hasNext()) {
                 ObjectName name = (ObjectName) iterator.next();
                 int port = Integer.parseInt(server.getAttribute(name, "port").toString());
-                logger.info("获取到hessian协议端口为："+port);
+                logger.info("The hessian protocol port is："+port);
                 return port;
             }
         } catch (Exception e) {
-            logger.error("获取hessian协议端口异常，异常信息："+e.getMessage());
+            logger.error("Obtaining the Hessian protocol port is abnormal，messageInfo："+e.getMessage());
         }
         return -1;
     }
