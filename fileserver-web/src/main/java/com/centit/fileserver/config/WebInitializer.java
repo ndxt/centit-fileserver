@@ -37,7 +37,7 @@ public class WebInitializer implements WebApplicationInitializer {
         WebConfig.registerSpringSecurityFilter(servletContext, servletUrlPatterns);
 
         //dubbo hessian协议使用
-        ServletRegistration.Dynamic dubbo = servletContext.addServlet("dubbo", DispatcherServlet.class);
+        ServletRegistration.Dynamic dubbo = servletContext.addServlet("hessian", DispatcherServlet.class);
         dubbo.addMapping("/*");
 
 
