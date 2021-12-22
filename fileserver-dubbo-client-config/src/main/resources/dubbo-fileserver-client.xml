@@ -12,7 +12,7 @@
     <dubbo:reference id="operateFileLibrary" interface="com.centit.fileserver.common.OperateFileLibrary" init="false"/>
 
     <!-- 指定请求服务地址 url="hessian://192.168.137.56:8087"-->
-    <dubbo:reference  protocol="hessian"  group="dubbo-fileStore"  id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"
+   <!-- <dubbo:reference  protocol="hessian"  group="dubbo-fileStore"  id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"
                       timeout="60000"  check="false" init="false"/>
-
+-->
 </beans>

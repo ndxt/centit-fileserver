@@ -3,12 +3,10 @@ package com.centit.fileserver.config;
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
 import com.centit.support.file.PropertiesReader;
-import org.apache.dubbo.remoting.http.servlet.DispatcherServlet;
 import org.springframework.web.WebApplicationInitializer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 import java.util.Properties;
 
 /**
@@ -37,8 +35,8 @@ public class WebInitializer implements WebApplicationInitializer {
         WebConfig.registerSpringSecurityFilter(servletContext, servletUrlPatterns);
 
         //dubbo hessian协议使用
-        ServletRegistration.Dynamic dubbo = servletContext.addServlet("hessian", DispatcherServlet.class);
-        dubbo.addMapping("/*");
+ /*       ServletRegistration.Dynamic hessian = servletContext.addServlet("hessian", DispatcherServlet.class);
+        hessian.addMapping("/*");*/
 
 
         Properties properties = PropertiesReader.getClassPathProperties(
