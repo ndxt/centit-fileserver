@@ -1,12 +1,15 @@
 package com.centit.fileserver.config;
 
+import com.alibaba.nacos.api.annotation.NacosProperties;
+import com.alibaba.nacos.spring.context.annotation.config.EnableNacosConfig;
+import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
+import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySources;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
@@ -23,6 +26,7 @@ import com.centit.search.service.Impl.ESSearcher;
 import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.search.service.Searcher;
 import com.centit.support.algorithm.BooleanBaseOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.security.AESSecurityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerFactory;
@@ -46,6 +50,9 @@ import org.springframework.core.env.Environment;
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 //@EnableSpringHttpSession
+@EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.server-addr}"))
+@NacosPropertySources({@NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)}
+)
 public class ServiceConfig {
 
     @Value("${app.home:./}")
@@ -144,32 +151,37 @@ public class ServiceConfig {
     }
 
     @Bean
-    public ESServerConfig esServerConfig(){
-        return IndexerSearcherFactory.loadESServerConfigFormProperties(
-            SysParametersUtils.loadProperties()
-        );
+    public ESServerConfig esServerConfig() {
+        ESServerConfig config = new ESServerConfig();
+        config.setServerHostIp(env.getProperty("elasticsearch.server.ip"));
+        config.setServerHostPort(env.getProperty("elasticsearch.server.port"));
+        config.setClusterName(env.getProperty("elasticsearch.server.cluster"));
+        config.setOsId(env.getProperty("elasticsearch.osId"));
+        config.setMinScore(NumberBaseOpt.parseFloat(env.getProperty("elasticsearch.filter.minScore"), 0.5f));
+        return config;
     }
 
     @Bean(name = "esObjectIndexer")
     public ESIndexer esObjectIndexer(@Autowired ESServerConfig esServerConfig){
-        return IndexerSearcherFactory.obtainIndexer(
-            esServerConfig, ObjectDocument.class);
+        return IndexerSearcherFactory.obtainIndexer(esServerConfig, ObjectDocument.class);
     }
 
     @Bean
     public Searcher documentSearcher(){
-        if(BooleanBaseOpt.castObjectToBoolean(
-                env.getProperty("fulltext.index.enable"),false)) {
-            return IndexerSearcherFactory.obtainSearcher(
-                    IndexerSearcherFactory.loadESServerConfigFormProperties(
-                            SysParametersUtils.loadProperties()), FileDocument.class);
+        if(BooleanBaseOpt.castObjectToBoolean(env.getProperty("fulltext.index.enable"),false)) {
+            ESServerConfig config = new ESServerConfig();
+            config.setServerHostIp(env.getProperty("elasticsearch.server.ip"));
+            config.setServerHostPort(env.getProperty("elasticsearch.server.port"));
+            config.setClusterName(env.getProperty("elasticsearch.server.cluster"));
+            config.setOsId(env.getProperty("elasticsearch.osId"));
+            config.setMinScore(NumberBaseOpt.parseFloat(env.getProperty("elasticsearch.filter.minScore"), 0.5f));
+            return IndexerSearcherFactory.obtainSearcher(config, FileDocument.class);
         }
         return null;
     }
     @Bean(name = "esObjectSearcher")
     public ESSearcher esObjectSearcher(@Autowired ESServerConfig esServerConfig){
-        return IndexerSearcherFactory.obtainSearcher(
-            esServerConfig, ObjectDocument.class);
+        return IndexerSearcherFactory.obtainSearcher(esServerConfig, ObjectDocument.class);
     }
     @Bean
     public NotificationCenter notificationCenter() {
