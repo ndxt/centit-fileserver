@@ -1,6 +1,6 @@
 package com.centit.fileserver.common;
 
-import com.centit.product.adapter.po.WorkGroup;
+import com.centit.framework.system.po.WorkGroup;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
