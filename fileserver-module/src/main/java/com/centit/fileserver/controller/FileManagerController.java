@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +183,7 @@ public class FileManagerController extends BaseController {
     @ApiOperation(value = "获取文件存储url")
     @WrapUpResponseBody
     public String matchFileStoreUrl(@PathVariable("fileSize") String fileSize,
-                                  @Valid FileInfo fileInfo) {
+                                    @Valid FileInfo fileInfo) {
         return fileStore.matchFileStoreUrl(fileInfo,
             NumberBaseOpt.castObjectToLong(fileSize, 0L));
     }
@@ -259,7 +260,9 @@ public class FileManagerController extends BaseController {
                                 HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
-
+        if(queryParamsMap.get("files")!=null){
+            queryParamsMap.put("files", Arrays.asList(queryParamsMap.get("files").toString().split(",")));
+        }
         JSONArray listObjects = fileInfoManager.listStoredFiles(queryParamsMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();
         resData.addResponseData(OBJLIST, listObjects);
