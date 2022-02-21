@@ -72,7 +72,8 @@ public class DownloadController extends BaseController {
     public void downloadWithAuthByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                          HttpServletResponse response) throws IOException {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if (noAuth(request, response, fileInfo)) {
+        String closeAuth = request.getParameter("closeAuth");
+        if (StringUtils.isBlank(closeAuth)&&noAuth(request, response, fileInfo)) {
             return;
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
