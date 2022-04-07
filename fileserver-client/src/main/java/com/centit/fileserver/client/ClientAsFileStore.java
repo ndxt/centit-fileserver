@@ -1,6 +1,5 @@
 package com.centit.fileserver.client;
 
-import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileLibraryInfo;

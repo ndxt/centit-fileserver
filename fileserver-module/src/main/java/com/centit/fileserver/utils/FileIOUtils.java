@@ -12,7 +12,6 @@ import com.centit.fileserver.task.CreatePdfOpt;
 import com.centit.support.file.FileType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -1,13 +1,9 @@
 package com.centit.fileserver.controller;
 
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.LocalFileManager;
-import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
@@ -19,13 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 

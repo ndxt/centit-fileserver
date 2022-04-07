@@ -1,9 +1,9 @@
 package com.centit.fileserver.service.impl;
 
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
@@ -11,7 +11,6 @@ import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.IUnitInfo;
 import com.centit.framework.model.basedata.IUserUnit;
-
 import com.centit.framework.system.po.WorkGroup;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
@@ -245,6 +244,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                             }
                         }
                     }
+                    break;
                 default:
                     break;
             }

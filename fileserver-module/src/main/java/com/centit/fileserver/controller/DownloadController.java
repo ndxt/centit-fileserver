@@ -1,10 +1,8 @@
 package com.centit.fileserver.controller;
 
-import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileStore;
-import com.centit.fileserver.common.FileTaskInfo;
-import com.centit.fileserver.po.*;
-import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
+import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -17,19 +15,15 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
-import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.security.Md5Encoder;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 /**

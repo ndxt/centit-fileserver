@@ -1,7 +1,7 @@
 package com.centit.fileserver.service;
 
-import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.common.FileLibraryInfo;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.framework.model.basedata.IUnitInfo;
 

@@ -1,7 +1,5 @@
 package com.centit.fileserver.common;
 
-import com.alibaba.fastjson.JSONObject;
-
 /**
  * @author zhf
  */
