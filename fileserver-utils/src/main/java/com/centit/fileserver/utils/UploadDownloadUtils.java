@@ -471,5 +471,55 @@ public abstract class UploadDownloadUtils {
         public long getFileSize() {
             return fileSize;
         }
+
+        @Override
+        public String getFileShowPath() {
+            return null;
+        }
+
+        @Override
+        public String getFileState() {
+            return null;
+        }
+
+        @Override
+        public String getFileDesc() {
+            return null;
+        }
+
+        @Override
+        public String getIndexState() {
+            return null;
+        }
+
+        @Override
+        public String getOptMethod() {
+            return null;
+        }
+
+        @Override
+        public String getOptTag() {
+            return null;
+        }
+
+        @Override
+        public String getAttachedFileMd5() {
+            return null;
+        }
+
+        @Override
+        public String getAttachedType() {
+            return null;
+        }
+
+        @Override
+        public String getAuthCode() {
+            return null;
+        }
+
+        @Override
+        public String getParentFolder() {
+            return null;
+        }
     }
 }

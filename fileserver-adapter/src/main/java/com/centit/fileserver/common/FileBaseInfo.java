@@ -14,4 +14,16 @@ public interface FileBaseInfo {
     String getFileUnit();
     String getLibraryId();
     long getFileSize();
+
+    String getFileShowPath();
+    String getFileState();
+    String getFileDesc();
+    String getIndexState();
+    String getOptMethod();
+    String getOptTag();
+    String getAttachedFileMd5();
+    String getAttachedType();
+    String getAuthCode();
+    String getParentFolder();
+
 }

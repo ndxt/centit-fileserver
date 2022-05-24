@@ -145,6 +145,16 @@ public class ClientAsFileStore implements FileStore, OperateFileLibrary {
     }
 
     @Override
+    public FileBaseInfo getFileInfo(String fileId) {
+        try {
+            return fileClient.getFileInfo(fileId);
+        } catch (IOException e) {
+            logger.error("获取文件信息失败",e);
+            return null;
+        }
+    }
+
+    @Override
     public FileLibraryInfo insertFileLibrary(FileLibraryInfo fileLibrary) {
         HttpReceiveJSON fileLibraryInfo = HttpReceiveJSON.valueOfJson(fileClient.insertFileLibrary(fileLibrary));
         RestfulHttpRequest.checkHttpReceiveJSON(fileLibraryInfo);
@@ -155,6 +165,5 @@ public class ClientAsFileStore implements FileStore, OperateFileLibrary {
     public FileLibraryInfo getFileLibrary(String libraryId) {
         return fileClient.getFileLibrary(libraryId);
     }
-
 
 }

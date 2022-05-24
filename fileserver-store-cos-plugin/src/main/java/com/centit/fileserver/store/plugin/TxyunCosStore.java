@@ -140,4 +140,9 @@ public class TxyunCosStore implements FileStore {
         return true;
     }
 
+    @Override
+    public FileBaseInfo getFileInfo(String fileId) {
+        return null;
+    }
+
 }

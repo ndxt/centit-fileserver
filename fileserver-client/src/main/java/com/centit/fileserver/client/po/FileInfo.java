@@ -277,6 +277,11 @@ public class FileInfo implements FileBaseInfo, Serializable {
         return fileSize == null? -1 : fileSize;
     }
 
+    @Override
+    public String getFileShowPath() {
+        return null;
+    }
+
     public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
@@ -305,6 +310,16 @@ public class FileInfo implements FileBaseInfo, Serializable {
      */
     public String getAttachedType() {
         return attachedType;
+    }
+
+    @Override
+    public String getAuthCode() {
+        return null;
+    }
+
+    @Override
+    public String getParentFolder() {
+        return null;
     }
 
     /**

@@ -87,7 +87,5 @@ public interface FileStore {
     boolean deleteFile(String fileStoreUrl) throws IOException;
 
 
-    default FileBaseInfo getFileInfo(String fileId){
-        return null;
-    };
+    FileBaseInfo getFileInfo(String fileId);
 }
