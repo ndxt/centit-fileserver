@@ -2,6 +2,7 @@ package com.centit.fileserver.common;
 
 /**
  * 保存后台处理任务的接口
+ * @author codefan@sina.com
  */
 public interface FileTaskQueue {
 

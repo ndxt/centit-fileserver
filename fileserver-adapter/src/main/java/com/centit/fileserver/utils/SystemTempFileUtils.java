@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-
+/**
+ * @author codefan@sina.com
+ */
 public abstract class SystemTempFileUtils {
 
     private static Logger logger = LoggerFactory.getLogger(SystemTempFileUtils.class);

@@ -6,7 +6,7 @@ import java.io.InputStream;
 
 /**
  * 文件的物理存储接口
- *
+ * @author codefan@sina.com
  */
 public interface FileStore {
 
@@ -87,7 +87,7 @@ public interface FileStore {
     boolean deleteFile(String fileStoreUrl) throws IOException;
 
 
-    default FileInfo getFileInfo(String fileId){
+    default FileBaseInfo getFileInfo(String fileId){
         return null;
     };
 }

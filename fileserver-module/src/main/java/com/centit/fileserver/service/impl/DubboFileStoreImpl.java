@@ -145,7 +145,7 @@ public class DubboFileStoreImpl implements FileStore {
     @Override
     public long getFileSize(String fileId){
         try {
-            com.centit.fileserver.common.FileInfo fi = this.getFileInfo(fileId);
+            FileBaseInfo fi = this.getFileInfo(fileId);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fi.getFileMd5());
             return fileStoreInfo != null ? fileStoreInfo.getFileSize() : -1L;
         } catch (Exception e) {
@@ -185,9 +185,9 @@ public class DubboFileStoreImpl implements FileStore {
     }
 
     @Override
-    public com.centit.fileserver.common.FileInfo getFileInfo(String fileId) {
+    public FileBaseInfo getFileInfo(String fileId) {
         FileInfo objectById = fileInfoManager.getObjectById(fileId);
-        com.centit.fileserver.common.FileInfo fileInfo = new com.centit.fileserver.common.FileInfo();
+        FileInfo fileInfo = new FileInfo();
         BeanUtils.copyProperties(objectById,fileInfo);
         return fileInfo;
     }

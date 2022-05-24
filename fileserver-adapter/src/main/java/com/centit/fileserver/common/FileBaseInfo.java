@@ -1,5 +1,8 @@
 package com.centit.fileserver.common;
 
+/**
+ * @author codefan@sina.com
+ */
 public interface FileBaseInfo {
     String getFileId();
     String getFileMd5();

@@ -13,17 +13,16 @@
 
     <artifactId>fileserver-boot</artifactId>
     <name>com.centit.product:fileserver-boot</name>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.2-SNAPSHOT</version>
     <description>文件服务器的服务程序，spring-boot的jar包形式可以直接启动
     </description>
 
     <properties>
-        <centit.framework.version>5.0-SNAPSHOT</centit.framework.version>
-        <centit.persistence.version>1.3-SNAPSHOT</centit.persistence.version>
-        <centit.commons.version>2.3-SNAPSHOT</centit.commons.version>
-        <centit.commons.modules.version>1.2-SNAPSHOT</centit.commons.modules.version>
-        <centit.ip.version>5.0-SNAPSHOT</centit.ip.version>
-        <centit.ui.version>3.1.2007</centit.ui.version>
+        <centit.framework.version>5.2-SNAPSHOT</centit.framework.version>
+        <centit.persistence.version>5.2-SNAPSHOT</centit.persistence.version>
+        <centit.commons.version>5.2-SNAPSHOT</centit.commons.version>
+        <centit.commons.modules.version>5.2-SNAPSHOT</centit.commons.modules.version>
+        <centit.ip.version>5.2-SNAPSHOT</centit.ip.version>
         <jdk.version>1.8</jdk.version>
     </properties>
 
@@ -61,12 +60,6 @@
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-view</artifactId>
             <version>${project.version}</version>
         </dependency>
 

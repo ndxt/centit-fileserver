@@ -5,7 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * @author codefan@sina.com
+ */
 @Data
 public class FileTaskInfo implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -1,7 +1,9 @@
 package com.centit.fileserver.common;
 
 import java.util.Map;
-
+/**
+ * @author codefan@sina.com
+ */
 public interface FileTaskOpeator {
     /**
      * @return 任务转换器名称
