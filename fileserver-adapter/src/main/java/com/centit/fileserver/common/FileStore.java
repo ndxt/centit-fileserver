@@ -53,7 +53,6 @@ public interface FileStore {
      * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
      * @param fileStoreUrl  文件存储的位置URL
      */
-    @Deprecated
     String getFileAccessUrl(String fileStoreUrl);
 
 

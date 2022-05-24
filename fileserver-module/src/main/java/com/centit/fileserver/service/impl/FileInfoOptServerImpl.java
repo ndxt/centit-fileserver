@@ -4,27 +4,26 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileInfoOpt;
+import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.task.FileOptTaskExecutor;
-import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.search.service.Impl.ESIndexer;
-import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -44,13 +43,13 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     FileOptTaskExecutor fileOptTaskExecutor;
 
     @Autowired
-    OsFileStore osFileStore;
+    FileStore fileStore;
 
     @Autowired(required = false)
     protected ESIndexer documentIndexer;
 
     @Override
-    public String saveFile(FileBaseInfo fileBaseInfo, long fileSize,InputStream is){
+    public String saveFile(FileBaseInfo fileBaseInfo, long fileSize, InputStream is){
         FileInfo fileInfo = new FileInfo();
         fileInfo.copy(fileBaseInfo);
         Map<String, Object> pretreatInfo = JSON.parseObject(JSON.toJSONString(fileInfo), Map.class);
@@ -104,9 +103,9 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
 
     //请调用另一个实现方法
     @Override
-    public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize){
-        throw new ObjectException("This function is not been implemented. Please call another implementation method saveFile() ") ;
-    }
+    public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException{
+        return saveFile(fileInfo, fileSize, new FileInputStream(sourFilePath));
+     }
 
     @Override
     public boolean checkFile(String fileId) {
@@ -117,29 +116,26 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
             }
             FileStoreInfo storeInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if(storeInfo==null) return false;
-            return osFileStore.checkFile(storeInfo.getFileStorePath());
+            return fileStore.checkFile(storeInfo.getFileStorePath());
         }
         return false;
     }
 
     @Override
     public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
-        String fileMd5 = fileInfo.getFileMd5();
-        String pathname = String.valueOf(fileMd5.charAt(0))
-            + File.separatorChar + fileMd5.charAt(1)
-            + File.separatorChar + fileMd5.charAt(2);
-        FileSystemOpt.createDirect(osFileStore.getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        return fileStore.matchFileStoreUrl(fileInfo, fileSize);
     }
 
     /**
      * 弃用
-     * @param fileStoreUrl  文件存储的位置URL
+     * @param fileId  文件存储的位置URL
      * @return
      */
     @Override
-    public String getFileAccessUrl(String fileStoreUrl) {
-        return null;
+    public String getFileAccessUrl(String fileId) {
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+        return fileStore.getFileAccessUrl(fileStoreInfo.getFileStorePath());
     }
 
     @Override
@@ -155,20 +151,23 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
 
     @Override
     public InputStream loadFileStream(String fileId) throws IOException {
-        throw new ObjectException("This function is not been implemented , Please call method getFile()") ;
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+        return fileStoreInfo.getIsTemp() ? new FileInputStream(fileStoreInfo.getFileStorePath())
+            : fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 
     /**
-     * @param fileId
-     * @return
+     * @param fileId 文件的id
+     * @return 文件句柄
      * @throws IOException
      */
     @Override
     public File getFile(String fileId) throws IOException {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        File file = fileStoreInfo.getIsTemp() ? new File(fileStoreInfo.getFileStorePath()) : osFileStore.getFile(fileStoreInfo.getFileStorePath());
-        return file;
+        return fileStoreInfo.getIsTemp() ? new File(fileStoreInfo.getFileStorePath())
+            : fileStore.getFile(fileStoreInfo.getFileStorePath());
     }
 
     @Override
@@ -186,9 +185,9 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
 
     @Override
     public FileBaseInfo getFileInfo(String fileId) {
-        FileInfo objectById = fileInfoManager.getObjectById(fileId);
-        FileInfo fileInfo = new FileInfo();
+        return fileInfoManager.getObjectById(fileId);
+        /*FileInfo fileInfo = new FileInfo();
         BeanUtils.copyProperties(objectById,fileInfo);
-        return fileInfo;
+        return fileInfo;*/
     }
 }
