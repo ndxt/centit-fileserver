@@ -105,11 +105,6 @@ public class OsFileStore implements FileStore {
     }
 
     @Override
-    public FileBaseInfo getFileInfo(String fileId) {
-        return null;
-    }
-
-    @Override
     public String getFileAccessUrl(String fileStoreUrl) {
         //TODO 这里应该返回一个相对文件服务器的url，
         //因为前缀可能通过反向代理有所改变所以，这个前缀应该在客户端的配置文件中设置

@@ -8,7 +8,7 @@ import java.io.InputStream;
  * 文件的物理存储接口
  * @author codefan@sina.com
  */
-public interface FileStore {
+public interface FileInfoOpt {
 
     /**
      * 保存文件
@@ -86,4 +86,6 @@ public interface FileStore {
      */
     boolean deleteFile(String fileStoreUrl) throws IOException;
 
+
+    FileBaseInfo getFileInfo(String fileId);
 }

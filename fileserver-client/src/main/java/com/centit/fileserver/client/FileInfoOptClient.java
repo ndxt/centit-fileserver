@@ -3,7 +3,7 @@ package com.centit.fileserver.client;
 import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileLibraryInfo;
-import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.FileInfoOpt;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.HttpReceiveJSON;
@@ -17,14 +17,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ClientAsFileStore implements FileStore, OperateFileLibrary {
+public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
 
     @Setter
     private FileClient fileClient;
 
-    private Logger logger = LoggerFactory.getLogger(ClientAsFileStore.class);
+    private Logger logger = LoggerFactory.getLogger(FileInfoOptClient.class);
 
-    public ClientAsFileStore() {
+    public FileInfoOptClient() {
 
     }
 

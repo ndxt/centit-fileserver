@@ -3,7 +3,7 @@ package com.centit.fileserver.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileBaseInfo;
-import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.common.FileInfoOpt;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
@@ -29,9 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-@Service("dubboFileStore")
-public class DubboFileStoreImpl implements FileStore {
-    protected Logger logger = LoggerFactory.getLogger(DubboFileStoreImpl.class);
+@Service("fileInfoOpt")
+public class FileInfoOptServerImpl implements FileInfoOpt {
+    protected Logger logger = LoggerFactory.getLogger(FileInfoOptServerImpl.class);
 
 
     @Autowired

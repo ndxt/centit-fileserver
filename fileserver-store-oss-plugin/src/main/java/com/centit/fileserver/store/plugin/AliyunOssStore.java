@@ -130,9 +130,4 @@ public class AliyunOssStore implements FileStore {
         return true;
     }
 
-    @Override
-    public FileBaseInfo getFileInfo(String fileId) {
-        return null;
-    }
-
 }

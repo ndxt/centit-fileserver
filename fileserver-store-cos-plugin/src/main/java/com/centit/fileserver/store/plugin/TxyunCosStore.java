@@ -139,10 +139,4 @@ public class TxyunCosStore implements FileStore {
         cosClient.deleteObject(bucketName, fileStoreUrl);
         return true;
     }
-
-    @Override
-    public FileBaseInfo getFileInfo(String fileId) {
-        return null;
-    }
-
 }
