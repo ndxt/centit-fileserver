@@ -51,40 +51,40 @@ public interface FileInfoOpt {
 
     /**
      * @return 获取文件的Access url，如果没有权限限制可以通过这个url 直接访问文件
-     * @param fileStoreUrl  文件存储的位置URL
+     * @param fileId  文件的ID， 和 fileStore中的 fileStoreUrl 不一样
      */
     @Deprecated
-    String getFileAccessUrl(String fileStoreUrl);
+    String getFileAccessUrl(String fileId);
 
 
     /**
-     * @param fileStoreUrl  文件的url
+     * @param fileId  文件的ID， 和 fileStore中的 fileStoreUrl 不一样
      * @return 文件大小
      * @throws IOException IOException
      */
-    long getFileSize(String fileStoreUrl) throws IOException;
+    long getFileSize(String fileId) throws IOException;
     /**
      * 获取文件
-     * @param fileStoreUrl saveFile 返回的文件路径
+     * @param fileId  文件的ID， 和 fileStore中的 fileStoreUrl 不一样
      * @return InputStream
      * @throws IOException IOException
      */
-    InputStream loadFileStream(String fileStoreUrl) throws IOException;
+    InputStream loadFileStream(String fileId) throws IOException;
 
     /**
      *
-     * @param fileStoreUrl 或者本地文件的路径
+     * @param fileId  文件的ID， 和 fileStore中的 fileStoreUrl 不一样
      * @return File 文件句柄
      * @throws IOException io异常
      */
-    File getFile(String fileStoreUrl) throws IOException;
+    File getFile(String fileId) throws IOException;
     /**
      * 删除文件
-     * @param fileStoreUrl 文件的url
+     * @param fileId  文件的ID， 和 fileStore中的 fileStoreUrl 不一样
      * @throws IOException IOException
      * @return true 删除成功 或者文件本来就不存在  false
      */
-    boolean deleteFile(String fileStoreUrl) throws IOException;
+    boolean deleteFile(String fileId) throws IOException;
 
 
     FileBaseInfo getFileInfo(String fileId);

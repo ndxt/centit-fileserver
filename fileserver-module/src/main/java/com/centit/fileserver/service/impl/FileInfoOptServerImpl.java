@@ -178,6 +178,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
             if(documentIndexer != null){
                 return documentIndexer.deleteDocument(fileId);
             }
+            fileStoreInfoManager.decreaseFileReference(fileInfo.getFileMd5());
             return true;
         }
         return false;

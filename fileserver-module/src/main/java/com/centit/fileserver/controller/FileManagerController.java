@@ -87,6 +87,7 @@ public class FileManagerController extends BaseController {
             if(documentIndexer != null){
                 documentIndexer.deleteDocument(fileId);
             }
+            fileStoreInfoManager.decreaseFileReference(fileInfo.getFileMd5());
             OperationLogCenter.log(OperationLog.create()
                 .operation(FileLogController.LOG_OPERATION_NAME)
                 .user(WebOptUtils.getCurrentUserCode(request))
@@ -98,7 +99,6 @@ public class FileManagerController extends BaseController {
             JsonResultUtils.writeErrorMessageJson(
                 "文件不存在：" + fileId, response);
         }
-
     }
 
     /**
