@@ -1,10 +1,10 @@
 package com.centit.fileserver.client;
 
-import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileBaseInfo;
-import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.FileInfoOpt;
+import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.framework.appclient.RestfulHttpRequest;
@@ -39,7 +39,7 @@ public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
      */
     @Override
     public String saveFile( FileBaseInfo fileInfo, long fileSize,InputStream is) throws IOException {
-        FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), is);
+        FileInfo f = fileClient.uploadFile( (FileInfo)fileInfo, is);
         return f != null ? f.getFileId() : "";
     }
 
@@ -54,7 +54,7 @@ public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
      */
     @Override
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
-        FileInfo f = fileClient.uploadFile(FileInfo.fromFileBaseInfo(fileInfo), new File(sourFilePath));
+        FileInfo f = fileClient.uploadFile((FileInfo)fileInfo, new File(sourFilePath));
         return f != null ? f.getFileId() : "";
     }
 
@@ -79,8 +79,7 @@ public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
      */
     @Override
     public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
-        return fileClient.matchFileStoreUrl(FileInfo.fromFileBaseInfo(fileInfo),
-            fileSize);
+        return fileClient.matchFileStoreUrl((FileInfo)fileInfo, fileSize);
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.centit.fileserver.client;
 
-import com.centit.fileserver.client.po.FileAccessLog;
-import com.centit.fileserver.client.po.FileInfo;
 import com.centit.fileserver.common.FileLibraryInfo;
+import com.centit.fileserver.po.FileAccessLog;
+import com.centit.fileserver.po.FileInfo;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.io.File;

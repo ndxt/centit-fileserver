@@ -1,6 +1,6 @@
 package com.centit.fileserver.test;
 
-import com.centit.fileserver.client.po.FileAccessLog;
+import com.centit.fileserver.po.FileAccessLog;
 import com.centit.support.network.HttpExecutor;
 import com.centit.support.network.HttpExecutorContext;
 import org.apache.http.impl.client.CloseableHttpClient;
