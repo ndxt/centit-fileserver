@@ -34,10 +34,10 @@ public interface FileInfoOpt {
 
     /**
      * 检查文件是否存在，如果存在则实现秒传
-     * @param fileStoreUrl  文件存储的位置URL
+     * @param fileId  文件ID
      * @return true 文件存在 false 文件不存在
      */
-    boolean checkFile(String fileStoreUrl);
+    boolean checkFile(String fileId);
 
     /**
      * 获取文件的存储路径 url，通过这个路径 fileStroe可以获得这个文件
