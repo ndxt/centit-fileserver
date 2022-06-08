@@ -258,10 +258,11 @@ public class FileManagerController extends BaseController {
     @ApiOperation(value = "根据相关的条件查询文件")
     public void listStoredFiles(PageDesc pageDesc,
                                 HttpServletRequest request, HttpServletResponse response) {
-
         Map<String, Object> queryParamsMap = BaseController.collectRequestParameters(request);
         if(queryParamsMap.get("files")!=null){
             queryParamsMap.put("files", Arrays.asList(queryParamsMap.get("files").toString().split(",")));
+        }else if("".equals(request.getParameter("files"))){
+            return;
         }
         JSONArray listObjects = fileInfoManager.listStoredFiles(queryParamsMap, pageDesc);
         ResponseMapData resData = new ResponseMapData();
