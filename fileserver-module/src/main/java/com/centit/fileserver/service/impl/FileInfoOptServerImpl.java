@@ -13,6 +13,7 @@ import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.search.service.Impl.ESIndexer;
+import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -74,6 +75,9 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                 }
                 fileInfo.setFileName(fileName);
                 fileInfo.setFileMd5(fileMd5);
+                if(fileInfo.getFileId()==null){
+                    fileInfo.setFileId(UuidOpt.getUuidAsString());
+                }
                 FileInfo dbFile  = fileInfoManager.getDuplicateFile(fileInfo);
                 if(dbFile == null) {
                     fileInfoManager.saveNewObject(fileInfo);
