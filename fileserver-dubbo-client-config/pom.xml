@@ -17,11 +17,11 @@
             <artifactId>framework-dubbo-client-config</artifactId>
             <version>${centit.framework.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-adapter</artifactId>
-            <version>5.2-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
       <!--  <dependency>

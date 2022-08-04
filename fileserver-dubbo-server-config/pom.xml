@@ -17,6 +17,7 @@
             <artifactId>framework-dubbo-server-config</artifactId>
             <version>${centit.framework.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-adapter</artifactId>
