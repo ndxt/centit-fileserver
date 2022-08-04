@@ -33,11 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.centit.support</groupId>
-            <artifactId>centit-es-client</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-dubbo-server-config</artifactId>
             <version>${project.version}</version>
@@ -71,19 +66,7 @@
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-module</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.centit.support</groupId>
-                    <artifactId>centit-es-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-adapter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>com.centit.product</groupId>
@@ -111,18 +94,6 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-config</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-spring-context</artifactId>
-            <version>1.1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.alibaba.nacos</groupId>
-                    <artifactId>nacos-client</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
