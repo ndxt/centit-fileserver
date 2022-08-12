@@ -22,7 +22,12 @@ import java.util.Date;
 public class FileInfo implements FileBaseInfo, Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    public static final String FILE_CATALOG_APPLICATION="A";
+    public static final String FILE_CATALOG_MODEL="B";
+    public static final String FILE_CATALOG_RUN="C";
+    public static final String FOLDER_RESOURCES_NAME="resources";
+    public static final String FOLDER_ATTACHMENTS_NAME="attachments";
+    public static final String FOLDER_DEFAULT_BREAK="/";
     @Id
     @Column(name = "FILE_ID")
     @ValueGenerator(strategy = GeneratorType.UUID, condition = GeneratorCondition.IFNULL)
@@ -112,6 +117,8 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private String libraryId;
     @Column(name = "parent_folder")
     private String parentFolder;
+    @Column(name = "file_catalog")
+    private String fileCatalog;
 
     @Transient
     private long fileSize;

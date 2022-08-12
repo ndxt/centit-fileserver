@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.centit.fileserver.common.FileStore;
+import com.centit.fileserver.dao.FileFolderInfoDao;
+import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
@@ -21,10 +23,7 @@ import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
-import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.algorithm.UuidOpt;
+import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -56,7 +55,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -95,6 +96,8 @@ public class UploadController extends BaseController {
 
     @Autowired
     FileOptTaskExecutor fileOptTaskExecutor;
+    @Autowired
+    FileFolderInfoDao fileFolderInfoDao;
 
 
     /**
@@ -355,10 +358,10 @@ public class UploadController extends BaseController {
         return fis;
     }
 
-    private static FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
+    private FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
 
         FileInfo fileInfo = new FileInfo();
-
+        fileInfo.setFileCatalog(request.getParameter("fileCatalog"));
         fileInfo.setFileMd5(WebOptUtils
             .getRequestFirstOneParameter(request, "fileMd5", "token"));
         fileInfo.setFileName(WebOptUtils
@@ -379,7 +382,42 @@ public class UploadController extends BaseController {
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
         fileInfo.setLibraryId(request.getParameter("libraryId"));
         fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
+        String rootFolderId="-1";
+        if (FileInfo.FILE_CATALOG_APPLICATION.equals(fileInfo.getFileCatalog())) {
+            if (StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+                fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId);
+            }
+        } else if (FileInfo.FILE_CATALOG_MODEL.equals(fileInfo.getFileCatalog())) {
+            if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+                String resourceFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(),rootFolderId, FileInfo.FOLDER_RESOURCES_NAME);
+                String path = FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId+FileInfo.FOLDER_DEFAULT_BREAK + resourceFolderId;
+                fileInfo.setFileShowPath(path);
+            }
+        } else if (FileInfo.FILE_CATALOG_RUN.equals(fileInfo.getFileCatalog())) {
+            if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+                String attachmentFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(), rootFolderId,FileInfo.FOLDER_ATTACHMENTS_NAME);
+                String dateFolderName=DatetimeOpt.convertDateToString(new Date(),"yyyy-MM");
+                String dateFolderId=getFolderIdByFolderName(fileInfo.getLibraryId(),attachmentFolderId,dateFolderName);
+                String path = FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId+FileInfo.FOLDER_DEFAULT_BREAK + attachmentFolderId+FileInfo.FOLDER_DEFAULT_BREAK+dateFolderId;
+                fileInfo.setFileShowPath(path);
+            }
+        }
         return fileInfo;
+    }
+
+    private String getFolderIdByFolderName(String libraryId,String parentFolder, String folderName) {
+        List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjects(
+            CollectionsOpt.createHashMap("libraryId", libraryId,"parentFolder",parentFolder ,"folderName", folderName));
+        if (fileFolderInfos != null && fileFolderInfos.size() > 0) {
+            return fileFolderInfos.get(0).getFolderId();
+        } else {
+            FileFolderInfo fileFolderInfo = new FileFolderInfo();
+            fileFolderInfo.setLibraryId(libraryId);
+            fileFolderInfo.setFolderName(folderName);
+            fileFolderInfo.setParentFolder(parentFolder);
+            fileFolderInfoDao.saveNewObject(fileFolderInfo);
+            return fileFolderInfo.getFolderId();
+        }
     }
 
     private static Map<String, Object> fetchPretreatInfoFromRequest(HttpServletRequest request) {
@@ -467,7 +505,7 @@ public class UploadController extends BaseController {
     private JSONObject storeAndPretreatFile(String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo) {
         fileInfo.setFileMd5(fileMd5);
-        if(fileInfo.getFileId()==null){
+        if (fileInfo.getFileId() == null) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
         FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
