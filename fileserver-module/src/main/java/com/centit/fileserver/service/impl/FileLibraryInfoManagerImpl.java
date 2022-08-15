@@ -77,7 +77,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         if (StringUtils.isNotBlank(userCode) && getUnits(userCode) != null && getUnits(userCode).size() > 0) {
             map.put("ownunit", getUnits(userCode));
             map.put("accessuser", userCode);
-            sqlBuilder="where library_type='I' and own_unit in (:ownunit) and library_id in (select group_id from work_group where user_code=:accessuser)";
+            sqlBuilder="where library_type='I' and own_unit in (:ownunit) and library_id in (select group_id from work_group where user_code=:accessuser and group_id not in (select os_id from f_os_info))";
         }
         List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder, map);
         boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
