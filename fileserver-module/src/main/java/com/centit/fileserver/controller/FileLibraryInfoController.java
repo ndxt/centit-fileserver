@@ -12,6 +12,7 @@ import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -136,7 +137,9 @@ public class FileLibraryInfoController extends BaseController {
     public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
                                       HttpServletResponse response) {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
-        fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(request));
+        if(StringBaseOpt.isNvl(fileLibraryInfo.getOwnUnit())) {
+            fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(request));
+        }
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
