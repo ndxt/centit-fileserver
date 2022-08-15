@@ -73,23 +73,13 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     @Override
     public List<FileLibraryInfo> listFileLibraryInfo(String userCode) {
         Map<String, Object> map = new HashMap<>();
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("where 1=1");
-        if (StringUtils.isNotBlank(userCode)) {
-            map.put("userCode", userCode);
-            sqlBuilder.append(" and ( ");
-            sqlBuilder.append(" own_user=:userCode ");
-        }
-        if (getUnits(userCode) != null && getUnits(userCode).size() > 0) {
+        String sqlBuilder="";
+        if (StringUtils.isNotBlank(userCode) && getUnits(userCode) != null && getUnits(userCode).size() > 0) {
             map.put("ownunit", getUnits(userCode));
-            sqlBuilder.append(" or (library_type='O' and own_unit in (:ownunit)) ");
-        }
-        if (StringUtils.isNotBlank(userCode)) {
             map.put("accessuser", userCode);
-            sqlBuilder.append(" or (library_type='I' and library_id in (select group_id from work_group where user_code=:accessuser))");
-            sqlBuilder.append(")");
+            sqlBuilder="where library_type='I' and own_unit in (:ownunit) and library_id in (select group_id from work_group where user_code=:accessuser)";
         }
-        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder.toString(), map);
+        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder, map);
         boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
             userCode.equals(fileLibraryInfo.getOwnUser()));
         if (!hasPerson) {

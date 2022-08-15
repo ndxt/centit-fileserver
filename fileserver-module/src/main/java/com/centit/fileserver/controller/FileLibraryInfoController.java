@@ -136,6 +136,7 @@ public class FileLibraryInfoController extends BaseController {
     public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
                                       HttpServletResponse response) {
         fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+        fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(request));
         fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
