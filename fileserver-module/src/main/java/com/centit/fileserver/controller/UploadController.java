@@ -375,39 +375,38 @@ public class UploadController extends BaseController {
         fileInfo.setOptMethod(request.getParameter("optMethod"));
         fileInfo.setOptTag(request.getParameter("optTag"));
         //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
-        fileInfo.setFileShowPath(WebOptUtils
-            .getRequestFirstOneParameter(request, "filePath", "fileShowPath"));
         fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
         fileInfo.setFileUnit(request.getParameter("fileUnit"));
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
         fileInfo.setLibraryId(request.getParameter("libraryId"));
         fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());
-        String rootFolderId="-1";
-        if (FileInfo.FILE_CATALOG_APPLICATION.equals(fileInfo.getFileCatalog())) {
-            if (StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
-                fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId);
-            }
-        } else if (FileInfo.FILE_CATALOG_MODEL.equals(fileInfo.getFileCatalog())) {
-            if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
-                String resourceFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(),rootFolderId, FileInfo.FOLDER_RESOURCES_NAME);
-                String path = FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId+FileInfo.FOLDER_DEFAULT_BREAK + resourceFolderId;
+        fileInfo.setFileShowPath(WebOptUtils
+            .getRequestFirstOneParameter(request, "filePath", "fileShowPath"));
+        String rootFolderId = "-1";
+        if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+            if (FileInfo.FILE_CATALOG_APPLICATION.equals(fileInfo.getFileCatalog())) {
+                fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId);
+            } else if (FileInfo.FILE_CATALOG_MODEL.equals(fileInfo.getFileCatalog())) {
+                String resourceFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(), rootFolderId, FileInfo.FOLDER_RESOURCES_NAME);
+                String path = FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId + FileInfo.FOLDER_DEFAULT_BREAK + resourceFolderId;
+                fileInfo.setFileShowPath(path);
+            } else if (FileInfo.FILE_CATALOG_RUN.equals(fileInfo.getFileCatalog())) {
+                String attachmentFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(), rootFolderId, FileInfo.FOLDER_ATTACHMENTS_NAME);
+                String dateFolderName = DatetimeOpt.convertDateToString(new Date(), "yyyy-MM");
+                String dateFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(), attachmentFolderId, dateFolderName);
+                String path = FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId + FileInfo.FOLDER_DEFAULT_BREAK + attachmentFolderId + FileInfo.FOLDER_DEFAULT_BREAK + dateFolderId;
                 fileInfo.setFileShowPath(path);
             }
-        } else if (FileInfo.FILE_CATALOG_RUN.equals(fileInfo.getFileCatalog())) {
-            if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
-                String attachmentFolderId = getFolderIdByFolderName(fileInfo.getLibraryId(), rootFolderId,FileInfo.FOLDER_ATTACHMENTS_NAME);
-                String dateFolderName=DatetimeOpt.convertDateToString(new Date(),"yyyy-MM");
-                String dateFolderId=getFolderIdByFolderName(fileInfo.getLibraryId(),attachmentFolderId,dateFolderName);
-                String path = FileInfo.FOLDER_DEFAULT_BREAK+rootFolderId+FileInfo.FOLDER_DEFAULT_BREAK + attachmentFolderId+FileInfo.FOLDER_DEFAULT_BREAK+dateFolderId;
-                fileInfo.setFileShowPath(path);
-            }
+        }
+        if (StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+            fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId);
         }
         return fileInfo;
     }
 
-    private String getFolderIdByFolderName(String libraryId,String parentFolder, String folderName) {
+    private String getFolderIdByFolderName(String libraryId, String parentFolder, String folderName) {
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjects(
-            CollectionsOpt.createHashMap("libraryId", libraryId,"parentFolder",parentFolder ,"folderName", folderName));
+            CollectionsOpt.createHashMap("libraryId", libraryId, "parentFolder", parentFolder, "folderName", folderName));
         if (fileFolderInfos != null && fileFolderInfos.size() > 0) {
             return fileFolderInfos.get(0).getFolderId();
         } else {
