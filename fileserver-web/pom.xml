@@ -97,12 +97,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-remoting-http</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-dubbo-client-config</artifactId>
             <version>${project.version}</version>
