@@ -46,8 +46,7 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
     protected SchedulerFactory schedulerFactory;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        SystemTempFileUtils.setTempFileDirectory(
-            SysParametersUtils.getTempHome() + File.separatorChar);
+
 
         CodeRepositoryCache.setPlatformEnvironment(platformEnvironment);
 

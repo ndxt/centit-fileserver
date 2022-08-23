@@ -10,6 +10,8 @@ import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
+import com.centit.fileserver.utils.SystemTempFileUtils;
+import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
@@ -35,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+
+import java.io.File;
 
 /**
  * Created by codefan on 17-7-18.
@@ -68,6 +72,8 @@ public class ServiceConfig {
 
     @Bean
     public FileStore fileStore(){
+        SystemTempFileUtils.setTempFileDirectory(
+            appHome +File.separatorChar+ "temp" + File.separatorChar);
         String fileStoreType= env.getProperty("filestore.type","os");
 
         if("oss".equals(fileStoreType)){//ali-oss
