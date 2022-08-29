@@ -62,7 +62,7 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
             Scheduler scheduler = schedulerFactory.getScheduler();
             QuartzJobUtils.registerJobType("bean", JavaBeanJob.class);
             QuartzJobUtils.createOrReplaceSimpleJob(scheduler, "fileOptJob",
-                "default", "bean", 300,
+                "default", "bean", 3000,
                 CollectionsOpt.createHashMap("bean", fileOptTaskExecutor,
                     "beanName", "fileOptTaskExecutor",
                     "methodName", "doFileOptJob"));
