@@ -36,13 +36,13 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileTaskQueue {
 
     @Override
     public FileTaskInfo get() {
-        synchronized (taskQueue) {
+//        synchronized (taskQueue) {
             FileTaskInfo task = taskQueue.poll();
             if (null != task) {
                 saveTasksToDisk();
             }
             return task;
-        }
+//        }
     }
 
     private void saveTasksToDisk() {
