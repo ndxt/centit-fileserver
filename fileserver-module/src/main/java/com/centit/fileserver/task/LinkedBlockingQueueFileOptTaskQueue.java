@@ -30,7 +30,7 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileTaskQueue {
     @Override
     public boolean add(FileTaskInfo task) {
         taskQueue.offer(task);
-        saveTasksToDisk();
+        saveTasksToDisk(task);
         return true;
     }
 
@@ -39,14 +39,14 @@ public class LinkedBlockingQueueFileOptTaskQueue implements FileTaskQueue {
 //        synchronized (taskQueue) {
             FileTaskInfo task = taskQueue.poll();
             if (null != task) {
-                saveTasksToDisk();
+                saveTasksToDisk(task);
             }
             return task;
 //        }
     }
 
-    private void saveTasksToDisk() {
-        logger.info("持久化任务, 任务总数: " + taskQueue.size());
+    private void saveTasksToDisk(FileTaskInfo task) {
+        logger.info("持久化任务, 任务总数: " + taskQueue.size()+",FileId:"+task.getFileId()+",FileMd5"+task.getFileMd5());
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(taskFile))) {
             oos.writeObject(taskQueue);
         } catch (IOException e) {
