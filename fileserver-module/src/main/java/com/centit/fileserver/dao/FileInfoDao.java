@@ -8,6 +8,7 @@ import com.centit.framework.core.dao.CodeBook;
 import com.centit.framework.jdbc.dao.BaseDaoImpl;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.DBType;
@@ -170,9 +171,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setAccessToken(StringBaseOpt.objectToString(objs[1]));
                 file.setVersions(NumberBaseOpt.castObjectToInteger(objs[2]));
                 file.setEncrypt(StringUtils.equals(StringBaseOpt.objectToString(objs[3]),"D"));
-                if(objs[4] instanceof java.util.Date ) {
-                    file.setCreateTime((Date)objs[4]);
-                }
+                file.setCreateTime(DatetimeOpt.castObjectToDate(objs[4]));
                 file.setFileSize(NumberBaseOpt.castObjectToLong(objs[5]));
                 file.setFileShowPath(StringBaseOpt.objectToString(objs[6]));
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
