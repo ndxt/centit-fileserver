@@ -5,6 +5,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.CodeRepositoryCache;
 import com.centit.framework.components.OperationLogCenter;
+import com.centit.framework.config.InitialWebRuntimeEnvironment;
 import com.centit.framework.model.adapter.MessageSender;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
@@ -46,8 +47,7 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
     protected SchedulerFactory schedulerFactory;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-
-
+        InitialWebRuntimeEnvironment.configFastjson();
         CodeRepositoryCache.setPlatformEnvironment(platformEnvironment);
 
         if (innerMessageManager != null) {
