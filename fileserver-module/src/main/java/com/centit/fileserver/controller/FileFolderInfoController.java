@@ -168,28 +168,39 @@ public class FileFolderInfoController extends BaseController {
      * 新增 文件夹信息
      *
      * @param request        HttpServletRequest
-     * @param response       HttpServletResponse
      * @param fileFolderInfo {@link FileFolderInfo}
      */
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
-    public void createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request,
-                                     HttpServletResponse response) {
+    public FileFolderInfo createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request) {
         if (StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())) {
             throw new ObjectException("库id不能为空");
         }
-        List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(CollectionsOpt.createHashMap("folderPath", fileFolderInfo.getFolderPath(),
-            "folderName", fileFolderInfo.getFolderName(), "libraryId", fileFolderInfo.getLibraryId()), null);
-        if (fileFolderInfos == null || fileFolderInfos.size() == 0) {
-            fileFolderInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
-            fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
-            JsonResultUtils.writeSingleDataJson(fileFolderInfo, response);
-        } else {
-            FileFolderInfo fileFolderInfo1 = fileFolderInfos.get(0);
-            fileFolderInfo1.setMsg("100文件夹已存在");
-            JsonResultUtils.writeSingleDataJson(fileFolderInfo1, response);
+        String[] folderNames=StringUtils.split(fileFolderInfo.getFolderName(),"/");
+        String folderPath=fileFolderInfo.getFolderPath();
+        String parentId=fileFolderInfo.getFolderId();
+        String libraryId=fileFolderInfo.getLibraryId();
+        String userCode=WebOptUtils.getCurrentUserCode(request);
+        for(int i=0;i<folderNames.length;i++) {
+            List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
+                CollectionsOpt.createHashMap("folderPath",folderPath,
+                "folderName", folderNames[i], "libraryId", libraryId), null);
+            if (fileFolderInfos == null || fileFolderInfos.size() == 0) {
+                fileFolderInfo.setFolderId(null);
+                fileFolderInfo.setFolderName(folderNames[i]);
+                fileFolderInfo.setFolderPath(folderPath);
+                fileFolderInfo.setParentFolder(parentId);
+                fileFolderInfo.setLibraryId(libraryId);
+                fileFolderInfo.setCreateUser(userCode);
+                fileFolderInfoMag.createFileFolderInfo(fileFolderInfo);
+            } else {
+                fileFolderInfo = fileFolderInfos.get(0);
+            }
+            folderPath=folderPath+"/"+fileFolderInfo.getFolderId();
+            parentId=fileFolderInfo.getFolderId();;
         }
+        return fileFolderInfo;
     }
 
     /**

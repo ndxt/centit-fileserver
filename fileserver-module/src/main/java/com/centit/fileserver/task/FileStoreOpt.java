@@ -50,7 +50,7 @@ public abstract class FileStoreOpt {
                         fetchOrSaveFile(tempFilePath, file, fileSize));
                     fileStoreInfo.setIsTemp(false);
                 }
-                fileStoreInfoManager.increaseFileReference(fileStoreInfo);
+                //fileStoreInfoManager.increaseFileReference(fileStoreInfo);
             }
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());
