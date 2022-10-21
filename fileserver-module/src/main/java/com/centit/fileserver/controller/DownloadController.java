@@ -169,7 +169,7 @@ public class DownloadController extends BaseController {
      * @param response HttpServletResponse
      * @throws IOException IOException
      */
-    @RequestMapping(value = "/pfile/{fileId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/pfile/{fileId:.*}", method = RequestMethod.GET)
     @ApiOperation(value = "根据文件的id下载文件")
     public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                  HttpServletResponse response) throws IOException {
