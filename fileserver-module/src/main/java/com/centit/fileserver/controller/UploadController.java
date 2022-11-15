@@ -202,6 +202,7 @@ public class UploadController extends BaseController {
                 completedFileStoreAndPretreat(token, size, formData.getLeft(),
                     formData.getMiddle(), request, response);
             } else {
+                FileSystemOpt.deleteFile(SystemTempFileUtils.getTempFilePath(token, size));
                 JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
                     "文件不存在无法实现秒传，MD5(uploadedSize/fileSize)："
