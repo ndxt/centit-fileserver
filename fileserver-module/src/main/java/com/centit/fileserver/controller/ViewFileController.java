@@ -91,8 +91,7 @@ public class ViewFileController extends BaseController {
 
     @RequestMapping(value = "/**}", method = RequestMethod.GET)
     @ApiOperation(value = "根据路径预览文件")
-    public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
-                            HttpServletResponse response) {
+    public void previewFile(HttpServletRequest request, HttpServletResponse response) {
         try {
             String uri = request.getRequestURI();
             ImmutableTriple<String, List<String>, String> t = fetchUnitFilePath(uri);
@@ -132,11 +131,11 @@ public class ViewFileController extends BaseController {
                         "inline", null);
                     canView = true;
                 } else {
-                    canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
+                    canView = FileIOUtils.reGetPdf(fileInfo.getFileId(), request, response, fileInfo,
                         fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
                 }
             } else {
-                canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
+                canView = FileIOUtils.reGetPdf(fileInfo.getFileId(), request, response, fileInfo,
                     fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
             }
             if (!canView) {
