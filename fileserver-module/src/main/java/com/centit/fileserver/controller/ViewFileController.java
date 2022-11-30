@@ -89,7 +89,7 @@ public class ViewFileController extends BaseController {
         return false;
     }
 
-    @RequestMapping(value = "/**}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**", method = RequestMethod.GET)
     @ApiOperation(value = "根据路径预览文件")
     public void previewFile(HttpServletRequest request, HttpServletResponse response) {
         try {
