@@ -1,11 +1,8 @@
 package com.centit.fileserver.config;
 
 import com.centit.fileserver.task.FileOptTaskExecutor;
-import com.centit.fileserver.utils.SystemTempFileUtils;
-import com.centit.framework.common.SysParametersUtils;
 import com.centit.framework.components.CodeRepositoryCache;
 import com.centit.framework.components.OperationLogCenter;
-import com.centit.framework.config.InitialWebRuntimeEnvironment;
 import com.centit.framework.core.controller.MvcConfigUtil;
 import com.centit.framework.model.adapter.MessageSender;
 import com.centit.framework.model.adapter.NotificationCenter;
@@ -20,8 +17,6 @@ import org.quartz.SchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-
-import java.io.File;
 
 /**
  * Created by codefan on 17-7-6.
