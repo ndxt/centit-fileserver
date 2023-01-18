@@ -65,7 +65,7 @@ public class FileLibraryInfoController extends BaseController {
         if (userCode == null) {
             return null;
         }
-        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibraryInfo(userCode);
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(userCode);
         return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
@@ -79,7 +79,7 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询单个文件库信息")
     @WrapUpResponseBody
     public Object getFileLibraryInfo(@PathVariable String libraryId) {
-        return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibraryInfo(libraryId));
+        return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibrary(libraryId));
     }
 
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
@@ -140,7 +140,7 @@ public class FileLibraryInfoController extends BaseController {
         if(StringBaseOpt.isNvl(fileLibraryInfo.getOwnUnit())) {
             fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(request));
         }
-        fileLibraryInfoMag.createFileLibraryInfo(fileLibraryInfo);
+        fileLibraryInfoMag.createFileLibrary(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
 
@@ -160,7 +160,7 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "删除单个文件库信息")
     @WrapUpResponseBody
     public void deleteFileLibraryInfo(@PathVariable String libraryId) {
-        fileLibraryInfoMag.deleteFileLibraryInfo(libraryId);
+        fileLibraryInfoMag.deleteFileLibrary(libraryId);
     }
 
     /**
@@ -175,7 +175,7 @@ public class FileLibraryInfoController extends BaseController {
     public void updateFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
                                       HttpServletResponse response) {
         fileLibraryInfo.setUpdateUser(WebOptUtils.getCurrentUserCode(request));
-        fileLibraryInfoMag.updateFileLibraryInfo(fileLibraryInfo);
+        fileLibraryInfoMag.updateFileLibrary(fileLibraryInfo);
         JsonResultUtils.writeSingleDataJson(fileLibraryInfo, response);
     }
 

@@ -1,6 +1,5 @@
 package com.centit.fileserver.config;
 
-import com.centit.fileserver.controller.UploadController;
 import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.CodeRepositoryCache;

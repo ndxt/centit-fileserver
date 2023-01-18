@@ -49,13 +49,13 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     protected String topUnit;
 
     @Override
-    public void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
+    public void updateFileLibrary(FileLibraryInfo fileLibraryInfo) {
         fileLibraryInfoDao.updateObject(fileLibraryInfo);
         fileLibraryInfoDao.saveObjectReferences(fileLibraryInfo);
     }
 
     @Override
-    public void createFileLibraryInfo(FileLibraryInfo fileLibraryInfo) {
+    public void createFileLibrary(FileLibraryInfo fileLibraryInfo) {
         if (fileLibraryInfo.getWorkGroups() != null) {
             fileLibraryInfo.getWorkGroups().forEach(e -> {
                 if (StringBaseOpt.isNvl(e.getCreator())) {
@@ -71,7 +71,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<FileLibraryInfo> listFileLibraryInfo(String userCode) {
+    public List<FileLibraryInfo> listFileLibrary(String userCode) {
         Map<String, Object> map = new HashMap<>();
         String sqlBuilder="";
         if (StringUtils.isNotBlank(userCode) && getUnits(userCode) != null && getUnits(userCode).size() > 0) {
@@ -116,7 +116,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
             CollectionsOpt.createHashMap("ownUser", userCode, "libraryType", "P"));
         if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
             FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(userCode);
-            createFileLibraryInfo(fileLibraryInfo);
+            createFileLibrary(fileLibraryInfo);
         }
     }
 
@@ -139,7 +139,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
             CollectionsOpt.createHashMap("ownUnit", unitCode, "libraryType", "O"));
         if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
             FileLibraryInfo fileLibraryInfo = getUnitLibraryInfo(unitCode, userCode);
-            createFileLibraryInfo(fileLibraryInfo);
+            createFileLibrary(fileLibraryInfo);
         }
     }
 
@@ -187,7 +187,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
 
     @Override
-    public FileLibraryInfo getFileLibraryInfo(String libraryId) {
+    public FileLibraryInfo getFileLibrary(String libraryId) {
         FileLibraryInfo fileLibraryInfo = fileLibraryInfoDao.getObjectWithReferences(libraryId);
         if (fileLibraryInfo == null) {
             return null;
@@ -201,7 +201,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public void deleteFileLibraryInfo(String libraryId) {
+    public void deleteFileLibrary(String libraryId) {
         fileLibraryInfoDao.deleteObjectById(libraryId);
     }
 
@@ -210,7 +210,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         Set<String> unitPath = this.getUnits(userCode);
 
         if (!"undefined".equals(userCode) && !StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
-            FileLibraryInfo fileLibraryInfo = this.getFileLibraryInfo(fileInfo.getLibraryId());
+            FileLibraryInfo fileLibraryInfo = this.getFileLibrary(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
                 //个人
                 case "P":
@@ -251,19 +251,13 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public FileLibraryInfo insertFileLibrary(FileLibraryInfo fileLibrary) {
+        /*
         FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
-        fileLibraryInfo.copyNotNull(fileLibrary);
-        fileLibraryInfoDao.mergeObject(fileLibraryInfo);
+        fileLibraryInfo.copyNotNull(fileLibrary);*/
+        fileLibraryInfoDao.mergeObject(fileLibrary);
         return fileLibrary;
     }
 
-    @Override
-    public FileLibraryInfo getFileLibrary(String libraryId) {
-        FileLibraryInfo fileLibraryInfo= getFileLibraryInfo(libraryId);
-        FileLibraryInfo fileLibrary = new FileLibraryInfo();
-        fileLibrary.copyNotNull(fileLibraryInfo);
-        return fileLibrary;
-    }
 
 }
 

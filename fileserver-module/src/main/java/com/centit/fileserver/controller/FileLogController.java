@@ -45,7 +45,7 @@ public class FileLogController extends BaseController {
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         //TODO 获取当前人员所在库数组 编辑 unitCode in 这个数组
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
-        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoManager.listFileLibraryInfo(WebOptUtils.getCurrentUserCode(request));
+        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoManager.listFileLibrary(WebOptUtils.getCurrentUserCode(request));
         if(fileLibraryInfos!=null){
             String[] units=new String[fileLibraryInfos.size()];
             for(int i=0;i<fileLibraryInfos.size();i++){

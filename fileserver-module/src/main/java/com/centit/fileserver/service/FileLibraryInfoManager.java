@@ -17,15 +17,15 @@ import java.util.Set;
  */
 
 public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInfo, String> {
-    void updateFileLibraryInfo(FileLibraryInfo fileLibraryInfo);
+    void updateFileLibrary(FileLibraryInfo fileLibraryInfo);
 
-    void deleteFileLibraryInfo(String libraryId);
+    void deleteFileLibrary(String libraryId);
 
-    FileLibraryInfo getFileLibraryInfo(String libraryId);
+    FileLibraryInfo getFileLibrary(String libraryId);
 
-    void createFileLibraryInfo(FileLibraryInfo fileLibraryInfo);
+    void createFileLibrary(FileLibraryInfo fileLibraryInfo);
 
-    List<FileLibraryInfo> listFileLibraryInfo(String userCode);
+    List<FileLibraryInfo> listFileLibrary(String userCode);
     List<IUnitInfo> listUnitPathsByUserCode(String userCode);
     void initPersonLibrary(String userCode);
     void initUnitLibrary(String unitCode,String userCode);

@@ -98,7 +98,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
                     showPath.append(path);
                 }
             } else {
-                FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibraryInfo(libraryId);
+                FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibrary(libraryId);
                 if (fileLibraryInfo != null) {
                     showPath.append(fileLibraryInfo.getLibraryName());
                 } else {
