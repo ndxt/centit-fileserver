@@ -258,6 +258,5 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         return fileLibrary;
     }
 
-
 }
 

@@ -133,7 +133,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     /**
      * 弃用
      * @param fileId  文件存储的位置URL
-     * @return
+     * @return String
      */
     @Override
     public String getFileAccessUrl(String fileId) {
@@ -164,7 +164,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     /**
      * @param fileId 文件的id
      * @return 文件句柄
-     * @throws IOException
+     * @throws IOException 异常
      */
     @Override
     public File getFile(String fileId) throws IOException {
