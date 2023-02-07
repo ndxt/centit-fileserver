@@ -362,6 +362,7 @@ public class UploadController extends BaseController {
     private FileInfo fetchFileInfoFromRequest(HttpServletRequest request) {
 
         FileInfo fileInfo = new FileInfo();
+        fileInfo.setFileId(request.getParameter("fileId"));
         fileInfo.setFileCatalog(request.getParameter("fileCatalog"));
         fileInfo.setFileMd5(WebOptUtils
             .getRequestFirstOneParameter(request, "fileMd5", "token"));
@@ -505,7 +506,7 @@ public class UploadController extends BaseController {
     private JSONObject storeAndPretreatFile(String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo) {
         fileInfo.setFileMd5(fileMd5);
-        if (fileInfo.getFileId() == null) {
+        if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
         FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
