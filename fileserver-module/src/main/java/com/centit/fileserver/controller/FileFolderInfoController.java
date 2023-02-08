@@ -108,14 +108,16 @@ public class FileFolderInfoController extends BaseController {
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-        if(!StringBaseOpt.isNvl(request.getParameter("fileName"))){
-            searchColumn.put("fileName",request.getParameter("fileName"));
+        boolean queryFile = !StringBaseOpt.isNvl(request.getParameter("fileName"));
+        if (queryFile) {
+            searchColumn.put("fileName", request.getParameter("fileName"));
         }
         List<FileShowInfo> fileShowInfos = localFileManager.listFolderFiles(topUnit, searchColumn);
-
-        for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
-            FileShowInfo fileShowInfo = fileFolderToFileShow(topUnit, fileFolderInfo);
-            fileShowInfos.add(fileShowInfo);
+        if (!queryFile) {
+            for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
+                FileShowInfo fileShowInfo = fileFolderToFileShow(topUnit, fileFolderInfo);
+                fileShowInfos.add(fileShowInfo);
+            }
         }
         return fileShowInfos;
     }
@@ -178,15 +180,15 @@ public class FileFolderInfoController extends BaseController {
         if (StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())) {
             throw new ObjectException("库id不能为空");
         }
-        String[] folderNames=StringUtils.split(fileFolderInfo.getFolderName(),"/");
-        String folderPath=fileFolderInfo.getFolderPath();
-        String parentId=fileFolderInfo.getFolderId();
-        String libraryId=fileFolderInfo.getLibraryId();
-        String userCode=WebOptUtils.getCurrentUserCode(request);
-        for(int i=0;i<folderNames.length;i++) {
+        String[] folderNames = StringUtils.split(fileFolderInfo.getFolderName(), "/");
+        String folderPath = fileFolderInfo.getFolderPath();
+        String parentId = fileFolderInfo.getFolderId();
+        String libraryId = fileFolderInfo.getLibraryId();
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        for (int i = 0; i < folderNames.length; i++) {
             List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
-                CollectionsOpt.createHashMap("folderPath",folderPath,
-                "folderName", folderNames[i], "libraryId", libraryId), null);
+                CollectionsOpt.createHashMap("folderPath", folderPath,
+                    "folderName", folderNames[i], "libraryId", libraryId), null);
             if (fileFolderInfos == null || fileFolderInfos.size() == 0) {
                 fileFolderInfo.setFolderId(null);
                 fileFolderInfo.setFolderName(folderNames[i]);
@@ -198,8 +200,9 @@ public class FileFolderInfoController extends BaseController {
             } else {
                 fileFolderInfo = fileFolderInfos.get(0);
             }
-            folderPath=folderPath+"/"+fileFolderInfo.getFolderId();
-            parentId=fileFolderInfo.getFolderId();;
+            folderPath = folderPath + "/" + fileFolderInfo.getFolderId();
+            parentId = fileFolderInfo.getFolderId();
+            ;
         }
         return fileFolderInfo;
     }
