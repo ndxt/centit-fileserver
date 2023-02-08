@@ -155,7 +155,7 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
             "max(a.file_type) fileType,max(a.download_times) downloadTimes,max(file_owner) owner " +
             "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
             "left join file_favorite c on a.file_id=c.file_id [:favoriteUser | and c.favorite_user=:favoriteUser] " +
-            "where file_state='N' [:parentFolder | and parent_folder=:parentFolder] [:libraryId | and library_id=:libraryId] " +
+            "where file_state='N' [:parentFolder | and parent_folder=:parentFolder] [:libraryId | and library_id=:libraryId] [:fileName | and file_name=:fileName]" +
             "group by FILE_NAME";
         QueryAndNamedParams qap = QueryUtils.translateQuery( sqlsen, searchColumn);
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,

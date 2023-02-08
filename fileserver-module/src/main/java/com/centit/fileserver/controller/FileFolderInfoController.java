@@ -105,11 +105,12 @@ public class FileFolderInfoController extends BaseController {
     public List<FileShowInfo> list(@PathVariable String libraryId, @PathVariable String folderId, HttpServletRequest request) {
         Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId", libraryId, "parentFolder", folderId);
         searchColumn.put("favoriteUser", WebOptUtils.getCurrentUserCode(request));
-
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-
+        if(!StringBaseOpt.isNvl(request.getParameter("fileName"))){
+            searchColumn.put("fileName",request.getParameter("fileName"));
+        }
         List<FileShowInfo> fileShowInfos = localFileManager.listFolderFiles(topUnit, searchColumn);
 
         for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
