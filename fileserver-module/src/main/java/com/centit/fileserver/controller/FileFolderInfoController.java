@@ -172,6 +172,7 @@ public class FileFolderInfoController extends BaseController {
      *
      * @param request        HttpServletRequest
      * @param fileFolderInfo {@link FileFolderInfo}
+     * @return FileFolderInfo
      */
     @RequestMapping(method = {RequestMethod.POST})
     @ApiOperation(value = "新增文件夹信息")
