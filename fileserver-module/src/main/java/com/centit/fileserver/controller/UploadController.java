@@ -407,7 +407,7 @@ public class UploadController extends BaseController {
     }
 
     private String getFolderIdByFolderName(String libraryId, String parentFolder, String folderName) {
-        List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjects(
+        List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("libraryId", libraryId, "parentFolder", parentFolder, "folderName", folderName));
         if (fileFolderInfos != null && fileFolderInfos.size() > 0) {
             return fileFolderInfos.get(0).getFolderId();

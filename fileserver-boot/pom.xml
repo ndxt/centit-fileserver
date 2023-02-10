@@ -13,7 +13,7 @@
 
     <artifactId>fileserver-boot</artifactId>
     <name>com.centit.product:fileserver-boot</name>
-    <version>5.2-SNAPSHOT</version>
+    <version>5.3-SNAPSHOT</version>
     <description>文件服务器的服务程序，spring-boot的jar包形式可以直接启动
     </description>
 

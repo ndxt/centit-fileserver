@@ -83,8 +83,8 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
             FileFolderInfo oldFileFolder = getFileFolderInfo(fileFolderInfo.getOldFoldId());
             String oldpath = oldFileFolder.getFolderPath() + "/" + oldFileFolder.getFolderId();
             String newpath = fileFolderInfo.getFolderPath() + "/" + fileFolderInfo.getFolderId();
-            List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjects(CollectionsOpt.createHashMap("pathLike", oldpath + "%"));
-            List<FileInfo> fileInfos = fileInfoDao.listObjects(CollectionsOpt.createHashMap("pathLike", oldpath + "%"));
+            List<FileFolderInfo> fileFolderInfos = fileFolderInfoDao.listObjectsByProperties(CollectionsOpt.createHashMap("pathLike", oldpath + "%"));
+            List<FileInfo> fileInfos = fileInfoDao.listObjectsByProperties(CollectionsOpt.createHashMap("pathLike", oldpath + "%"));
             if (fileFolderInfos.size() > 0) {
                 for (FileFolderInfo folderInfo : fileFolderInfos) {
                     folderInfo.setOldFoldId(folderInfo.getFolderId());
@@ -123,7 +123,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
 
     @Override
     public List<FileFolderInfo> listFileFolderInfo(Map<String, Object> param, PageDesc pageDesc) {
-        return fileFolderInfoDao.listObjects(param, pageDesc);
+        return fileFolderInfoDao.listObjectsByProperties(param, pageDesc);
     }
 
 

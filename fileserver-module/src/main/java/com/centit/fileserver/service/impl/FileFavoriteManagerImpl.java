@@ -64,7 +64,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
 
         param.put("withFile", "1");
-        List<FileFavorite> list = fileFavoriteDao.listObjects(param, pageDesc);
+        List<FileFavorite> list = fileFavoriteDao.listObjectsByProperties(param, pageDesc);
         list.forEach(e -> {
             FileInfo fileInfo = fileInfoDao.getObjectById(e.getFileId());
             if (fileInfo != null) {
