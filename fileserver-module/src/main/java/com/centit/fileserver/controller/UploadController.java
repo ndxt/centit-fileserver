@@ -510,7 +510,12 @@ public class UploadController extends BaseController {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
         FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
-        if (dbFile == null) {
+        String retMsg = "文件上传成功！";
+        if(dbFile == null) {
+            if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
+                fileInfo.setFileName( fileInfo.getFileName()+".rn");
+                retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
+            }
             fileInfoManager.saveNewObject(fileInfo);
             String fileId = fileInfo.getFileId();
             try {
@@ -522,10 +527,10 @@ public class UploadController extends BaseController {
                 logger.error(e.getMessage(), e);
             }
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileInfo.getFileName(), fileId);
+                fileMd5, size, fileInfo.getFileName(), fileId, retMsg);
         } else {
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileInfo.getFileName(), dbFile.getFileId());
+                fileMd5, size, fileInfo.getFileName(), dbFile.getFileId(), retMsg);
         }
 
     }

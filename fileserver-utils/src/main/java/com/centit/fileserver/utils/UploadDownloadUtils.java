@@ -347,21 +347,22 @@ public abstract class UploadDownloadUtils {
     }
 
     public static JSONObject makeRangeUploadCompleteJson(long fileSize,
-                                                         Object fileInfo) {
+                                                         Object fileInfo, String message) {
         JSONObject json = new JSONObject();
         json.put("start", fileSize);
         json.put("signal", "complete");
         json.put(ResponseData.RES_CODE_FILED, 0);
-        json.put(ResponseData.RES_MSG_FILED, "上传文件成功!");
+        json.put(ResponseData.RES_MSG_FILED, message);//"上传文件成功!"
         json.put(ResponseData.RES_DATA_FILED, fileInfo);
         return json;
     }
 
-    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId) {
+    public static JSONObject makeRangeUploadCompleteJson(String fileMd5, long fileSize, String fileName, String fileId, String message) {
         return makeRangeUploadCompleteJson(fileSize,
             CollectionsOpt.createHashMap("fileId", fileId,
                 "fileMd5", fileMd5, "fileSize", fileSize,
-                "fileName", fileName));
+                "fileName", fileName),
+            message);
     }
 
     public static void downloadFile(InputStream downloadFile, String downloadName, HttpServletResponse response)

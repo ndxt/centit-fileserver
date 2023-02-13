@@ -27,6 +27,12 @@ public abstract class FileIOUtils {
             fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 
+    public static boolean hasSensitiveExtName(String fileName){
+        return StringUtils.endsWithAny(fileName.toLowerCase(),
+            ".js", ".jsp", ".asp", ".php", ".exe",
+            ".py", ".py3", ".sh", ".vbs", ".wsh");
+    }
+
     public static boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo,
         FileStore fileStore, CreatePdfOpt createPdfOpt, FileInfoManager fileInfoManager,
                             FileStoreInfoManager fileStoreInfoManager) throws IOException {
