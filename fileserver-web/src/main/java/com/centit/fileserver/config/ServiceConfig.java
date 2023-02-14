@@ -161,6 +161,8 @@ public class ServiceConfig {
         config.setServerHostIp(env.getProperty("elasticsearch.server.ip"));
         config.setServerHostPort(env.getProperty("elasticsearch.server.port"));
         config.setClusterName(env.getProperty("elasticsearch.server.cluster"));
+        config.setUsername(env.getProperty("elasticsearch.server.username"));
+        config.setPassword(env.getProperty("elasticsearch.server.password"));
         config.setOsId(env.getProperty("elasticsearch.osId"));
         config.setMinScore(NumberBaseOpt.parseFloat(env.getProperty("elasticsearch.filter.minScore"), 0.5f));
         return config;
@@ -178,6 +180,8 @@ public class ServiceConfig {
             config.setServerHostIp(env.getProperty("elasticsearch.server.ip"));
             config.setServerHostPort(env.getProperty("elasticsearch.server.port"));
             config.setClusterName(env.getProperty("elasticsearch.server.cluster"));
+            config.setUsername(env.getProperty("elasticsearch.server.username"));
+            config.setPassword(env.getProperty("elasticsearch.server.password"));
             config.setOsId(env.getProperty("elasticsearch.osId"));
             config.setMinScore(NumberBaseOpt.parseFloat(env.getProperty("elasticsearch.filter.minScore"), 0.5f));
             return IndexerSearcherFactory.obtainSearcher(config, FileDocument.class);
@@ -207,8 +211,8 @@ public class ServiceConfig {
 
     @Bean
     @Lazy(value = false)
-    public OperationLogWriter optLogManager() {
-        ElkOptLogManager operationLog = new ElkOptLogManager();
+    public OperationLogWriter optLogManager(@Autowired ESServerConfig esServerConfig) {
+        ElkOptLogManager operationLog = new ElkOptLogManager(esServerConfig);
         return operationLog;
     }
 
