@@ -1,6 +1,6 @@
 package com.centit.fileserver.service;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;

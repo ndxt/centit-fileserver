@@ -1,8 +1,8 @@
 package com.centit.fileserver.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;
@@ -160,7 +160,7 @@ public class UploadController extends BaseController {
     public JSONArray addSaveFileOpt() {
         JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
         for (Object o : jsonArray) {
-            FileInfo fileInfo = JSONObject.toJavaObject((JSON) o, FileInfo.class);
+            FileInfo fileInfo = JSON.to(FileInfo.class , o);
             fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
         }
         return jsonArray;

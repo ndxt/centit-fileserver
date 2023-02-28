@@ -1,7 +1,7 @@
 package com.centit.fileserver.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileFavorite;
 import com.centit.fileserver.po.FileInfo;

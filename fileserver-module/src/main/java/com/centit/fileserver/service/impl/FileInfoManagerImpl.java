@@ -1,6 +1,6 @@
 package com.centit.fileserver.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson2.JSONArray;
 import com.centit.fileserver.dao.FileFolderInfoDao;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;

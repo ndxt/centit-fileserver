@@ -18,11 +18,11 @@
     </description>
 
     <properties>
-        <centit.framework.version>5.2-SNAPSHOT</centit.framework.version>
-        <centit.persistence.version>5.2-SNAPSHOT</centit.persistence.version>
-        <centit.commons.version>5.2-SNAPSHOT</centit.commons.version>
-        <centit.commons.modules.version>5.2-SNAPSHOT</centit.commons.modules.version>
-        <centit.ip.version>5.2-SNAPSHOT</centit.ip.version>
+        <centit.framework.version>5.3-SNAPSHOT</centit.framework.version>
+        <centit.persistence.version>5.3-SNAPSHOT</centit.persistence.version>
+        <centit.commons.version>5.3-SNAPSHOT</centit.commons.version>
+        <centit.commons.modules.version>5.3-SNAPSHOT</centit.commons.modules.version>
+        <centit.ip.version>5.3-SNAPSHOT</centit.ip.version>
         <jdk.version>1.8</jdk.version>
     </properties>
 
