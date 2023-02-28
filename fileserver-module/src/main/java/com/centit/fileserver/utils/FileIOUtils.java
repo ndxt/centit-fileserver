@@ -29,7 +29,7 @@ public abstract class FileIOUtils {
 
     public static boolean hasSensitiveExtName(String fileName){
         return StringUtils.endsWithAny(fileName.toLowerCase(),
-            ".js", ".jsp", ".asp", ".php", ".exe",
+            ".js", ".jsp",".jspx", ".asp", ".php", ".exe",
             ".py", ".py3", ".sh", ".vbs", ".wsh");
     }
 
