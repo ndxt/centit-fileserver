@@ -24,6 +24,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -262,7 +263,10 @@ public class FileClientImpl implements FileClient {
         String jsonStr = HttpExecutor.inputStreamUpload(HttpExecutorContext.create(httpClient),
             appSession.completeQueryUrl("/upload/file"),
             JSON.parseObject(JSON.toJSONString(fi)),
-            inputStream);
+            inputStream,
+            "file",
+            ContentType.DEFAULT_BINARY,
+            fi.getFileName());
 
         HttpReceiveJSON resJson = null;
         try {
@@ -468,7 +472,10 @@ public class FileClientImpl implements FileClient {
         CloseableHttpClient httpClient = allocHttpClient();
         String jsonStr = HttpExecutor.inputStreamUpload(HttpExecutorContext.create(httpClient),
             appSession.completeQueryUrl("/store/upload"),
-            file);
+            file,
+            "file",
+            ContentType.DEFAULT_BINARY,
+            "file.dat");
         try {
             HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
             releaseHttpClient(httpClient);
