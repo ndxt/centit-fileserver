@@ -509,13 +509,15 @@ public class UploadController extends BaseController {
         if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
-        FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
+
         String retMsg = "文件上传成功！";
+        if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
+            fileInfo.setFileName( fileInfo.getFileName()+".rn");
+            retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
+        }
+
+        FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
         if(dbFile == null) {
-            if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
-                fileInfo.setFileName( fileInfo.getFileName()+".rn");
-                retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
-            }
             fileInfoManager.saveNewObject(fileInfo);
             String fileId = fileInfo.getFileId();
             try {
