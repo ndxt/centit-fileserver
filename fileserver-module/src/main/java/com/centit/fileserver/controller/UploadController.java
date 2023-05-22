@@ -518,7 +518,7 @@ public class UploadController extends BaseController {
 
         FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
         if(dbFile == null) {
-            fileInfoManager.saveNewObject(fileInfo);
+            fileInfoManager.mergeObject(fileInfo);
             String fileId = fileInfo.getFileId();
             try {
                 // 先保存一个 临时文件； 如果文件已经存在是不会保存的
