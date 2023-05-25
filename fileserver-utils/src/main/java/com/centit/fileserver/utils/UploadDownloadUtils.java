@@ -365,13 +365,37 @@ public abstract class UploadDownloadUtils {
             message);
     }
 
-    public static void downloadFile(InputStream downloadFile, String downloadName, HttpServletResponse response)
+    public static String encodeFileName(String fileName, String characterEncoding){
+        try {
+            if (fileName.length() > 150) {
+                return new String(fileName.getBytes(characterEncoding), "ISO8859-1");
+            }
+            return URLEncoder.encode(fileName, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage());
+            return fileName;
+        }
+    }
+
+    private static void innerDownloadFile(InputStream downloadFile, String fileName,
+                                    HttpServletResponse response, String characterEncoding)
         throws IOException {
-        downloadName = new String(downloadName.getBytes("GBK"), "ISO8859-1");
         response.setContentType("application/x-msdownload;");
-        response.setHeader("Content-disposition", "attachment; filename=" + downloadName);
+        response.setHeader("Content-disposition", "attachment; filename=" + encodeFileName(fileName, characterEncoding));
         response.setHeader("Content-Length", String.valueOf(downloadFile.available()));
         IOUtils.copy(downloadFile, response.getOutputStream());
+    }
+
+    public static void downloadFile(InputStream downloadFile, String fileName,
+                                    HttpServletResponse response)
+        throws IOException {
+        innerDownloadFile(downloadFile, fileName, response, "GBK");
+    }
+
+    public static void downloadFile(InputStream downloadFile, String fileName,
+                                    HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+        innerDownloadFile(downloadFile, fileName, response, request.getCharacterEncoding());
     }
 
     public static FileInfo createFileBaseInfo(HttpServletRequest request){
