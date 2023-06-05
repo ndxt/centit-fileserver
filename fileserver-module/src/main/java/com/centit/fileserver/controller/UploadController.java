@@ -509,7 +509,12 @@ public class UploadController extends BaseController {
         if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
-
+        if(StringUtils.isBlank(fileInfo.getOsId())) {
+            fileInfo.setOsId("NOTSET");
+        }
+        if(StringUtils.isBlank(fileInfo.getOptId())) {
+            fileInfo.setOptId("NOTSET");
+        }
         String retMsg = "文件上传成功！";
         if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
             fileInfo.setFileName( fileInfo.getFileName()+".rn");
