@@ -124,12 +124,15 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private long fileSize;
 
     public FileInfo() {
-        indexState = "N";
-        encryptType = "N";
-        fileState = "N";
-        createTime = DatetimeOpt.currentUtilDate();
-        downloadTimes = 0L;
+        this.indexState = "N";
+        this.encryptType = "N";
+        this.fileState = "N";
+        this.createTime = DatetimeOpt.currentUtilDate();
+        this.downloadTimes = 0L;
+        this.osId = "NOTSET";
+        this.optId = "NOTSET";
     }
+
     public String getParentFolder(){
         if(StringUtils.isBlank(this.parentFolder)) {
             return StringUtils.substringAfterLast(this.fileShowPath, "/");
