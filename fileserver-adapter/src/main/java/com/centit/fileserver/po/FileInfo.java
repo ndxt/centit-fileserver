@@ -44,8 +44,6 @@ public class FileInfo implements FileBaseInfo, Serializable {
     @Column(name = "FILE_SHOW_PATH")
     private String fileShowPath;
 
-//    @Column(name="FILE_STORE_PATH")
-//    private String fileStorePath;
     /**
      * 文件的后缀明 ext file name
      */
@@ -87,9 +85,6 @@ public class FileInfo implements FileBaseInfo, Serializable {
         value = "today()")
     private Date createTime;
 
-//    @Column(name="FILE_SIZE")
-//    private Long fileSize;
-
     //加密算法
     @Column(name = "ENCRYPT_TYPE")
     private String encryptType;
@@ -100,7 +95,6 @@ public class FileInfo implements FileBaseInfo, Serializable {
 
     @Column(name = "FILE_UNIT")
     private String fileUnit;
-
 
     @Column(name = "ATTACHED_FILE_MD5")
     private String attachedFileMd5;
@@ -149,7 +143,6 @@ public class FileInfo implements FileBaseInfo, Serializable {
             }
         }
     }
-
 
     public Long addDownloadTimes() {
         if (this.downloadTimes == null) {

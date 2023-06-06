@@ -55,7 +55,6 @@ public class FileAccessLog implements Serializable {
     @Column(name="LAST_ACCESS_HOST")
     private String lastAccessHost;
 
-
     /**
      * 下载附属文件
      * @param getAttach boolean
