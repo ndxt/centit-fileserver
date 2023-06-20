@@ -25,5 +25,6 @@ public interface FileBaseInfo {
     String getAttachedType();
     String getAuthCode();
     String getParentFolder();
+    String getFileCatalog();
 
 }
