@@ -73,11 +73,16 @@ public class DownloadController extends BaseController {
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
-                            HttpServletResponse response) {
+                            HttpServletResponse response) throws IOException{
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String closeAuth = request.getParameter("closeAuth");
         if (StringUtils.isBlank(closeAuth)&&noAuth(request, response, fileInfo)) {
             return;
+        }
+
+        if(fileInfo.getFileSize() < 1){
+            UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
+            return ;
         }
         boolean canView = false;
         try {
@@ -259,6 +264,10 @@ public class DownloadController extends BaseController {
     private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo) {
+            if(fileInfo.getFileSize() < 1){
+                UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
+                return ;
+            }
 
             //对加密的进行特殊处理，ZIP加密的无需处理
             String password = request.getParameter("password");
@@ -286,7 +295,6 @@ public class DownloadController extends BaseController {
                 FileSystemOpt.deleteFile(tmpFile);
             } else {
                 try {
-                    //InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
                     UploadDownloadUtils.downFileRange(request, response,
                         FileIOUtils.getFileStream(fileStore, fileStoreInfo),
                         fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
@@ -303,7 +311,10 @@ public class DownloadController extends BaseController {
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
-        userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
+        if(StringBaseOpt.isNvl(userCode)){
+            userCode = request.getParameter("userCode");
+        }
+
         if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
                 + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
