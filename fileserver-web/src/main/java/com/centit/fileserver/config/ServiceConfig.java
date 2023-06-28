@@ -28,7 +28,7 @@ import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.search.service.Searcher;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.security.AESSecurityUtils;
+import com.centit.support.security.SecurityOptUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
@@ -79,9 +79,9 @@ public class ServiceConfig {
             AliyunOssStore fs = new AliyunOssStore();
             fs.setEndPoint(env.getProperty("oos.endPoint"));
             fs.setAccessKeyId(
-                AESSecurityUtils.decryptParameterString(env.getProperty("oos.accessKeyId")));
+                SecurityOptUtils.decodeSecurityString(env.getProperty("oos.accessKeyId")));
             fs.setSecretAccessKey(
-                AESSecurityUtils.decryptParameterString(env.getProperty("oos.secretAccessKey")));
+                SecurityOptUtils.decodeSecurityString(env.getProperty("oos.secretAccessKey")));
             fs.setBucketName(env.getProperty("oos.bucketName"));
             return fs;
         }else if("cos".equals(fileStoreType)){
@@ -89,9 +89,9 @@ public class ServiceConfig {
             cosStore.setRegion(env.getProperty("cos.region"));
             cosStore.setAppId(env.getProperty("cos.appId"));
             cosStore.setSecretId(
-                AESSecurityUtils.decryptParameterString(env.getProperty("cos.secretId")));
+                SecurityOptUtils.decodeSecurityString(env.getProperty("cos.secretId")));
             cosStore.setSecretKey(
-                AESSecurityUtils.decryptParameterString(env.getProperty("cos.secretKey")));
+                SecurityOptUtils.decodeSecurityString(env.getProperty("cos.secretKey")));
             cosStore.setBucketName(env.getProperty("cos.bucketName"));
             return cosStore;
         }else {
