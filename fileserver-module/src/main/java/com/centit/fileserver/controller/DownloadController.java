@@ -80,15 +80,17 @@ public class DownloadController extends BaseController {
             return;
         }
 
-        if(fileInfo.getFileSize() < 1){
-            UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
-            return ;
-        }
         boolean canView = false;
         try {
             if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                 "txt", "html", "csv", "pdf", "xml")) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+
+                if(fileStoreInfo.getFileSize() < 1){
+                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
+                    return ;
+                }
+
                 String charset = null;
                 if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
@@ -100,6 +102,7 @@ public class DownloadController extends BaseController {
                 canView = true;
             } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+
                 if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
                     UploadDownloadUtils.downFileRange(request, response,
                         FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo),
@@ -118,6 +121,11 @@ public class DownloadController extends BaseController {
             }
             if (!canView) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+
+                if(fileStoreInfo.getFileSize() < 1){
+                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
+                    return ;
+                }
                 UploadDownloadUtils.downFileRange(request, response,
                     FileIOUtils.getFileStream(fileStore, fileStoreInfo),
                     fileStoreInfo.getFileSize(),
@@ -264,7 +272,8 @@ public class DownloadController extends BaseController {
     private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo) {
-            if(fileInfo.getFileSize() < 1){
+
+            if(fileStoreInfo.getFileSize() < 1){
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                 return ;
             }
