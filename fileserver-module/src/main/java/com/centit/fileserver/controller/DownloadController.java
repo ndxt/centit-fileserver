@@ -271,13 +271,11 @@ public class DownloadController extends BaseController {
 
     private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (null != fileInfo) {
-
+        if (null != fileInfo && fileStoreInfo != null) {
             if(fileStoreInfo.getFileSize() < 1){
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                 return ;
             }
-
             //对加密的进行特殊处理，ZIP加密的无需处理
             String password = request.getParameter("password");
             if ("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password)) {
