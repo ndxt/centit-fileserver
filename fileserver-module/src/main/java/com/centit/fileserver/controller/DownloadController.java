@@ -83,7 +83,7 @@ public class DownloadController extends BaseController {
         boolean canView = false;
         try {
             if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
-                "txt", "html", "csv", "pdf", "xml")) {
+                "txt",/* "html", "htm",*/ "csv", "pdf", "xml")) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
                 if(fileStoreInfo.getFileSize() == 0){
