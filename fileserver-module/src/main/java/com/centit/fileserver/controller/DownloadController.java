@@ -86,7 +86,7 @@ public class DownloadController extends BaseController {
                 "txt", "html", "csv", "pdf", "xml")) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
-                if(fileStoreInfo.getFileSize() < 1){
+                if(fileStoreInfo.getFileSize() == 0){
                     UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                     return ;
                 }
@@ -122,7 +122,7 @@ public class DownloadController extends BaseController {
             if (!canView) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
-                if(fileStoreInfo.getFileSize() < 1){
+                if(fileStoreInfo.getFileSize() == 0){
                     UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                     return ;
                 }
@@ -272,7 +272,7 @@ public class DownloadController extends BaseController {
     private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo && fileStoreInfo != null) {
-            if(fileStoreInfo.getFileSize() < 1){
+            if(fileStoreInfo.getFileSize() == 0){
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                 return ;
             }

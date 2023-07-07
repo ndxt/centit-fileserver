@@ -209,6 +209,9 @@ public abstract class UploadDownloadUtils {
 
         FileRangeInfo fr = FileRangeInfo.parseRange(request);
 
+        if(fSize < 0){
+            fSize = inputStream.available();
+        }
         if (fr == null) {
             fr = new FileRangeInfo(0, fSize - 1, fSize);
         } else {
