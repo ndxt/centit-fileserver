@@ -340,7 +340,7 @@ public class DownloadController extends BaseController {
 
             for (int i = 0; i < len; i++) {
                 try (InputStream fis = fileStore.loadFileStream(fileUrls[i])) {
-                    ZipCompressor.compressFile(fis, fileNames[i], out, basedir);
+                    ZipCompressor.compressFile(fis, (i + 1) + "." + fileNames[i], out, basedir);
                 } catch (Exception e) {
                     logger.info("获取文件" + fileUrls[i] + "出错！");
                 }
