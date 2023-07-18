@@ -36,6 +36,12 @@ public class OsFileStore implements FileStore {
         return fileRoot;
     }
 
+    /**
+     *
+     * @param fileInfo 文件信息
+     * @param fileSize long 文件的大小 不再使用
+     * @return 文件的实际存储路径
+     */
     @Override
     public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
         String fileMd5 = fileInfo.getFileMd5();
@@ -43,11 +49,11 @@ public class OsFileStore implements FileStore {
                     + File.separatorChar + fileMd5.charAt(1)
                     + File.separatorChar + fileMd5.charAt(2);
         FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +"_"+fileSize+".dat";
+        return pathname + File.separatorChar + fileMd5 +".dat";
     }
 
     @Override
-    public String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
+    public String saveFile(FileBaseInfo fileInfo, long fileSize, InputStream is)
             throws IOException {
         String fileStroeUrl =  matchFileStoreUrl(fileInfo, fileSize);
         String filePath = getFileRoot() + fileStroeUrl;
