@@ -30,10 +30,12 @@ public class OsFileStore implements FileStore {
             this.fileRoot = fileRoot + File.separatorChar;
         }
     }
-    public String getFileRoot(){
-        /*if(fileRoot==null)
-            return SysParametersUtils.getStringValue("fileserver.base.dir");*/
-        return fileRoot;
+
+    public String calcFilePath(String fileStoreUrl) {
+        if (fileStoreUrl.startsWith("/") || fileStoreUrl.indexOf(':')>0) {
+            return fileStoreUrl;
+        }
+        return fileRoot+fileStoreUrl;
     }
 
     /**
@@ -46,17 +48,17 @@ public class OsFileStore implements FileStore {
     public String matchFileStoreUrl(FileBaseInfo fileInfo, long fileSize) {
         String fileMd5 = fileInfo.getFileMd5();
         String pathname = String.valueOf(fileMd5.charAt(0))
-                    + File.separatorChar + fileMd5.charAt(1)
-                    + File.separatorChar + fileMd5.charAt(2);
-        FileSystemOpt.createDirect(getFileRoot() + pathname);
-        return pathname + File.separatorChar + fileMd5 +".dat";
+            + File.separatorChar + fileMd5.charAt(1)
+            + File.separatorChar + fileMd5.charAt(2);
+        FileSystemOpt.createDirect(calcFilePath(pathname));
+        return pathname + File.separatorChar + fileMd5  + ".dat";
     }
 
     @Override
-    public String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
-            throws IOException {
-        String fileStroeUrl =  matchFileStoreUrl(fileInfo, fileSize);
-        String filePath = getFileRoot() + fileStroeUrl;
+    public String saveFile(FileBaseInfo fileInfo, long fileSize, InputStream is)
+        throws IOException {
+        String fileStroeUrl = matchFileStoreUrl(fileInfo, fileSize);
+        String filePath = calcFilePath(fileStroeUrl);
         FileSystemOpt.createDirect(new File(filePath).getParent());
         FileIOOpt.writeInputStreamToFile(is, filePath);
 
@@ -70,8 +72,8 @@ public class OsFileStore implements FileStore {
     @Override
     public String saveFile(String sourFilePath, FileBaseInfo fileInfo, long fileSize) throws IOException {
         String filePath = matchFileStoreUrl(fileInfo, fileSize);
-        FileSystemOpt.createDirect(new File(getFileRoot() + filePath).getParent());
-        FileSystemOpt.fileCopy(sourFilePath,getFileRoot() + filePath);
+        FileSystemOpt.createDirect(new File(calcFilePath(filePath)).getParent());
+        FileSystemOpt.fileCopy(sourFilePath, calcFilePath(filePath));
         return filePath;
     }
 
@@ -83,31 +85,31 @@ public class OsFileStore implements FileStore {
      */
     @Override
     public boolean checkFile(String fileStoreUrl) {
-        return FileSystemOpt.existFile(getFileRoot() + fileStoreUrl);
+        return FileSystemOpt.existFile(calcFilePath(fileStoreUrl));
     }
 
     @Override
     public long getFileSize(String fileStoreUrl) throws IOException {
-        File f = new File(getFileRoot() + fileStoreUrl);
+        File f = new File(calcFilePath(fileStoreUrl));
         return f.length();
     }
 
     @Override
     public InputStream loadFileStream(String fileStoreUrl) throws IOException {
-        if(FileSystemOpt.existFile(getFileRoot() + fileStoreUrl)){
-            return new FileInputStream(new File(getFileRoot() + fileStoreUrl));
+        if (FileSystemOpt.existFile(calcFilePath(fileStoreUrl))) {
+            return new FileInputStream(new File(calcFilePath(fileStoreUrl)));
         }
-        throw new ObjectException(getFileRoot() + fileStoreUrl+"无此文件");
+        throw new ObjectException(calcFilePath(fileStoreUrl) + "无此文件");
     }
 
     @Override
     public File getFile(String fileStoreUrl) throws IOException {
-        return new File(getFileRoot() + fileStoreUrl);
+        return new File(calcFilePath(fileStoreUrl));
     }
 
     @Override
     public boolean deleteFile(String fileUrl) throws IOException {
-        return FileSystemOpt.deleteFile(getFileRoot() + fileUrl);
+        return FileSystemOpt.deleteFile(calcFilePath(fileUrl));
     }
 
     @Override
