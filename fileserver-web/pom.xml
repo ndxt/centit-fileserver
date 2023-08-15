@@ -102,11 +102,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>centit-ip-app-base-config</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- 切换组织机构结束 -->
 
         <dependency>
