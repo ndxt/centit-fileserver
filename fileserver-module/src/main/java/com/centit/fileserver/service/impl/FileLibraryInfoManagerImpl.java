@@ -9,9 +9,9 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
 import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
-import com.centit.framework.model.basedata.IUnitInfo;
-import com.centit.framework.model.basedata.IUserUnit;
-import com.centit.framework.system.po.WorkGroup;
+import com.centit.framework.model.basedata.UnitInfo;
+import com.centit.framework.model.basedata.UserUnit;
+import com.centit.framework.model.basedata.WorkGroup;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -98,10 +98,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<IUnitInfo> listUnitPathsByUserCode(String userCode) {
+    public List<UnitInfo> listUnitPathsByUserCode(String userCode) {
         HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-        List<IUnitInfo> result = new ArrayList<>(10);
+        List<UnitInfo> result = new ArrayList<>(10);
         for (String unit : getUnits(userCode)) {
             if (CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit) != null) {
                 result.add(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit));
@@ -166,12 +166,12 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Set<String> treeSet = new TreeSet<>();
-        List<? extends IUserUnit> uulist = CodeRepositoryUtil.listUserUnits(topUnit, userCode);
+        List<UserUnit> uulist = CodeRepositoryUtil.listUserUnits(topUnit, userCode);
         if (uulist != null && uulist.size() > 0) {
-            Iterator var6 = uulist.iterator();
+            Iterator<UserUnit> var6 = uulist.iterator();
             while (var6.hasNext()) {
-                IUserUnit uu = (IUserUnit) var6.next();
-                IUnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(topUnit, uu.getUnitCode());
+                UserUnit uu = var6.next();
+                UnitInfo unitInfo = CodeRepositoryUtil.getUnitInfoByCode(topUnit, uu.getUnitCode());
                 if (unitInfo != null) {
                     String[] temp = StringUtils.split(
                         unitInfo.getUnitPath(), SEPARATOR);

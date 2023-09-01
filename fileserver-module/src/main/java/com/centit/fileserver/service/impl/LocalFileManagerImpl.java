@@ -4,7 +4,7 @@ import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileShowInfo;
 import com.centit.fileserver.service.LocalFileManager;
 import com.centit.framework.components.CodeRepositoryUtil;
-import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.framework.model.basedata.UnitInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class LocalFileManagerImpl implements LocalFileManager {
     protected FileInfoDao fileInfoDao;
 
     @Override
-    public Set<IUnitInfo> listUserUnit(String topUnit, String userCode) {
+    public Set<UnitInfo> listUserUnit(String topUnit, String userCode) {
         return CodeRepositoryUtil.getUserUnits(topUnit, userCode);
     }
 

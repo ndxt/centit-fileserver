@@ -11,7 +11,7 @@ import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
-import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
@@ -85,7 +85,7 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
     @ApiOperation(value = "根据用户查询机构全路径")
     @WrapUpResponseBody
-    public List<IUnitInfo> listUnitPathsByUserCode(HttpServletRequest request) {
+    public List<UnitInfo> listUnitPathsByUserCode(HttpServletRequest request) {
         String userCode = getUserCode(request);
         if (userCode == null) {
             return null;

@@ -1,7 +1,7 @@
 package com.centit.fileserver.service;
 
 import com.centit.fileserver.po.FileShowInfo;
-import com.centit.framework.model.basedata.IUnitInfo;
+import com.centit.framework.model.basedata.UnitInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ public interface LocalFileManager{
     String LOCAL_OPT_ID = "LOCAL_FILE";
     String FILE_PATH_SPLIT = "/";
 
-    Set<IUnitInfo> listUserUnit(String topUnit, String userCode);
+    Set<UnitInfo> listUserUnit(String topUnit, String userCode);
 
     /**
      * 获取用户文件列表

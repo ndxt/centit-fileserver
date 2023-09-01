@@ -6,13 +6,13 @@
     <parent>
         <artifactId>framework-snapshot-dependencies</artifactId>
         <groupId>com.centit.framework</groupId>
-        <version>5.3-SNAPSHOT</version>
+        <version>5.4-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.centit.product</groupId>
     <artifactId>centit-fileserver</artifactId>
-    <version>5.3-SNAPSHOT</version>
+    <version>5.4-SNAPSHOT</version>
     <name>com.centit.product:centit-fileserver</name>
     <packaging>pom</packaging>
 
@@ -68,11 +68,7 @@
 
     <modules>
         <module>fileserver-utils</module>
-        <!--<module>fileserver-web</module>-->
-        <module>fileserver-client</module>
-        <!--<module>fileserver-demo</module>-->
         <module>fileserver-module</module>
-        <!--<module>fileserver-boot</module>-->
         <module>fileserver-store-oss-plugin</module>
         <module>fileserver-store-cos-plugin</module>
         <module>fileserver-adapter</module>

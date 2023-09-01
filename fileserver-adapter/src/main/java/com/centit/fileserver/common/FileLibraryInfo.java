@@ -1,10 +1,10 @@
 package com.centit.fileserver.common;
 
-import com.centit.framework.system.po.WorkGroup;
 import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
+import com.centit.framework.model.basedata.WorkGroup;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

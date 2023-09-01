@@ -17,7 +17,7 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
-import com.centit.framework.model.basedata.IOsInfo;
+import com.centit.framework.model.basedata.OsInfo;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Impl.ESSearcher;
@@ -283,7 +283,7 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/oss", method = RequestMethod.GET)
     @ApiOperation(value = "获取系统中的所有OS")
     public void listOperationSystem(HttpServletRequest request, HttpServletResponse response) {
-        List<? extends IOsInfo> osinfoList = CodeRepositoryUtil.listOsInfo(
+        List<OsInfo> osinfoList = CodeRepositoryUtil.listOsInfo(
             WebOptUtils.getCurrentTopUnit(request));
         JsonResultUtils.writeSingleDataJson(osinfoList, response);
     }
