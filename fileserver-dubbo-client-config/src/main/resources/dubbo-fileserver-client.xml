@@ -10,6 +10,7 @@
 
     <!-- 生成远程服务代理，可以和本地bean一样使用; init默认false，即懒加载，可改为ture(饥饿加载)-->
     <dubbo:reference id="operateFileLibrary" interface="com.centit.fileserver.common.OperateFileLibrary" init="false"/>
+    <dubbo:reference id="fileInfoOpt" interface="com.centit.fileserver.common.FileInfoOpt" init="false"/>
 
     <!-- 指定请求服务地址 url="hessian://192.168.137.56:8087"-->
    <!-- <dubbo:reference  protocol="hessian"  group="dubbo-fileStore"  id="dubboFileStore" interface="com.centit.fileserver.common.FileStore"

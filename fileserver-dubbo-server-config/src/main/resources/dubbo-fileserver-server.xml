@@ -10,6 +10,7 @@
     <!-- 声明需要暴露的服务接口 -->
 
     <dubbo:service interface="com.centit.fileserver.common.OperateFileLibrary" ref="fileLibraryInfoManagerImpl" protocol="dubbo" />
+    <dubbo:service interface="com.centit.fileserver.common.FileInfoOpt" ref="fileInfoOpt" protocol="dubbo" />
 <!--        <dubbo:method name="insertFileLibrary" retries="0" />-->
 
     <!--<dubbo:service protocol="hessian" group="dubbo-fileStore"  interface="com.centit.fileserver.common.FileStore" ref="dubboFileStore" timeout="60000" />-->
