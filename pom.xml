@@ -68,10 +68,11 @@
 
     <modules>
         <module>fileserver-utils</module>
+        <module>fileserver-adapter</module>
         <module>fileserver-module</module>
+        <module>fileserver-client</module>
         <module>fileserver-store-oss-plugin</module>
         <module>fileserver-store-cos-plugin</module>
-        <module>fileserver-adapter</module>
         <module>fileserver-task-redis-plugin</module>
         <module>fileserver-dubbo-client-config</module>
         <module>fileserver-dubbo-server-config</module>
