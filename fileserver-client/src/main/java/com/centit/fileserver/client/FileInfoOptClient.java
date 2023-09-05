@@ -126,8 +126,13 @@ public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
     @Override
     public File getFile(String fileId) throws IOException {
         String filePath = SystemTempFileUtils.getTempFilePath(fileId);
+        File tempFile = new File(filePath);
+        if(tempFile.exists() && tempFile.isFile()){
+            //判断文件是否已经在缓存中，如果已经存在就不用再次获取
+            return tempFile;
+        }
         fileClient.downloadFile(fileId, filePath);
-        return new File(filePath);
+        return tempFile;
     }
 
     /**
