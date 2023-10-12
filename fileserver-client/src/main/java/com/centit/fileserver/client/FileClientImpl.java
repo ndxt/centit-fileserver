@@ -217,7 +217,7 @@ public class FileClientImpl implements FileClient {
             appSession.completeQueryUrl("/files/" + fileId));
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         if(resJson==null){
-            throw new ObjectException(ObjectException.DATA_NOT_FOUND_EXCEPTION, "文件信息找不到！");
+            throw new ObjectException(ObjectException.DATA_NOT_FOUND_EXCEPTION, "文件信息找不到："+fileId+"！");
         }
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
