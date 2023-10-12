@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.List;
 
-
 public class FileClientImpl implements FileClient {
 
     private Logger logger = LoggerFactory.getLogger(FileClientImpl.class);
@@ -208,14 +207,18 @@ public class FileClientImpl implements FileClient {
         return url;
     }
 
-
     @Override
     public FileInfo getFileInfo(CloseableHttpClient httpClient, String fileId) throws IOException {
+        if(StringUtils.isBlank(fileId)){
+            throw new ObjectException(ObjectException.BLANK_EXCEPTION, "文件ID不能为空！");
+        }
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
             appSession.completeQueryUrl("/files/" + fileId));
         HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
-
+        if(resJson==null){
+            throw new ObjectException(ObjectException.DATA_NOT_FOUND_EXCEPTION, "文件信息找不到！");
+        }
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
         }
