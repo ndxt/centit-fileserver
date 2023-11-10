@@ -17,6 +17,7 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
@@ -531,7 +532,8 @@ public class UploadController extends BaseController {
                     SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
                 fileOptTaskExecutor.addOptTask(fileInfo, size, pretreatInfo);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                throw new ObjectException(ObjectException.UNKNOWN_EXCEPTION, e.getMessage(), e);
+                //logger.error(e.getMessage(), e);
             }
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
                 fileMd5, size, fileInfo.getFileName(), fileId, retMsg);
