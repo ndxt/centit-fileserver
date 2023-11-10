@@ -177,9 +177,12 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
                 file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[9]));
                 file.setOwnerName(CodeRepositoryUtil.getUserName(topUnit, StringBaseOpt.objectToString(objs[10])));
+
                 sqlsen="select file_id from FILE_INFO where file_name=? and CREATE_TIME=?";
-                List<Object[]> object=DatabaseOptUtils.listObjectsBySql(this,sqlsen,new Object[]{file.getFileName(),file.getCreateTime()});
-                file.setAccessToken(StringBaseOpt.objectToString(object.get(0)[0]));
+                Object lastFileId =DatabaseOptUtils.getScalarObjectQuery(this, sqlsen, new Object[]{file.getFileName(), file.getCreateTime()});
+                if(lastFileId!=null) {
+                    file.setAccessToken(StringBaseOpt.objectToString(lastFileId));
+                }
                 files.add(file);
             }
         }
