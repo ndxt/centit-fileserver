@@ -15,6 +15,7 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
@@ -219,12 +220,14 @@ public class DownloadController extends BaseController {
 
         InputStream inputStream = null;
         long fileSize;
+        boolean singleNotZip = BooleanBaseOpt.castObjectToBoolean(request.getParameter("singleNotZip"), false);
         // 如果只下载一个文件则 不压缩
-        if (fileIds.length == 1) {
+        if (fileIds.length == 1 && singleNotZip) {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             fileSize = fileStoreInfo.getFileSize();
             String filePath = fileStore.matchFileStoreUrl(fileInfo, fileSize);
+            fileName = fileInfo.getFileName();
             inputStream = fileStore.loadFileStream(filePath);
         } else {
             StringBuilder fileIdSb = new StringBuilder();
