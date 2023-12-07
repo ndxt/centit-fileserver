@@ -17,13 +17,11 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
-import com.centit.search.service.Impl.ESIndexer;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
@@ -80,8 +78,6 @@ public class UploadController extends BaseController {
     @Autowired
     protected FileStore fileStore;
 
-    @Autowired(required = false)
-    protected ESIndexer documentIndexer;
 
    /* @Autowired
     private FileTaskQueue fileOptTaskQueue;*/

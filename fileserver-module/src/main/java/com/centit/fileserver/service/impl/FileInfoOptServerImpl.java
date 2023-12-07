@@ -13,7 +13,10 @@ import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
+import com.centit.search.document.FileDocument;
+import com.centit.search.service.ESServerConfig;
 import com.centit.search.service.Impl.ESIndexer;
+import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -48,7 +51,14 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     FileStore fileStore;
 
     @Autowired(required = false)
-    protected ESIndexer documentIndexer;
+    private ESServerConfig esServerConfig;
+
+    public ESIndexer fetchDocumentIndexer(){
+        if(esServerConfig==null)
+            return null;
+        return IndexerSearcherFactory.obtainIndexer(esServerConfig, FileDocument.class);
+    }
+
 
     @Override
     public String saveFile(FileBaseInfo fileBaseInfo, long fileSize, InputStream is){
@@ -190,8 +200,8 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo != null) {
             fileInfoManager.deleteObjectById(fileId);
-            if(documentIndexer != null){
-                return documentIndexer.deleteDocument(fileId);
+            if(esServerConfig != null){
+                return fetchDocumentIndexer().deleteDocument(fileId);
             }
             fileStoreInfoManager.decreaseFileReference(fileInfo.getFileMd5());
             return true;

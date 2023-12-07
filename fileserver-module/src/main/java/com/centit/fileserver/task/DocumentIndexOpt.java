@@ -11,7 +11,9 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.search.document.FileDocument;
+import com.centit.search.service.ESServerConfig;
 import com.centit.search.service.Impl.ESIndexer;
+import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.DatetimeOpt;
 import org.apache.commons.lang3.StringUtils;
@@ -34,10 +36,16 @@ public class DocumentIndexOpt implements FileTaskOpeator {
     private FileInfoManager fileInfoManager;
 
     @Autowired(required = false)
-    private ESIndexer esObjectIndexer;
+    private ESServerConfig esServerConfig;
+
+    public ESIndexer fetchDocumentIndexer(){
+        if(esServerConfig==null)
+            return null;
+        return IndexerSearcherFactory.obtainIndexer(esServerConfig, FileDocument.class);
+    }
 
     public DocumentIndexOpt(){
-        this.esObjectIndexer = null;
+        this.esServerConfig = null;
     }
     /**
      * @return 任务转换器名称
@@ -74,7 +82,7 @@ public class DocumentIndexOpt implements FileTaskOpeator {
 
     @Override
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
-        if(esObjectIndexer==null){
+        if(esServerConfig==null){
             return;
         }
         String fileId = fileOptTaskInfo.getFileId();
@@ -85,7 +93,7 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         }
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
-        esObjectIndexer.mergeDocument(fileDoc);
+        fetchDocumentIndexer().mergeDocument(fileDoc);
         logger.info("文件已加入全文检索");
         OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
             .user("admin").unit(fileInfo.getLibraryId())

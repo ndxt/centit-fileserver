@@ -17,10 +17,13 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
-import com.centit.framework.model.basedata.OsInfo;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.framework.model.basedata.OsInfo;
+import com.centit.search.document.FileDocument;
+import com.centit.search.service.ESServerConfig;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Impl.ESSearcher;
+import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
@@ -66,11 +69,22 @@ public class FileManagerController extends BaseController {
     protected FileStore fileStore;
 
     @Autowired(required = false)
-    private ESSearcher esObjectSearcher;
-    @Autowired
-    private FileFavoriteManager fileFavoriteManager;
+    private ESServerConfig esServerConfig;
+
+    public ESSearcher fetchDocumentSearcher(){
+        if(esServerConfig==null)
+            return null;
+        return IndexerSearcherFactory.obtainSearcher(esServerConfig, FileDocument.class);
+    }
+
     @Autowired(required = false)
-    protected ESIndexer documentIndexer;
+    private FileFavoriteManager fileFavoriteManager;
+
+    public ESIndexer fetchDocumentIndexer(){
+        if(esServerConfig==null)
+            return null;
+        return IndexerSearcherFactory.obtainIndexer(esServerConfig, FileDocument.class);
+    }
 
     /**
      * 根据文件的id物理删除文件(同时删除文件和数据库记录)
@@ -84,8 +98,8 @@ public class FileManagerController extends BaseController {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo != null) {
             fileInfoManager.deleteObjectById(fileId);
-            if(documentIndexer != null){
-                documentIndexer.deleteDocument(fileId);
+            if(esServerConfig == null){
+                fetchDocumentIndexer().deleteDocument(fileId);
             }
             fileStoreInfoManager.decreaseFileReference(fileInfo.getFileMd5());
             OperationLogCenter.log(OperationLog.create()
@@ -379,7 +393,7 @@ public class FileManagerController extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @WrapUpResponseBody
     public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds, String query, HttpServletRequest request, PageDesc pageDesc) {
-        if (esObjectSearcher == null) {
+        if (esServerConfig == null) {
             throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
         }
         Map<String, Object> searchQuery = new HashMap<>(10);
@@ -387,7 +401,7 @@ public class FileManagerController extends BaseController {
             searchQuery.put("optId", libraryIds);
         }
         Pair<Long, List<Map<String, Object>>> res =
-            esObjectSearcher.search(searchQuery, query, pageDesc.getPageNo(), pageDesc.getPageSize());
+            fetchDocumentSearcher().search(searchQuery, query, pageDesc.getPageNo(), pageDesc.getPageSize());
         if (res == null) {
             throw new ObjectException("ELK异常");
         }

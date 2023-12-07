@@ -19,14 +19,7 @@ import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.StandardPasswordEncoderImpl;
 import com.centit.framework.system.service.ElkOptLogManager;
-import com.centit.search.document.FileDocument;
-import com.centit.search.document.ObjectDocument;
 import com.centit.search.service.ESServerConfig;
-import com.centit.search.service.Impl.ESIndexer;
-import com.centit.search.service.Impl.ESSearcher;
-import com.centit.search.service.IndexerSearcherFactory;
-import com.centit.search.service.Searcher;
-import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.security.SecurityOptUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -168,30 +161,6 @@ public class ServiceConfig {
         return config;
     }
 
-    @Bean(name = "esObjectIndexer")
-    public ESIndexer esObjectIndexer(@Autowired ESServerConfig esServerConfig){
-        return IndexerSearcherFactory.obtainIndexer(esServerConfig, ObjectDocument.class);
-    }
-
-    @Bean
-    public Searcher documentSearcher(){
-        if(BooleanBaseOpt.castObjectToBoolean(env.getProperty("fulltext.index.enable"),false)) {
-            ESServerConfig config = new ESServerConfig();
-            config.setServerHostIp(env.getProperty("elasticsearch.server.ip"));
-            config.setServerHostPort(env.getProperty("elasticsearch.server.port"));
-            config.setClusterName(env.getProperty("elasticsearch.server.cluster"));
-            config.setUsername(env.getProperty("elasticsearch.server.username"));
-            config.setPassword(env.getProperty("elasticsearch.server.password"));
-            config.setOsId(env.getProperty("elasticsearch.osId"));
-            config.setMinScore(NumberBaseOpt.parseFloat(env.getProperty("elasticsearch.filter.minScore"), 0.5f));
-            return IndexerSearcherFactory.obtainSearcher(config, FileDocument.class);
-        }
-        return null;
-    }
-    @Bean(name = "esObjectSearcher")
-    public ESSearcher esObjectSearcher(@Autowired ESServerConfig esServerConfig){
-        return IndexerSearcherFactory.obtainSearcher(esServerConfig, ObjectDocument.class);
-    }
     @Bean
     public NotificationCenter notificationCenter() {
         NotificationCenterImpl notificationCenter = new NotificationCenterImpl();
