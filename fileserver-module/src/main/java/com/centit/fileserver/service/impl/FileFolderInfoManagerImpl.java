@@ -12,7 +12,6 @@ import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.DatetimeOpt;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +52,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
             return fileFolderInfo;
         }
         fileFolderInfoDao.updateObject(fileFolderInfo);
-        if(!StringBaseOpt.isNvl(fileFolderInfo.getFolderPath()) && !StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())) {
+        if(!StringUtils.isBlank(fileFolderInfo.getFolderPath()) && !StringUtils.isBlank(fileFolderInfo.getLibraryId())) {
             if (!oldFileFolder.getFolderPath().equals(fileFolderInfo.getFolderPath()) ||
                 !oldFileFolder.getLibraryId().equals(fileFolderInfo.getLibraryId())) {
                 String oldPath = oldFileFolder.getFolderPath() + "/" + oldFileFolder.getFolderId();
@@ -79,7 +78,7 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
     @Override
     public void createFileFolderInfo(FileFolderInfo fileFolderInfo) {
         fileFolderInfoDao.saveNewObject(fileFolderInfo);
-        if (!StringBaseOpt.isNvl(fileFolderInfo.getOldFoldId())) {
+        if (!StringUtils.isBlank(fileFolderInfo.getOldFoldId())) {
             FileFolderInfo oldFileFolder = getFileFolderInfo(fileFolderInfo.getOldFoldId());
             String oldpath = oldFileFolder.getFolderPath() + "/" + oldFileFolder.getFolderId();
             String newpath = fileFolderInfo.getFolderPath() + "/" + fileFolderInfo.getFolderId();

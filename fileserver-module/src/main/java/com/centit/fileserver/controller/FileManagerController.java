@@ -24,7 +24,10 @@ import com.centit.search.service.ESServerConfig;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.Impl.ESSearcher;
 import com.centit.search.service.IndexerSearcherFactory;
-import com.centit.support.algorithm.*;
+import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
 import com.centit.support.json.JSONOpt;
@@ -213,7 +216,7 @@ public class FileManagerController extends BaseController {
         if (dbFileInfo != null) {
             dbFileInfo.copyNotNullProperty(fileInfo);
             dbFileInfo.setFileName(fileInfo.getFileName());
-            if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
+            if (StringUtils.isBlank(fileInfo.getFileId())) {
                 dbFileInfo.setFileId(null);
                 fileInfoManager.saveNewFile(dbFileInfo);
             } else {
@@ -357,7 +360,7 @@ public class FileManagerController extends BaseController {
     @WrapUpResponseBody
     public Map<String, Object> getAuthCode(@PathVariable("fileId") String fileId, HttpServletRequest request) {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if (StringBaseOpt.isNvl(fileInfo.getAuthCode())) {
+        if (StringUtils.isBlank(fileInfo.getAuthCode())) {
             fileInfo.setAuthCode(StringUtils.substring(UuidOpt.getUuidAsString(), -4));
             fileInfoManager.updateObject(fileInfo);
         }

@@ -12,7 +12,6 @@ import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -79,7 +78,7 @@ public class ViewFileController extends BaseController {
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
-        userCode = StringBaseOpt.isNvl(userCode) ? request.getParameter("userCode") : userCode;
+        userCode = StringUtils.isBlank(userCode) ? request.getParameter("userCode") : userCode;
         if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
                 + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);

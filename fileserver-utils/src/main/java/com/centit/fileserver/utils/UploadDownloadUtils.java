@@ -8,7 +8,6 @@ import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -197,7 +196,7 @@ public abstract class UploadDownloadUtils {
         //String isoFileName = this.encodeFilename(proposeFile.getName(), request);
         response.setHeader("Accept-Ranges", "bytes");
         response.setContentType(FileType.getFileMimeType(fileName));
-        if (!StringBaseOpt.isNvl(charset)) {
+        if (!StringUtils.isBlank(charset)) {
             response.setCharacterEncoding(charset);
         }
         //这个需要设置成真正返回的长度

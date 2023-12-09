@@ -13,7 +13,6 @@ import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.framework.model.basedata.UserUnit;
 import com.centit.framework.model.basedata.WorkGroup;
 import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.algorithm.StringBaseOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +57,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     public void createFileLibrary(FileLibraryInfo fileLibraryInfo) {
         if (fileLibraryInfo.getWorkGroups() != null) {
             fileLibraryInfo.getWorkGroups().forEach(e -> {
-                if (StringBaseOpt.isNvl(e.getCreator())) {
+                if (StringUtils.isBlank(e.getCreator())) {
                     e.setCreator(fileLibraryInfo.getCreateUser());
                 }
-                if (StringBaseOpt.isNvl(e.getWorkGroupParameter().getRoleCode())) {
+                if (StringUtils.isBlank(e.getWorkGroupParameter().getRoleCode())) {
                     e.getWorkGroupParameter().setRoleCode(WORKGROUP_ROLECODE_MEMBER);
                 }
             });
@@ -192,7 +191,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         if (fileLibraryInfo == null) {
             return null;
         }
-        if (!StringBaseOpt.isNvl(fileLibraryInfo.getOwnUser())) {
+        if (!StringUtils.isBlank(fileLibraryInfo.getOwnUser())) {
             HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
             String topUnit = WebOptUtils.getCurrentTopUnit(request);
             fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(topUnit, fileLibraryInfo.getOwnUser()));
@@ -209,7 +208,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     public boolean checkAuth(FileInfo fileInfo, String userCode, String authCode) {
         Set<String> unitPath = this.getUnits(userCode);
 
-        if (!"undefined".equals(userCode) && !StringBaseOpt.isNvl(userCode) && !StringBaseOpt.isNvl(fileInfo.getLibraryId())) {
+        if (!"undefined".equals(userCode) && !StringUtils.isBlank(userCode) && !StringUtils.isBlank(fileInfo.getLibraryId())) {
             FileLibraryInfo fileLibraryInfo = this.getFileLibrary(fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
                 //个人
@@ -243,7 +242,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                     break;
             }
         }
-        if (!StringBaseOpt.isNvl(authCode) && !"undefined".equals(authCode)) {
+        if (!StringUtils.isBlank(authCode) && !"undefined".equals(authCode)) {
             return authCode.equals(fileInfo.getAuthCode());
         }
         return false;

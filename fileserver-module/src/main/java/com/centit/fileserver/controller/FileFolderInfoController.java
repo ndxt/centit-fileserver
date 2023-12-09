@@ -1,6 +1,5 @@
 package com.centit.fileserver.controller;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileFolderInfo;
@@ -17,7 +16,10 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
-import com.centit.support.algorithm.*;
+import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.UuidOpt;
+import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
@@ -109,7 +111,7 @@ public class FileFolderInfoController extends BaseController {
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-        boolean queryFile = !StringBaseOpt.isNvl(request.getParameter("fileName"));
+        boolean queryFile = !StringUtils.isBlank(request.getParameter("fileName"));
         if (queryFile) {
             searchColumn.put("fileName", request.getParameter("fileName"));
         }
@@ -179,7 +181,7 @@ public class FileFolderInfoController extends BaseController {
     @ApiOperation(value = "新增文件夹信息")
     @WrapUpResponseBody
     public FileFolderInfo createFileFolderInfo(@RequestBody FileFolderInfo fileFolderInfo, HttpServletRequest request) {
-        if (StringBaseOpt.isNvl(fileFolderInfo.getLibraryId())) {
+        if (StringUtils.isBlank(fileFolderInfo.getLibraryId())) {
             throw new ObjectException("库id不能为空");
         }
         String[] folderNames = StringUtils.split(fileFolderInfo.getFolderName(), "/");

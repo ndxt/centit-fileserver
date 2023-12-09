@@ -7,10 +7,10 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.PageQueryResult;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,7 +82,7 @@ public class FileFavoriteController  extends BaseController {
     @WrapUpResponseBody
     public void createFileFavorite(@RequestBody FileFavorite fileFavorite, HttpServletRequest request,
                                    HttpServletResponse response) {
-        if(StringBaseOpt.isNvl(fileFavorite.getFavoriteUser())) {
+        if(StringUtils.isBlank(fileFavorite.getFavoriteUser())) {
             fileFavorite.setFavoriteUser(WebOptUtils.getCurrentUserCode(request));
         }
         fileFavoriteMag.createFileFavorite(fileFavorite);

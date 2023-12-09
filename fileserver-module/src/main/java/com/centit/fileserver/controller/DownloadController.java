@@ -16,7 +16,6 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.BooleanBaseOpt;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
@@ -190,7 +189,7 @@ public class DownloadController extends BaseController {
 
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String fileName = request.getParameter("fileName");
-        if(!StringBaseOpt.isNvl(fileName)){
+        if(!StringUtils.isBlank(fileName)){
             fileInfo.setFileName(fileName);
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
@@ -321,7 +320,7 @@ public class DownloadController extends BaseController {
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
-        if(StringBaseOpt.isNvl(userCode)){
+        if(StringUtils.isBlank(userCode)){
             userCode = request.getParameter("userCode");
         }
 

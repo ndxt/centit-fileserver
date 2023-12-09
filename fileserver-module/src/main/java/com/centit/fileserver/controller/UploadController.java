@@ -22,7 +22,10 @@ import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.basedata.OperationLog;
-import com.centit.support.algorithm.*;
+import com.centit.support.algorithm.CollectionsOpt;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
@@ -382,7 +385,7 @@ public class UploadController extends BaseController {
         fileInfo.setFileShowPath(WebOptUtils
             .getRequestFirstOneParameter(request, "filePath", "fileShowPath"));
         String rootFolderId = "-1";
-        if (!StringBaseOpt.isNvl(fileInfo.getLibraryId()) && StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+        if (!StringUtils.isBlank(fileInfo.getLibraryId()) && StringUtils.isBlank(fileInfo.getFileShowPath())) {
             if (FileInfo.FILE_CATALOG_APPLICATION.equals(fileInfo.getFileCatalog())) {
                 fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId);
             } else if (FileInfo.FILE_CATALOG_MODEL.equals(fileInfo.getFileCatalog())) {
@@ -397,7 +400,7 @@ public class UploadController extends BaseController {
                 fileInfo.setFileShowPath(path);
             }
         }
-        if (StringBaseOpt.isNvl(fileInfo.getFileShowPath())) {
+        if (StringUtils.isBlank(fileInfo.getFileShowPath())) {
             fileInfo.setFileShowPath(FileInfo.FOLDER_DEFAULT_BREAK + rootFolderId);
         }
         return fileInfo;
@@ -503,7 +506,7 @@ public class UploadController extends BaseController {
     private JSONObject storeAndPretreatFile(String fileMd5, long size,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo) {
         fileInfo.setFileMd5(fileMd5);
-        if (StringBaseOpt.isNvl(fileInfo.getFileId())) {
+        if (StringUtils.isBlank(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
         if(StringUtils.isBlank(fileInfo.getOsId())) {
