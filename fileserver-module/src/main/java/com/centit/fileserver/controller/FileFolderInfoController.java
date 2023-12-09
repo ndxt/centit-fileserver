@@ -1,5 +1,6 @@
 package com.centit.fileserver.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileFolderInfo;
@@ -203,7 +204,6 @@ public class FileFolderInfoController extends BaseController {
             }
             folderPath = folderPath + "/" + fileFolderInfo.getFolderId();
             parentId = fileFolderInfo.getFolderId();
-            ;
         }
         return fileFolderInfo;
     }
