@@ -5,13 +5,9 @@ import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.po.FileFolderInfo;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileFolderInfoManager;
-import com.centit.fileserver.utils.FileIOUtils;
-import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
-import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.CollectionsOpt;
-import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -65,13 +61,13 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
                     new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
             }
         }
-        if (!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
+        /*if (!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
             OperationLogCenter.log(OperationLog.create()
                 .operation(FileIOUtils.LOG_OPERATION_NAME).user("admin")
                 .unit(fileFolderInfo.getLibraryId())
                 .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
                 .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
-        }
+        }*/
         return fileFolderInfo;
     }
 

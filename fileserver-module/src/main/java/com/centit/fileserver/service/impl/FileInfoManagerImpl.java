@@ -69,11 +69,12 @@ public class FileInfoManagerImpl
         this.baseDao.mergeObject(originalFile);
     }
     @Override
-    public  void writeDownloadFileLog(FileInfo fileInfo, String userCode) {
+    public  void writeDownloadFileLog(FileInfo fileInfo, String userCode, String topUnit) {
         fileInfo.addDownloadTimes();
         OperationLogCenter.log(OperationLog.create()
             .operation(FileIOUtils.LOG_OPERATION_NAME).user(userCode)
             .unit(fileInfo.getLibraryId())
+            .topUnit(topUnit)
             .method("下载").tag(fileInfo.getFileId())
             .time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
         updateObject(fileInfo);

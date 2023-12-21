@@ -56,10 +56,6 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
         save(tempFilePath, fileInfo, fileSize);
         logger.info("存储文件完成");
-        OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
-            .user("admin")//.unit(fileOptTaskInfo.)
-            .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
-            .content("存储文件完成:" + tempFilePath));
     }
 
 

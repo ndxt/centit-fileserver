@@ -9,12 +9,8 @@ import com.centit.fileserver.pretreat.AbstractOfficeToPdf;
 import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
-import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
-import com.centit.framework.components.OperationLogCenter;
-import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.BooleanBaseOpt;
-import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import lombok.SneakyThrows;
@@ -76,9 +72,6 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
                 fileInfo.setAttachedType(pdfFileInfo.getFileType());
                 fileInfoManager.updateObject(fileInfo);
                 logger.info("生成PDF完成");
-                OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
-                    .user("admin").unit(fileInfo.getLibraryId())
-                    .method("生成PDF完成").tag(fileId).time(DatetimeOpt.currentUtilDate()).content(fileInfo.getFileName()).newObject(fileInfo));
             }
         } catch (IOException e) {
             logger.error("生成PDF文件出错！" + e.getMessage());
