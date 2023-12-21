@@ -379,7 +379,11 @@ public class UploadController extends BaseController {
         fileInfo.setOptTag(request.getParameter("optTag"));
         //这个属性业务系统可以自行解释，在内部文档管理中表现为文件的显示目录
         fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
-        fileInfo.setFileUnit(request.getParameter("fileUnit"));
+        String fileUnit = request.getParameter("fileUnit");
+        if (StringUtils.isBlank(fileUnit)) {
+            fileUnit = WebOptUtils.getCurrentTopUnit(request);
+        }
+        fileInfo.setFileUnit(fileUnit);
         fileInfo.setFileDesc(request.getParameter("fileDesc"));
         fileInfo.setLibraryId(request.getParameter("libraryId"));
         fileInfo.setCreateTime(DatetimeOpt.currentUtilDate());

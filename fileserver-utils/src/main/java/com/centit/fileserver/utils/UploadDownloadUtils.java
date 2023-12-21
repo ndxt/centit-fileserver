@@ -408,7 +408,11 @@ public abstract class UploadDownloadUtils {
             .getRequestFirstOneParameter(request,"name", "fileName"));
         fileInfo.setOptId(request.getParameter("optId"));
         fileInfo.setFileOwner(WebOptUtils.getCurrentUserCode(request));
-        fileInfo.setFileUnit(request.getParameter("fileUnit"));
+        String fileUnit = request.getParameter("fileUnit");
+        if (StringUtils.isBlank(fileUnit)) {
+            fileUnit = WebOptUtils.getCurrentTopUnit(request);
+        }
+        fileInfo.setFileUnit(fileUnit);
         Long fileSize = NumberBaseOpt.parseLong(
             WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
         fileInfo.setFileSize(fileSize);
