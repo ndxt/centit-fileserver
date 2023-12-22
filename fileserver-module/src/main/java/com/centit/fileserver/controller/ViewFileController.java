@@ -144,8 +144,7 @@ public class ViewFileController extends BaseController {
                     fileInfo.getFileName(),
                     "inline", null);
             }
-            fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request),
-                WebOptUtils.getCurrentTopUnit(request), WebOptUtils.getCorrelationId(request));
+            fileInfoManager.writeDownloadFileLog(fileInfo, request);
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }

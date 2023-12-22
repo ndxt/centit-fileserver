@@ -5,6 +5,7 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.framework.jdbc.service.BaseEntityManager;
 import com.centit.support.database.utils.PageDesc;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
      * @param originalFile 原始文件
      */
     void saveNewFile(FileInfo originalFile);
-    void writeDownloadFileLog(FileInfo fileInfo, String userCode, String topUnit, String correlationId);
+    void writeDownloadFileLog(FileInfo fileInfo, HttpServletRequest request);
     /**
      * 删除文件
      * @param originalFile 原始文件

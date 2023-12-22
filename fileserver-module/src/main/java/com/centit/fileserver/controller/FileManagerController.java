@@ -111,6 +111,7 @@ public class FileManagerController extends BaseController {
                 .unit(fileInfo.getLibraryId())
                 .topUnit(WebOptUtils.getCurrentTopUnit(request))
                 .correlation(WebOptUtils.getCorrelationId(request))
+                .loginIp(WebOptUtils.getRequestAddr(request))
                 .method("删除文件").tag(fileInfo.getFileMd5())
                 .content(fileInfo.getFileName()).oldObject(fileInfo));
             JsonResultUtils.writeSuccessJson(response);
@@ -365,6 +366,7 @@ public class FileManagerController extends BaseController {
             .unit(fileInfo.getLibraryId())
             .topUnit(WebOptUtils.getCurrentTopUnit(request))
             .correlation(WebOptUtils.getCorrelationId(request))
+            .loginIp(WebOptUtils.getRequestAddr(request))
             .method("分享").tag(fileId)
             .content(fileInfo.getFileName()).newObject(fileInfo));
         return CollectionsOpt.createHashMap("authcode", fileInfo.getAuthCode(),

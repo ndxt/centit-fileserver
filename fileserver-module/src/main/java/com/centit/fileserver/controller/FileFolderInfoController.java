@@ -141,6 +141,7 @@ public class FileFolderInfoController extends BaseController {
             .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
             .topUnit(WebOptUtils.getCurrentTopUnit(request))
             .correlation(WebOptUtils.getCorrelationId(request))
+            .loginIp(WebOptUtils.getRequestAddr(request))
             .method("文件夹打包下载").tag(folderId)
             .content(folderInfo.getFolderName()));
     }
@@ -158,6 +159,7 @@ public class FileFolderInfoController extends BaseController {
             .user(WebOptUtils.getCurrentUserCode(request)).unit(folderInfo.getLibraryId())
             .topUnit(WebOptUtils.getCurrentTopUnit(request))
             .correlation(WebOptUtils.getCorrelationId(request))
+            .loginIp(WebOptUtils.getRequestAddr(request))
             .method("文件夹打包下载").tag(folderId)
             .content(folderInfo.getFolderName()).newObject(zipFile));
         return tempFileId + "?name=" + URLEncoder.encode(folderInfo.getFolderName(), "UTF-8") + ".zip";

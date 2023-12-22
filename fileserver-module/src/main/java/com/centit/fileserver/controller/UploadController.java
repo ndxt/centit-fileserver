@@ -255,6 +255,7 @@ public class UploadController extends BaseController {
                 .unit(formData.getLeft().getLibraryId())
                 .topUnit(WebOptUtils.getCurrentTopUnit(request))
                 .correlation(WebOptUtils.getCorrelationId(request))
+                .loginIp(WebOptUtils.getRequestAddr(request))
                 .user(WebOptUtils.getCurrentUserCode(request))
                 .method("上传").tag(formData.getLeft().getFileId())
                 .content(formData.getLeft().getFileName())
