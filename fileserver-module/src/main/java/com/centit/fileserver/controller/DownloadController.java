@@ -68,7 +68,7 @@ public class DownloadController extends BaseController {
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
         fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request),
-            WebOptUtils.getCurrentTopUnit(request));
+            WebOptUtils.getCurrentTopUnit(request), WebOptUtils.getCorrelationId(request));
     }
 
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
@@ -134,7 +134,7 @@ public class DownloadController extends BaseController {
                     "inline", null);
             }
             fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request),
-                WebOptUtils.getCurrentTopUnit(request));
+                WebOptUtils.getCurrentTopUnit(request), WebOptUtils.getCorrelationId(request));
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
@@ -198,7 +198,7 @@ public class DownloadController extends BaseController {
 
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
         fileInfoManager.writeDownloadFileLog(fileInfo, WebOptUtils.getCurrentUserCode(request),
-            WebOptUtils.getCurrentTopUnit(request));
+            WebOptUtils.getCurrentTopUnit(request), WebOptUtils.getCorrelationId(request));
     }
     /**
      * 批量下载文件

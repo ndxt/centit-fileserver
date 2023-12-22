@@ -253,10 +253,10 @@ public class UploadController extends BaseController {
             }
             OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
                 .unit(formData.getLeft().getLibraryId())
-                    .topUnit(WebOptUtils.getCurrentTopUnit(request))
+                .topUnit(WebOptUtils.getCurrentTopUnit(request))
+                .correlation(WebOptUtils.getCorrelationId(request))
                 .user(WebOptUtils.getCurrentUserCode(request))
                 .method("上传").tag(formData.getLeft().getFileId())
-                .time(DatetimeOpt.currentUtilDate())
                 .content(formData.getLeft().getFileName())
                 .newObject(formData.getLeft()));
         } catch (ObjectException e) {

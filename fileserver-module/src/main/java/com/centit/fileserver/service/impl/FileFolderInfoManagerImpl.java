@@ -61,13 +61,6 @@ public class FileFolderInfoManagerImpl extends BaseEntityManagerImpl<FileFolderI
                     new Object[]{fileFolderInfo.getLibraryId(), oldPath, newPath, oldPath + "%"});
             }
         }
-        /*if (!oldFileFolder.getFolderName().equals(fileFolderInfo.getFolderName())) {
-            OperationLogCenter.log(OperationLog.create()
-                .operation(FileIOUtils.LOG_OPERATION_NAME).user("admin")
-                .unit(fileFolderInfo.getLibraryId())
-                .method("更新文件夹信息").tag(fileFolderInfo.getFolderId()).time(DatetimeOpt.currentUtilDate())
-                .content("更改文件夹名称").oldObject(oldFileFolder.getFolderName()).newObject(fileFolderInfo.getFolderName()));
-        }*/
         return fileFolderInfo;
     }
 

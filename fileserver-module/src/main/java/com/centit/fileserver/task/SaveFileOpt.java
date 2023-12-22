@@ -46,8 +46,9 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileOptTaskInfo.getFileId());
         if (null == fileInfo) {
             OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
-                .user("admin")
-                .method("SaveFileOpt").tag(fileMd5).time(DatetimeOpt.currentUtilDate())
+                .user("admin").level(OperationLog.LEVEL_ERROR)
+                .topUnit("system")
+                .method("SaveFileOpt").tag(fileMd5)
                 .content("文件存储失败" + fileOptTaskInfo.getFileId() + "没有对应fileInfo")
                 .oldObject(fileOptTaskInfo));
             logger.error("文件存储失败，找不到对应的文件信息：" + JSON.toJSONString(fileOptTaskInfo));

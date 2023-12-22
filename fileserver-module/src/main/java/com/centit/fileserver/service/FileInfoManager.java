@@ -14,7 +14,7 @@ public interface FileInfoManager extends BaseEntityManager<FileInfo, String> {
      * @param originalFile 原始文件
      */
     void saveNewFile(FileInfo originalFile);
-    void writeDownloadFileLog(FileInfo fileInfo, String userCode, String topUnit);
+    void writeDownloadFileLog(FileInfo fileInfo, String userCode, String topUnit, String correlationId);
     /**
      * 删除文件
      * @param originalFile 原始文件
