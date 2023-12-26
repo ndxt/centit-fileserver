@@ -1,14 +1,21 @@
 package com.centit.fileserver.backup.service;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.centit.fileserver.backup.dao.DatabaseConfig;
 import com.centit.fileserver.backup.dao.FileBackupInfoDao;
 import com.centit.fileserver.backup.dao.FileBackupListDao;
 import com.centit.fileserver.backup.po.FileBackupInfo;
 import com.centit.fileserver.dao.FileInfoDao;
 import com.centit.fileserver.dao.FileStoreInfoDao;
+import com.centit.support.algorithm.DatetimeOpt;
+import com.centit.support.algorithm.UuidOpt;
+import com.centit.support.file.FileIOOpt;
+import com.centit.support.file.FileSystemOpt;
+import org.apache.commons.lang3.StringUtils;
 
 
 import javax.sql.DataSource;
+import java.io.File;
 
 public class BackupServiceImpl {
 
@@ -33,8 +40,40 @@ public class BackupServiceImpl {
         fileBackupListDao.setDataSource(dataSource);
     }
 
-    public int createFileBackupList(FileBackupInfo backupInfo){
+    public FileBackupInfo createFileBackupList(FileBackupInfo backupInfo){
+        if(StringUtils.isNotBlank(backupInfo.getBackupId())){
+            return fileBackupInfoDao.getObjectById(backupInfo.getBackupId());
+        }
+        backupInfo.setBackupId(UuidOpt.getUuidAsString22());
+        backupInfo.setCreateTime(DatetimeOpt.currentUtilDate());
+        backupInfo.setErrorCount(0);
+        backupInfo.setSuccessCount(0);
 
-        return 0;
+        int fc = fileBackupListDao.createBackupList(backupInfo);
+        backupInfo.setFileCount(fc);
+        fileBackupInfoDao.saveNewObject(backupInfo);
+        return backupInfo;
     }
+
+
+    public void recordCopyFile(String backupId, String fileId, String status){
+        if("E".equals(status)){
+            fileBackupInfoDao.increaseErrorCount(backupId);
+            fileBackupListDao.markError(backupId, fileId);
+        } else {
+            fileBackupInfoDao.increaseSuccessCount(backupId);
+            fileBackupListDao.deleteFileList(backupId, fileId);
+        }
+    }
+
+/*    public int doBackup(FileBackupInfo backupInfo, int limitSum){
+        JSONArray fileList = fileBackupListDao.getBackupList(backupInfo, limitSum);
+        if(fileList==null)
+            return 0;
+        String sourFilePath = backupInfo.getSourPath();
+        String destFilePath = backupInfo.getDestPath();
+        FileSystemOpt.createDirect(new File(calcFilePath(filePath)).getParent());
+        FileSystemOpt.fileCopy(sourFilePath, calcFilePath(filePath));
+        return fileList.size();
+    }*/
 }

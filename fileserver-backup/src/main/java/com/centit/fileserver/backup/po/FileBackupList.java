@@ -21,7 +21,10 @@ public class FileBackupList implements Serializable{
     @Column(name = "FILE_ID")
     private String fileId;
 
-    @Column(name = "STATUS")
-    private String status;
+    /**
+     * I: init E: error S: success
+     */
+    @Column(name = "BACKUP_STATUS")
+    private String backupStatus;
 
 }

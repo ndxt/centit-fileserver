@@ -28,7 +28,7 @@ import java.util.Properties;
 public class DatabaseConfig {
 
     protected static Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
-
+    public static String fileRootPath;
     public static Properties loadProperties() {
         Properties prop = new Properties();
         try(InputStream resource = DatabaseConfig
@@ -46,6 +46,7 @@ public class DatabaseConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        fileRootPath = prop.getProperty("file.root.path");
         return prop;
     }
 
@@ -116,6 +117,8 @@ public class DatabaseConfig {
                         "  COMPLETE_TIME Date,\n" +
                         "  STATUS varchar2(1),\n" +
                         "  FILE_COUNT number(12),\n" +
+                        "  SUCCESS_COUNT number(12),\n" +
+                        "  ERROR_COUNT number(12)," +
                         "  constraint PK_FILE_BACKUP_INFO primary key (BACKUP_ID))");
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar2(32) not null,\n" +
@@ -135,6 +138,8 @@ public class DatabaseConfig {
                         "  COMPLETE_TIME Date,\n" +
                         "  STATUS varchar(1),\n" +
                         "  FILE_COUNT integer,\n" +
+                        "  SUCCESS_COUNT INTEGER,\n" +
+                        "  ERROR_COUNT INTEGER," +
                         "  constraint PK_FILE_BACKUP_INFO primary key (BACKUP_ID))");
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar(32) not null,\n" +
@@ -154,6 +159,8 @@ public class DatabaseConfig {
                         "  COMPLETE_TIME Date comment '任务完成时间',\n" +
                         "  STATUS varchar(1) comment '任务状态',\n" +
                         "  FILE_COUNT INT comment '备份文件数',\n" +
+                        "  SUCCESS_COUNT INT comment '成功备份数量',\n" +
+                        "  ERROR_COUNT INT comment '备份失败数量'," +
                         "  primary key (BACKUP_ID))");
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar(32) not null comment '备份ID',\n" +

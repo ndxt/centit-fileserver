@@ -14,7 +14,7 @@ import java.util.Date;
 public class FileBackupInfo implements Serializable {
 
     @Id
-    @Column(name = "FILE_ID")
+    @Column(name = "BACKUP_ID")
     @ValueGenerator(strategy = GeneratorType.UUID22, condition = GeneratorCondition.IFNULL)
     private String backupId;
 
@@ -41,5 +41,11 @@ public class FileBackupInfo implements Serializable {
 
     @Column(name = "FILE_COUNT")
     private Integer fileCount;
+
+    @Column(name = "SUCCESS_COUNT")
+    private Integer successCount;
+
+    @Column(name = "ERROR_COUNT")
+    private Integer errorCount;
 
 }
