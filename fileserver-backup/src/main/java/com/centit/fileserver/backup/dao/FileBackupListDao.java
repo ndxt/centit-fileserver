@@ -23,13 +23,13 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
         }
         if(backupInfo.getBeginTime() !=null){
             sql.append( n>0 ? " and" : "where ");
-            sql.append(" BEGIN_TIME >= :beginTime");
+            sql.append(" CREATE_TIME >= :beginTime");
             n++;
         }
 
         if(backupInfo.getEndTime() !=null){
             sql.append( n>0 ? " and" : "where ");
-            sql.append(" END_TIME >= :endTime");
+            sql.append(" CREATE_TIME < :endTime");
         }
 
         return DatabaseOptUtils.doExecuteNamedSql(this, sql.toString(), JSONObject.from(backupInfo));
