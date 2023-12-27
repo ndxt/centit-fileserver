@@ -68,6 +68,8 @@ public class DatabaseConfig {
         ds.setMinimumIdle(NumberBaseOpt.castObjectToInteger(env.getProperty("jdbc.minIdle"), 5));
         ds.setValidationTimeout(NumberBaseOpt.castObjectToInteger(env.getProperty("jdbc.validationTimeout"), 60000));
 
+        ds.setAutoCommit(true);
+
         DBType dbType = DBType.mapDBType(env.getProperty("jdbc.url"));
         String validationQuery = env.getProperty("jdbc.validationQuery");
 
