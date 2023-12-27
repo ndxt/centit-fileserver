@@ -39,7 +39,7 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
         String sqlSen = "select  a.FILE_ID, c.fileMd5, c.FILE_STORE_PATH " +
             " from FILE_BACKUP_LIST a join FILE_INFO b on a.FILE_ID=b.FILE_ID " +
             " join FILE_STORE_INFO c on b.fileMd5 = c.fileMd5" +
-            " where a.BACKUP_ID = '" + backupInfo.getBackupId() +"' a.BACKUP_STATUS='I' ";
+            " where a.BACKUP_ID = '" + backupInfo.getBackupId() +"' and a.BACKUP_STATUS='I' ";
         DBType dbType = this.getDBtype();
         switch (dbType) {
             case Oracle:
