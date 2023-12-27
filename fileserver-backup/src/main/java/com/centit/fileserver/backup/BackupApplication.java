@@ -101,7 +101,7 @@ public class BackupApplication {
         int filseCount = 0;
         do{
             filseCount = backupService.doBackup(backupInfo, 300);
-            System.out.println("备份进度，成功："+ backupInfo.getSuccessCount() +"失败："+ backupInfo.getErrorCount()
+            System.out.println("当前备份ID（backupId）为："+ backupInfo.getBackupId() +"备份进度，成功："+ backupInfo.getSuccessCount() +"失败："+ backupInfo.getErrorCount()
                 + "剩余："+ (backupInfo.getFileCount()-backupInfo.getSuccessCount()-backupInfo.getErrorCount()));
         }while(filseCount == 300);
         System.out.println("备份完成，当前备份ID（backupId）为："+ backupInfo.getBackupId() +"备份成功："+ backupInfo.getSuccessCount()

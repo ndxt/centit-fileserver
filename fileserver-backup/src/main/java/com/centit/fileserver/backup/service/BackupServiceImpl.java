@@ -89,6 +89,7 @@ public class BackupServiceImpl {
                     recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "S");
                     backupInfo.setSuccessCount(backupInfo.getSuccessCount() + 1);
                 } catch (IOException e) {
+                    System.out.println("文件复制失败：" + fileInfo.getString("fileId")+ ":" +e.getMessage());
                     recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "E");
                     backupInfo.setErrorCount(backupInfo.getErrorCount() + 1);
                 }
