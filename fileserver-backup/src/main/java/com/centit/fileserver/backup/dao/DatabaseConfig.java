@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -47,6 +48,9 @@ public class DatabaseConfig {
             e.printStackTrace();
         }
         fileRootPath = prop.getProperty("file.root.path");
+        if(!fileRootPath.endsWith("/") && !fileRootPath.endsWith("\\")){
+            fileRootPath = fileRootPath + File.pathSeparator;
+        }
         return prop;
     }
 
@@ -115,7 +119,7 @@ public class DatabaseConfig {
                         "  END_TIME Date,\n" +
                         "  CREATE_TIME Date,\n" +
                         "  COMPLETE_TIME Date,\n" +
-                        "  STATUS varchar2(1),\n" +
+                       // "  STATUS varchar2(1),\n" +
                         "  FILE_COUNT number(12),\n" +
                         "  SUCCESS_COUNT number(12),\n" +
                         "  ERROR_COUNT number(12)," +
@@ -136,7 +140,7 @@ public class DatabaseConfig {
                         "  END_TIME Date,\n" +
                         "  CREATE_TIME Date,\n" +
                         "  COMPLETE_TIME Date,\n" +
-                        "  STATUS varchar(1),\n" +
+                       // "  STATUS varchar(1),\n" +
                         "  FILE_COUNT integer,\n" +
                         "  SUCCESS_COUNT INTEGER,\n" +
                         "  ERROR_COUNT INTEGER," +
@@ -157,7 +161,7 @@ public class DatabaseConfig {
                         "  END_TIME Date comment '数据结束时间',\n" +
                         "  CREATE_TIME Date comment '任务创建时间',\n" +
                         "  COMPLETE_TIME Date comment '任务完成时间',\n" +
-                        "  STATUS varchar(1) comment '任务状态',\n" +
+                       // "  STATUS varchar(1) comment '任务状态',\n" +
                         "  FILE_COUNT INT comment '备份文件数',\n" +
                         "  SUCCESS_COUNT INT comment '成功备份数量',\n" +
                         "  ERROR_COUNT INT comment '备份失败数量'," +

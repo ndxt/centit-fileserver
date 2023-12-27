@@ -18,6 +18,9 @@ public class FileBackupInfo implements Serializable {
     @ValueGenerator(strategy = GeneratorType.UUID22, condition = GeneratorCondition.IFNULL)
     private String backupId;
 
+    /*@Column(name = "TOP_UNIT")
+    private String topUnit;*/
+
     @Column(name = "OS_ID")
     private String osId;
 
@@ -36,10 +39,7 @@ public class FileBackupInfo implements Serializable {
     @Column(name = "COMPLETE_TIME")
     private Date completedTime;
 
-    @Column(name = "STATUS")
-    private String status;
-
-    @Column(name = "FILE_COUNT")
+     @Column(name = "FILE_COUNT")
     private Integer fileCount;
 
     @Column(name = "SUCCESS_COUNT")
