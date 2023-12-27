@@ -88,8 +88,10 @@ public class BackupServiceImpl {
                     FileSystemOpt.createDirect(new File(destFilePath).getParent());
                     FileSystemOpt.fileCopy(sourFilePath, destFilePath);
                     recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "S");
+                    backupInfo.setSuccessCount(backupInfo.getSuccessCount() + 1);
                 } catch (IOException e) {
                     recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "E");
+                    backupInfo.setErrorCount(backupInfo.getErrorCount() + 1);
                 }
             }
         }
