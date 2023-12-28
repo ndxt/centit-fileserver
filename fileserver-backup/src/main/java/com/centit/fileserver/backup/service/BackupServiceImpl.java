@@ -59,7 +59,8 @@ public class BackupServiceImpl {
 
             int fc = fileBackupListDao.createBackupList(backupInfo);
             backupInfo.setFileCount(fc);
-            fileBackupInfoDao.saveNewObject(backupInfo);
+            if(fc>0)
+                fileBackupInfoDao.saveNewObject(backupInfo);
             return backupInfo;
         }
     }

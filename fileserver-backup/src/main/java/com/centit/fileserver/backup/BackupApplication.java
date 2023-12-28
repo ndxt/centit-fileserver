@@ -96,7 +96,12 @@ public class BackupApplication {
         System.out.println("正在准备备份，创建备份列表，可能需要几分钟，请耐心等待......");
         BackupServiceImpl backupService = new BackupServiceImpl();
         backupService.init();
-        backupService.createFileBackupList(backupInfo);
+        backupInfo = backupService.createFileBackupList(backupInfo);
+        if(backupInfo.getFileCount() <= backupInfo.getSuccessCount() + backupInfo.getErrorCount()){
+            System.out.println("没有需要备份的文件，共"+ backupInfo.getFileCount() +"文件，已成功："+ backupInfo.getSuccessCount()
+                +"个文件，失败："+ backupInfo.getErrorCount() +"个文件。");
+            return;
+        }
         System.out.println("开始备份，当前备份ID（backupId）为："+ backupInfo.getBackupId() +"供需要备份："+backupInfo.getFileCount() +"个文件");
         int filseCount = 0;
         do{
