@@ -31,10 +31,10 @@ public class DatabaseConfig {
     public static Properties loadProperties() {
         Properties prop = new Properties();
         try(InputStream resource = DatabaseConfig
-            .class.getResourceAsStream("/system.properties")){
+            .class.getResourceAsStream("system.properties")){
             //new ClassPathResource("system.properties").getInputStream();
             if(resource==null) {
-                try(InputStream resource2 = ClassLoader.getSystemResourceAsStream("/system.properties")){
+                try(InputStream resource2 = ClassLoader.getSystemResourceAsStream("system.properties")){
                     if(resource2 != null) {
                         prop.load(resource2);
                     }
@@ -115,7 +115,7 @@ public class DatabaseConfig {
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar2(32) not null,\n" +
                         "  FILE_ID varchar2(32) not null,\n" +
-                        "  STATUS varchar2(1),\n" +
+                        "  BACKUP_STATUS varchar2(1),\n" +
                         "  constraint PK_FILE_BACKUP_LIST primary key (BACKUP_ID, FILE_ID))");
                     break;
                 case DB2:
@@ -136,7 +136,7 @@ public class DatabaseConfig {
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar(32) not null,\n" +
                         "  FILE_ID varchar(32) not null,\n" +
-                        "  STATUS varchar(1),\n" +
+                        "  BACKUP_STATUS varchar(1),\n" +
                         "  constraint PK_FILE_BACKUP_LIST primary key (BACKUP_ID, FILE_ID))");
                         break;
                 case MySql:
@@ -157,7 +157,7 @@ public class DatabaseConfig {
                     createTableSqls.add("create table FILE_BACKUP_LIST (\n" +
                         "  BACKUP_ID varchar(32) not null comment '备份ID',\n" +
                         "  FILE_ID varchar(32) not null comment '文件ID',\n" +
-                        "  STATUS varchar(1) comment '状态',\n" +
+                        "  BACKUP_STATUS varchar(1) comment '状态',\n" +
                         "  primary key (BACKUP_ID, FILE_ID))");
                     break;
             }
