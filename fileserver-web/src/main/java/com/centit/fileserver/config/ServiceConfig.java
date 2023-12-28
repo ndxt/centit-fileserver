@@ -128,7 +128,7 @@ public class ServiceConfig {
                                         @Autowired PdfWatermarkOpt pdfWatermarkOpt,
                                         @Autowired AddThumbnailOpt addThumbnailOpt,
                                         @Autowired ZipFileOpt zipFileOpt,
-                                        @Autowired EncryptFileWithAesOpt encryptFileWithAesOpt,
+                                        @Autowired EncryptFileOpt encryptFileOpt,
                                         @Autowired DocumentIndexOpt documentIndexOpt) {
         FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
         fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
@@ -138,7 +138,7 @@ public class ServiceConfig {
         fileOptTaskExecutor.addFileOperator(pdfWatermarkOpt);
         fileOptTaskExecutor.addFileOperator(addThumbnailOpt);
         fileOptTaskExecutor.addFileOperator(zipFileOpt);
-        fileOptTaskExecutor.addFileOperator(encryptFileWithAesOpt);
+        fileOptTaskExecutor.addFileOperator(encryptFileOpt);
         fileOptTaskExecutor.addFileOperator(documentIndexOpt);
         return fileOptTaskExecutor;
     }

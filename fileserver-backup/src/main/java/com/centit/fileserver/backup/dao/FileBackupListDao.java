@@ -18,7 +18,7 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
             .append(" select '").append(backupInfo.getBackupId()).append("', FILE_ID, 'I' from FILE_INFO ");
         int n=0;
         if(StringUtils.isNotBlank(backupInfo.getOsId())){
-            sql.append("where OS_ID = :osId");
+            sql.append("where library_id = :osId");
             n++;
         }
         if(backupInfo.getBeginTime() !=null){

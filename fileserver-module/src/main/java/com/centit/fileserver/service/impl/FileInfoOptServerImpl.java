@@ -64,7 +64,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     public String saveFile(FileBaseInfo fileBaseInfo, long fileSize, InputStream is){
         FileInfo fileInfo = new FileInfo();
         fileInfo.copy(fileBaseInfo);
-        Map<String, Object> pretreatInfo = JSON.parseObject(JSON.toJSONString(fileInfo), Map.class);
+        Map<String, Object> pretreatInfo = JSONObject.from(fileInfo);// JSON.parseObject(JSON.toJSONString(fileInfo), Map.class);
         FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
         String tempFilePath = SystemTempFileUtils.getRandomTempFilePath();
         try {
