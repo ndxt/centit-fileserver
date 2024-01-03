@@ -5,16 +5,16 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
-import com.centit.support.file.FileEncryptWithAes;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.image.ImageOpt;
+import com.centit.support.security.FileEncryptUtils;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.detect.AutoDetectReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,24 +147,6 @@ public class FilePretreatUtils {
         return ziped;
     }
 
-    /**
-     * 加密文件：加密算法暂时不可以设定
-     *
-     * @param inputFile          处理前文件
-     * @param diminationFileName diminationFileName
-     * @param password           密码
-     * @return 布尔值
-     */
-    public static boolean encryptFile(String inputFile, String diminationFileName, String password) {
-        boolean encrypted = false;
-        try {
-            FileEncryptWithAes.encrypt(inputFile, diminationFileName, password);
-            encrypted = true;
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        return encrypted;
-    }
 
     public static String createPdf(FileInfo fileInfo, String sourceFilePath) throws Exception {
 
@@ -273,24 +255,29 @@ public class FilePretreatUtils {
         return null;
     }
 
-    public static String encryptFileWithAes(FileInfo fileInfo, String sourceFilePath, String encryptPass)
-        throws IOException {
-        if (StringUtils.isBlank(encryptPass)) {
-            logger.error("设置AES加密时请同时设置密码！" + fileInfo.getFileMd5());
-        }
+
+    /**
+     * 加密文件：加密算法暂时不可以设定
+     *
+     * @param fileInfo          处理前文件
+     * @param sourceFilePath   源文件路径
+     * @param encryptType      加密类型
+     * @param password           密码
+     * @return 布尔值
+     */
+    public static String encryptFile(FileInfo fileInfo, String sourceFilePath, String encryptType, String password) {
         String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "1.ent";
-        if (encryptFile(sourceFilePath, outFilePath, encryptPass)) {
+        try {
+            FileEncryptUtils.encrypt(sourceFilePath, outFilePath, FileInfo.mapEncryptType(encryptType), password);
             File file = new File(outFilePath);
             String fileMd5 = FileMD5Maker.makeFileMD5(file);
             fileInfo.setFileMd5(fileMd5);
-            fileInfo.setEncryptType("A");
-
-            return outFilePath;
-        } else {
-            logger.error("AES加密文件时出错！" + fileInfo.getFileMd5());
+            fileInfo.setEncryptType(encryptType);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ObjectException(fileInfo, e);
         }
-
-        return null;
+        return outFilePath;
     }
 
     public static FileDocument index(FileInfo fileInfo, String sourceFilePath) {

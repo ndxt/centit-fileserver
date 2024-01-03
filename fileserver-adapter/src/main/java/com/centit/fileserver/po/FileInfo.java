@@ -85,9 +85,27 @@ public class FileInfo implements FileBaseInfo, Serializable {
         value = "today()")
     private Date createTime;
 
-    //加密算法
+    /** 加密算法
+     * A : AES-ecb , Z: zip压缩并且加密 G: 国密 sm4-cbc S: aes-cbc M: sm4-ecb
+     */
     @Column(name = "ENCRYPT_TYPE")
     private String encryptType;
+
+    public static String mapEncryptType(String encryptType) {
+        if("A".equalsIgnoreCase(encryptType)){
+            return "AES";
+        } else if("S".equalsIgnoreCase(encryptType)){
+            return "AES_CBC";
+        } else if("G".equalsIgnoreCase(encryptType)) {
+            return "SM4_CBC";
+        } else if("M".equalsIgnoreCase(encryptType)){
+            return "SM4";
+        } else if("Z".equalsIgnoreCase(encryptType)){
+            return "ZIP";
+        } else {
+            return "NO";
+        }
+    }
 
     @Column(name = "FILE_OWNER")
     @DictionaryMap(fieldName="ownerName",value="userCode")

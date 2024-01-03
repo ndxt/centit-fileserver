@@ -1,6 +1,5 @@
 package com.centit.fileserver.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileInfoOpt;

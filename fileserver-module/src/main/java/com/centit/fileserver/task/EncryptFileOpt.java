@@ -9,6 +9,7 @@ import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.file.FileSystemOpt;
+import com.centit.support.security.SecurityOptUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +23,9 @@ import java.util.Map;
  * AES加密文件
  */
 @Service
-public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeator {
+public class EncryptFileOpt extends FileStoreOpt implements FileTaskOpeator {
 
-    private static final Logger logger = LoggerFactory.getLogger(EncryptFileWithAesOpt.class);
+    private static final Logger logger = LoggerFactory.getLogger(EncryptFileOpt.class);
 
     @Autowired
     private FileInfoManager fileInfoManager;
@@ -47,13 +48,15 @@ public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeat
      */
     @Override
     public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        String password = StringBaseOpt.castObjectToString(pretreatInfo.get("password"));
-        if("A".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))
-            || StringUtils.isNotBlank(password)){
+        String password = SecurityOptUtils.decodeSecurityString(StringBaseOpt.castObjectToString(pretreatInfo.get("password")));
+        String encryptType = StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType"));
+        //AES 加密 //SM4 国密加密
+        if( StringUtils.equalsAnyIgnoreCase(encryptType, "A","S","M","G")){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
             taskInfo.copy(fileInfo);
             taskInfo.setFileSize(fileSize);
             taskInfo.putOptParam("password", password);
+            taskInfo.putOptParam("encryptType", encryptType);
             return taskInfo;
         }
         return null;
@@ -64,18 +67,12 @@ public class EncryptFileWithAesOpt extends FileStoreOpt implements FileTaskOpeat
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
         String encryptPass = (String) fileOptTaskInfo.getOptParam("password");
+        String encryptType = (String) fileOptTaskInfo.getOptParam("encryptType");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
-        try {
-            String aesEncryptedFile = FilePretreatUtils.encryptFileWithAes(fileInfo, originalTempFilePath, encryptPass);
-            if (null != aesEncryptedFile) {
-                save(aesEncryptedFile, fileInfo, new File(aesEncryptedFile).length());
-                fileInfoManager.updateObject(fileInfo);
-                logger.info("AES加密文件完成");
-            }
-        } catch (Exception e) {
-            logger.error("AES加密文件时出错！", e);
-        }
+        String aesEncryptedFile = FilePretreatUtils.encryptFile(fileInfo, originalTempFilePath, encryptType, encryptPass);
+        save(aesEncryptedFile, fileInfo, new File(aesEncryptedFile).length());
+        fileInfoManager.updateObject(fileInfo);
         FileSystemOpt.deleteFile(originalTempFilePath);
     }
 }

@@ -17,10 +17,11 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
-import com.centit.support.file.FileEncryptWithAes;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import com.centit.support.security.FileEncryptUtils;
 import com.centit.support.security.Md5Encoder;
+import com.centit.support.security.SecurityOptUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -279,14 +280,14 @@ public class DownloadController extends BaseController {
                 return ;
             }
             //对加密的进行特殊处理，ZIP加密的无需处理
-            String password = request.getParameter("password");
-            if ("A".equals(fileInfo.getEncryptType()) && StringUtils.isNotBlank(password)) {
+            if (StringUtils.isNotBlank(fileInfo.getEncryptType()) && !"Z".equalsIgnoreCase(fileInfo.getEncryptType())) {
+                String password = SecurityOptUtils.decodeSecurityString(request.getParameter("password"));
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
                 if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
                     try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
-                        FileEncryptWithAes.decrypt(downFile, diminationFile, password);
+                        FileEncryptUtils.decrypt(downFile, diminationFile, FileInfo.mapEncryptType(fileInfo.getEncryptType()) , password);
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                         JsonResultUtils.writeHttpErrorMessage(
