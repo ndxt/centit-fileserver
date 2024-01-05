@@ -86,7 +86,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
     private Date createTime;
 
     /** 加密算法
-     * A : AES-ecb , Z: zip压缩并且加密 G: 国密 sm4-cbc S: aes-cbc M: sm4-ecb
+     * A : AES-ecb , Z: zip压缩并且加密 G: 国密 sm4-cbc S: aes-cbc M: sm4-ecb N : null
      */
     @Column(name = "ENCRYPT_TYPE")
     private String encryptType;

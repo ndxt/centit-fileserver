@@ -280,7 +280,7 @@ public class DownloadController extends BaseController {
                 return ;
             }
             //对加密的进行特殊处理，ZIP加密的无需处理
-            if (StringUtils.isNotBlank(fileInfo.getEncryptType()) && !"Z".equalsIgnoreCase(fileInfo.getEncryptType())) {
+            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getEncryptType(), "A","S","M","G")) {
                 String password = SecurityOptUtils.decodeSecurityString(request.getParameter("password"));
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
