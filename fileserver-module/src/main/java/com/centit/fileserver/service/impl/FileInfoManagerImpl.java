@@ -111,13 +111,14 @@ public class FileInfoManagerImpl
 
     @Override
     public FileInfo getDuplicateFile(FileInfo originalFile){
+
         String queryStatement =
                 " where FILE_ID <> ? and FILE_MD5 = ? and FILE_NAME = ?" +
-                " and file_show_path=? and library_id=?";
+                " and parent_folder=? and library_id=?";
         List<FileInfo> duplicateFiles =
                 baseDao.listObjectsByFilter( queryStatement, new Object[]
-                {originalFile.getFileId(),originalFile.getFileMd5(), originalFile.getFileName(),/*originalFile.getFileSize(),*/
-                originalFile.getFileShowPath(),originalFile.getLibraryId()});
+                {originalFile.getFileId(), originalFile.getFileMd5(), originalFile.getFileName(),/*originalFile.getFileSize(),*/
+                originalFile.getParentFolder(), originalFile.getLibraryId()});
         if(duplicateFiles!=null && duplicateFiles.size()>0) {
             return duplicateFiles.get(0);
         }
