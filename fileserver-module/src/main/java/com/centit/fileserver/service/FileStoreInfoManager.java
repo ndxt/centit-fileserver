@@ -12,4 +12,6 @@ public interface FileStoreInfoManager extends BaseEntityManager<FileStoreInfo, S
     void decreaseFileReference(String fileMd5);
 
     List<FileStoreInfo> listTempFile(int limit);
+
+    void markStoreErrorTag(FileStoreInfo fileStoreInfo);
 }

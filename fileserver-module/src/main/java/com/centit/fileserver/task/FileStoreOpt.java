@@ -54,7 +54,7 @@ public abstract class FileStoreOpt {
                 .method("文件转储").tag("fixbug")
                 .content("文件转存失败,临时文件过期导致文件不可用")
                 .oldObject(fileStoreInfo));
-            fileStoreInfoManager.deleteObject(fileStoreInfo);
+            fileStoreInfoManager.markStoreErrorTag(fileStoreInfo);
         }
     }
 

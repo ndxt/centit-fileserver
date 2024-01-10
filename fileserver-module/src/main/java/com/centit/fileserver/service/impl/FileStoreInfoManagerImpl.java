@@ -5,6 +5,7 @@ import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,12 @@ public class FileStoreInfoManagerImpl
     @Override
     public List<FileStoreInfo> listTempFile(int limit){
         return baseDao.listTempFile(limit);
+    }
+
+    @Override
+    public void markStoreErrorTag(FileStoreInfo fileStoreInfo) {
+        DatabaseOptUtils.doExecuteSql(this.baseDao,
+            "update FILE_STORE_INFO set IS_TEMP = 'E' where FILE_MD5 = ?",
+            new Object[]{fileStoreInfo.getFileMd5()});
     }
 }
