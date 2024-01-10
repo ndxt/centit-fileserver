@@ -5,9 +5,9 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileIOUtils;
-import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,10 @@ public abstract class FileStoreOpt {
         if(fileStore.checkFile(fileStoreUrl)){
             return fileStoreUrl;
         }
-        return fileStore.saveFile(tempFilePath, file, fileSize);
+        fileStoreUrl = fileStore.saveFile(tempFilePath, file, fileSize);
+        //删除临时文件
+        FileSystemOpt.deleteFile(tempFilePath);
+        return fileStoreUrl;
     }
 
     private void transTempFileToStore(FileStoreInfo fileStoreInfo){
