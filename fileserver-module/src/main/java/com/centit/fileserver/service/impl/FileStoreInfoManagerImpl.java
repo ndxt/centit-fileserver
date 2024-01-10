@@ -80,7 +80,7 @@ public class FileStoreInfoManagerImpl
     @Override
     public void markStoreErrorTag(FileStoreInfo fileStoreInfo) {
         DatabaseOptUtils.doExecuteSql(this.baseDao,
-            "update FILE_STORE_INFO set IS_TEMP = 'E' where FILE_MD5 = ?",
+            "update FILE_STORE_INFO set IS_TEMP = 'E' where FILE_MD5 = ? and IS_TEMP='T'",
             new Object[]{fileStoreInfo.getFileMd5()});
     }
 }
