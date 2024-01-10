@@ -4,11 +4,16 @@ import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileStoreInfoManager;
+import com.centit.fileserver.utils.FileIOUtils;
+import com.centit.framework.common.WebOptUtils;
+import com.centit.framework.components.OperationLogCenter;
+import com.centit.framework.model.basedata.OperationLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.List;
 
 public abstract class FileStoreOpt {
 
@@ -28,6 +33,37 @@ public abstract class FileStoreOpt {
             return fileStoreUrl;
         }
         return fileStore.saveFile(tempFilePath, file, fileSize);
+    }
+
+    private void transTempFileToStore(FileStoreInfo fileStoreInfo){
+        try {
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.setFileMd5(fileStoreInfo.getFileMd5());
+            fileInfo.setFileSize(fileStoreInfo.getFileSize());
+
+            String fileStoreUrl = fetchOrSaveFile(fileStoreInfo.getFileStorePath(), fileInfo, fileStoreInfo.getFileSize());
+            fileStoreInfo.setFileStorePath(fileStoreUrl);
+            fileStoreInfo.setIsTemp(false);
+            fileStoreInfoManager.updateObject(fileStoreInfo);
+        } catch (IOException e){
+            logger.error("文件转存失败", e);
+            OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
+                .user("system").unit("platform")
+                .topUnit("system").level(OperationLog.LEVEL_ERROR)
+                .correlation("transTempFileToStore")
+                .method("文件转储").tag("fixbug")
+                .content("文件转存失败,临时文件过期导致文件不可用")
+                .oldObject(fileStoreInfo));
+            fileStoreInfoManager.deleteObject(fileStoreInfo);
+        }
+    }
+
+    public void checkTempFileAndCreateTask(int limitSize){
+        List<FileStoreInfo> tempFils = fileStoreInfoManager.listTempFile(limitSize);
+        if(tempFils == null || tempFils.isEmpty()) return;
+        for(FileStoreInfo tempFile : tempFils) {
+            this.transTempFileToStore(tempFile);
+        }
     }
     /**
      * 存储文件

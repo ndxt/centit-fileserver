@@ -3,7 +3,9 @@ package com.centit.fileserver.task;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.common.FileTaskQueue;
+import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileInfo;
+import com.centit.fileserver.po.FileStoreInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +21,10 @@ public class FileOptTaskExecutor {
     private List<FileTaskOpeator> fileOptList;
     private Map<String, FileTaskOpeator> fileOptMap;
 
+    private FileStoreOpt fileStoreOpt;
 
-    public FileOptTaskExecutor(){
+    public FileOptTaskExecutor(FileStoreOpt fileStoreOpt){
+        this.fileStoreOpt = fileStoreOpt;
         fileOptMap = new HashMap<>(20);
         fileOptList = new ArrayList<>(20);
     }
@@ -32,6 +36,10 @@ public class FileOptTaskExecutor {
 
     public void setFileOptTaskQueue(FileTaskQueue fileOptTaskQueue) {
         this.fileOptTaskQueue = fileOptTaskQueue;
+    }
+
+    private void checkTempFileAndCreateTask(){
+        fileStoreOpt.checkTempFileAndCreateTask(100);
     }
 
     public int addOptTask(FileInfo fileInfo, long size, Map<String, Object> pretreatInfo){
@@ -58,6 +66,8 @@ public class FileOptTaskExecutor {
             fileOptMap.get(taskType).doFileTask(taskInfo);
             taskInfo = fileOptTaskQueue.get();
         }
+        // 任务执行完毕，检测临时目录文件上传失败的
+        checkTempFileAndCreateTask();
     }
 
    /* class FileOptTask implements Runnable {

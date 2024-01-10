@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Service("fileStoreInfoManager")
 @Transactional
@@ -68,5 +69,10 @@ public class FileStoreInfoManagerImpl
         Long currentFileReferenceCount = fileStoreInfo.getFileReferenceCount() - 1;
         fileStoreInfo.setFileReferenceCount(currentFileReferenceCount);
         baseDao.updateObject(fileStoreInfo);
+    }
+
+    @Override
+    public List<FileStoreInfo> listTempFile(int limit){
+        return baseDao.listTempFile(limit);
     }
 }

@@ -6,6 +6,7 @@ import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySources;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
+import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
 import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.task.*;
@@ -130,9 +131,10 @@ public class ServiceConfig {
                                         @Autowired ZipFileOpt zipFileOpt,
                                         @Autowired EncryptFileOpt encryptFileOpt,
                                         @Autowired DocumentIndexOpt documentIndexOpt) {
-        FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor();
-        fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
 
+        FileOptTaskExecutor fileOptTaskExecutor = new FileOptTaskExecutor(saveFileOpt);
+
+        fileOptTaskExecutor.setFileOptTaskQueue(fileOptTaskQueue);
         fileOptTaskExecutor.addFileOperator(saveFileOpt);
         fileOptTaskExecutor.addFileOperator(createPdfOpt);
         fileOptTaskExecutor.addFileOperator(pdfWatermarkOpt);
