@@ -53,7 +53,7 @@ public class BackupApplication {
         String destPath = args.get("destPath");
         if(StringUtils.isNotBlank(destPath)) {
             if(!destPath.endsWith("/") && !destPath.endsWith("\\")){
-                destPath = destPath + File.pathSeparator;
+                destPath = destPath + File.separatorChar;
             }
             info.setDestPath(destPath);
         }

@@ -47,7 +47,7 @@ public class DatabaseConfig {
         }
         fileRootPath = prop.getProperty("file.root.path");
         if(!fileRootPath.endsWith("/") && !fileRootPath.endsWith("\\")){
-            fileRootPath = fileRootPath + File.pathSeparator;
+            fileRootPath = fileRootPath + File.separatorChar;
         }
         return prop;
     }
