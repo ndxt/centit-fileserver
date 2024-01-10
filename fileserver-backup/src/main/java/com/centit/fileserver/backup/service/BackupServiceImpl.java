@@ -83,12 +83,19 @@ public class BackupServiceImpl {
             if(obj instanceof JSONObject) {
                 JSONObject fileInfo = (JSONObject) obj;
                 try {
-                    String sourFilePath = DatabaseConfig.fileRootPath + fileInfo.getString("fileStorePath");
-                    String destFilePath = backupInfo.getDestPath() + fileInfo.getString("fileStorePath");
-                    FileSystemOpt.createDirect(new File(destFilePath).getParent());
-                    FileSystemOpt.fileCopy(sourFilePath, destFilePath);
-                    recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "S");
-                    backupInfo.setSuccessCount(backupInfo.getSuccessCount() + 1);
+                    String isTemp = fileInfo.getString("isTemp");
+                    if("F".equals(isTemp)) {
+                        String sourFilePath = DatabaseConfig.fileRootPath + fileInfo.getString("fileStorePath");
+                        String destFilePath = backupInfo.getDestPath() + fileInfo.getString("fileStorePath");
+                        FileSystemOpt.createDirect(new File(destFilePath).getParent());
+                        FileSystemOpt.fileCopy(sourFilePath, destFilePath);
+                        recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "S");
+                        backupInfo.setSuccessCount(backupInfo.getSuccessCount() + 1);
+                    } else {
+                        System.out.println("文件在临时存储去无法备份："+ fileInfo.getString("fileId"));
+                        recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "E");
+                        backupInfo.setErrorCount(backupInfo.getErrorCount() + 1);
+                    }
                 } catch (IOException e) {
                     System.out.println("文件复制失败：" + fileInfo.getString("fileId")+ ":" +e.getMessage());
                     recordCopyFile(backupInfo.getBackupId(), fileInfo.getString("fileId"), "E");

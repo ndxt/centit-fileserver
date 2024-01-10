@@ -15,7 +15,8 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
 
     public int createBackupList(FileBackupInfo backupInfo){
         StringBuilder sql = new StringBuilder("insert into FILE_BACKUP_LIST(BACKUP_ID, FILE_ID, BACKUP_STATUS)")
-            .append(" select '").append(backupInfo.getBackupId()).append("', FILE_ID, 'I' from FILE_INFO ");
+            .append(" select '").append(backupInfo.getBackupId())
+            .append("', FILE_ID, 'I' from FILE_INFO ");
         int n=0;
         if(StringUtils.isNotBlank(backupInfo.getOsId())){
             sql.append("where library_id = :osId");
@@ -36,7 +37,7 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
     }
 
     public JSONArray getBackupList(FileBackupInfo backupInfo, int limit){
-        String sqlSen = "select  a.FILE_ID, c.FILE_MD5, c.FILE_STORE_PATH " +
+        String sqlSen = "select  a.FILE_ID, c.FILE_MD5, c.FILE_STORE_PATH, c.IS_TEMP, " +
             " from FILE_BACKUP_LIST a join FILE_INFO b on a.FILE_ID=b.FILE_ID " +
             " join FILE_STORE_INFO c on b.FILE_MD5 = c.FILE_MD5" +
             " where a.BACKUP_ID = '" + backupInfo.getBackupId() +"' and a.BACKUP_STATUS='I' ";
