@@ -1,6 +1,5 @@
 package com.centit.fileserver.task;
 
-import com.centit.fileserver.common.FileBaseInfo;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.po.FileInfo;
@@ -13,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import java.util.Map;
  * pdf添加水印
  */
 @Service
+@Transactional
 public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
 
     private static final Logger logger = LoggerFactory.getLogger(PdfWatermarkOpt.class);

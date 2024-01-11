@@ -3,9 +3,7 @@ package com.centit.fileserver.task;
 import com.centit.fileserver.common.FileTaskInfo;
 import com.centit.fileserver.common.FileTaskOpeator;
 import com.centit.fileserver.common.FileTaskQueue;
-import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.fileserver.po.FileInfo;
-import com.centit.fileserver.po.FileStoreInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
