@@ -47,9 +47,9 @@ public class EncryptFileOpt extends FileStoreOpt implements FileTaskOpeator {
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         String password = SecurityOptUtils.decodeSecurityString(StringBaseOpt.castObjectToString(pretreatInfo.get("password")));
-        String encryptType = StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType"));
+        String encryptType = StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType"));
         //AES 加密 //SM4 国密加密
         if( StringUtils.equalsAnyIgnoreCase(encryptType, "A","S","M","G")){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
@@ -61,6 +61,24 @@ public class EncryptFileOpt extends FileStoreOpt implements FileTaskOpeator {
         }
         return null;
     }
+    private void doEncryptFile(FileInfo fileInfo, long fileSize, String encryptType, String encryptPass){
+        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+        String aesEncryptedFile = FilePretreatUtils.encryptFile(fileInfo, originalTempFilePath, encryptType, encryptPass);
+        save(aesEncryptedFile, fileInfo, new File(aesEncryptedFile).length());
+        fileInfoManager.updateObject(fileInfo);
+        FileSystemOpt.deleteFile(originalTempFilePath);
+    }
+    @Override
+    public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        String password = SecurityOptUtils.decodeSecurityString(StringBaseOpt.castObjectToString(pretreatInfo.get("password")));
+        String encryptType = StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType"));
+        //AES 加密 //SM4 国密加密
+        if( StringUtils.equalsAnyIgnoreCase(encryptType, "A","S","M","G")){
+            doEncryptFile(fileInfo, fileSize, encryptType, password);
+            return 1;
+        }
+        return 0;
+    }
 
     @Override
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
@@ -69,10 +87,7 @@ public class EncryptFileOpt extends FileStoreOpt implements FileTaskOpeator {
         String encryptPass = (String) fileOptTaskInfo.getOptParam("password");
         String encryptType = (String) fileOptTaskInfo.getOptParam("encryptType");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
-        String aesEncryptedFile = FilePretreatUtils.encryptFile(fileInfo, originalTempFilePath, encryptType, encryptPass);
-        save(aesEncryptedFile, fileInfo, new File(aesEncryptedFile).length());
-        fileInfoManager.updateObject(fileInfo);
-        FileSystemOpt.deleteFile(originalTempFilePath);
+        if(fileInfo==null) return;
+        doEncryptFile(fileInfo, fileSize, encryptType, encryptPass);
     }
 }

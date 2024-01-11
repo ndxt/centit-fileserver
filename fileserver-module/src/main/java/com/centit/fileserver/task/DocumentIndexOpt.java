@@ -65,7 +65,7 @@ public class DocumentIndexOpt implements FileTaskOpeator {
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if(BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false)
             && canIndex(fileInfo.getFileType())){
             FileTaskInfo indexTaskInfo = new FileTaskInfo(getOpeatorName());
@@ -74,6 +74,27 @@ public class DocumentIndexOpt implements FileTaskOpeator {
             return indexTaskInfo;
         }
         return null;
+    }
+
+    private void doFileIndex(FileInfo fileInfo, long fileSize) {
+        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+        FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
+        fetchDocumentIndexer().mergeDocument(fileDoc);
+        logger.info("文件已加入全文检索");
+        fileInfoManager.updateObject(fileInfo);
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo  fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if(esServerConfig==null){
+            return 0;
+        }
+        if(BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("index"),false)
+            && canIndex(fileInfo.getFileType())){
+            doFileIndex(fileInfo, fileSize);
+            return 1;
+        }
+        return 0;
     }
 
     @Override
@@ -87,10 +108,6 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         if(null==fileInfo) {
             return;
         }
-        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
-        FileDocument fileDoc = FilePretreatUtils.index(fileInfo, originalTempFilePath);
-        fetchDocumentIndexer().mergeDocument(fileDoc);
-        logger.info("文件已加入全文检索");
-        fileInfoManager.updateObject(fileInfo);
+        doFileIndex(fileInfo, fileSize);
     }
 }

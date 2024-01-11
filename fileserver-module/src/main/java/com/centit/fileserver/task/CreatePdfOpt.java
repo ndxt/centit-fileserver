@@ -42,28 +42,19 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
 
-    @SneakyThrows
-    @Override
-    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
-        String fileId = fileOptTaskInfo.getFileId();
-        long fileSize = fileOptTaskInfo.getFileSize();
-        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        if(null==fileInfo) {
-            return;
-        }
-
+    private void doPdfOpt(FileInfo fileInfo, long fileSize) {
         FileInfo pdfFileInfo = new FileInfo();
         pdfFileInfo.copy(fileInfo);
-
-        String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
-        if(!new File(originalTempFilePath).exists()){
-            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-            if(fileStoreInfo!=null) {
-                InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-                FileSystemOpt.createFile(inputStream, originalTempFilePath);
-            }
-        }
         try {
+            String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+            if(!new File(originalTempFilePath).exists()){
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                if(fileStoreInfo!=null) {
+                    InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
+                    FileSystemOpt.createFile(inputStream, originalTempFilePath);
+                }
+            }
+
             String pdfTempFile = FilePretreatUtils.createPdf(pdfFileInfo, originalTempFilePath);
             if (null != pdfTempFile) {
                 pdfFileInfo.setFileMd5(FileMD5Maker.makeFileMD5(new File(pdfTempFile)));
@@ -80,6 +71,18 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
+        String fileId = fileOptTaskInfo.getFileId();
+        long fileSize = fileOptTaskInfo.getFileSize();
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        if(null==fileInfo) {
+            return;
+        }
+        doPdfOpt(fileInfo, fileSize);
+    }
+
 
 
     /**
@@ -91,7 +94,7 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo  fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)
             && AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
@@ -100,6 +103,16 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
             return taskInfo;
         }
         return null;
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo  fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("pdf"),false)
+            && AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())){
+            doPdfOpt(fileInfo, fileSize);
+            return 1;
+        }
+        return 0;
     }
 
 }

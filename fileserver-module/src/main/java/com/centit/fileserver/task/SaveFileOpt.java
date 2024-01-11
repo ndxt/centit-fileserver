@@ -38,6 +38,7 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
         return "save";
     }
 
+
     @Override
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
         String fileMd5 = fileOptTaskInfo.getFileMd5();
@@ -60,15 +61,27 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
 
 
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if (StringUtils.equalsAnyIgnoreCase(
-            StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")),
-            "A", "Z")) {
+            StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType")),
+            "A","S","M","G","Z")) {
             return null;
         }
         FileTaskInfo saveFileTaskInfo = new FileTaskInfo(getOpeatorName());
         saveFileTaskInfo.copy(fileInfo);
         saveFileTaskInfo.setFileSize(fileSize);
         return saveFileTaskInfo;
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if (StringUtils.equalsAnyIgnoreCase(
+            StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType")),
+            "A","S","M","G","Z")) {
+            return 0;
+        }
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+        save(tempFilePath, fileInfo, fileSize);
+        return 1;
     }
 }

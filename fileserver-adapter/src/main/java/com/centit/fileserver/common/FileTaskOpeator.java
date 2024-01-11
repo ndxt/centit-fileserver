@@ -1,5 +1,7 @@
 package com.centit.fileserver.common;
 
+import com.centit.fileserver.po.FileInfo;
+
 import java.util.Map;
 /**
  * @author codefan@sina.com
@@ -17,7 +19,10 @@ public interface FileTaskOpeator {
      * @param pretreatInfo 预处理信息
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
-    FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo);
+    FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo);
+
+
+    int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo);
 
     /**
      * @param taskInfo 执行文件转换任务

@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,6 +37,8 @@ import java.util.Map;
 public class FileInfoOptServerImpl implements FileInfoOpt {
     protected Logger logger = LoggerFactory.getLogger(FileInfoOptServerImpl.class);
 
+    @Value("${fileserver.pretreatment.sync:true}")
+    protected boolean pretreatmentAsSync;
 
     @Autowired
     protected FileInfoManager fileInfoManager;
@@ -57,7 +60,6 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
             return null;
         return IndexerSearcherFactory.obtainIndexer(esServerConfig, FileDocument.class);
     }
-
 
     @Override
     public String saveFile(FileBaseInfo fileBaseInfo, long fileSize, InputStream is){
@@ -102,8 +104,11 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                     String fileId = fileInfo.getFileId();
                     try {
                         // 先保存一个 临时文件； 如果文件已经存在是不会保存的
-                        fileStoreInfoManager.saveTempFileInfo(fileInfo,SystemTempFileUtils.getTempFilePath(fileMd5, fileSize), fileSize);
-                        fileOptTaskExecutor.addOptTask(fileInfo, fileSize, pretreatInfo);
+                        fileStoreInfoManager.saveTempFileInfo(fileInfo, renamePath, fileSize);
+                        if(pretreatmentAsSync)
+                            fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
+                        else
+                            fileOptTaskExecutor.addOptTask(fileInfo, fileSize, pretreatInfo);
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }

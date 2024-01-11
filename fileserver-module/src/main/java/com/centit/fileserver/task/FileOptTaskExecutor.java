@@ -42,6 +42,15 @@ public class FileOptTaskExecutor {
         fileStoreOpt.checkTempFileAndCreateTask(100);
     }
 
+
+    public int runOptTask(FileInfo fileInfo, long size, Map<String, Object> pretreatInfo){
+        int tasks = 0;
+        for(FileTaskOpeator fileOpt : fileOptList){
+            tasks += fileOpt.runTaskInfo(fileInfo, size, pretreatInfo);
+        }
+        return tasks;
+    }
+
     public int addOptTask(FileInfo fileInfo, long size, Map<String, Object> pretreatInfo){
         int tasks = 0;
         for(FileTaskOpeator fileOpt : fileOptList){

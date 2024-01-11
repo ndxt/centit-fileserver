@@ -74,6 +74,9 @@ public class UploadController extends BaseController {
 
     @Value("${fileserver.check.upload.token:false}")
     protected boolean checkUploadToken;
+    //是否同步处理，默认同步处理
+    @Value("${fileserver.pretreatment.sync:true}")
+    protected boolean pretreatmentAsSync;
 
     @Value("${fileserver.run-as-springboot:false}")
     protected static boolean runAsSpringBoot;
@@ -161,7 +164,10 @@ public class UploadController extends BaseController {
         JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
         for (Object o : jsonArray) {
             FileInfo fileInfo = JSON.to(FileInfo.class , o);
-            fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+            if(pretreatmentAsSync)
+                fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+            else
+                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
         }
         return jsonArray;
     }
@@ -186,20 +192,24 @@ public class UploadController extends BaseController {
         Long fileSize = NumberBaseOpt.parseLong(
             WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
 
-        if (fileStore.checkFile(
-            fileStore.matchFileStoreUrl(fileInfo, fileSize))) {
+        fileInfo.setFileMd5(token);
+        fileInfo.setFileSize(size);
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, fileSize);
+        String fileStorePath = fileStore.matchFileStoreUrl(fileInfo, fileSize);
+        if (fileStore.checkFile(fileStorePath)) {
             Triple<FileInfo, Map<String, Object>, InputStream> formData
                 = fetchUploadFormFromRequest(request);
-            completedFileStoreAndPretreat(token, size, formData.getLeft(),
+            //用于其他的预处理操作
+            FileIOOpt.writeInputStreamToFile(fileStore.loadFileStream(fileStorePath), new File(tempFilePath));
+            completedFileStoreAndPretreat(tempFilePath, fileInfo,
                 formData.getMiddle(), request, response);
         } else {
             //临时文件大小相等 说明上传已完成，也可以秒传
-            long tempFileSize = SystemTempFileUtils.checkTempFileSize(
-                SystemTempFileUtils.getTempFilePath(token, size));
+            long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
             if (tempFileSize == size) {
                 Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
-                completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                completedFileStoreAndPretreat(tempFilePath, fileInfo,
                     formData.getMiddle(), request, response);
             } else {
                 FileSystemOpt.deleteFile(SystemTempFileUtils.getTempFilePath(token, size));
@@ -230,21 +240,23 @@ public class UploadController extends BaseController {
         if (checkUploadToken && checkUploadAuthorization(request, response)) {
             return;
         }
-
         Triple<FileInfo, Map<String, Object>, InputStream> formData
             = fetchUploadFormFromRequest(request);
+        FileInfo fileInfo = formData.getLeft();
+        fileInfo.setFileMd5(token);
+        fileInfo.setFileSize(size);
+        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {
-            completedFileStoreAndPretreat(token, size, formData.getLeft(),
+            completedFileStoreAndPretreat(tempFilePath, fileInfo,
                 formData.getMiddle(), request, response);
             return;
         }
-        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
         try {
             long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
             if (uploadSize == size) {
-                completedFileStoreAndPretreat(token, size, formData.getLeft(),
+                completedFileStoreAndPretreat(tempFilePath, fileInfo,
                     formData.getMiddle(), request, response);
 
             } else {
@@ -310,8 +322,8 @@ public class UploadController extends BaseController {
             if (needCheck) {
                 isValid = size == (long) fileSize && token.equals(fileMd5);
             } else {
-                String renamePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
-                tempFile.renameTo(new File(renamePath));
+                tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
+                tempFile.renameTo(new File(tempFilePath));
             }
 
             if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
@@ -322,7 +334,8 @@ public class UploadController extends BaseController {
                     fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
                 }
                 fileInfo.setFileName(fileName);
-                completedFileStoreAndPretreat(fileMd5, fileSize,
+                fileInfo.setFileSize(fileSize);
+                completedFileStoreAndPretreat(tempFilePath,
                     fileInfo, formData.getMiddle(), request, response);
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
@@ -483,22 +496,21 @@ public class UploadController extends BaseController {
      * 处理文件信息 并按照指令对文件进行加工
      * param fs 文件的物理存储接口
      *
-     * @param fileMd5      加密
-     * @param size         大小
+     * @param tempFilePath 临时文件路径
      * @param fileInfo     文件对象
      * @param pretreatInfo PretreatInfo对象
      * @param response     HttpServletResponse
      */
-    private void completedFileStoreAndPretreat(String fileMd5, long size,
+    private void completedFileStoreAndPretreat(String tempFilePath,
                                                FileInfo fileInfo, Map<String, Object> pretreatInfo,
                                                HttpServletRequest request,
                                                HttpServletResponse response) {
         try {
-            JSONObject json = storeAndPretreatFile(fileMd5, size, fileInfo, pretreatInfo);
             if (checkUploadToken) {
                 String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
                 fileUploadAuthorizedManager.consumeAuthorization(uploadToken);
             }
+            JSONObject json = storeAndPretreatFile(tempFilePath, fileInfo, pretreatInfo);
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -509,9 +521,9 @@ public class UploadController extends BaseController {
         }
     }
 
-    private JSONObject storeAndPretreatFile(String fileMd5, long size,
+    private JSONObject storeAndPretreatFile(String tempFilePath,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo) {
-        fileInfo.setFileMd5(fileMd5);
+        //fileInfo.setFileMd5(fileMd5);
         if (StringUtils.isBlank(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         }
@@ -529,22 +541,24 @@ public class UploadController extends BaseController {
 
         FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
         if(dbFile == null) {
-            fileInfoManager.mergeObject(fileInfo);
+            fileInfoManager.saveNewFile(fileInfo);
             String fileId = fileInfo.getFileId();
             try {
                 // 先保存一个 临时文件； 如果文件已经存在是不会保存的
-                fileStoreInfoManager.saveTempFileInfo(fileInfo,
-                    SystemTempFileUtils.getTempFilePath(fileMd5, size), size);
-                fileOptTaskExecutor.addOptTask(fileInfo, size, pretreatInfo);
+                fileStoreInfoManager.saveTempFileInfo(fileInfo, tempFilePath, fileInfo.getFileSize());
+                if(pretreatmentAsSync)
+                    fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
+                else
+                    fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
             } catch (Exception e) {
                 throw new ObjectException(ObjectException.UNKNOWN_EXCEPTION, e.getMessage(), e);
                 //logger.error(e.getMessage(), e);
             }
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileInfo.getFileName(), fileId, retMsg);
+                fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), fileId, retMsg);
         } else {
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileMd5, size, fileInfo.getFileName(), dbFile.getFileId(), retMsg);
+                fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), dbFile.getFileId(), retMsg);
         }
 
     }

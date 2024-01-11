@@ -46,7 +46,7 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if (StringUtils.isNotBlank(
             StringBaseOpt.castObjectToString(pretreatInfo.get("watermark")))){
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
@@ -58,13 +58,7 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
         }
         return null;
     }
-
-    @Override
-    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
-        String fileId = fileOptTaskInfo.getFileId();
-        long fileSize = fileOptTaskInfo.getFileSize();
-        String waterMarkStr = (String) fileOptTaskInfo.getOptParam("watermark");
-        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+    private void doWatermark(FileInfo fileInfo, long fileSize, String waterMarkStr) {
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {
             String waterMarkPdfTempFile = FilePretreatUtils.addWatermarkForPdf(fileInfo, originalTempFilePath, waterMarkStr);
@@ -76,5 +70,25 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
         } catch (IOException e) {
             logger.error("添加水印出错！", e);
         }
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        String waterMarkStr
+            = StringBaseOpt.castObjectToString(pretreatInfo.get("watermark"));
+        if (StringUtils.isNotBlank(waterMarkStr)){
+            doWatermark(fileInfo, fileSize, waterMarkStr);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
+        String fileId = fileOptTaskInfo.getFileId();
+        long fileSize = fileOptTaskInfo.getFileSize();
+        String waterMarkStr = (String) fileOptTaskInfo.getOptParam("watermark");
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        doWatermark(fileInfo, fileSize, waterMarkStr);
     }
 }

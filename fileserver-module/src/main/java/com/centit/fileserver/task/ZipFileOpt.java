@@ -39,13 +39,7 @@ public class ZipFileOpt extends FileStoreOpt implements FileTaskOpeator {
         return "zip";
     }
 
-    @Override
-    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
-        String fileId = fileOptTaskInfo.getFileId();
-        long fileSize = fileOptTaskInfo.getFileSize();
-        String encryptPass = StringBaseOpt.castObjectToString(
-            fileOptTaskInfo.getOptParam("password"));
-        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+    private void doZipFile(FileInfo fileInfo, long fileSize, String encryptPass){
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {
             String encryptedZipFile = StringUtils.isBlank(encryptPass)?
@@ -67,8 +61,18 @@ public class ZipFileOpt extends FileStoreOpt implements FileTaskOpeator {
     }
 
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
-        if("Z".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.containsKey("encryptType")))){
+    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
+        String fileId = fileOptTaskInfo.getFileId();
+        long fileSize = fileOptTaskInfo.getFileSize();
+        String encryptPass = StringBaseOpt.castObjectToString(
+            fileOptTaskInfo.getOptParam("password"));
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        doZipFile(fileInfo, fileSize, encryptPass);
+    }
+
+    @Override
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if("Z".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType")))){
             FileTaskInfo zipTaskInfo = new FileTaskInfo(getOpeatorName());
             zipTaskInfo.copy(fileInfo);
             zipTaskInfo.setFileSize(fileSize);
@@ -76,5 +80,14 @@ public class ZipFileOpt extends FileStoreOpt implements FileTaskOpeator {
             return zipTaskInfo;
         }
         return null;
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if("Z".equalsIgnoreCase(StringBaseOpt.castObjectToString(pretreatInfo.get("encryptType")))){
+            doZipFile(fileInfo, fileSize, StringBaseOpt.castObjectToString(pretreatInfo.get("password")));
+            return 1;
+        }
+        return 0;
     }
 }

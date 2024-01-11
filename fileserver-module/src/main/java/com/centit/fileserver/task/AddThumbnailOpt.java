@@ -36,15 +36,9 @@ public class AddThumbnailOpt extends FileStoreOpt implements FileTaskOpeator {
         return "thumbnail";
     }
 
-    @Override
-    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
-        String fileId = fileOptTaskInfo.getFileId();
-        long fileSize = fileOptTaskInfo.getFileSize();
-        int width = NumberBaseOpt.castObjectToInteger(fileOptTaskInfo.getOptParam("width"),320);
-        int height = NumberBaseOpt.castObjectToInteger(fileOptTaskInfo.getOptParam("height"), 240);
-        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+    private void doThumbnail(FileInfo fileInfo, int width, int height) {
         String originalTempFilePath =
-            SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+            SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileInfo.getFileSize());
         try {
             String thumbnailFile =
                 FilePretreatUtils.addThumbnail(fileInfo, originalTempFilePath, width, height);
@@ -63,6 +57,16 @@ public class AddThumbnailOpt extends FileStoreOpt implements FileTaskOpeator {
             logger.error("生成缩略图出错！", e);
         }
     }
+    @Override
+    public void doFileTask(FileTaskInfo fileOptTaskInfo) {
+        String fileId = fileOptTaskInfo.getFileId();
+        long fileSize = fileOptTaskInfo.getFileSize();
+        int width = NumberBaseOpt.castObjectToInteger(fileOptTaskInfo.getOptParam("width"),320);
+        int height = NumberBaseOpt.castObjectToInteger(fileOptTaskInfo.getOptParam("height"), 240);
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        fileInfo.setFileSize(fileSize);
+        doThumbnail(fileInfo, width, height);
+    }
 
 
     /**
@@ -74,7 +78,7 @@ public class AddThumbnailOpt extends FileStoreOpt implements FileTaskOpeator {
      * @return 文件任务信息 null 表示不匹配不需要处理
      */
     @Override
-    public FileTaskInfo attachTaskInfo(FileBaseInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+    public FileTaskInfo attachTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("thumbnail"),false)) {
             FileTaskInfo taskInfo = new FileTaskInfo(getOpeatorName());
             taskInfo.copy(fileInfo);
@@ -84,6 +88,18 @@ public class AddThumbnailOpt extends FileStoreOpt implements FileTaskOpeator {
             return taskInfo;
         }
         return null;
+    }
+
+    @Override
+    public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
+        if (BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("thumbnail"),false)) {
+            int width = NumberBaseOpt.castObjectToInteger(pretreatInfo.get("width"),320);
+            int height = NumberBaseOpt.castObjectToInteger(pretreatInfo.get("height"), 240);
+            fileInfo.setFileSize(fileSize);
+            doThumbnail(fileInfo, width, height);
+            return 1;
+        }
+        return 0;
     }
 
 }

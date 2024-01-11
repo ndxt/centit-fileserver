@@ -88,7 +88,9 @@ public abstract class FileStoreOpt {
                     fileStoreInfo.setFileStorePath(
                         fetchOrSaveFile(tempFilePath, file, fileSize));
                     fileStoreInfo.setIsTemp(false);
-                }
+                }/*else{
+                    fileStoreInfo.setFileReferenceCount(fileStoreInfo.getFileReferenceCount() + 1);
+                }*/
                 fileStoreInfoManager.updateObject(fileStoreInfo);
             }
         } catch (Exception e) {
