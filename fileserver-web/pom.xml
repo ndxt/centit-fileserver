@@ -5,7 +5,7 @@
     <parent>
         <artifactId>centit-fileserver</artifactId>
         <groupId>com.centit.product</groupId>
-        <version>5.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-quartz-extend</artifactId>
-            <version>${centit.commons.modules.version}</version>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
@@ -89,11 +89,13 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-core-web</artifactId>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-config</artifactId>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
@@ -107,11 +109,13 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-session-redis</artifactId>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-jdbc-config</artifactId>
+            <version>${revision}</version>
         </dependency>
         <!-- swagger2 -->
         <dependency>
