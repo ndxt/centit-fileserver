@@ -30,6 +30,7 @@
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>elk-opt-log</artifactId>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
@@ -101,7 +102,7 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-ip-dubbo-client-config</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
         </dependency>
 
         <!-- 切换组织机构结束 -->
