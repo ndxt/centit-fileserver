@@ -84,7 +84,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
             if (isValid && !StringUtils.isBlank(fileInfo.getFileName())) {
                 fileInfo.setFileMd5(fileMd5);
                 String fileName = fileInfo.getFileName();
-
+                // TODO 这个是周抄添加的，不知道是什么场景，逻辑意义应该是： 文件名非GBK编码就转换为UTF-8
                 if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
                     fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
                 }
