@@ -12,11 +12,13 @@ import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
+import com.centit.framework.common.ResponseData;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.ESServerConfig;
 import com.centit.search.service.Impl.ESIndexer;
 import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.UuidOpt;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
@@ -82,6 +84,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
             if (isValid && !StringUtils.isBlank(fileInfo.getFileName())) {
                 fileInfo.setFileMd5(fileMd5);
                 String fileName = fileInfo.getFileName();
+
                 if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
                     fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
                 }
@@ -122,12 +125,13 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                 }
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
-                return "文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！";
+                throw new ObjectException(ResponseData.ERROR_OPERATION,
+                    "文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！");
             }
         }catch (Exception e){
             logger.error(e.getMessage(),e);
+            throw new ObjectException(ResponseData.ERROR_OPERATION, "文件保存失败, "+e.getMessage(), e);
         }
-        return "文件保存失败！";
     }
 
     //请调用另一个实现方法

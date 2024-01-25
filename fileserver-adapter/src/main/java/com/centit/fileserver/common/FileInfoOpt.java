@@ -15,7 +15,7 @@ public interface FileInfoOpt {
      * @param is InputStream
      * @param fileInfo 文件信息
      * @param fileSize long
-     * @return 文件的存储路径
+     * @return 文件信息的主键 fileId
      * @throws IOException io异常
      */
     String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
