@@ -18,6 +18,7 @@
 
     <properties>
         <finalName>${project.artifactId}-${project.version}</finalName>
+        <revision>${revision}</revision>
     </properties>
 
     <dependencies>
