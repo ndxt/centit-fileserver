@@ -7,7 +7,7 @@
     <parent>
         <artifactId>centit-fileserver</artifactId>
         <groupId>com.centit.product</groupId>
-        <version>5.4-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>fileserver-utils</artifactId>
     <name>com.centit.product:centit-fileserver-utils</name>
@@ -22,6 +22,7 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-core</artifactId>
+            <version>${revision}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>

@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <artifactId>framework-snapshot-dependencies</artifactId>
         <groupId>com.centit.framework</groupId>
-        <version>5.4-SNAPSHOT</version>
+        <artifactId>centit-project-bulid-parent</artifactId>
+        <version>5.5-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.centit.product</groupId>
     <artifactId>centit-fileserver</artifactId>
-    <version>5.4-SNAPSHOT</version>
+    <version>${revision}</version>
     <name>com.centit.product:centit-fileserver</name>
     <packaging>pom</packaging>
 
