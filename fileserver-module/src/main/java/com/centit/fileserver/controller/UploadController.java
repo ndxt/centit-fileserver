@@ -524,8 +524,12 @@ public class UploadController extends BaseController {
     private JSONObject storeAndPretreatFile(String tempFilePath,
                                             FileInfo fileInfo, Map<String, Object> pretreatInfo) {
         //fileInfo.setFileMd5(fileMd5);
+        boolean isUpdateFile = false;
         if (StringUtils.isBlank(fileInfo.getFileId())) {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
+        } else {
+            FileInfo dbFile = fileInfoManager.getObjectById(fileInfo.getFileId());
+            isUpdateFile = dbFile!=null;
         }
         if(StringUtils.isBlank(fileInfo.getOsId())) {
             fileInfo.setOsId("NOTSET");
@@ -538,15 +542,26 @@ public class UploadController extends BaseController {
             fileInfo.setFileName( fileInfo.getFileName()+".rn");
             retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
         }
+        boolean needSave = false;
+        String fileId = fileInfo.getFileId();
+        if(! isUpdateFile){
+            FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
+            if (dbFile == null) {
+                fileInfoManager.saveNewFile(fileInfo);
+                needSave = true;
+            } else {
+                fileId = dbFile.getFileId();
+            }
+        } else {
+            fileInfoManager.updateObject(fileInfo);
+            needSave = true;
+        }
 
-        FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
-        if(dbFile == null) {
-            fileInfoManager.saveNewFile(fileInfo);
-            String fileId = fileInfo.getFileId();
+        if (needSave) {
             try {
                 // 先保存一个 临时文件； 如果文件已经存在是不会保存的
                 fileStoreInfoManager.saveTempFileInfo(fileInfo, tempFilePath, fileInfo.getFileSize());
-                if(pretreatmentAsSync)
+                if (pretreatmentAsSync)
                     fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
                 else
                     fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
@@ -558,7 +573,7 @@ public class UploadController extends BaseController {
                 fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), fileId, retMsg);
         } else {
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
-                fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), dbFile.getFileId(), retMsg);
+                fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), fileId, retMsg);
         }
 
     }
