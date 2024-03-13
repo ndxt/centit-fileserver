@@ -9,9 +9,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.task.FileOptTaskExecutor;
-import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.SystemTempFileUtils;
-import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.ResponseData;
 import com.centit.search.document.FileDocument;
 import com.centit.search.service.ESServerConfig;
@@ -95,12 +93,6 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                     fileInfo.setFileId(UuidOpt.getUuidAsString());
                 }
 
-                String retMsg = "文件上传成功！";
-                if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
-                    fileInfo.setFileName( fileInfo.getFileName()+".rn");
-                    retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
-                }
-
                 FileInfo dbFile  = fileInfoManager.getDuplicateFile(fileInfo);
                 if(dbFile == null) {
                     fileInfoManager.saveNewObject(fileInfo);
@@ -115,13 +107,10 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                     }
-                    JSONObject jsonObject = UploadDownloadUtils.makeRangeUploadCompleteJson(
-                        fileMd5, fileSize, fileInfo.getFileName(), fileId, retMsg);
-                    return jsonObject.getJSONObject("data").getString("fileId");
+
+                    return fileId;
                 }else {
-                    JSONObject jsonObject = UploadDownloadUtils.makeRangeUploadCompleteJson(
-                        fileMd5, fileSize, fileInfo.getFileName(), dbFile.getFileId(), retMsg);
-                    return jsonObject.getJSONObject("data").getString("fileId");
+                    return dbFile.getFileId();
                 }
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
