@@ -14,11 +14,11 @@ public interface FileInfoOpt {
      * 保存文件
      * @param is InputStream
      * @param fileInfo 文件信息
-     * @param fileSize long
+     * @param fileSize long 这个没有用，可以设置为0
      * @return 文件信息的主键 fileId
      * @throws IOException io异常
      */
-    String saveFile(FileBaseInfo fileInfo, long fileSize,InputStream is)
+    String saveFile(FileBaseInfo fileInfo, long fileSize, InputStream is)
             throws IOException;
 
     /**

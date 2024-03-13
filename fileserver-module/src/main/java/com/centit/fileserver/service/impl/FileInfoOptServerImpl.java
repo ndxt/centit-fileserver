@@ -86,7 +86,7 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
                 if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
                     fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
                 }
-
+                fileInfo.setFileSize(fileSize);
                 fileInfo.setFileName(fileName);
                 fileInfo.setFileMd5(fileMd5);
                 if(fileInfo.getFileId()==null){
