@@ -16,7 +16,10 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.BooleanBaseOpt;
+import com.centit.support.algorithm.GeneralAlgorithm;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.security.FileEncryptUtils;
@@ -192,6 +195,12 @@ public class DownloadController extends BaseController {
         String fileName = request.getParameter("fileName");
         if(!StringUtils.isBlank(fileName)){
             fileInfo.setFileName(fileName);
+        }
+        if(GeneralAlgorithm.isEmpty(fileInfo)){
+            throw new ObjectException(ObjectException.BLANK_EXCEPTION, fileId+"无此文件信息！");
+        }
+        if(StringBaseOpt.isNvl(fileInfo.getFileMd5())){
+            throw new ObjectException(ObjectException.BLANK_EXCEPTION, fileId+"无此文件md5！");
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
