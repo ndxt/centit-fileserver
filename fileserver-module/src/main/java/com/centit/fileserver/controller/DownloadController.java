@@ -199,7 +199,7 @@ public class DownloadController extends BaseController {
         if(GeneralAlgorithm.isEmpty(fileInfo)){
             throw new ObjectException(ObjectException.BLANK_EXCEPTION, fileId+"无此文件信息！");
         }
-        if(StringBaseOpt.isNvl(fileInfo.getFileMd5())){
+        if(StringUtils.isBlank(fileInfo.getFileMd5())){
             throw new ObjectException(ObjectException.BLANK_EXCEPTION, fileId+"无此文件md5！");
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
