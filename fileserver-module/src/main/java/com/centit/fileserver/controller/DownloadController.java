@@ -17,7 +17,6 @@ import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.GeneralAlgorithm;
-import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
