@@ -75,7 +75,6 @@
         <module>fileserver-store-cos-plugin</module>
         <module>fileserver-task-redis-plugin</module>
         <module>fileserver-dubbo-client-config</module>
-        <module>fileserver-dubbo-server-config</module>
         <module>fileserver-backup</module>
     </modules>
 

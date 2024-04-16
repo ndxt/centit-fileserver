@@ -3,7 +3,6 @@ package com.centit.fileserver.config;
 import com.alibaba.nacos.api.annotation.NacosProperties;
 import com.alibaba.nacos.spring.context.annotation.config.EnableNacosConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
-import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySources;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
@@ -14,13 +13,12 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
 import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
+import com.centit.framework.dubbo.config.DubboConfig;
+import com.centit.framework.dubbo.config.IpServerDubboClientConfig;
 import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.model.adapter.OperationLogWriter;
-import com.centit.framework.model.adapter.PlatformEnvironment;
-import com.centit.framework.model.security.CentitUserDetailsService;
 import com.centit.framework.security.StandardPasswordEncoderImpl;
-import com.centit.framework.security.UserDetailsServiceImpl;
 import com.centit.framework.system.service.ElkOptLogManager;
 import com.centit.search.service.ESServerConfig;
 import com.centit.support.algorithm.NumberBaseOpt;
@@ -29,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
@@ -43,20 +42,19 @@ import java.io.File;
 /**
  * Created by codefan on 17-7-18.
  */
+@Configuration
+@PropertySource("classpath:system.properties")
 @ComponentScan(basePackages = "com.centit",
         excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
 @Import({
+        DubboConfig.class,
+        IpServerDubboClientConfig.class,
         SpringSecurityDaoConfig.class,
         SpringSecurityCasConfig.class,
-        //StaticSystemBeanConfig.class,
-        //SystemBeanConfig.class,
-        //IPOrStaticAppSystemBeanConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-//@EnableSpringHttpSession
 @EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.server-addr}"))
-@NacosPropertySources({@NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)}
-)
+@NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)
 public class ServiceConfig {
 
     @Value("${app.home:./}")
@@ -178,14 +176,6 @@ public class ServiceConfig {
         return notificationCenter;
     }
 
-   /* @Bean
-    @Lazy(value = false)
-    public OperationLogWriter operationLogWriter() {
-        TextOperationLogWriterImpl operationLog = new TextOperationLogWriterImpl();
-        operationLog.setOptLogHomePath(appHome+"/logs");
-        operationLog.init();
-        return operationLog;
-    }*/
 
     @Bean
     @Lazy(value = false)
@@ -209,14 +199,6 @@ public class ServiceConfig {
     }
     //这个bean必须要有 可以配置不同策略的session保存方案
 
-
-    @Bean
-    public CentitUserDetailsService centitUserDetailsService(@Autowired PlatformEnvironment platformEnvironment) {
-        UserDetailsServiceImpl userDetailsService = new UserDetailsServiceImpl();
-        userDetailsService.setPlatformEnvironment(platformEnvironment);
-        return userDetailsService;
-    }
-
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
         return new HttpSessionCsrfTokenRepository();
@@ -231,23 +213,13 @@ public class ServiceConfig {
     }
 
     @Bean
-    public LocalValidatorFactoryBean validatorFactory() {
-        return new LocalValidatorFactoryBean();
-    }
-//    @Bean
-//    public MapSessionRepository sessionRepository() {
-//        return new MapSessionRepository(new ConcurrentHashMap<>());
-//    }
-    /*
-    @Bean
-    public FindByIndexNameSessionRepository sessionRepository() {
-        return new SimpleMapSessionRepository();
+    public AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor() {
+        return new AutowiredAnnotationBeanPostProcessor();
     }
 
     @Bean
-    public SessionRegistry sessionRegistry(
-        @Autowired FindByIndexNameSessionRepository sessionRepository){
-        return new SpringSessionBackedSessionRegistry(sessionRepository);
-    }*/
+    public LocalValidatorFactoryBean validatorFactory() {
+        return new LocalValidatorFactoryBean();
+    }
 }
 

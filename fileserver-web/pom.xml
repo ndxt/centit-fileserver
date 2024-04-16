@@ -23,6 +23,12 @@
     <dependencies>
         <dependency>
             <groupId>com.centit.framework</groupId>
+            <artifactId>framework-dubbo-config</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
             <artifactId>framework-system-dubbo-client-config</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -31,12 +37,6 @@
             <groupId>com.centit.product</groupId>
             <artifactId>elk-opt-log</artifactId>
             <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-dubbo-server-config</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -137,14 +137,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        <!-- server runtime library -->
-        <!--<dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <version>${jdk.version}</version>
-            <systemPath>${java.home}/../lib/tools.jar</systemPath>
-            <scope>system</scope>
-        </dependency>-->
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -202,7 +194,7 @@
                    <exclude>test/*</exclude>
                    <exclude>prod/*</exclude>
                    <exclude>prev/*</exclude>
-                   <exclude>system.properties</exclude>
+                   <!--<exclude>system.properties</exclude>-->
                </excludes>
            </resource>
            <resource>

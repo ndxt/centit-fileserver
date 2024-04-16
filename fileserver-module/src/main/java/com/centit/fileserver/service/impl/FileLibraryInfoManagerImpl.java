@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author codefan@sina.com
  * 文件库信息
  */
-@Service
+@Service("fileLibraryInfoManager")
 @Transactional(rollbackFor = Exception.class)
 public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibraryInfo, String, FileLibraryInfoDao>
     implements FileLibraryInfoManager, OperateFileLibrary {

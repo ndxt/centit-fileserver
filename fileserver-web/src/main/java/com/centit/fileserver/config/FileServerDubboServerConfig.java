@@ -1,4 +1,4 @@
-package com.centit.framework.dubbo.config;
+package com.centit.fileserver.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
