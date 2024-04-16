@@ -61,12 +61,12 @@ public class ServiceConfig implements EnvironmentAware {
     @Value("${app.home:./}")
     private String appHome;
 
-    private Environment environment;
+    private Environment env;
 
     @Override
     public void setEnvironment(@Autowired Environment environment) {
         if (environment != null) {
-            this.environment = environment;
+            this.env = environment;
         }
     }
 
