@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
@@ -57,9 +56,6 @@ import java.io.File;
 @NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)
 public class ServiceConfig implements EnvironmentAware {
 
-    @Value("${app.home:./}")
-    private String appHome;
-
     private Environment env;
 
     @Override
@@ -72,7 +68,7 @@ public class ServiceConfig implements EnvironmentAware {
     @Bean
     public FileStore fileStore(){
         SystemTempFileUtils.setTempFileDirectory(
-            appHome +File.separatorChar+ "temp" + File.separatorChar);
+            env.getProperty("app.home", ".") +File.separatorChar+ "temp" + File.separatorChar);
         String fileStoreType= env.getProperty("filestore.type","os");
 
         if("oss".equals(fileStoreType)){//ali-oss
@@ -105,7 +101,7 @@ public class ServiceConfig implements EnvironmentAware {
 
     @Bean
     public FileTaskQueue fileOptTaskQueue() throws Exception {
-        return new LinkedBlockingQueueFileOptTaskQueue(appHome + "/task");
+        return new LinkedBlockingQueueFileOptTaskQueue(env.getProperty("app.home", ".") + "/task");
     }
 
     /*@Bean
