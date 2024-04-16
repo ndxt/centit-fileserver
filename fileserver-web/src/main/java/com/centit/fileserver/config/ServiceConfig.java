@@ -29,6 +29,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -55,18 +56,19 @@ import java.io.File;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.server-addr}"))
 @NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)
-public class ServiceConfig {
+public class ServiceConfig implements EnvironmentAware {
 
     @Value("${app.home:./}")
     private String appHome;
-    /* @Bean
-    @Lazy(value = false)
-    public IntegrationEnvironment integrationEnvironment() {
-        return new DummyIntegrationEnvironment();
-    }*/
-    @Autowired
-    private Environment env;
 
+    private Environment environment;
+
+    @Override
+    public void setEnvironment(@Autowired Environment environment) {
+        if (environment != null) {
+            this.environment = environment;
+        }
+    }
 
     @Bean
     public FileStore fileStore(){
