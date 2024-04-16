@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
@@ -63,6 +64,11 @@ public class ServiceConfig implements EnvironmentAware {
         if (environment != null) {
             this.env = environment;
         }
+    }
+
+    @Bean
+    public AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor(){
+        return new AutowiredAnnotationBeanPostProcessor();
     }
 
     @Bean
