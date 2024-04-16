@@ -194,7 +194,7 @@
                    <exclude>test/*</exclude>
                    <exclude>prod/*</exclude>
                    <exclude>prev/*</exclude>
-                   <!--<exclude>system.properties</exclude>-->
+                   <exclude>system.properties</exclude>
                </excludes>
            </resource>
            <resource>
