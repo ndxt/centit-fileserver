@@ -234,7 +234,7 @@ public class DownloadController extends BaseController {
             FileInfo fileInfo = fileInfoManager.getObjectById(fileIds[0]);
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             fileSize = fileStoreInfo.getFileSize();
-            String filePath = fileStore.matchFileStoreUrl(fileInfo, fileSize);
+            String filePath = fileStoreInfo.getFileStorePath();
             fileName = fileInfo.getFileName();
             inputStream = fileStore.loadFileStream(filePath);
         } else {
