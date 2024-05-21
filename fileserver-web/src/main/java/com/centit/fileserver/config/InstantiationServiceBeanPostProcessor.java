@@ -14,8 +14,10 @@ import com.centit.support.quartz.QuartzJobUtils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
@@ -39,8 +41,6 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
     @Autowired
     protected FileOptTaskExecutor fileOptTaskExecutor;
 
-    @Autowired
-    protected SchedulerFactory schedulerFactory;
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         MvcConfigUtil.fastjsonGlobalConfig();
@@ -55,6 +55,7 @@ public class InstantiationServiceBeanPostProcessor implements ApplicationListene
         }
         // 创建定时任务
         try {
+            SchedulerFactory schedulerFactory = new StdSchedulerFactory();
             Scheduler scheduler = schedulerFactory.getScheduler();
             QuartzJobUtils.registerJobType("bean", JavaBeanJob.class);
             QuartzJobUtils.createOrReplaceCronJob(scheduler, "fileOptJob",

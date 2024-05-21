@@ -24,8 +24,6 @@ import com.centit.search.service.ESServerConfig;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.security.SecurityOptUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.quartz.SchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.EnvironmentAware;
@@ -151,11 +149,6 @@ public class ServiceConfig implements EnvironmentAware {
         fileOptTaskExecutor.addFileOperator(encryptFileOpt);
         fileOptTaskExecutor.addFileOperator(documentIndexOpt);
         return fileOptTaskExecutor;
-    }
-
-    @Bean
-    public SchedulerFactory schedulerFactory()  {
-        return new StdSchedulerFactory();
     }
 
     @Bean
