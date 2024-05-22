@@ -162,7 +162,7 @@ public class UploadController extends BaseController {
     @ApiOperation(value = "处理未转储文件")
     @WrapUpResponseBody
     public JSONArray addSaveFileOpt(HttpServletRequest request) {
-        JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
+        JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "D"), null);
         for (Object o : jsonArray) {
             FileInfo fileInfo = JSON.to(FileInfo.class , o);
             documentIndexOpt.doFileIndex(fileInfo, fileInfo.getFileSize());
