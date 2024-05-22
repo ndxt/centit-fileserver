@@ -6,6 +6,7 @@ import com.centit.search.document.FileDocument;
 import com.centit.search.utils.TikaTextExtractor;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.common.ObjectException;
+import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -280,7 +282,7 @@ public class FilePretreatUtils {
         return outFilePath;
     }
 
-    public static FileDocument index(FileInfo fileInfo, String sourceFilePath) {
+    public static FileDocument index(FileInfo fileInfo, File sourceFile) {
         FileDocument fileDoc = new FileDocument();
         fileDoc.setFileId(fileInfo.getFileId());
         fileDoc.setOsId(fileInfo.getOsId());
@@ -297,12 +299,12 @@ public class FilePretreatUtils {
         try {
             String charset ="";
             if("txt".equals(fileInfo.getFileType())){
-                charset=new AutoDetectReader(new FileInputStream(sourceFilePath)).getCharset().name();
+                charset=new AutoDetectReader(Files.newInputStream(sourceFile.toPath())).getCharset().name();
             }
             if("GB18030".equals(charset)){
-                fileDoc.setContent(new String(Files.readAllBytes(Paths.get(sourceFilePath)), Charset.forName("GB18030")));
+                fileDoc.setContent(new String(FileIOOpt.readBytesFromFile(sourceFile), Charset.forName("GB18030")));
             }else {
-                fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFilePath));
+                fileDoc.setContent(TikaTextExtractor.extractFileText(sourceFile));
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

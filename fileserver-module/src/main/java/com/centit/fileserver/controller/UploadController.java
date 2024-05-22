@@ -84,7 +84,6 @@ public class UploadController extends BaseController {
     @Autowired
     protected FileStore fileStore;
 
-
    /* @Autowired
     private FileTaskQueue fileOptTaskQueue;*/
 
