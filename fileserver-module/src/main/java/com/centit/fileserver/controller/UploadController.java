@@ -160,14 +160,14 @@ public class UploadController extends BaseController {
     @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
     @ApiOperation(value = "处理未转储文件")
     @WrapUpResponseBody
-    public JSONArray addSaveFileOpt() {
+    public JSONArray addSaveFileOpt(HttpServletRequest request) {
         JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
         for (Object o : jsonArray) {
             FileInfo fileInfo = JSON.to(FileInfo.class , o);
             if(pretreatmentAsSync)
-                fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+                fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), collectRequestParameters(request));
             else
-                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), new HashMap<>());
+                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), collectRequestParameters(request));
         }
         return jsonArray;
     }
