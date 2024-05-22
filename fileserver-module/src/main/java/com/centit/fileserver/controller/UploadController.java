@@ -11,6 +11,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.service.FileUploadAuthorizedManager;
+import com.centit.fileserver.task.DocumentIndexOpt;
 import com.centit.fileserver.task.FileOptTaskExecutor;
 import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.fileserver.utils.FileServerConstant;
@@ -58,7 +59,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +101,8 @@ public class UploadController extends BaseController {
     @Autowired
     FileFolderInfoDao fileFolderInfoDao;
 
+    @Autowired
+    DocumentIndexOpt documentIndexOpt;
 
     /**
      * 判断文件是否存在，如果文件已经存在可以实现秒传
@@ -156,17 +158,14 @@ public class UploadController extends BaseController {
         return UploadDownloadUtils.checkFileRange(fileStore, fileInfo, fileSize);
     }
 
-    @RequestMapping(value = "/addsavefileopt", method = RequestMethod.GET)
+    @RequestMapping(value = "/indexSyncFile", method = RequestMethod.POST)
     @ApiOperation(value = "处理未转储文件")
     @WrapUpResponseBody
     public JSONArray addSaveFileOpt(HttpServletRequest request) {
         JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "T"), null);
         for (Object o : jsonArray) {
             FileInfo fileInfo = JSON.to(FileInfo.class , o);
-            if(pretreatmentAsSync)
-                fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), collectRequestParameters(request));
-            else
-                fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), collectRequestParameters(request));
+            documentIndexOpt.doFileIndex(fileInfo, fileInfo.getFileSize());
         }
         return jsonArray;
     }

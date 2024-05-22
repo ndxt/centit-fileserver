@@ -89,7 +89,7 @@ public class DocumentIndexOpt implements FileTaskOpeator {
         return null;
     }
 
-    private void doFileIndex(FileInfo fileInfo, long fileSize){
+    public void doFileIndex(FileInfo fileInfo, long fileSize){
         try {
             String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
             FileDocument fileDoc;
