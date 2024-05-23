@@ -26,6 +26,7 @@ import com.centit.search.service.Impl.ESSearcher;
 import com.centit.search.service.IndexerSearcherFactory;
 import com.centit.support.algorithm.CollectionsOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.common.ObjectException;
 import com.centit.support.database.utils.PageDesc;
@@ -393,7 +394,8 @@ public class FileManagerController extends BaseController {
     )})
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @WrapUpResponseBody
-    public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds, String query, HttpServletRequest request, PageDesc pageDesc) {
+    public PageQueryResult<Map<String, Object>> searchObject(String[] libraryIds, String query,
+                                                             HttpServletRequest request, PageDesc pageDesc) {
         if (esServerConfig == null) {
             throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
         }
@@ -411,11 +413,15 @@ public class FileManagerController extends BaseController {
     }
 
     private List<Map<String, Object>> change(List<Map<String, Object>> mapList, String userCode) {
+        if(mapList==null || mapList.isEmpty()){
+            return mapList;
+        }
         mapList.forEach(e -> {
-            e.put("showPath", fileFavoriteManager.getShowPath(e.get("optUrl").toString(), e.get("optId").toString()));
+            e.put("showPath", fileFavoriteManager.getShowPath(
+                StringBaseOpt.castObjectToString(e.get("optUrl")), StringBaseOpt.castObjectToString(e.get("optId"))));
             List<FileFavorite> list = fileFavoriteManager.listFileFavorite(
                 CollectionsOpt.createHashMap("fileId", e.get("fileId"), "favoriteUser", userCode), null);
-            if (list != null && list.size() > 0) {
+            if (list != null && !list.isEmpty()) {
                 e.put("favoriteId", list.get(0).getFavoriteId());
             } else {
                 e.put("favoriteId", "");
