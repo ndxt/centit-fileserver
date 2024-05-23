@@ -86,7 +86,7 @@ public class FileInfoManagerImpl
     @Override
     public JSONArray listStoredFiles(Map<String, Object> queryParamsMap, PageDesc pageDesc) {
         String queryStatement =
-                "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, b.FILE_STORE_PATH, a.FILE_TYPE,"
+                "select a.FILE_ID, a.FILE_MD5, a.FILE_NAME, b.FILE_STORE_PATH, a.FILE_TYPE,a.file_show_path,"
                 + " a.FILE_STATE, a.FILE_DESC, a.INDEX_STATE, a.DOWNLOAD_TIMES, a.OS_ID,"
                 + " a.OPT_ID, a.OPT_METHOD, a.OPT_TAG, a.CREATED, a.CREATE_TIME, b.FILE_SIZE,"
                 + " a.ENCRYPT_TYPE, a.FILE_OWNER, a.FILE_UNIT, a.ATTACHED_TYPE, a.ATTACHED_FILE_MD5,a.library_id,a.parent_folder"
