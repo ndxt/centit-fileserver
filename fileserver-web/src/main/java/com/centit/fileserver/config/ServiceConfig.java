@@ -17,9 +17,7 @@ import com.centit.framework.dubbo.config.DubboConfig;
 import com.centit.framework.dubbo.config.IpServerDubboClientConfig;
 import com.centit.framework.jdbc.config.JdbcConfig;
 import com.centit.framework.model.adapter.NotificationCenter;
-import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.security.StandardPasswordEncoderImpl;
-import com.centit.framework.system.service.ElkOptLogManager;
 import com.centit.search.service.ESServerConfig;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.security.SecurityOptUtils;
@@ -173,12 +171,12 @@ public class ServiceConfig implements EnvironmentAware {
     }
 
 
-    @Bean
+    /*@Bean
     @Lazy(value = false)
     public OperationLogWriter optLogManager(@Autowired ESServerConfig esServerConfig) {
         ElkOptLogManager operationLog = new ElkOptLogManager(esServerConfig);
         return operationLog;
-    }
+    }*/
 
     @Bean
     public InstantiationServiceBeanPostProcessor instantiationServiceBeanPostProcessor() {
