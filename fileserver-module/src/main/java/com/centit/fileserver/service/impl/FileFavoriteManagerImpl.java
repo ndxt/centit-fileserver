@@ -86,6 +86,9 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
 
     @Override
     public String getShowPath(String fileShowPath, String libraryId) {
+        if(fileShowPath==null){
+            return null;
+        }
         String[] paths = StringUtils.split(fileShowPath, "/");
         StringBuilder showPath = new StringBuilder();
         for (String path : paths) {
