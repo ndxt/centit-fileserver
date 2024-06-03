@@ -47,6 +47,7 @@ public abstract class AbstractOfficeToPdf {
 
         File file = new File(inputFile);
         if (!(file.exists())) {
+            logger.error(file.getAbsolutePath() + " not exists");
             return false;
         }
         if (PDF.equalsIgnoreCase(suffix)) {
