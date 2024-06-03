@@ -101,8 +101,12 @@ public class FileInfoManagerImpl
                 + " [ :unitCode | and a.FILE_UNIT = :unitCode ]"
                 + " [ :beginDate | and a.CREATE_TIME >= :beginDate ]"
                 + " [ :endDate | and a.CREATE_TIME < :endDate ]"
-                    + " [ :isTemp | and b.is_temp = :isTemp ]"
-                + " order by a.CREATE_TIME desc";
+                    + " [ :isTemp | and b.is_temp = :isTemp ]";
+        if(queryParamsMap.containsKey("order") && "createTime".equals(queryParamsMap.get("order"))){
+            queryStatement= queryStatement+" order by a.CREATE_TIME";
+        }else {
+            queryStatement= queryStatement+" order by a.CREATE_TIME desc";
+        }
         //System.out.println(qap.getQuery());
         JSONArray dataList = DictionaryMapUtils.mapJsonArray(
                 DatabaseOptUtils.listObjectsByParamsDriverSqlAsJson(baseDao,
