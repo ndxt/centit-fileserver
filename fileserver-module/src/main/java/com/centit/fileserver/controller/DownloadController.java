@@ -13,6 +13,7 @@ import com.centit.fileserver.utils.FileServerConstant;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.fileserver.utils.UploadDownloadUtils;
 import com.centit.framework.common.JsonResultUtils;
+import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.support.algorithm.BooleanBaseOpt;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.zip.ZipOutputStream;
 
@@ -160,7 +162,8 @@ public class DownloadController extends BaseController {
             String at = fileInfo.getAttachedType();
             if (StringUtils.isBlank(at) || "N".equals(at)) {
                 JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_NOT_EXIST, "该文件没有附属文件", response);
+                    FileServerConstant.ERROR_FILE_NOT_EXIST,
+                    getI18nMessage("error.404.file_not_found", request, fileId + ": attached"), response);
                 return;
             }
             String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + "." + at;
@@ -171,7 +174,7 @@ public class DownloadController extends BaseController {
                 fileStore.getFileSize(attachedFileStoreInfo.getFileStorePath()), fileName, request.getParameter("downloadType"), null);
         } else {
             JsonResultUtils.writeHttpErrorMessage(FileServerConstant.ERROR_FILE_NOT_EXIST,
-                "找不到该文件", response);
+                getI18nMessage("error.404.file_not_found", request, fileId), response);
         }
     }
     // 文件目录 = 配置目录 + file.getFileStorePath()
@@ -196,10 +199,12 @@ public class DownloadController extends BaseController {
             fileInfo.setFileName(fileName);
         }
         if(GeneralAlgorithm.isEmpty(fileInfo)){
-            throw new ObjectException(ObjectException.BLANK_EXCEPTION, "下载文件出错：" + fileId+"无此文件信息！");
+            throw new ObjectException(ObjectException.BLANK_EXCEPTION,
+                getI18nMessage("error.404.file_not_found", request, fileId));
         }
         if(StringUtils.isBlank(fileInfo.getFileMd5())){
-            throw new ObjectException(ObjectException.BLANK_EXCEPTION, "下载文件出错：" + fileId+"无此文件md5！");
+            throw new ObjectException(ObjectException.BLANK_EXCEPTION,
+                getI18nMessage("error.404.file_not_found", request, fileId));
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
 
@@ -222,7 +227,9 @@ public class DownloadController extends BaseController {
                                   HttpServletRequest request,
                                   HttpServletResponse response) throws IOException {
         if (fileIds == null || fileIds.length == 0) {
-            JsonResultUtils.writeMessageJson("请提供文件id列表", response);
+            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FIELD_INPUT_NOT_VALID,
+                getI18nMessage("error.701.field_is_blank", request, "fileIds"),
+                response);
             return;
         }
 
@@ -249,7 +256,6 @@ public class DownloadController extends BaseController {
             String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 1024);
             File file = new File(tempFilePath);
             if (!file.exists()) {
-
                 int len = fileIds.length;
                 String[] fileUrls = new String[len];
                 String[] fileNames = new String[len];
@@ -264,15 +270,16 @@ public class DownloadController extends BaseController {
                     }
                 }
                 if (j == 0) {
-                    JsonResultUtils.writeMessageJson("请提供文件id列表", response);
+                    JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FIELD_INPUT_NOT_VALID,
+                        getI18nMessage("error.701.field_is_blank", request, "fileIds"),
+                        response);
                     return;
                 }
-
                 compressFiles(tempFilePath, fileUrls, fileNames, j);
             }
             file = new File(tempFilePath);
             fileSize = file.length();
-            inputStream = new FileInputStream(file);
+            inputStream = Files.newInputStream(file.toPath());
         }
 
         UploadDownloadUtils.downFileRange(request, response,
@@ -280,7 +287,7 @@ public class DownloadController extends BaseController {
             fileSize, fileName, request.getParameter("downloadType"), null);
     }
 
-    private static void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
+    private void downloadFile(FileStore fileStore, FileInfo fileInfo, FileStoreInfo fileStoreInfo,
                                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (null != fileInfo && fileStoreInfo != null) {
             if(fileStoreInfo.getFileSize() == 0){
@@ -300,7 +307,7 @@ public class DownloadController extends BaseController {
                         logger.error(e.getMessage(), e);
                         JsonResultUtils.writeHttpErrorMessage(
                             FileServerConstant.ERROR_FILE_ENCRYPT,
-                            "解码文件失败：" + e.getMessage(),
+                            getI18nMessage("error.423.cannt_encrypt_file", request, e.getMessage()),
                             response);
                         return;
                     }
@@ -323,7 +330,8 @@ public class DownloadController extends BaseController {
             }
         } else {
             JsonResultUtils.writeHttpErrorMessage(
-                FileServerConstant.ERROR_FILE_NOT_EXIST, "找不到该文件", response);
+                FileServerConstant.ERROR_FILE_NOT_EXIST,
+                getI18nMessage("error.404.file_not_found", request, "{fileInfo is null}"), response);
         }
     }
 
@@ -334,8 +342,10 @@ public class DownloadController extends BaseController {
         }
 
         if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
-            JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
-                + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
+            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FORBIDDEN,
+                getI18nMessage("error.403.download_file_forbidden", request,
+                    userCode, WebOptUtils.getCurrentUnitCode(request), request.getParameter("authCode")),
+                response);
             return true;
         }
         return false;
