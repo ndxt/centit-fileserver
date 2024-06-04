@@ -174,7 +174,7 @@ public class UploadController extends BaseController {
      * 完成秒传，如果文件不存在会返回失败
      *
      * @param token    token
-     * @param size     大小
+     *  size/fileSize     大小
      * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
