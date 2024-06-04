@@ -182,7 +182,7 @@ public class UploadController extends BaseController {
     @ApiOperation(value = "文件秒传接口，需要post文件基本信息和预处理信息")
     @CrossOrigin(origins = "*", allowCredentials = "true", maxAge = 86400, methods = RequestMethod.POST)
     @RequestMapping(value = "/secondpass", method = RequestMethod.POST)
-    public void secondPass(String token, long size,
+    public void secondPass(String token,
                            HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         request.setCharacterEncoding("utf8");
@@ -191,7 +191,7 @@ public class UploadController extends BaseController {
             WebOptUtils.getRequestFirstOneParameter(request, "size", "fileSize"), -1l);
 
         fileInfo.setFileMd5(token);
-        fileInfo.setFileSize(size);
+        fileInfo.setFileSize(fileSize);
         String tempFilePath = SystemTempFileUtils.getTempFilePath(token, fileSize);
         String fileStorePath = fileStore.matchFileStoreUrl(fileInfo, fileSize);
         if (fileStore.checkFile(fileStorePath)) {
@@ -204,17 +204,17 @@ public class UploadController extends BaseController {
         } else {
             //临时文件大小相等 说明上传已完成，也可以秒传
             long tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
-            if (tempFileSize == size) {
+            if (tempFileSize == fileSize) {
                 Triple<FileInfo, Map<String, Object>, InputStream> formData
                     = fetchUploadFormFromRequest(request);
                 completedFileStoreAndPretreat(tempFilePath, fileInfo,
                     formData.getMiddle(), request, response);
             } else {
-                FileSystemOpt.deleteFile(SystemTempFileUtils.getTempFilePath(token, size));
+                FileSystemOpt.deleteFile(tempFilePath);
                 JsonResultUtils.writeHttpErrorMessage(
                     FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "文件不存在无法实现秒传，MD5(uploadedSize/fileSize)："
-                        + token + "(" + tempFileSize + "/" + size + ")", response);
+                    "文件不存在无法实现秒传。\r\n MD5(uploadedSize - fileSize)："
+                        + token + "(" + tempFileSize + "-" + fileSize + ")", response);
             }
         }
     }
