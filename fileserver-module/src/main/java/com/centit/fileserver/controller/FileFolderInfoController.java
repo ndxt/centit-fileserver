@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,8 +106,10 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(value = "/{libraryId}/{folderId}", method = RequestMethod.GET)
     @ApiOperation(value = "按库查询所有文件夹及文件夹信息列表")
     @WrapUpResponseBody
-    public List<FileShowInfo> list(@PathVariable String libraryId, @PathVariable String folderId, HttpServletRequest request) {
-        Map<String, Object> searchColumn = CollectionsOpt.createHashMap("libraryId", libraryId, "parentFolder", folderId);
+    public List<FileShowInfo> list(@PathVariable String libraryId,
+                                   @PathVariable String folderId, HttpServletRequest request) {
+        Map<String, Object> searchColumn = CollectionsOpt.createHashMap(
+            "libraryId", libraryId, "parentFolder", folderId);
         searchColumn.put("favoriteUser", WebOptUtils.getCurrentUserCode(request));
         List<FileFolderInfo> fileFolderInfos = fileFolderInfoMag.listFileFolderInfo(
             searchColumn, null);
@@ -270,7 +274,8 @@ public class FileFolderInfoController extends BaseController {
         return fileShowInfo;
     }
 
-    private void addFolder(String topUnit, ZipOutputStream out, String basedir, String folderId, long currSize) throws IOException {
+    private void addFolder(String topUnit, ZipOutputStream out, String basedir,
+                           String folderId, long currSize) throws IOException {
         List<FileShowInfo> fileList =
             localFileManager.listFolderFiles(topUnit,
                 CollectionsOpt.createHashMap("parentFolder", folderId));
@@ -282,7 +287,7 @@ public class FileFolderInfoController extends BaseController {
                 if (inputStream == null) {
                     String tempFile = SystemTempFileUtils.getTempFilePath(fsi.getFileMd5(), fsi.getFileSize());
                     if (FileSystemOpt.existFile(tempFile)) {
-                        inputStream = new FileInputStream(new File(tempFile));
+                        inputStream = Files.newInputStream(Paths.get(tempFile));
                     }
                 }
                 if (inputStream != null) {
@@ -302,7 +307,8 @@ public class FileFolderInfoController extends BaseController {
             CollectionsOpt.createHashMap("parentFolder", folderId), null);
         if (fileFolderInfos != null) {
             for (FileFolderInfo fileFolderInfo : fileFolderInfos) {
-                addFolder(topUnit, out, basedir + fileFolderInfo.getFolderName() + "/", fileFolderInfo.getFolderId(), currSize);
+                addFolder(topUnit, out, basedir + fileFolderInfo.getFolderName() + "/",
+                    fileFolderInfo.getFolderId(), currSize);
             }
         }
     }
