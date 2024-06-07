@@ -2,12 +2,10 @@ package com.centit.fileserver.config;
 
 import com.centit.framework.config.SystemSpringMvcConfig;
 import com.centit.framework.config.WebConfig;
-import com.centit.support.file.PropertiesReader;
 import org.springframework.web.WebApplicationInitializer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.util.Properties;
 
 /**
  * Created by zou_wy on 2017/3/29.

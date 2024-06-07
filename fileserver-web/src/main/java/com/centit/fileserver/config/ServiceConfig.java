@@ -26,6 +26,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -35,16 +37,18 @@ import java.io.File;
 /**
  * Created by codefan on 17-7-18.
  */
+@EnableAsync
 @Configuration
+@EnableScheduling
 @PropertySource("classpath:system.properties")
-@ComponentScan(basePackages = "com.centit",
-        excludeFilters = @ComponentScan.Filter(value = org.springframework.stereotype.Controller.class))
 @Import({
         DubboConfig.class,
         IpServerDubboClientConfig.class,
         SpringSecurityDaoConfig.class,
         JdbcConfig.class})
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+@ComponentScan(basePackages = "com.centit",
+    excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,
+        value = org.springframework.stereotype.Controller.class))
 @EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.server-addr}"))
 @NacosPropertySources({@NacosPropertySource(dataId = "${nacos.system-dataid}", groupId = "CENTIT", autoRefreshed = true)})
 public class ServiceConfig implements EnvironmentAware {
@@ -198,7 +202,7 @@ public class ServiceConfig implements EnvironmentAware {
     }
 
     @Bean
-    MessageSource messageSource() {
+    public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
         ms.setBasename("classpath:i18n/messages");
         ms.setDefaultEncoding("UTF-8");
