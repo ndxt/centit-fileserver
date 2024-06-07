@@ -37,16 +37,13 @@ public class WebInitializer implements WebApplicationInitializer {
         //dubbo hessian协议使用
  /*       ServletRegistration.Dynamic hessian = servletContext.addServlet("hessian", DispatcherServlet.class);
         hessian.addMapping("/*");*/
-
-
+/*
         Properties properties = PropertiesReader.getClassPathProperties(
             WebInitializer.class, "/system.properties");
-
         String jdbcUrl = properties.getProperty("jdbc.url");
-
         if(jdbcUrl!=null && jdbcUrl.startsWith("jdbc:h2")){
             WebConfig.initializeH2Console(servletContext);
-        }
+        }*/
     }
 
  }
