@@ -159,7 +159,7 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(method = {RequestMethod.POST},value = "/addlibrary")
     @ApiOperation(value = "通过新增文件库信息")
     @WrapUpResponseBody
-    public FileLibraryInfo createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibrary) {
+    public FileLibraryInfo mergeFileLibraryInfo(@RequestBody FileLibraryInfo fileLibrary) {
         return operateFileLibrary.insertFileLibrary(fileLibrary);
     }
 

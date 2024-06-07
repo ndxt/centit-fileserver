@@ -74,7 +74,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         Map<String, Object> map = new HashMap<>();
         map.put("accessuser", userCode);
         StringBuilder sqlBuilder= new StringBuilder("where ( (library_type='P' and own_user=:accessuser) " +
-                "or (library_type='T' and library_id in (select group_id from work_group where user_code=:accessuser) )");
+                " or (library_type='T' and library_id in (select group_id from work_group where user_code=:accessuser) )");
         Set<String> units = getUnits(topUnit, userCode);
         if(units != null && units.size() > 0){
             map.put("ownunit", units);
