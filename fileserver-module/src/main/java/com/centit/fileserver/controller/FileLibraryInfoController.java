@@ -61,9 +61,13 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
-        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        //UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        String userCode = getUserCode(request);
+        if(StringUtils.isBlank(userCode)){
+            return null;
+        }
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userInfo.getUserCode());
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userCode);
         return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
@@ -188,7 +192,7 @@ public class FileLibraryInfoController extends BaseController {
     }
 
     private String getUserCode(HttpServletRequest request) {
-        String userCode =  (String) collectRequestParameters(request).get("userCode");
+        String userCode =  request.getParameter("userCode");
         if (StringUtils.isBlank(userCode)||"undefined".equals(userCode)) {
             userCode = WebOptUtils.getCurrentUserCode(request);
         }

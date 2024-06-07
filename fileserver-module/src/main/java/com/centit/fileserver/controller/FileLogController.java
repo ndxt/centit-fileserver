@@ -12,6 +12,7 @@ import com.centit.framework.model.basedata.UserInfo;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,11 +46,17 @@ public class FileLogController extends BaseController {
     @WrapUpResponseBody(contentType = WrapUpContentType.MAP_DICT)
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         //TODO 获取当前人员所在库数组 编辑 unitCode in 这个数组
-        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        String userCode = WebOptUtils.getCurrentUserCode(request);
+        if(StringUtils.isBlank(userCode)){
+            userCode = request.getParameter("userCode");
+        }
+        if(StringUtils.isBlank(userCode)){
+            return null;
+        }
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
         List<FileLibraryInfo> fileLibraryInfos=
-            fileLibraryInfoManager.listFileLibrary(topUnit, userInfo.getUserCode());
+            fileLibraryInfoManager.listFileLibrary(topUnit, userCode);
         if(fileLibraryInfos!=null){
             String[] units=new String[fileLibraryInfos.size()];
             for(int i=0;i<fileLibraryInfos.size();i++){
