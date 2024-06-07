@@ -5,7 +5,6 @@ import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.framework.common.JsonResultUtils;
-import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
 import com.centit.framework.core.controller.WrapUpContentType;
@@ -14,7 +13,6 @@ import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.framework.model.basedata.UserInfo;
-import com.centit.support.common.ObjectException;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,7 +62,8 @@ public class FileLibraryInfoController extends BaseController {
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
         UserInfo userInfo = WebOptUtils.assertUserLogin(request);
-        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(userInfo.getUserCode());
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userInfo.getUserCode());
         return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
@@ -77,8 +76,12 @@ public class FileLibraryInfoController extends BaseController {
     @RequestMapping(value = "/{libraryId}", method = {RequestMethod.GET})
     @ApiOperation(value = "查询单个文件库信息")
     @WrapUpResponseBody
-    public Object getFileLibraryInfo(@PathVariable String libraryId) {
-        return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibrary(libraryId));
+    public Object getFileLibraryInfo(@PathVariable String libraryId, HttpServletRequest request) {
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        if(StringUtils.isEmpty(topUnit)){
+            topUnit = request.getParameter("topUnit");
+        }
+        return DictionaryMapUtils.objectToJSONCascade(fileLibraryInfoMag.getFileLibrary(topUnit, libraryId));
     }
 
     @RequestMapping(value = "/unitpath", method = RequestMethod.GET)
@@ -89,7 +92,8 @@ public class FileLibraryInfoController extends BaseController {
         if (userCode == null) {
             return null;
         }
-        return fileLibraryInfoMag.listUnitPathsByUserCode(userCode);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        return fileLibraryInfoMag.listUnitPathsByUserCode(topUnit, userCode);
     }
 
     @RequestMapping(value = "/libraryimage/{name}", method = RequestMethod.GET)
@@ -114,14 +118,18 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "初始化个人文件库")
     @WrapUpResponseBody
     public void initPersonLibrary(HttpServletRequest request) {
-        fileLibraryInfoMag.initPersonLibrary(WebOptUtils.getCurrentUserCode(request));
+        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        fileLibraryInfoMag.initPersonLibrary(topUnit, userInfo.getUserCode());
     }
 
     @RequestMapping(value = "/initunitlib/{unitCode}", method = {RequestMethod.POST})
     @ApiOperation(value = "初始化机构库")
     @WrapUpResponseBody
     public void initUnitLibrary(@PathVariable String unitCode, HttpServletRequest request) {
-        fileLibraryInfoMag.initUnitLibrary(unitCode, WebOptUtils.getCurrentUserCode(request));
+        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        fileLibraryInfoMag.initUnitLibrary(topUnit, unitCode, userInfo.getUserCode());
     }
 
     /**
@@ -135,7 +143,8 @@ public class FileLibraryInfoController extends BaseController {
     @WrapUpResponseBody
     public void createFileLibraryInfo(@RequestBody FileLibraryInfo fileLibraryInfo, HttpServletRequest request,
                                       HttpServletResponse response) {
-        fileLibraryInfo.setCreateUser(WebOptUtils.getCurrentUserCode(request));
+        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        fileLibraryInfo.setCreateUser(userInfo.getUserCode());
         if(StringUtils.isBlank(fileLibraryInfo.getOwnUnit())) {
             fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(request));
         }

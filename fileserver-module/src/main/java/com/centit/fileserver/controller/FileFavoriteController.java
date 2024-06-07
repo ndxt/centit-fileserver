@@ -52,7 +52,8 @@ public class FileFavoriteController  extends BaseController {
     @WrapUpResponseBody
     public PageQueryResult<FileFavorite> list(HttpServletRequest request, PageDesc pageDesc) {
         Map<String, Object> searchColumn = collectRequestParameters(request);
-        List<FileFavorite> fileFavorites = fileFavoriteMag.listFileFavorite(
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+        List<FileFavorite> fileFavorites = fileFavoriteMag.listFileFavorite(topUnit,
             searchColumn, pageDesc);
         return PageQueryResult.createResult(fileFavorites,pageDesc);
     }

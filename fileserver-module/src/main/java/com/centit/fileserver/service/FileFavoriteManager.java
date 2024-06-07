@@ -23,6 +23,6 @@ public interface FileFavoriteManager extends BaseEntityManager<FileFavorite, Str
     FileFavorite getFileFavorite(String favoriteId);
 
     void createFileFavorite(FileFavorite fileFavorite);
-    String getShowPath(String fileShowPath,String libraryId);
-    List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc);
+    String getShowPath(String topUnit, String fileShowPath,String libraryId);
+    List<FileFavorite> listFileFavorite(String topUnit, Map<String, Object> param, PageDesc pageDesc);
 }

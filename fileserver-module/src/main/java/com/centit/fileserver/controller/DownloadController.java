@@ -337,11 +337,12 @@ public class DownloadController extends BaseController {
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         if(StringUtils.isBlank(userCode)){
             userCode = request.getParameter("userCode");
         }
 
-        if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
+        if (!fileLibraryInfoManager.checkAuth(topUnit, fileInfo, userCode, request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FORBIDDEN,
                 getI18nMessage("error.403.download_file_forbidden", request,
                     userCode, WebOptUtils.getCurrentUnitCode(request), request.getParameter("authCode")),

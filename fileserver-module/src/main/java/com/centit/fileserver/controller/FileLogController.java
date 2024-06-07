@@ -8,6 +8,7 @@ import com.centit.framework.core.controller.WrapUpContentType;
 import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.model.adapter.OperationLogWriter;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.framework.model.basedata.UserInfo;
 import com.centit.support.database.utils.PageDesc;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,8 +45,11 @@ public class FileLogController extends BaseController {
     @WrapUpResponseBody(contentType = WrapUpContentType.MAP_DICT)
     public List<? extends OperationLog> listFileLog(PageDesc pageDesc, HttpServletRequest request) {
         //TODO 获取当前人员所在库数组 编辑 unitCode in 这个数组
+        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
-        List<FileLibraryInfo> fileLibraryInfos=fileLibraryInfoManager.listFileLibrary(WebOptUtils.getCurrentUserCode(request));
+        List<FileLibraryInfo> fileLibraryInfos=
+            fileLibraryInfoManager.listFileLibrary(topUnit, userInfo.getUserCode());
         if(fileLibraryInfos!=null){
             String[] units=new String[fileLibraryInfos.size()];
             for(int i=0;i<fileLibraryInfos.size();i++){

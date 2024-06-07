@@ -81,12 +81,13 @@ public class FileFolderInfoController extends BaseController {
     @RequestMapping(value = "/prev/{folderId}", method = RequestMethod.GET)
     @ApiOperation(value = "查询文件夹所有上级文件夹接口")
     @WrapUpResponseBody
-    public List<FileFolderInfo> list(@PathVariable String folderId) {
+    public List<FileFolderInfo> list(@PathVariable String folderId, HttpServletRequest request) {
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         FileFolderInfo fileFolderInfo = fileFolderInfoMag.getFileFolderInfo(folderId);
         String[] paths = StringUtils.split(fileFolderInfo.getFolderPath(), "/");
         List<FileFolderInfo> fileFolderInfos = new ArrayList<>();
         fileFolderInfos.add(fileFolderInfo);
-        fileFolderInfos.add(getFileFolderInfo(fileLibraryInfoManager.getFileLibrary(fileFolderInfo.getLibraryId())));
+        fileFolderInfos.add(getFileFolderInfo(fileLibraryInfoManager.getFileLibrary(topUnit, fileFolderInfo.getLibraryId())));
         for (String path : paths) {
             if (!"-1".equals(path)) {
                 fileFolderInfos.add(fileFolderInfoMag.getFileFolderInfo(path));

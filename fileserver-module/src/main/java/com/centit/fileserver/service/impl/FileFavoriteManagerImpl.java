@@ -11,9 +11,7 @@ import com.centit.fileserver.po.FileStoreInfo;
 import com.centit.fileserver.service.FileFavoriteManager;
 import com.centit.fileserver.service.FileFolderInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
-import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
-import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -59,10 +56,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
     }
 
     @Override
-    public List<FileFavorite> listFileFavorite(Map<String, Object> param, PageDesc pageDesc) {
-        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
-        String topUnit = WebOptUtils.getCurrentTopUnit(request);
-
+    public List<FileFavorite> listFileFavorite(String topUnit, Map<String, Object> param, PageDesc pageDesc) {
         param.put("withFile", "1");
         List<FileFavorite> list = fileFavoriteDao.listObjectsByProperties(param, pageDesc);
         list.forEach(e -> {
@@ -74,7 +68,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
                     fileInfo.getFileOwner()));
                 e.setLibraryId(fileInfo.getLibraryId());
                 e.setParentFolder(fileInfo.getParentFolder());
-                e.setShowPath(getShowPath(fileInfo.getFileShowPath(), fileInfo.getLibraryId()));
+                e.setShowPath(getShowPath(topUnit, fileInfo.getFileShowPath(), fileInfo.getLibraryId()));
                 FileStoreInfo fileStoreInfo = fileStoreInfoDao.getObjectById(fileInfo.getFileMd5());
                 if (fileStoreInfo != null) {
                     e.setFileSize(fileStoreInfo.getFileSize());
@@ -85,7 +79,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
     }
 
     @Override
-    public String getShowPath(String fileShowPath, String libraryId) {
+    public String getShowPath(String topUnit, String fileShowPath, String libraryId) {
         if(StringUtils.isBlank(fileShowPath)) {
             return fileShowPath;
         }
@@ -102,7 +96,7 @@ public class FileFavoriteManagerImpl extends BaseEntityManagerImpl<FileFavorite,
                     showPath.append(path);
                 }
             } else {
-                FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibrary(libraryId);
+                FileLibraryInfo fileLibraryInfo = fileLibraryInfoManager.getFileLibrary(topUnit, libraryId);
                 if (fileLibraryInfo != null) {
                     showPath.append(fileLibraryInfo.getLibraryName());
                 } else {

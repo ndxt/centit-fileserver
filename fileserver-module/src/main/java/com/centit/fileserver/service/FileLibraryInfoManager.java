@@ -21,15 +21,15 @@ public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInf
 
     void deleteFileLibrary(String libraryId);
 
-    FileLibraryInfo getFileLibrary(String libraryId);
+    FileLibraryInfo getFileLibrary(String topUnit, String libraryId);
 
     void createFileLibrary(FileLibraryInfo fileLibraryInfo);
 
-    List<FileLibraryInfo> listFileLibrary(String userCode);
-    List<UnitInfo> listUnitPathsByUserCode(String userCode);
-    void initPersonLibrary(String userCode);
-    void initUnitLibrary(String unitCode,String userCode);
-    Set<String> getUnits(String userCode);
+    List<FileLibraryInfo> listFileLibrary(String topUnit, String userCode);
+    List<UnitInfo> listUnitPathsByUserCode(String topUnit, String userCode);
+    void initPersonLibrary(String topUnit, String userCode);
+    void initUnitLibrary(String topUnit, String unitCode,String userCode);
+    Set<String> getUnits(String topUnit, String userCode);
 
-    boolean checkAuth(FileInfo fileInfo, String userCode, String authCode);
+    boolean checkAuth(String topUnit, FileInfo fileInfo, String userCode, String authCode);
 }

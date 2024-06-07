@@ -6,6 +6,6 @@ package com.centit.fileserver.common;
 public interface OperateFileLibrary {
     FileLibraryInfo insertFileLibrary(FileLibraryInfo fileLibrary);
 
-    FileLibraryInfo getFileLibrary(String libraryId);
+    FileLibraryInfo getFileLibrary(String topUnit, String libraryId);
 
 }

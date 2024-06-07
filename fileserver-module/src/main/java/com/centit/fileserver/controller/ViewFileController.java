@@ -78,8 +78,9 @@ public class ViewFileController extends BaseController {
 
     private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
         String userCode = WebOptUtils.getCurrentUserCode(request);
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         userCode = StringUtils.isBlank(userCode) ? request.getParameter("userCode") : userCode;
-        if (!fileLibraryInfoManager.checkAuth(fileInfo, userCode, request.getParameter("authCode"))) {
+        if (!fileLibraryInfoManager.checkAuth(topUnit, fileInfo, userCode, request.getParameter("authCode"))) {
             JsonResultUtils.writeErrorMessageJson("用户:" + WebOptUtils.getCurrentUserCode(request)
                 + ",所属机构:" + WebOptUtils.getCurrentUnitCode(request) + "没有权限;或者验证码" + request.getParameter("authCode") + "不正确", response);
             return true;

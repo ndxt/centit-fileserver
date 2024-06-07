@@ -399,6 +399,7 @@ public class FileManagerController extends BaseController {
         if (esServerConfig == null) {
             throw new ObjectException(ObjectException.SYSTEM_CONFIG_ERROR, "没有正确配置Elastic Search");
         }
+        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Map<String, Object> searchQuery = new HashMap<>(10);
         if (libraryIds != null) {
             searchQuery.put("optId", libraryIds);
@@ -409,17 +410,17 @@ public class FileManagerController extends BaseController {
             throw new ObjectException("ELK异常");
         }
         pageDesc.setTotalRows(NumberBaseOpt.castObjectToInteger(res.getLeft()));
-        return PageQueryResult.createResult(change(res.getRight(), WebOptUtils.getCurrentUserCode(request)), pageDesc);
+        return PageQueryResult.createResult(change(topUnit,res.getRight(), WebOptUtils.getCurrentUserCode(request)), pageDesc);
     }
 
-    private List<Map<String, Object>> change(List<Map<String, Object>> mapList, String userCode) {
+    private List<Map<String, Object>> change(String topUnit, List<Map<String, Object>> mapList, String userCode) {
         if(mapList==null || mapList.isEmpty()){
             return mapList;
         }
         mapList.forEach(e -> {
-            e.put("showPath", fileFavoriteManager.getShowPath(
+            e.put("showPath", fileFavoriteManager.getShowPath(topUnit,
                 StringBaseOpt.castObjectToString(e.get("optUrl")), StringBaseOpt.castObjectToString(e.get("optId"))));
-            List<FileFavorite> list = fileFavoriteManager.listFileFavorite(
+            List<FileFavorite> list = fileFavoriteManager.listFileFavorite(topUnit,
                 CollectionsOpt.createHashMap("fileId", e.get("fileId"), "favoriteUser", userCode), null);
             if (list != null && !list.isEmpty()) {
                 e.put("favoriteId", list.get(0).getFavoriteId());

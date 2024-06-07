@@ -5,9 +5,7 @@ import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.dao.FileLibraryInfoDao;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.service.FileLibraryInfoManager;
-import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.components.CodeRepositoryUtil;
-import com.centit.framework.filter.RequestThreadLocal;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.framework.model.basedata.UserUnit;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,7 +67,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<FileLibraryInfo> listFileLibrary(String userCode) {
+    public List<FileLibraryInfo> listFileLibrary(String topUnit, String userCode) {
         if(StringUtils.isBlank(userCode)){
             return null;
         }
@@ -78,21 +75,22 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         map.put("accessuser", userCode);
         String sqlBuilder="where (library_type='O' or (library_type='P' and own_user=:accessuser) " +
                 "or library_id in (select group_id from work_group where user_code=:accessuser and group_id not in (select os_id from f_os_info)))";
-        if(getUnits(userCode) != null && getUnits(userCode).size() > 0){
-            map.put("ownunit", getUnits(userCode));
+        Set<String> units = getUnits(topUnit, userCode);
+        if(units != null && units.size() > 0){
+            map.put("ownunit", units);
             sqlBuilder+="and own_unit in (:ownunit) ";
         }
         List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder, map);
         boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
             userCode.equals(fileLibraryInfo.getOwnUser()));
         if (!hasPerson) {
-            libraryInfos.add(getPersonLibraryInfo(userCode));
+            libraryInfos.add(getPersonLibraryInfo(topUnit, userCode));
         }
-        for (String unitCode : getUnits(userCode)) {
+        for (String unitCode : getUnits(topUnit, userCode)) {
             boolean hasUnit = libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
                 unitCode.equals(fileLibraryInfo.getOwnUnit()));
             if (!hasUnit) {
-                libraryInfos.add(getUnitLibraryInfo(unitCode, userCode));
+                libraryInfos.add(getUnitLibraryInfo(topUnit, unitCode, userCode));
             }
         }
         return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType, Comparator.reverseOrder()))
@@ -100,11 +98,9 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<UnitInfo> listUnitPathsByUserCode(String userCode) {
-        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
-        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+    public List<UnitInfo> listUnitPathsByUserCode(String topUnit, String userCode) {
         List<UnitInfo> result = new ArrayList<>(10);
-        for (String unit : getUnits(userCode)) {
+        for (String unit : getUnits(topUnit, userCode)) {
             if (CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit) != null) {
                 result.add(CodeRepositoryUtil.getUnitInfoByCode(topUnit, unit));
             }
@@ -113,16 +109,16 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public void initPersonLibrary(String userCode) {
+    public void initPersonLibrary(String topUnit, String userCode) {
         List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("ownUser", userCode, "libraryType", "P"));
         if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
-            FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(userCode);
+            FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(topUnit, userCode);
             createFileLibrary(fileLibraryInfo);
         }
     }
 
-    private FileLibraryInfo getPersonLibraryInfo(String userCode) {
+    private FileLibraryInfo getPersonLibraryInfo(String topUnit, String userCode) {
         FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.setCreateUser(userCode);
         fileLibraryInfo.setOwnUser(userCode);
@@ -130,24 +126,22 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         fileLibraryInfo.setLibraryType("P");
         fileLibraryInfo.setIsCreateFolder("T");
         fileLibraryInfo.setIsUpload("T");
-        fileLibraryInfo.setOwnUnit(WebOptUtils.getCurrentTopUnit(RequestThreadLocal.getLocalThreadWrapperRequest()));
+        fileLibraryInfo.setOwnUnit(topUnit);
         fileLibraryInfoDao.saveNewObject(fileLibraryInfo);
         return fileLibraryInfo;
     }
 
     @Override
-    public void initUnitLibrary(String unitCode, String userCode) {
+    public void initUnitLibrary(String topUnit, String unitCode, String userCode) {
         List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("ownUnit", unitCode, "libraryType", "O"));
         if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
-            FileLibraryInfo fileLibraryInfo = getUnitLibraryInfo(unitCode, userCode);
+            FileLibraryInfo fileLibraryInfo = getUnitLibraryInfo(topUnit, unitCode, userCode);
             createFileLibrary(fileLibraryInfo);
         }
     }
 
-    private FileLibraryInfo getUnitLibraryInfo(String unitCode, String userCode) {
-        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
-        String topUnit = WebOptUtils.getCurrentTopUnit(request);
+    private FileLibraryInfo getUnitLibraryInfo(String topUnit, String unitCode, String userCode) {
         FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
         fileLibraryInfo.setCreateUser(userCode);
         fileLibraryInfo.setOwnUser(userCode);
@@ -161,12 +155,10 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public Set<String> getUnits(String userCode) {
+    public Set<String> getUnits(String topUnit, String userCode) {
         if (userCode == null) {
             return null;
         }
-        HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
-        String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Set<String> treeSet = new TreeSet<>();
         List<UserUnit> uulist = CodeRepositoryUtil.listUserUnits(topUnit, userCode);
         if (uulist != null && uulist.size() > 0) {
@@ -189,14 +181,12 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
 
     @Override
-    public FileLibraryInfo getFileLibrary(String libraryId) {
+    public FileLibraryInfo getFileLibrary(String topUnit, String libraryId) {
         FileLibraryInfo fileLibraryInfo = fileLibraryInfoDao.getObjectWithReferences(libraryId);
         if (fileLibraryInfo == null) {
             return null;
         }
         if (!StringUtils.isBlank(fileLibraryInfo.getOwnUser())) {
-            HttpServletRequest request = RequestThreadLocal.getLocalThreadWrapperRequest();
-            String topUnit = WebOptUtils.getCurrentTopUnit(request);
             fileLibraryInfo.setOwnName(CodeRepositoryUtil.getUserName(topUnit, fileLibraryInfo.getOwnUser()));
         }
         return fileLibraryInfo;
@@ -208,11 +198,11 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public boolean checkAuth(FileInfo fileInfo, String userCode, String authCode) {
-        Set<String> unitPath = this.getUnits(userCode);
+    public boolean checkAuth(String topUnit, FileInfo fileInfo, String userCode, String authCode) {
+        Set<String> unitPath = this.getUnits(topUnit, userCode);
 
         if (!"undefined".equals(userCode) && !StringUtils.isBlank(userCode) && !StringUtils.isBlank(fileInfo.getLibraryId())) {
-            FileLibraryInfo fileLibraryInfo = this.getFileLibrary(fileInfo.getLibraryId());
+            FileLibraryInfo fileLibraryInfo = this.getFileLibrary(topUnit, fileInfo.getLibraryId());
             switch (fileLibraryInfo.getLibraryType()) {
                 //个人
                 case "P":

@@ -532,10 +532,9 @@ public class FileClientImpl implements FileClient {
     }
 
     @Override
-    public FileLibraryInfo getFileLibrary(String libraryId) {
-        return RestfulHttpRequest.getResponseData(appSession, "/library/" + libraryId).getDataAsObject(FileLibraryInfo.class);
+    public FileLibraryInfo getFileLibrary(String topUnit, String libraryId) {
+        return RestfulHttpRequest.getResponseData(appSession, "/library/" + libraryId+"?topUnit="+topUnit).getDataAsObject(FileLibraryInfo.class);
     }
-
 
     @Override
     public String matchFileStoreUrl(FileInfo fi, long fileSize) {

@@ -166,8 +166,8 @@ public class FileInfoOptClient implements FileInfoOpt, OperateFileLibrary {
     }
 
     @Override
-    public FileLibraryInfo getFileLibrary(String libraryId) {
-        return fileClient.getFileLibrary(libraryId);
+    public FileLibraryInfo getFileLibrary(String topUnit, String libraryId) {
+        return fileClient.getFileLibrary(topUnit, libraryId);
     }
 
 }

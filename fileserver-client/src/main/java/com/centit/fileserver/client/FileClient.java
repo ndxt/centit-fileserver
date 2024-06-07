@@ -175,7 +175,7 @@ public interface FileClient {
 
     String insertFileLibrary(FileLibraryInfo fileLibrary);
 
-    FileLibraryInfo getFileLibrary(String libraryId);
+    FileLibraryInfo getFileLibrary(String topUnit, String libraryId);
 
 
 }
