@@ -13,6 +13,7 @@ import com.centit.framework.core.controller.WrapUpResponseBody;
 import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.UnitInfo;
+import com.centit.framework.model.basedata.UserInfo;
 import com.centit.support.common.ObjectException;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
@@ -62,11 +63,8 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
-        String userCode = WebOptUtils.getCurrentUserCode(request);
-        if (userCode == null) {
-            throw new ObjectException(ResponseData.ERROR_USER_NOT_LOGIN, "用户没有登录，没有对应的权限！");
-        }
-        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(userCode);
+        UserInfo userInfo = WebOptUtils.assertUserLogin(request);
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(userInfo.getUserCode());
         return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
