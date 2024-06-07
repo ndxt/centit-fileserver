@@ -44,7 +44,7 @@ public class FileLibraryInfo implements Serializable {
     @NotBlank
     private String libraryName;
     /**
-     * 类别 类别(P个人、O组织、I项目)
+     * 类别 类别(P 个人、T 团队 team 、 O 组织、I 项目)
      */
     @ApiModelProperty(value = "类别(个人、组织、项目)", required = true)
     @Column(name = "library_type")

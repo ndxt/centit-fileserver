@@ -27,7 +27,7 @@ public interface FileLibraryInfoManager extends BaseEntityManager<FileLibraryInf
 
     List<FileLibraryInfo> listFileLibrary(String topUnit, String userCode);
     List<UnitInfo> listUnitPathsByUserCode(String topUnit, String userCode);
-    void initPersonLibrary(String topUnit, String userCode);
+    FileLibraryInfo initPersonLibrary(String topUnit, String userCode);
     void initUnitLibrary(String topUnit, String unitCode,String userCode);
     Set<String> getUnits(String topUnit, String userCode);
 

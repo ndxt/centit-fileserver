@@ -73,26 +73,27 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
         }
         Map<String, Object> map = new HashMap<>();
         map.put("accessuser", userCode);
-        String sqlBuilder="where (library_type='O' or (library_type='P' and own_user=:accessuser) " +
-                "or library_id in (select group_id from work_group where user_code=:accessuser and group_id not in (select os_id from f_os_info)))";
+        StringBuilder sqlBuilder= new StringBuilder("where ( (library_type='P' and own_user=:accessuser) " +
+                "or (library_type='T' and library_id in (select group_id from work_group where user_code=:accessuser) )");
         Set<String> units = getUnits(topUnit, userCode);
         if(units != null && units.size() > 0){
             map.put("ownunit", units);
-            sqlBuilder+="and own_unit in (:ownunit) ";
+            sqlBuilder.append( " or (library_type='O' and own_unit in (:ownunit) )");
         }
-        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder, map);
+        sqlBuilder.append(")");
+            List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder.toString(), map);
         boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
             userCode.equals(fileLibraryInfo.getOwnUser()));
         if (!hasPerson) {
-            libraryInfos.add(getPersonLibraryInfo(topUnit, userCode));
+            libraryInfos.add(initPersonLibrary(topUnit, userCode));
         }
-        for (String unitCode : getUnits(topUnit, userCode)) {
+       /* for (String unitCode : getUnits(topUnit, userCode)) {
             boolean hasUnit = libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
                 unitCode.equals(fileLibraryInfo.getOwnUnit()));
             if (!hasUnit) {
                 libraryInfos.add(getUnitLibraryInfo(topUnit, unitCode, userCode));
             }
-        }
+        }*/
         return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType, Comparator.reverseOrder()))
             .collect(Collectors.toList());
     }
@@ -109,26 +110,21 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public void initPersonLibrary(String topUnit, String userCode) {
+    public FileLibraryInfo initPersonLibrary(String topUnit, String userCode) {
         List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoDao.listObjectsByProperties(
             CollectionsOpt.createHashMap("ownUser", userCode, "libraryType", "P"));
         if (null == fileLibraryInfos || fileLibraryInfos.size() == 0) {
-            FileLibraryInfo fileLibraryInfo = getPersonLibraryInfo(topUnit, userCode);
+            FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
+            fileLibraryInfo.setCreateUser(userCode);
+            fileLibraryInfo.setOwnUser(userCode);
+            fileLibraryInfo.setLibraryName("我的文件");
+            fileLibraryInfo.setLibraryType("P");
+            fileLibraryInfo.setIsCreateFolder("T");
+            fileLibraryInfo.setIsUpload("T");
             createFileLibrary(fileLibraryInfo);
+            return fileLibraryInfo;
         }
-    }
-
-    private FileLibraryInfo getPersonLibraryInfo(String topUnit, String userCode) {
-        FileLibraryInfo fileLibraryInfo = new FileLibraryInfo();
-        fileLibraryInfo.setCreateUser(userCode);
-        fileLibraryInfo.setOwnUser(userCode);
-        fileLibraryInfo.setLibraryName("我的文件");
-        fileLibraryInfo.setLibraryType("P");
-        fileLibraryInfo.setIsCreateFolder("T");
-        fileLibraryInfo.setIsUpload("T");
-        fileLibraryInfo.setOwnUnit(topUnit);
-        fileLibraryInfoDao.saveNewObject(fileLibraryInfo);
-        return fileLibraryInfo;
+        return fileLibraryInfos.get(0);
     }
 
     @Override
