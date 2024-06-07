@@ -72,28 +72,18 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
             return null;
         }
         Map<String, Object> map = new HashMap<>();
-        map.put("accessuser", userCode);
-        StringBuilder sqlBuilder= new StringBuilder("where ( (library_type='P' and own_user=:accessuser) " +
-                " or (library_type='T' and library_id in (select group_id from work_group where user_code=:accessuser) )");
+        map.put("accessUser", userCode);
+        StringBuilder sqlBuilder= new StringBuilder("where ( " +
+            "(library_type='T' and library_id in (select group_id from work_group where user_code=:accessUser) )");
         Set<String> units = getUnits(topUnit, userCode);
         if(units != null && units.size() > 0){
-            map.put("ownunit", units);
-            sqlBuilder.append( " or (library_type='O' and own_unit in (:ownunit) )");
+            map.put("ownUnits", units);
+            sqlBuilder.append( " or (library_type='O' and own_unit in (:ownUnits) )");
         }
         sqlBuilder.append(")");
-            List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder.toString(), map);
-        boolean hasPerson = libraryInfos.stream().anyMatch(fileLibraryInfo -> "P".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
-            userCode.equals(fileLibraryInfo.getOwnUser()));
-        if (!hasPerson) {
-            libraryInfos.add(initPersonLibrary(topUnit, userCode));
-        }
-       /* for (String unitCode : getUnits(topUnit, userCode)) {
-            boolean hasUnit = libraryInfos.stream().anyMatch(fileLibraryInfo -> "O".equalsIgnoreCase(fileLibraryInfo.getLibraryType()) &&
-                unitCode.equals(fileLibraryInfo.getOwnUnit()));
-            if (!hasUnit) {
-                libraryInfos.add(getUnitLibraryInfo(topUnit, unitCode, userCode));
-            }
-        }*/
+        List<FileLibraryInfo> libraryInfos = fileLibraryInfoDao.listObjectsByFilter(sqlBuilder.toString(), map);
+        libraryInfos.add(initPersonLibrary(topUnit, userCode));
+
         return libraryInfos.stream().sorted(Comparator.comparing(FileLibraryInfo::getLibraryType, Comparator.reverseOrder()))
             .collect(Collectors.toList());
     }
