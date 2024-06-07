@@ -3,6 +3,7 @@ package com.centit.fileserver.config;
 import com.alibaba.nacos.api.annotation.NacosProperties;
 import com.alibaba.nacos.spring.context.annotation.config.EnableNacosConfig;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
+import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySources;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
 import com.centit.fileserver.store.plugin.AliyunOssStore;
@@ -11,7 +12,6 @@ import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.impl.NotificationCenterImpl;
-import com.centit.framework.config.SpringSecurityCasConfig;
 import com.centit.framework.config.SpringSecurityDaoConfig;
 import com.centit.framework.dubbo.config.DubboConfig;
 import com.centit.framework.dubbo.config.IpServerDubboClientConfig;
@@ -46,11 +46,10 @@ import java.io.File;
         DubboConfig.class,
         IpServerDubboClientConfig.class,
         SpringSecurityDaoConfig.class,
-        SpringSecurityCasConfig.class,
         JdbcConfig.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableNacosConfig(globalProperties = @NacosProperties(serverAddr = "${nacos.server-addr}"))
-@NacosPropertySource(dataId = "${nacos.system-dataid}",groupId = "CENTIT", autoRefreshed = true)
+@NacosPropertySources({@NacosPropertySource(dataId = "${nacos.system-dataid}", groupId = "CENTIT", autoRefreshed = true)})
 public class ServiceConfig implements EnvironmentAware {
 
     private Environment env;
