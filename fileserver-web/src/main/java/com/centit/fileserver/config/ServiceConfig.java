@@ -6,8 +6,6 @@ import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
 import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySources;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.common.FileTaskQueue;
-import com.centit.fileserver.store.plugin.AliyunOssStore;
-import com.centit.fileserver.store.plugin.TxyunCosStore;
 import com.centit.fileserver.task.*;
 import com.centit.fileserver.utils.OsFileStore;
 import com.centit.fileserver.utils.SystemTempFileUtils;
@@ -20,7 +18,6 @@ import com.centit.framework.model.adapter.NotificationCenter;
 import com.centit.framework.security.StandardPasswordEncoderImpl;
 import com.centit.search.service.ESServerConfig;
 import com.centit.support.algorithm.NumberBaseOpt;
-import com.centit.support.security.SecurityOptUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -70,9 +67,9 @@ public class ServiceConfig implements EnvironmentAware {
     public FileStore fileStore(){
         SystemTempFileUtils.setTempFileDirectory(
             env.getProperty("app.home", ".") +File.separatorChar+ "temp" + File.separatorChar);
-        String fileStoreType= env.getProperty("filestore.type","os");
+        //String fileStoreType= env.getProperty("filestore.type","os");
 
-        if("oss".equals(fileStoreType)){//ali-oss
+        /*if("oss".equals(fileStoreType)){//ali-oss
             AliyunOssStore fs = new AliyunOssStore();
             fs.setEndPoint(env.getProperty("oos.endPoint"));
             fs.setAccessKeyId(
@@ -91,17 +88,18 @@ public class ServiceConfig implements EnvironmentAware {
                 SecurityOptUtils.decodeSecurityString(env.getProperty("cos.secretKey")));
             cosStore.setBucketName(env.getProperty("cos.bucketName"));
             return cosStore;
-        }else {
+        }else {*/
             String baseHome = env.getProperty("os.file.base.dir");
             if (StringUtils.isBlank(baseHome)) {
                 baseHome = env.getProperty("app.home") + "/upload";
             }
             return new OsFileStore(baseHome);
-        }
+        //}
     }
 
     @Bean
     public FileTaskQueue fileOptTaskQueue() throws Exception {
+        //RedisFileTaskQueue
         return new LinkedBlockingQueueFileOptTaskQueue(env.getProperty("app.home", ".") + "/task");
     }
 
@@ -111,6 +109,8 @@ public class ServiceConfig implements EnvironmentAware {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(env.getProperty("file.redis.host","127.0.0.1"));
         configuration.setPort(env.getProperty("file.redis.port", Integer.class, 6379));
+        configuration.setUsername(env.getProperty("file.redis.username"));
+        configuration.setPassword(env.getProperty("file.redis.password"));
         configuration.setDatabase(1);
         JedisConnectionFactory factory = new JedisConnectionFactory(configuration);
         RedisTemplate redisTemplate = new RedisTemplate();

@@ -69,7 +69,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-store-oss-plugin</artifactId>
             <version>${project.version}</version>
@@ -80,7 +80,7 @@
             <artifactId>fileserver-store-cos-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+-->
         <dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-task-redis-plugin</artifactId>
