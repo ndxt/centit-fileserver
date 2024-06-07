@@ -152,7 +152,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
 
     @Override
     public Set<String> getUnits(String topUnit, String userCode) {
-        if (userCode == null) {
+        if (userCode == null || topUnit == null) {
             return null;
         }
         Set<String> treeSet = new TreeSet<>();
