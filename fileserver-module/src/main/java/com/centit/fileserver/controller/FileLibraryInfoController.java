@@ -1,6 +1,7 @@
 package com.centit.fileserver.controller;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -13,6 +14,7 @@ import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.framework.model.basedata.UserInfo;
+import com.centit.framework.session.CentitSessionRepo;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +49,9 @@ public class FileLibraryInfoController extends BaseController {
     @Autowired
     private OperateFileLibrary operateFileLibrary;
 
+    @Autowired
+    private CentitSessionRepo centitSessionRepo;
+
     public FileLibraryInfoController(FileLibraryInfoManager fileLibraryInfoMag) {
         this.fileLibraryInfoMag = fileLibraryInfoMag;
     }
@@ -61,7 +66,11 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
-        System.out.print("查询用户文件库列表, X-Auth-Token: " + request.getHeader("X-Auth-Token"));
+        String xat = request.getHeader("X-Auth-Token");
+        System.out.print("查询用户文件库列表, X-Auth-Token: " + xat);
+        System.out.println("redis session reo: " + centitSessionRepo.getClass().getName());
+        System.out.println("redis session data: " +
+            JSON.toJSONString(centitSessionRepo.findById(xat)));
         System.out.print(" Session Id: " + request.getSession().getId());
         System.out.println(" Session User: " + WebOptUtils.getCurrentUserCode(request));
         //UserInfo userInfo = WebOptUtils.assertUserLogin(request);
