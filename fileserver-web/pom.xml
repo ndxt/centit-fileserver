@@ -22,6 +22,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.centit.product</groupId>
+            <artifactId>fileserver-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-dubbo-config</artifactId>
             <version>${revision}</version>
@@ -30,6 +36,31 @@
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>framework-system-dubbo-client-config</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-core-web</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-config</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- 切换组织机构结束 -->
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>framework-session-redis</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>centit-persistence-jdbc-config</artifactId>
             <version>${revision}</version>
         </dependency>
         <!--日志写入es依赖-->
@@ -63,12 +94,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.centit.product</groupId>
-            <artifactId>fileserver-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!--<dependency>
             <groupId>com.centit.product</groupId>
             <artifactId>fileserver-store-oss-plugin</artifactId>
@@ -89,31 +114,6 @@
         </dependency>
 -->
 
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-core-web</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-config</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <!-- 切换组织机构结束 -->
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>framework-session-redis</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>centit-persistence-jdbc-config</artifactId>
-            <version>${revision}</version>
-        </dependency>
         <!-- swagger2 -->
         <dependency>
             <groupId>io.springfox</groupId>
