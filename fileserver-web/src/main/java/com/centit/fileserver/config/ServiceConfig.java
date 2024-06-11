@@ -171,12 +171,15 @@ public class ServiceConfig implements EnvironmentAware {
         ElkOptLogManager operationLog = new ElkOptLogManager(esServerConfig);
         return operationLog;
     }*/
+    @Bean
+    public AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor(){
+        return new AutowiredAnnotationBeanPostProcessor();
+    }
 
     @Bean
     public InstantiationServiceBeanPostProcessor instantiationServiceBeanPostProcessor() {
         return new InstantiationServiceBeanPostProcessor();
     }
-
 
 }
 
