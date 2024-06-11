@@ -61,7 +61,9 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
-        System.out.println("查询用户文件库列表, X-Auth-Token: " + request.getHeader("X-Auth-Token"));
+        System.out.print("查询用户文件库列表, X-Auth-Token: " + request.getHeader("X-Auth-Token"));
+        System.out.print(" Session Id: " + request.getSession().getId());
+        System.out.println(" Session User: " + WebOptUtils.getCurrentUserCode(request));
         //UserInfo userInfo = WebOptUtils.assertUserLogin(request);
         String userCode = getUserCode(request);
         if(StringUtils.isBlank(userCode)){
