@@ -68,11 +68,13 @@ public class FileLibraryInfoController extends BaseController {
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
         String xat = request.getHeader("X-Auth-Token");
         System.out.print("查询用户文件库列表, X-Auth-Token: " + xat);
-        System.out.println("redis session reo: " + centitSessionRepo.getClass().getName());
+        System.out.println("redis session repo: " + centitSessionRepo.getClass().getName());
         System.out.println("redis session data: " +
             JSON.toJSONString(centitSessionRepo.findById(xat)));
         System.out.print(" Session Id: " + request.getSession().getId());
         System.out.println(" Session User: " + WebOptUtils.getCurrentUserCode(request));
+        System.out.println("redis session data2: " +
+            JSON.toJSONString(centitSessionRepo.findById(request.getSession().getId())));
         //UserInfo userInfo = WebOptUtils.assertUserLogin(request);
         String userCode = getUserCode(request);
         if(StringUtils.isBlank(userCode)){
