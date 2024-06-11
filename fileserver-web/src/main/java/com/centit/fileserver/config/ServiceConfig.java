@@ -63,37 +63,40 @@ public class ServiceConfig implements EnvironmentAware {
         }
     }
 
+    /**
+     * 这个bean必须要有
+     * @return CentitPasswordEncoder 密码加密算法
+     */
+    @Bean("passwordEncoder")
+    public StandardPasswordEncoderImpl passwordEncoder() {
+        return  new StandardPasswordEncoderImpl();
+    }
+    //这个bean必须要有 可以配置不同策略的session保存方案
+
     @Bean
-    public AutowiredAnnotationBeanPostProcessor autowiredAnnotationBeanPostProcessor(){
-        return new AutowiredAnnotationBeanPostProcessor();
+    public CsrfTokenRepository csrfTokenRepository() {
+        return new HttpSessionCsrfTokenRepository();
+    }
+
+    @Bean
+    public MessageSource messageSource() {
+        ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
+        ms.setUseCodeAsDefaultMessage(true);
+        ms.setBasenames("classpath:i18n/messages", "classpath:org/springframework/security/messages");
+        ms.setDefaultEncoding("UTF-8");
+        return ms;
+    }
+
+    @Bean
+    public LocalValidatorFactoryBean validatorFactory() {
+        return new LocalValidatorFactoryBean();
     }
 
     @Bean
     public FileStore fileStore(){
         SystemTempFileUtils.setTempFileDirectory(
             env.getProperty("app.home", ".") +File.separatorChar+ "temp" + File.separatorChar);
-        //String fileStoreType= env.getProperty("filestore.type","os");
 
-        /*if("oss".equals(fileStoreType)){//ali-oss
-            AliyunOssStore fs = new AliyunOssStore();
-            fs.setEndPoint(env.getProperty("oos.endPoint"));
-            fs.setAccessKeyId(
-                SecurityOptUtils.decodeSecurityString(env.getProperty("oos.accessKeyId")));
-            fs.setSecretAccessKey(
-                SecurityOptUtils.decodeSecurityString(env.getProperty("oos.secretAccessKey")));
-            fs.setBucketName(env.getProperty("oos.bucketName"));
-            return fs;
-        }else if("cos".equals(fileStoreType)){
-            TxyunCosStore cosStore = new TxyunCosStore();
-            cosStore.setRegion(env.getProperty("cos.region"));
-            cosStore.setAppId(env.getProperty("cos.appId"));
-            cosStore.setSecretId(
-                SecurityOptUtils.decodeSecurityString(env.getProperty("cos.secretId")));
-            cosStore.setSecretKey(
-                SecurityOptUtils.decodeSecurityString(env.getProperty("cos.secretKey")));
-            cosStore.setBucketName(env.getProperty("cos.bucketName"));
-            return cosStore;
-        }else {*/
             String baseHome = env.getProperty("os.file.base.dir");
             if (StringUtils.isBlank(baseHome)) {
                 baseHome = env.getProperty("app.home") + "/upload";
@@ -162,7 +165,6 @@ public class ServiceConfig implements EnvironmentAware {
         return notificationCenter;
     }
 
-
     /*@Bean
     @Lazy(value = false)
     public OperationLogWriter optLogManager(@Autowired ESServerConfig esServerConfig) {
@@ -175,32 +177,6 @@ public class ServiceConfig implements EnvironmentAware {
         return new InstantiationServiceBeanPostProcessor();
     }
 
-    /**
-     * 这个bean必须要有
-     * @return CentitPasswordEncoder 密码加密算法
-     */
-    @Bean("passwordEncoder")
-    public StandardPasswordEncoderImpl passwordEncoder() {
-        return  new StandardPasswordEncoderImpl();
-    }
-    //这个bean必须要有 可以配置不同策略的session保存方案
 
-    @Bean
-    public CsrfTokenRepository csrfTokenRepository() {
-        return new HttpSessionCsrfTokenRepository();
-    }
-
-    @Bean
-    public MessageSource messageSource() {
-        ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
-        ms.setBasename("classpath:i18n/messages");
-        ms.setDefaultEncoding("UTF-8");
-        return ms;
-    }
-
-    @Bean
-    public LocalValidatorFactoryBean validatorFactory() {
-        return new LocalValidatorFactoryBean();
-    }
 }
 
