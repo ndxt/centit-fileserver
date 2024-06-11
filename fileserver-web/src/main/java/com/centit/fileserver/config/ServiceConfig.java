@@ -30,7 +30,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import java.io.File;
@@ -41,7 +40,6 @@ import java.io.File;
 @EnableAsync
 @Configuration
 @EnableScheduling
-@EnableSpringHttpSession
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @PropertySource("classpath:system.properties")
 @Import({
