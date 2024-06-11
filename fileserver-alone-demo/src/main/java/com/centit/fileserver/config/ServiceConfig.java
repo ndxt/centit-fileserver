@@ -22,7 +22,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -34,12 +33,10 @@ import java.io.File;
  */
 @EnableAsync
 @Configuration
-@EnableScheduling
-@EnableAspectJAutoProxy(proxyTargetClass = true)
 @PropertySource("classpath:system.properties")
-@Import({SystemBeanConfig.class,
-        SpringSecurityDaoConfig.class,
-        JdbcConfig.class})
+@Import({JdbcConfig.class,
+        SystemBeanConfig.class,
+        SpringSecurityDaoConfig.class})
 @ComponentScan(basePackages = "com.centit",
     excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,
         value = org.springframework.stereotype.Controller.class))
