@@ -1,7 +1,6 @@
 package com.centit.fileserver.controller;
 
 
-import com.alibaba.fastjson2.JSON;
 import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -14,7 +13,6 @@ import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.core.dao.PageQueryResult;
 import com.centit.framework.model.basedata.UnitInfo;
 import com.centit.framework.model.basedata.UserInfo;
-import com.centit.framework.session.CentitSessionRepo;
 import com.centit.support.image.ImageOpt;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,13 +47,9 @@ public class FileLibraryInfoController extends BaseController {
     @Autowired
     private OperateFileLibrary operateFileLibrary;
 
-    @Autowired
-    private CentitSessionRepo centitSessionRepo;
-
     public FileLibraryInfoController(FileLibraryInfoManager fileLibraryInfoMag) {
         this.fileLibraryInfoMag = fileLibraryInfoMag;
     }
-
 
     /**
      * 查询所有   文件库信息  列表
@@ -66,20 +60,12 @@ public class FileLibraryInfoController extends BaseController {
     @ApiOperation(value = "查询用户拥有文件库列表")
     @WrapUpResponseBody
     public PageQueryResult<FileLibraryInfo> list(HttpServletRequest request) {
-        String xat = request.getHeader("X-Auth-Token");
-        System.out.print("查询用户文件库列表, X-Auth-Token: " + xat);
-        System.out.println("redis session repo: " + centitSessionRepo.getClass().getName());
-        System.out.println("redis session data: " +
-            JSON.toJSONString(centitSessionRepo.findById(xat)));
-        System.out.print(" Session Id: " + request.getSession().getId());
-        System.out.println(" Session User: " + WebOptUtils.getCurrentUserCode(request));
-        System.out.println("redis session data2: " +
-            JSON.toJSONString(centitSessionRepo.findById(request.getSession().getId())));
         //UserInfo userInfo = WebOptUtils.assertUserLogin(request);
         String userCode = getUserCode(request);
         if(StringUtils.isBlank(userCode)){
             return null;
         }
+
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userCode);
         return PageQueryResult.createResult(fileLibraryInfos, null);
