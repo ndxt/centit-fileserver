@@ -12,13 +12,13 @@ public class RedisFileTaskQueue implements FileTaskQueue {
 
     private static final String FILE_TASK_INFO_KEY = "file:task:info:list";
 
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     public RedisFileTaskQueue() {
 
     }
 
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
+    public void setRedisTemplate( RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

@@ -111,21 +111,9 @@ public class ServiceConfig implements EnvironmentAware {
     }
 
     /*@Bean
-    public FileOptTaskQueue fileOptTaskQueue() {
+    public FileOptTaskQueue fileOptTaskQueue(@Autowired  RedisTemplate<String, Object> objectRedisTemplate ) {
         RedisFileOptTaskQueue taskQueue = new RedisFileOptTaskQueue();
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setHostName(env.getProperty("file.redis.host","127.0.0.1"));
-        configuration.setPort(env.getProperty("file.redis.port", Integer.class, 6379));
-        configuration.setUsername(env.getProperty("file.redis.username"));
-        configuration.setPassword(env.getProperty("file.redis.password"));
-        configuration.setDatabase(1);
-        JedisConnectionFactory factory = new JedisConnectionFactory(configuration);
-        RedisTemplate redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(factory);
-        redisTemplate.setKeySerializer(RedisSerializer.string());
-        redisTemplate.afterPropertiesSet();
-
-        taskQueue.setRedisTemplate(redisTemplate);
+        taskQueue.setRedisTemplate(objectRedisTemplate);
         return taskQueue;
     }*/
 

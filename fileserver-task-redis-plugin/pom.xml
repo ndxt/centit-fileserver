@@ -21,9 +21,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-            <version>${spring.data.version}</version>
+            <groupId>com.centit.framework</groupId>
+            <artifactId>centit-persistence-redis-config</artifactId>
+            <version>${revision}</version>
         </dependency>
 
     </dependencies>
