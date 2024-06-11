@@ -14,7 +14,7 @@ public class FileAccessLogDao extends BaseDaoImpl<FileAccessLog, String> {
 
     @Override
     public Map<String, String> getFilterField() {
-        Map<String, String> filterField = new HashMap<String, String>();
+        Map<String, String> filterField = new HashMap<>();
         filterField.put("fileId" , CodeBook.EQUAL_HQL_ID);
         return filterField;
     }

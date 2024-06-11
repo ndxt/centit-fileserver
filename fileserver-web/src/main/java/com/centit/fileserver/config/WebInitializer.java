@@ -14,14 +14,14 @@ public class WebInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-        String [] servletUrlPatterns = {"/system/*","/fileserver/*"};
+        String [] servletUrlPatterns = {"/system/*", "/fileserver/*"};
         WebConfig.registerSpringConfig(servletContext, ServiceConfig.class);
         WebConfig.registerServletConfig(servletContext, "system",
             "/system/*",
-            SystemSpringMvcConfig.class,SwaggerConfig.class);
+            SystemSpringMvcConfig.class, SwaggerConfig.class);
         WebConfig.registerServletConfig(servletContext, "fileserver",
             "/fileserver/*",
-            FileServerSpringMvcConfig.class,SwaggerConfig.class);
+            FileServerSpringMvcConfig.class, SwaggerConfig.class);
 
         WebConfig.registerRequestContextListener(servletContext);
         WebConfig.registerSingleSignOutHttpSessionListener(servletContext);
