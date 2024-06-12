@@ -100,9 +100,9 @@ public class ServiceConfig implements EnvironmentAware {
     }
 
     /*@Bean
-    public FileOptTaskQueue fileOptTaskQueue(@Autowired  RedisTemplate<String, Object> objectRedisTemplate ) {
+    public FileOptTaskQueue fileOptTaskQueue(@Autowired RedisClient redisClient ) {
         RedisFileOptTaskQueue taskQueue = new RedisFileOptTaskQueue();
-        taskQueue.setRedisTemplate(objectRedisTemplate);
+        taskQueue.setRedisTemplate(redisClient);
         return taskQueue;
     }*/
 
