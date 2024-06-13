@@ -21,9 +21,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.centit.framework</groupId>
-            <artifactId>centit-persistence-redis-config</artifactId>
-            <version>${revision}</version>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
         </dependency>
 
     </dependencies>
