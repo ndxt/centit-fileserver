@@ -13,6 +13,10 @@ import com.centit.framework.core.dao.DictionaryMapUtils;
 import com.centit.framework.jdbc.dao.DatabaseOptUtils;
 import com.centit.framework.jdbc.service.BaseEntityManagerImpl;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.database.jsonmaptable.GeneralJsonObjectDao;
+import com.centit.support.database.orm.JpaMetadata;
+import com.centit.support.database.orm.TableMapInfo;
 import com.centit.support.database.utils.DBType;
 import com.centit.support.database.utils.PageDesc;
 import org.apache.commons.lang3.StringUtils;
@@ -83,6 +87,7 @@ public class FileInfoManagerImpl
             .content(fileInfo.getFileName()).newObject(fileInfo));
         updateObject(fileInfo);
     }
+
     @Override
     public JSONArray listStoredFiles(Map<String, Object> queryParamsMap, PageDesc pageDesc) {
         String queryStatement =
@@ -102,12 +107,19 @@ public class FileInfoManagerImpl
                 + " [ :beginDate | and a.CREATE_TIME >= :beginDate ]"
                 + " [ :endDate | and a.CREATE_TIME < :endDate ]"
                     + " [ :isTemp | and b.is_temp = :isTemp ]";
-        if(queryParamsMap.containsKey("order") && "createTime".equals(queryParamsMap.get("order"))){
-            queryStatement= queryStatement+" order by a.CREATE_TIME";
+
+        String sortSql = GeneralJsonObjectDao.buildOrderBySql(JpaMetadata.fetchTableMapInfo(FileInfo.class),
+            "a", queryParamsMap);
+        if(StringUtils.isBlank(sortSql)){
+            sortSql = "a.CREATE_TIME desc";
+        }
+        queryStatement = queryStatement + " order by " + sortSql;
+
+        /*if(queryParamsMap.containsKey("order") && "createTime".equals(queryParamsMap.get("order"))){
+            queryStatement = queryStatement+" order by a.CREATE_TIME";
         }else {
             queryStatement= queryStatement+" order by a.CREATE_TIME desc";
-        }
-        //System.out.println(qap.getQuery());
+        }*/
         JSONArray dataList = DictionaryMapUtils.mapJsonArray(
                 DatabaseOptUtils.listObjectsByParamsDriverSqlAsJson(baseDao,
                     queryStatement,queryParamsMap , pageDesc), FileInfo.class );
