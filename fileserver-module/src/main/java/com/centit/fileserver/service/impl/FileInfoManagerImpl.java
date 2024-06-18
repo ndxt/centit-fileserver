@@ -106,7 +106,7 @@ public class FileInfoManagerImpl
                 + " [ :unitCode | and a.FILE_UNIT = :unitCode ]"
                 + " [ :beginDate | and a.CREATE_TIME >= :beginDate ]"
                 + " [ :endDate | and a.CREATE_TIME < :endDate ]"
-                    + " [ :isTemp | and b.is_temp = :isTemp ]";
+                + " [ :isTemp | and b.is_temp = :isTemp ]";
 
         String sortSql = GeneralJsonObjectDao.buildOrderBySql(JpaMetadata.fetchTableMapInfo(FileInfo.class),
             "a", queryParamsMap);
