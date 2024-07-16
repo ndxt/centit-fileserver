@@ -295,7 +295,8 @@ public abstract class UploadDownloadUtils {
                 if (length != range.getPartSize()) {
                     throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
                         "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。"+
-                            "Range:"+range.getRangeStart() + " savedSiae:"+ tempFileSize + " fileSize:" + size);
+                            "Range:"+range.getRangeStart() + " uploadSize:"+ range.getPartSize()
+                             + "receivedSize" + length + " fileSize:" + size);
                     //return -1l;
                 }
             }
