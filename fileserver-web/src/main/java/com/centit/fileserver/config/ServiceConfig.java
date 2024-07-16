@@ -28,6 +28,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -41,12 +42,13 @@ import java.io.File;
 @Configuration
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableWebSecurity
 @PropertySource("classpath:system.properties")
 @Import({
         DubboConfig.class,
+        JdbcConfig.class,
         IpServerDubboClientConfig.class,
-        SpringSecurityDaoConfig.class,
-        JdbcConfig.class})
+        SpringSecurityDaoConfig.class})
 @ComponentScan(basePackages = "com.centit",
     excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION,
         value = org.springframework.stereotype.Controller.class))

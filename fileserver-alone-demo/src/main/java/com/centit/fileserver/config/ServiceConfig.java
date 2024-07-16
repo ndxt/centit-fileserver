@@ -22,6 +22,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -34,6 +35,7 @@ import java.io.File;
 @EnableAsync
 @Configuration
 @PropertySource("classpath:system.properties")
+@EnableWebSecurity
 @Import({JdbcConfig.class,
         SystemBeanConfig.class,
         SpringSecurityDaoConfig.class})
