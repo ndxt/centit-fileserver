@@ -206,6 +206,7 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
                     break;
                 //项目
                 case "I":
+                case "T":
                     if (userCode.equals(fileLibraryInfo.getOwnUser())) {
                         return true;
                     }
