@@ -282,7 +282,8 @@ public abstract class UploadDownloadUtils {
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
                 throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
-                    "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
+                    "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。"+
+                  "Range:"+range.getRangeStart() + " savedSiae:"+ tempFileSize + " fileSize:" + size);
                 //return -1l;
             }
 
@@ -293,7 +294,8 @@ public abstract class UploadDownloadUtils {
                     fileInputStream, out);
                 if (length != range.getPartSize()) {
                     throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
-                        "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。");
+                        "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。"+
+                            "Range:"+range.getRangeStart() + " savedSiae:"+ tempFileSize + " fileSize:" + size);
                     //return -1l;
                 }
             }
