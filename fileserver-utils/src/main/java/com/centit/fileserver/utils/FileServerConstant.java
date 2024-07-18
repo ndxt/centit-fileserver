@@ -28,6 +28,7 @@ public abstract class FileServerConstant {
     public static final int ERROR_FILE_RANGE_ERROR = 421;
     public static final int ERROR_FILE_PRETREAT = 422;
     public static final int ERROR_FILE_ENCRYPT = 423;
+    public static final int ERROR_FILE_SIZE_ERROR = 424;
     public static final int ERROR_FILE_MD5_ERROR = 425;
 
 }

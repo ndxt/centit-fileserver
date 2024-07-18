@@ -211,9 +211,9 @@ public class UploadController extends BaseController {
                     formData.getMiddle(), request, response);
             } else {
                 FileSystemOpt.deleteFile(tempFilePath);
-                JsonResultUtils.writeHttpErrorMessage(
-                    FileServerConstant.ERROR_FILE_NOT_EXIST,
-                    "文件不存在无法实现秒传。\r\n MD5(uploadedSize - fileSize)："
+                JsonResultUtils.writeErrorMessageJson(
+                    FileServerConstant.ERROR_FILE_SIZE_ERROR,
+                    "文件大小不一致。\r\n MD5(uploadedSize - fileSize)："
                         + token + "(" + tempFileSize + "-" + fileSize + ")", response);
             }
         }
@@ -502,7 +502,7 @@ public class UploadController extends BaseController {
             JsonResultUtils.writeOriginalJson(json.toString(), response);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            JsonResultUtils.writeHttpErrorMessage(
+            JsonResultUtils.writeErrorMessageJson(
                 FileServerConstant.ERROR_FILE_PRETREAT,
                 "文件上传成功，但是在保存前：" +
                     ObjectException.extortExceptionMessage(e), response);

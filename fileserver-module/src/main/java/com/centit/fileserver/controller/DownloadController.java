@@ -305,7 +305,7 @@ public class DownloadController extends BaseController {
                         FileEncryptUtils.decrypt(downFile, diminationFile, FileInfo.mapEncryptType(fileInfo.getEncryptType()) , password);
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
-                        JsonResultUtils.writeHttpErrorMessage(
+                        JsonResultUtils.writeErrorMessageJson(
                             FileServerConstant.ERROR_FILE_ENCRYPT,
                             getI18nMessage("error.423.cannt_encrypt_file", request, e.getMessage()),
                             response);
