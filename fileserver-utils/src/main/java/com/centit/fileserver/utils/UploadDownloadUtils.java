@@ -281,7 +281,8 @@ public abstract class UploadDownloadUtils {
         if (tempFileSize < size) {//文件还没有传输完成
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
-                throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
+                throw new ObjectException( UploadDownloadUtils.makeRangeCheckJson(tempFileSize, token, false),
+                    FileServerConstant.ERROR_FILE_RANGE_START,
                     "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。"+
                   "Range:"+range.getRangeStart() + " savedSize:"+ tempFileSize + " fileSize:" + size);
                 //return -1l;
@@ -293,7 +294,9 @@ public abstract class UploadDownloadUtils {
                 long length = FileIOOpt.writeInputStreamToOutputStream(
                     fileInputStream, out);
                 if (length != range.getPartSize()) {
-                    throw new ObjectException(FileServerConstant.ERROR_FILE_RANGE_START,
+                    throw new ObjectException( UploadDownloadUtils.makeRangeCheckJson(
+                        range.getRangeStart() + length, token, false),
+                        FileServerConstant.ERROR_FILE_RANGE_START,
                         "Code: " + FileServerConstant.ERROR_FILE_RANGE_START + " RANGE格式错误或者越界。"+
                             "Range:"+range.getRangeStart() + " uploadSize:"+ range.getPartSize()
                              + "receivedSize" + length + " fileSize:" + size);
