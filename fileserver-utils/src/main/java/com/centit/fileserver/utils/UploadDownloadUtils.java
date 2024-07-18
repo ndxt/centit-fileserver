@@ -289,8 +289,7 @@ public abstract class UploadDownloadUtils {
             }
 
             // 必须要抛出异常或者返回非200响应前台才能捕捉
-            try (FileOutputStream out = new FileOutputStream(
-                new File(tempFilePath), true)) {
+            try (FileOutputStream out = new FileOutputStream(tempFilePath, true)) {
                 long length = FileIOOpt.writeInputStreamToOutputStream(
                     fileInputStream, out);
                 if (length != range.getPartSize()) {
