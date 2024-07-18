@@ -235,7 +235,7 @@ public class UploadController extends BaseController {
         String token, long size,
         HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-        if (checkUploadToken && checkUploadAuthorization(request, response)) {
+        if (checkUploadToken && uploadIsForbidden(request, response)) {
             return;
         }
         Triple<FileInfo, Map<String, Object>, InputStream> formData
@@ -283,7 +283,7 @@ public class UploadController extends BaseController {
     @RequestMapping(value = {"/file", "/upload"}, method = RequestMethod.POST)
     public void uploadFile(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
-        if (checkUploadToken && checkUploadAuthorization(request, response)) {
+        if (checkUploadToken && uploadIsForbidden(request, response)) {
             return;
         }
         request.setCharacterEncoding("utf8");
@@ -566,7 +566,7 @@ public class UploadController extends BaseController {
 
     }
 
-    private boolean checkUploadAuthorization(HttpServletRequest request, HttpServletResponse response) {
+    private boolean uploadIsForbidden(HttpServletRequest request, HttpServletResponse response) {
 
         String uploadToken = request.getParameter(UPLOAD_FILE_TOKEN_NAME);
         if (fileUploadAuthorizedManager.checkAuthorization(uploadToken) < 1) {
