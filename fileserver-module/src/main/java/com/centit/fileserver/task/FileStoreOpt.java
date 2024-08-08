@@ -8,6 +8,7 @@ import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.BooleanBaseOpt;
+import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,13 +90,12 @@ public abstract class FileStoreOpt {
                     fileStoreInfo.setFileStorePath(
                         fetchOrSaveFile(tempFilePath, file, fileSize));
                     fileStoreInfo.setIsTemp(BooleanBaseOpt.ONE_CHAR_FALSE);
-                }/*else{
-                    fileStoreInfo.setFileReferenceCount(fileStoreInfo.getFileReferenceCount() + 1);
-                }*/
+                }
                 fileStoreInfoManager.updateObject(fileStoreInfo);
             }
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());
+            throw new ObjectException(file, ObjectException.FILE_OPERATE_EXCEPTION, e.getMessage() , e);
         }
     }
 }
