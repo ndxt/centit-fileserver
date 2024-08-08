@@ -99,11 +99,11 @@ public class ServiceConfig implements EnvironmentAware {
         SystemTempFileUtils.setTempFileDirectory(
             env.getProperty("app.home", ".") +File.separatorChar+ "temp" + File.separatorChar);
 
-            String baseHome = env.getProperty("os.file.base.dir");
-            if (StringUtils.isBlank(baseHome)) {
-                baseHome = env.getProperty("app.home") + "/upload";
-            }
-            return new OsFileStore(baseHome);
+        String baseHome = env.getProperty("os.file.base.dir");
+        if (StringUtils.isBlank(baseHome)) {
+            baseHome = env.getProperty("app.home") + "/upload";
+        }
+        return new OsFileStore(baseHome);
         //}
     }
 

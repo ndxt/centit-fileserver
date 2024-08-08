@@ -22,8 +22,8 @@ public abstract class FileIOUtils {
     private static final int URI_START_PARAM = 5;
     public static final String LOG_OPERATION_NAME = "FileServerLog";
     public static InputStream getFileStream(FileStore fileStore, FileStoreInfo fileStoreInfo) throws IOException {
-        return fileStoreInfo.getIsTemp() ?
-            new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
+        if("E".equals(fileStoreInfo.getIsTemp())) return null;
+        return fileStoreInfo.isTemp() ? new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
             fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 

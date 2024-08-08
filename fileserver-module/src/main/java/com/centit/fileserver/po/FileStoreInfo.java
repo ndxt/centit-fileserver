@@ -1,5 +1,6 @@
 package com.centit.fileserver.po;
 
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
@@ -32,11 +33,12 @@ public class FileStoreInfo implements Serializable {
     // 文件的引用计数
     @Column(name = "FILE_REFERENCE_COUNT")
     private Long fileReferenceCount;
+
     /**
-    是否临时文件，T：临时F；已持久化
+    是否临时文件，T：临时 F；已持久化
      */
     @Column(name="IS_TEMP")
-    private Boolean isTemp;
+    private String isTemp;
 
     @Column(name="CREATE_TIME")
     @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW,
@@ -45,15 +47,15 @@ public class FileStoreInfo implements Serializable {
 
     public FileStoreInfo() {}
 
-    public FileStoreInfo(String fileMd5, Long fileSize, String fileStorePath, Long fileReferenceCount,Boolean isTemp) {
+    public FileStoreInfo(String fileMd5, Long fileSize, String fileStorePath, Long fileReferenceCount, Boolean isTemp) {
         this.fileMd5 = fileMd5;
         this.fileSize = fileSize;
         this.fileStorePath = fileStorePath;
         this.fileReferenceCount = fileReferenceCount;
-        this.isTemp =isTemp;
+        this.isTemp = isTemp? BooleanBaseOpt.ONE_CHAR_TRUE: BooleanBaseOpt.ONE_CHAR_FALSE;
     }
 
     public Boolean isTemp(){
-        return isTemp!=null && isTemp;
+        return isTemp!=null && BooleanBaseOpt.ONE_CHAR_TRUE.equals(isTemp);
     }
 }

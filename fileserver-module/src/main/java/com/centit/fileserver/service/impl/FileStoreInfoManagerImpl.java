@@ -34,9 +34,13 @@ public class FileStoreInfoManagerImpl
     @Override
     public boolean saveTempFileInfo(FileInfo fileInfo, String tempFilePath, long size) {
         FileStoreInfo fileStoreInfo = baseDao.getObjectById(fileInfo.getFileMd5());
-        if (fileStoreInfo != null) {
-            increaseFileReference(fileStoreInfo);
-            return false;
+        if (fileStoreInfo != null ) {
+            if("E".equals(fileStoreInfo.getIsTemp())){
+                baseDao.deleteObjectById(fileStoreInfo.getFileMd5());
+            } else {
+                increaseFileReference(fileStoreInfo);
+                return false;
+            }
         }
         String fileStoreUrl = fileStore.matchFileStoreUrl(fileInfo, size);
         boolean isExist = fileStore.checkFile(fileStoreUrl);

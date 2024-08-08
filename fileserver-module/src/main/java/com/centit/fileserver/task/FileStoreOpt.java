@@ -7,6 +7,7 @@ import com.centit.fileserver.service.FileStoreInfoManager;
 import com.centit.fileserver.utils.FileIOUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.file.FileSystemOpt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public abstract class FileStoreOpt {
 
             String fileStoreUrl = fetchOrSaveFile(fileStoreInfo.getFileStorePath(), fileInfo, fileStoreInfo.getFileSize());
             fileStoreInfo.setFileStorePath(fileStoreUrl);
-            fileStoreInfo.setIsTemp(false);
+            fileStoreInfo.setIsTemp(BooleanBaseOpt.ONE_CHAR_FALSE);
             fileStoreInfoManager.updateObject(fileStoreInfo);
         } catch (IOException e){
             logger.error("文件转存失败", e);
@@ -87,7 +88,7 @@ public abstract class FileStoreOpt {
                 if(fileStoreInfo.isTemp()){
                     fileStoreInfo.setFileStorePath(
                         fetchOrSaveFile(tempFilePath, file, fileSize));
-                    fileStoreInfo.setIsTemp(false);
+                    fileStoreInfo.setIsTemp(BooleanBaseOpt.ONE_CHAR_FALSE);
                 }/*else{
                     fileStoreInfo.setFileReferenceCount(fileStoreInfo.getFileReferenceCount() + 1);
                 }*/

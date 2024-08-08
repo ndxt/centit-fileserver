@@ -175,7 +175,8 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     public InputStream loadFileStream(String fileId) throws IOException {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        return fileStoreInfo.getIsTemp() ? new FileInputStream(fileStoreInfo.getFileStorePath())
+        if("E".equals(fileStoreInfo.getIsTemp())) return null;
+        return fileStoreInfo.isTemp() ? new FileInputStream(fileStoreInfo.getFileStorePath())
             : fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 
@@ -188,7 +189,8 @@ public class FileInfoOptServerImpl implements FileInfoOpt {
     public File getFile(String fileId) throws IOException {
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-        return fileStoreInfo.getIsTemp() ? new File(fileStoreInfo.getFileStorePath())
+        if("E".equals(fileStoreInfo.getIsTemp())) return null;
+        return fileStoreInfo.isTemp() ? new File(fileStoreInfo.getFileStorePath())
             : fileStore.getFile(fileStoreInfo.getFileStorePath());
     }
 
