@@ -7,6 +7,7 @@ import com.centit.fileserver.pretreat.FilePretreatUtils;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.file.FileMD5Maker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +60,19 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
         }
         return null;
     }
-    private void doWatermark(FileInfo fileInfo, long fileSize, String waterMarkStr) {
+    private void doWatermark(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
         try {
-            String waterMarkPdfTempFile = FilePretreatUtils.addWatermarkForPdf(fileInfo, originalTempFilePath, waterMarkStr);
+            String waterMarkPdfTempFile = FilePretreatUtils.addWatermarkForPdf(fileInfo, originalTempFilePath, pretreatInfo);
             if (null != waterMarkPdfTempFile) {
-                save(waterMarkPdfTempFile, fileInfo, new File(waterMarkPdfTempFile).length());
+                File waterMarkPdfFile = new File(waterMarkPdfTempFile);
+                String waterMarkFileMd5 = FileMD5Maker.makeFileMD5(waterMarkPdfFile);
+                fileInfo.setAttachedFileMd5(waterMarkFileMd5);
+                fileInfo.setAttachedType("pdf");
+                FileInfo pdfFileInfo = new FileInfo();
+                pdfFileInfo.copy(fileInfo);
+                pdfFileInfo.setFileMd5(waterMarkFileMd5);
+                save(waterMarkPdfTempFile, pdfFileInfo, new File(waterMarkPdfTempFile).length());
                 fileInfoManager.updateObject(fileInfo);
                 logger.info("添加水印完成");
             }
@@ -77,8 +85,8 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
     public int runTaskInfo(FileInfo fileInfo, long fileSize, Map<String, Object> pretreatInfo) {
         String waterMarkStr
             = StringBaseOpt.castObjectToString(pretreatInfo.get("watermark"));
-        if (StringUtils.isNotBlank(waterMarkStr)){
-            doWatermark(fileInfo, fileSize, waterMarkStr);
+        if (StringUtils.isNotBlank(waterMarkStr) && StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),"pdf")){
+            doWatermark(fileInfo, fileSize, pretreatInfo);
             return 1;
         }
         return 0;
@@ -88,8 +96,7 @@ public class PdfWatermarkOpt extends FileStoreOpt implements FileTaskOpeator {
     public void doFileTask(FileTaskInfo fileOptTaskInfo) {
         String fileId = fileOptTaskInfo.getFileId();
         long fileSize = fileOptTaskInfo.getFileSize();
-        String waterMarkStr = (String) fileOptTaskInfo.getOptParam("watermark");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-        doWatermark(fileInfo, fileSize, waterMarkStr);
+        doWatermark(fileInfo, fileSize, fileOptTaskInfo.getTaskOptParams());
     }
 }

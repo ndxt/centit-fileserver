@@ -4,6 +4,8 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.utils.TikaTextExtractor;
+import com.centit.support.algorithm.NumberBaseOpt;
+import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
@@ -26,6 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 public class FilePretreatUtils {
 
@@ -162,26 +165,20 @@ public class FilePretreatUtils {
         return null;
     }
 
-    public static String addWatermarkForPdf(FileInfo fileInfo, String inputPdfPath, String waterMarkStr)
+    public static String addWatermarkForPdf(FileInfo fileInfo, String inputPdfPath, Map<String, Object> pretreatInfo)
         throws IOException {
         String outputPdfPath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "2.pdf";
         if (!inputPdfPath.endsWith(".pdf")) {
-            String realInputPdfPath = FileType.truncateFileExtName(inputPdfPath) + ".pdf";
+            String realInputPdfPath = FileType.getFileTruncateExtName(inputPdfPath) + ".pdf";
             FileSystemOpt.fileCopy(inputPdfPath, realInputPdfPath);
             inputPdfPath = realInputPdfPath;
         }
-        boolean success = Watermark4Pdf.addWatermark4Pdf(inputPdfPath, outputPdfPath, waterMarkStr, 0.4f, 45f, 60f);
+        String waterMarkStr= StringBaseOpt.castObjectToString(pretreatInfo.get("watermark"),"");
+        float opacity= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("opacity"),0.4f);
+        float rotation= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("rotation"),45f);
+        float frontSize= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("frontSize"),60f);
+        boolean success = Watermark4Pdf.addWatermark4Pdf(inputPdfPath, outputPdfPath, waterMarkStr, opacity, rotation, frontSize);
         if (success) {
-            if (null == fileInfo.getAttachedFileMd5()) { // 原PDF不是附件
-                updateCommonFileInfo(fileInfo, outputPdfPath);
-            } else { // 原PDF是其他文件生成的附件
-                File pdfFile = new File(outputPdfPath);
-                String fileMd5 = FileMD5Maker.makeFileMD5(pdfFile);
-                fileInfo.setFileMd5(fileMd5);
-            }
-
-            fileInfo.setFileType("P");
-
             return outputPdfPath;
         } else {
             logger.error("给PDF添加水印出错！" + fileInfo.getFileMd5());
