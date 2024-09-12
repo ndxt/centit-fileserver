@@ -1,6 +1,6 @@
 package com.centit.test;
 
-import com.centit.fileserver.pretreat.Watermark4Pdf;
+import com.centit.support.office.Watermark4Pdf;
 
 import java.io.IOException;
 

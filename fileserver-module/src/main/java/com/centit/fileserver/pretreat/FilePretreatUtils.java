@@ -14,6 +14,7 @@ import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.image.ImageOpt;
+import com.centit.support.office.Watermark4Pdf;
 import com.centit.support.security.FileEncryptUtils;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
