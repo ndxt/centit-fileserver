@@ -55,6 +55,7 @@ public abstract class Watermark4Pdf {
         PdfGState gs = new PdfGState();
         PdfReader pdfReader = null;
         PdfStamper pdfStamper = null;
+        int strSize = waterMarkStr.length() + 2;
         try{
             pdfReader = new PdfReader(inputFile);
             pdfStamper = new PdfStamper(pdfReader,  outputFile);
@@ -70,11 +71,11 @@ public abstract class Watermark4Pdf {
             int toPage = pdfStamper.getReader().getNumberOfPages();
             Rectangle pageRect;
             PdfContentByte content;
+            float cosRotation = (float) Math.cos(rotation/360*Math.PI);
+            float sinRotation = (float) Math.sin(rotation/360*Math.PI);
             for (int i = 1; i <= toPage; i++) {
                 pageRect = pdfStamper.getReader().getPageSizeWithRotation(i);
-                // 计算水印X,Y坐标
-                float x = pageRect.getWidth() / 2;
-                float y = pageRect.getHeight() / 2;
+
                 // 获得PDF最顶层
                 content = pdfStamper.getOverContent(i);
                 content.saveState();
@@ -84,8 +85,28 @@ public abstract class Watermark4Pdf {
                 content.setColorFill(BaseColor.GRAY);
                 content.setFontAndSize(base, fontSize);
                 // 水印文字成45度角倾斜
-                content.showTextAligned(Element.ALIGN_CENTER, waterMarkStr, x,
-                        y, rotation);
+                int line = (int) ( pageRect.getHeight() / (2 * fontSize ) * cosRotation) - 1 ;
+                if(line<1){
+                    line = 1;
+                }
+
+                int repeat = (int) (pageRect.getWidth() / (strSize * fontSize) / cosRotation) ;
+                if(repeat<1){
+                    repeat = 1;
+                }
+
+                for(int j=0; j<line; j++) {
+                    for(int k=0; k<repeat; k++) {
+                        // 计算水印X,Y坐标
+                        float l = strSize * fontSize * (k+0.5f);
+                        float y = fontSize * (2*j+2) - l * sinRotation ;
+                        if(y > 0 && y< pageRect.getHeight()) {
+                            float x = l * cosRotation;
+                            content.showTextAligned(Element.ALIGN_CENTER, waterMarkStr, x,
+                                y, rotation);
+                        }
+                    }
+                }
                 content.endText();
             }
 
