@@ -182,7 +182,6 @@ public class DownloadController extends BaseController {
                     float rotation= NumberBaseOpt.castObjectToFloat(jsonObj.get("rotation"),45f);
                     float frontSize= NumberBaseOpt.castObjectToFloat(jsonObj.get("frontSize"),60f);
                     String fileName = FileType.truncateFileExtName(fileInfo.getFileName())+ ".pdf";
-                    response.setHeader("Accept-Ranges", "bytes");
                     response.setContentType(FileType.getFileMimeType(fileName));
                     response.setHeader("Content-Disposition", "inline; filename="
                             + URLEncoder.encode(fileName, "UTF-8"));
