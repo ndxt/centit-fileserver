@@ -29,9 +29,9 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 import columns from './columns'
-import { getlog } from '@/api/file'
+import {getlog} from '@/api/file'
 
 export default {
   name: 'Log',

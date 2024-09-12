@@ -32,7 +32,7 @@
 
 <script>
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { folderNew } from '@/api/file'
+import {folderNew} from '@/api/file'
 
 export default {
   name: 'FolderCreateModal',

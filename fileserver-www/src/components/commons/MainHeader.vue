@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 import UserDropMenu from './UserDropMenu'
 
 export default {

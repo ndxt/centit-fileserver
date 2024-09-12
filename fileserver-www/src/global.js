@@ -1,4 +1,5 @@
 import Vue from 'vue'
+
 const arrImgType = [
   'docx',
   'ppt',

@@ -43,7 +43,7 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
 
-    private void doPdfOpt(FileInfo fileInfo, long fileSize) {
+    public void doPdfOpt(FileInfo fileInfo, long fileSize) {
         FileInfo pdfFileInfo = new FileInfo();
         pdfFileInfo.copy(fileInfo);
         try {

@@ -93,6 +93,7 @@ public abstract class FileStoreOpt {
                 }
                 fileStoreInfoManager.updateObject(fileStoreInfo);
             }
+            //return fileStoreInfo;
         } catch (Exception e) {
             logger.info("保存文件出错: " + e.getMessage());
             throw new ObjectException(file, ObjectException.FILE_OPERATE_EXCEPTION, e.getMessage() , e);

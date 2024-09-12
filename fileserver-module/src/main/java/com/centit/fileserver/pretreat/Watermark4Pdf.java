@@ -8,8 +8,11 @@ import com.itextpdf.text.pdf.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @SuppressWarnings("unused")
 public abstract class Watermark4Pdf {
@@ -34,18 +37,27 @@ public abstract class Watermark4Pdf {
      * @return boolean        目前 不支持位置自定义：因设置了文字大小、倾斜度后不好计算水印文字的长宽数据。
      */
     public static boolean addWatermark4Pdf(String inputFile,
-                                    String outputFile,
-                                    String waterMarkStr,
-                                    float opacity,
-                                    float rotation,
-                                    float fontSize) {
+                                           String outputFile,
+                                           String waterMarkStr,
+                                           float opacity,
+                                           float rotation,
+                                           float fontSize) throws IOException {
+        return addWatermark4Pdf(Files.newInputStream(Paths.get(inputFile)),
+                Files.newOutputStream(Paths.get(outputFile)), waterMarkStr, opacity,rotation, fontSize);
+    }
+
+    public static boolean addWatermark4Pdf(InputStream inputFile,
+                                           OutputStream outputFile,
+                                           String waterMarkStr,
+                                           float opacity,
+                                           float rotation,
+                                           float fontSize) {
         PdfGState gs = new PdfGState();
         PdfReader pdfReader = null;
         PdfStamper pdfStamper = null;
         try{
             pdfReader = new PdfReader(inputFile);
-            pdfStamper = new PdfStamper(pdfReader, new FileOutputStream(
-                        outputFile));
+            pdfStamper = new PdfStamper(pdfReader,  outputFile);
 
             BaseFont base = BaseFont.createFont("STSongStd-Light", "UniGB-UCS2-H",
                     BaseFont.NOT_EMBEDDED);

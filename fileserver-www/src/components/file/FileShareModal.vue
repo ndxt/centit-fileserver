@@ -25,7 +25,7 @@
 
 <script>
 import Clipboard from 'clipboard'
-import { authCode } from '@/api/file'
+import {authCode} from '@/api/file'
 
 export default {
   name: 'FileShareModal',

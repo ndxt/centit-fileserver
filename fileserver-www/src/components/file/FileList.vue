@@ -89,10 +89,10 @@
 
 <script>
 import Clipboard from 'clipboard'
-import { downsPreview } from '@/api/file'
+import {downsPreview} from '@/api/file'
 import FileCardList from './FileCardList'
 import FileVideoPlayer from './FileVideoPlayer'
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'MainContent',

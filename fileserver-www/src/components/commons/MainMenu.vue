@@ -138,19 +138,9 @@
 </template>
 
 <script>
-import {
-  mapState,
-  mapMutations,
-} from 'vuex'
+import {mapMutations, mapState,} from 'vuex'
 import AddLibrary from '../library/AddLibrary'
-import {
-  getlibrarylist,
-  getunitpath,
-  seeLibrary,
-  updatelibraryr,
-  initpersonlib,
-  initunitlib,
-} from '@/api/file'
+import {getlibrarylist, getunitpath, initpersonlib, initunitlib, seeLibrary, updatelibraryr,} from '@/api/file'
 import FileRemoveConfirm from '../file/FileRemoveConfirm'
 import apiFactory from '@centit/api-core'
 

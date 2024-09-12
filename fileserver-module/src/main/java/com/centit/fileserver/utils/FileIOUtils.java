@@ -60,6 +60,23 @@ public abstract class FileIOUtils {
         }
         return canView;
     }
+
+    public static InputStream createPdfStream(String fileId, FileInfo fileInfo,
+                                                 FileStoreInfo fileStoreInfo ,
+                                   FileStore fileStore, CreatePdfOpt createPdfOpt,
+                                   FileStoreInfoManager fileStoreInfoManager) throws IOException {
+
+        FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
+        addPdfTaskInfo.setFileId(fileId);
+        addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
+        createPdfOpt.doPdfOpt(fileInfo, fileStoreInfo.getFileSize());
+        if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
+            FileStoreInfo attachedFileStoreInfo =
+                fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+            return  FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo);
+        }
+        return null;
+    }
     public static ImmutableTriple<String, String, String> fetchUnitFilePath(String uri)
         throws UnsupportedEncodingException {
         String[] urips = uri.split("/");

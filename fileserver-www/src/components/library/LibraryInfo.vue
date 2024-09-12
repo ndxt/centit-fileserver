@@ -59,8 +59,8 @@
 </template>
 
 <script>
-import { getunitpath } from '@/api/file'
-import { mapState } from 'vuex'
+import {getunitpath} from '@/api/file'
+import {mapState} from 'vuex'
 
 export default {
   name: 'AddDepot',

@@ -45,9 +45,9 @@
   </zpa-row>
 </template>
 <script>
-import { mapState, } from 'vuex'
+import {mapState,} from 'vuex'
 
-import { GetFavoriteList, getfileslist, getlog } from '@/api/file'
+import {GetFavoriteList, getfileslist, getlog} from '@/api/file'
 
 export default {
   name: 'HomeContentList',

@@ -29,7 +29,7 @@
 
 <script>
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { delectFile, deleteFolder, deletelibrary } from '@/api/file'
+import {delectFile, deleteFolder, deletelibrary} from '@/api/file'
 import Clipboard from 'clipboard'
 
 export default {

@@ -76,7 +76,7 @@
 
 <script>
 import Uploader from '@/components/zpa/form/uploader'
-import { folderNew } from '@/api/file'
+import {folderNew} from '@/api/file'
 
 export default {
   name: 'UploadFolder',

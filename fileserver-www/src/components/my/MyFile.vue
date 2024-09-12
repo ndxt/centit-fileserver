@@ -98,8 +98,8 @@ import FileCopyModal from '../file/FileCopyModal'
 import FileShareModal from '../file/FileShareModal'
 import FileRemoveConfirm from '../file/FileRemoveConfirm'
 import FolderUpload from '../folder/FolderUpload'
-import { folder, newfavorite, queryUserVerLocal, downs, seeLibrary, prev, zipDown } from '@/api/file'
-import { mapState } from 'vuex'
+import {downs, folder, newfavorite, prev, queryUserVerLocal, seeLibrary, zipDown} from '@/api/file'
+import {mapState} from 'vuex'
 
 export default {
   name: 'MyFile',

@@ -45,7 +45,7 @@ import FileCopyModal from '../file/FileCopyModal'
 import FileShareModal from '../file/FileShareModal'
 import FolderViewModal from '../folder/FolderViewModal'
 
-import { deletefavorite, GetFavoriteList, queryUserVerLocal, } from '@/api/file'
+import {deletefavorite, GetFavoriteList, queryUserVerLocal,} from '@/api/file'
 
 export default {
   name: 'Collection',

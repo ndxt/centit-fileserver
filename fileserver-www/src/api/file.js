@@ -1,5 +1,6 @@
-import apiFactory, { createUrlParams } from '@centit/api-core'
+import apiFactory, {createUrlParams} from '@centit/api-core'
 import $ from 'jquery'
+
 const api = apiFactory.create('file', { useFormData: true })
 const apis = apiFactory.create('file', { useFormData: false })
 

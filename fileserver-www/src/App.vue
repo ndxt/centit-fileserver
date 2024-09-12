@@ -13,8 +13,8 @@
 import MainLayout from './components/commons/MainLayout'
 import MainHeader from './components/commons/MainHeader'
 import MainMenu from './components/commons/MainMenu'
-import { getCurrposition } from '@/api/admin'
-import { mapMutations } from 'vuex'
+import {getCurrposition} from '@/api/admin'
+import {mapMutations} from 'vuex'
 
 export default {
   name: 'App',

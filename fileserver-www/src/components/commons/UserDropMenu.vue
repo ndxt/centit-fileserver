@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { logout } from '@centit/api-auth'
+import {logout} from '@centit/api-auth'
 
 export default {
   name: 'UserDropMenu',

@@ -169,7 +169,7 @@ public class FilePretreatUtils {
         throws IOException {
         String outputPdfPath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "2.pdf";
         if (!inputPdfPath.endsWith(".pdf")) {
-            String realInputPdfPath = FileType.getFileTruncateExtName(inputPdfPath) + ".pdf";
+            String realInputPdfPath = FileType.truncateFileExtNameWithPath(inputPdfPath) + ".pdf";
             FileSystemOpt.fileCopy(inputPdfPath, realInputPdfPath);
             inputPdfPath = realInputPdfPath;
         }

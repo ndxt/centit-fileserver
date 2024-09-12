@@ -1,11 +1,6 @@
 import BMF from '@/bmf/dist/index.cjs.js'
 
-import {
-  flashUpload,
-  getFileRange,
-  uploadFileRange,
-  uploadFile,
-} from '@/api/file'
+import {flashUpload, getFileRange, uploadFile, uploadFileRange,} from '@/api/file'
 
 let index = 1
 

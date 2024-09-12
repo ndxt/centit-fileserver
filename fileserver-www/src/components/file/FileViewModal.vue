@@ -11,7 +11,7 @@
 </template>
 <script>
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
-import { addFolder, addMes, seeFileMes, log } from '@/api/file'
+import {addFolder, addMes, log, seeFileMes} from '@/api/file'
 import FileInfo from './FileInfo'
 import FileLog from './FileLog'
 

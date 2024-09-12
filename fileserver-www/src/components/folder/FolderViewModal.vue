@@ -10,7 +10,7 @@
 <script>
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
 import FolderInfo from './FolderInfo'
-import { addFolder } from '@/api/file'
+import {addFolder} from '@/api/file'
 
 export default {
   name: 'FileViewModal',

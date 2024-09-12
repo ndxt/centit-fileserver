@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import {
-  checkLogin,
-} from '@centit/module-core/src/router/login'
+import {checkLogin,} from '@centit/module-core/src/router/login'
 import store from '../store'
 import dashboard from './dashboard'
 import log from './log'

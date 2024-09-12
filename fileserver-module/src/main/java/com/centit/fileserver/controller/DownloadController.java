@@ -1,8 +1,10 @@
 package com.centit.fileserver.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
+import com.centit.fileserver.pretreat.Watermark4Pdf;
 import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -16,9 +18,7 @@ import com.centit.framework.common.JsonResultUtils;
 import com.centit.framework.common.ResponseData;
 import com.centit.framework.common.WebOptUtils;
 import com.centit.framework.core.controller.BaseController;
-import com.centit.support.algorithm.BooleanBaseOpt;
-import com.centit.support.algorithm.GeneralAlgorithm;
-import com.centit.support.algorithm.ZipCompressor;
+import com.centit.support.algorithm.*;
 import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
@@ -34,12 +34,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.zip.ZipOutputStream;
@@ -81,7 +83,7 @@ public class DownloadController extends BaseController {
                             HttpServletResponse response) throws IOException{
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String closeAuth = request.getParameter("closeAuth");
-        if (StringUtils.isBlank(closeAuth)&&noAuth(request, response, fileInfo)) {
+        if (noAuth(request, response, fileInfo, closeAuth)) {
             return;
         }
 
@@ -142,6 +144,60 @@ public class DownloadController extends BaseController {
             JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
         }
     }
+
+
+    @RequestMapping(value = "/viewPdf", method = RequestMethod.POST)
+    @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
+    public void previewPdfWithWaterMark(@RequestBody String jsonStr, HttpServletRequest request,
+                                        HttpServletResponse response) throws IOException{
+        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+        String fileId = jsonObj.getString("fileId");
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        String closeAuth = request.getParameter("closeAuth");
+        if (noAuth(request, response, fileInfo, closeAuth)) {
+            return;
+        }
+        try {
+            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "pdf", "docx", "xlsx")) {
+                InputStream pdfFileStream = null;
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+
+                if(fileStoreInfo.getFileSize() == 0){
+                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
+                    return ;
+                }
+                if("pdf".equals(fileInfo.getFileType())) {
+                    pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
+                } else {
+                    if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
+                        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+                        pdfFileStream = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo);
+                    } else {
+                        pdfFileStream = FileIOUtils.createPdfStream(fileId,  fileInfo, fileStoreInfo , fileStore,  createPdfOpt, fileStoreInfoManager);
+                    }
+                }
+                if(pdfFileStream != null){
+                    String waterMarkStr= StringBaseOpt.castObjectToString(jsonObj.get("watermark"),"");
+                    float opacity= NumberBaseOpt.castObjectToFloat(jsonObj.get("opacity"),0.4f);
+                    float rotation= NumberBaseOpt.castObjectToFloat(jsonObj.get("rotation"),45f);
+                    float frontSize= NumberBaseOpt.castObjectToFloat(jsonObj.get("frontSize"),60f);
+                    String fileName = FileType.truncateFileExtName(fileInfo.getFileName())+ ".pdf";
+                    response.setHeader("Accept-Ranges", "bytes");
+                    response.setContentType(FileType.getFileMimeType(fileName));
+                    response.setHeader("Content-Disposition", "inline; filename="
+                            + URLEncoder.encode(fileName, "UTF-8"));
+                    Watermark4Pdf.addWatermark4Pdf(pdfFileStream, response.getOutputStream(), waterMarkStr, opacity, rotation, frontSize);
+                    return ;
+                }
+            }
+            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FORBIDDEN,
+                getI18nMessage("error.404.file_cannot_be_converted_to_pdf", request),
+                response);
+        } catch (Exception e) {
+            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
+        }
+    }
+
     /**
      * 根据文件的id下载附属文件
      * 这个需要权限 控制 用于内部服务之间文件传输
@@ -335,7 +391,10 @@ public class DownloadController extends BaseController {
         }
     }
 
-    private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo) {
+    private boolean noAuth(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo, String closeAuth) {
+        if(StringUtils.isNotBlank(closeAuth)){ //BooleanBaseOpt.castObjectToBoolean(closeAuth, false)
+            return false;
+        }
         String userCode = WebOptUtils.getCurrentUserCode(request);
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         if(StringUtils.isBlank(userCode)){

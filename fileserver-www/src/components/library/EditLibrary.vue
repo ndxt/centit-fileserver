@@ -11,7 +11,7 @@
 
 <script>
 import LibraryInfo from './LibraryInfo'
-import { seeLibrary, updatelibraryr } from '@/api/file'
+import {seeLibrary, updatelibraryr} from '@/api/file'
 import ModalOperatorMixin from '@centit/ui-admin/src/components/ModalOperatorMixin'
 
 export default {
