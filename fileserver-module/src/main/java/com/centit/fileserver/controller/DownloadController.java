@@ -80,7 +80,7 @@ public class DownloadController extends BaseController {
     @RequestMapping(value = "/preview/{fileId}", method = RequestMethod.GET)
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
-                            HttpServletResponse response) throws IOException{
+                            HttpServletResponse response){
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String closeAuth = request.getParameter("closeAuth");
         if (noAuth(request, response, fileInfo, closeAuth)) {
@@ -149,7 +149,7 @@ public class DownloadController extends BaseController {
     @RequestMapping(value = "/viewPdf", method = RequestMethod.POST)
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewPdfWithWaterMark(@RequestBody String jsonStr, HttpServletRequest request,
-                                        HttpServletResponse response) throws IOException{
+                                        HttpServletResponse response){
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
         String fileId = jsonObj.getString("fileId");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
