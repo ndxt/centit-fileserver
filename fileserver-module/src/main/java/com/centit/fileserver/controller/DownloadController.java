@@ -181,11 +181,12 @@ public class DownloadController extends BaseController {
                     float opacity= NumberBaseOpt.castObjectToFloat(jsonObj.get("opacity"),0.4f);
                     float rotation= NumberBaseOpt.castObjectToFloat(jsonObj.get("rotation"),45f);
                     float frontSize= NumberBaseOpt.castObjectToFloat(jsonObj.get("frontSize"),60f);
+                    boolean isRepeat= BooleanBaseOpt.castObjectToBoolean(jsonObj.get("isRepeat"),false);
                     String fileName = FileType.truncateFileExtName(fileInfo.getFileName())+ ".pdf";
                     response.setContentType(FileType.getFileMimeType(fileName));
                     response.setHeader("Content-Disposition", "inline; filename="
                             + URLEncoder.encode(fileName, "UTF-8"));
-                    Watermark4Pdf.addWatermark4Pdf(pdfFileStream, response.getOutputStream(), waterMarkStr, opacity, rotation, frontSize);
+                    Watermark4Pdf.addWatermark4Pdf(pdfFileStream, response.getOutputStream(), waterMarkStr, opacity, rotation, frontSize, isRepeat);
                     return ;
                 }
             }

@@ -4,6 +4,7 @@ import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.search.document.FileDocument;
 import com.centit.search.utils.TikaTextExtractor;
+import com.centit.support.algorithm.BooleanBaseOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.algorithm.StringBaseOpt;
 import com.centit.support.algorithm.ZipCompressor;
@@ -177,7 +178,8 @@ public class FilePretreatUtils {
         float opacity= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("opacity"),0.4f);
         float rotation= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("rotation"),45f);
         float frontSize= NumberBaseOpt.castObjectToFloat(pretreatInfo.get("frontSize"),60f);
-        boolean success = Watermark4Pdf.addWatermark4Pdf(inputPdfPath, outputPdfPath, waterMarkStr, opacity, rotation, frontSize);
+        boolean isRepeat= BooleanBaseOpt.castObjectToBoolean(pretreatInfo.get("isRepeat"),false);
+        boolean success = Watermark4Pdf.addWatermark4Pdf(inputPdfPath, outputPdfPath, waterMarkStr, opacity, rotation, frontSize, isRepeat);
         if (success) {
             return outputPdfPath;
         } else {

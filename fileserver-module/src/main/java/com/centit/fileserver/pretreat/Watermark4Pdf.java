@@ -41,9 +41,10 @@ public abstract class Watermark4Pdf {
                                            String waterMarkStr,
                                            float opacity,
                                            float rotation,
-                                           float fontSize) throws IOException {
+                                           float fontSize,
+                                           boolean isRepeat) throws IOException {
         return addWatermark4Pdf(Files.newInputStream(Paths.get(inputFile)),
-                Files.newOutputStream(Paths.get(outputFile)), waterMarkStr, opacity,rotation, fontSize);
+                Files.newOutputStream(Paths.get(outputFile)), waterMarkStr, opacity,rotation, fontSize, isRepeat);
     }
 
     public static boolean addWatermark4Pdf(InputStream inputFile,
@@ -51,7 +52,8 @@ public abstract class Watermark4Pdf {
                                            String waterMarkStr,
                                            float opacity,
                                            float rotation,
-                                           float fontSize) {
+                                           float fontSize,
+                                           boolean isRepeat) {
         PdfGState gs = new PdfGState();
         PdfReader pdfReader = null;
         PdfStamper pdfStamper = null;
@@ -84,31 +86,36 @@ public abstract class Watermark4Pdf {
                 content.beginText();
                 content.setColorFill(BaseColor.GRAY);
                 content.setFontAndSize(base, fontSize);
-                // 水印文字成45度角倾斜
-                int endLine = (int) ( pageRect.getHeight() / (3 * fontSize ) )  + 1 ;
-                if(endLine<1){
-                    endLine = 1;
-                }
-                int beginLine = (int) (0 - pageRect.getWidth() / (3 * fontSize ))  - 1 ;
-                if(beginLine>0){
-                    beginLine = 0;
-                }
-                int repeat = (int) (pageRect.getWidth() / cosRotation / (strSize * fontSize) )  + 1 ;
-                if(repeat<1){
-                    repeat = 1;
-                }
+                if(isRepeat) {
+                    // 水印文字成45度角倾斜
+                    int endLine = (int) (pageRect.getHeight() / (3 * fontSize)) + 1;
+                    if (endLine < 1) {
+                        endLine = 1;
+                    }
+                    int beginLine = (int) (0 - pageRect.getWidth() / (3 * fontSize)) - 1;
+                    if (beginLine > 0) {
+                        beginLine = 0;
+                    }
+                    int repeat = (int) (pageRect.getWidth() / cosRotation / (strSize * fontSize)) + 1;
+                    if (repeat < 1) {
+                        repeat = 1;
+                    }
 
-                for(int j=beginLine; j<endLine; j++) {
-                    for(int k=0; k<repeat; k++) {
-                        // 计算水印X,Y坐标
-                        float l = strSize * fontSize * (k+0.5f);
-                        float y = fontSize * (3*j+2) + l * sinRotation ;
-                        float x = l * cosRotation;
-                        if(y > 0 && y< pageRect.getHeight() && x < pageRect.getWidth()) {
-                            content.showTextAligned(Element.ALIGN_CENTER, waterMarkStr, x,
-                                y, rotation);
+                    for (int j = beginLine; j < endLine; j++) {
+                        for (int k = 0; k < repeat; k++) {
+                            // 计算水印X,Y坐标
+                            float l = strSize * fontSize * (k + 0.5f);
+                            float y = fontSize * (3 * j + 2) + l * sinRotation;
+                            float x = l * cosRotation;
+                            if (y > 0 && y < pageRect.getHeight() && x < pageRect.getWidth()) {
+                                content.showTextAligned(Element.ALIGN_CENTER, waterMarkStr, x,
+                                    y, rotation);
+                            }
                         }
                     }
+                } else {
+                    content.showTextAligned(Element.ALIGN_CENTER, waterMarkStr, pageRect.getWidth() / 2,
+                        pageRect.getHeight() / 2, rotation);
                 }
                 content.endText();
             }
