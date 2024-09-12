@@ -147,7 +147,7 @@ public class DownloadController extends BaseController {
 
 
     @RequestMapping(value = "/viewPdf", method = RequestMethod.POST)
-    @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
+    @ApiOperation(value = "添加水印并浏览")
     public void previewPdfWithWaterMark(@RequestBody String jsonStr, HttpServletRequest request,
                                         HttpServletResponse response){
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
@@ -189,7 +189,7 @@ public class DownloadController extends BaseController {
                     return ;
                 }
             }
-            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_FORBIDDEN,
+            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_NOT_FOUND,
                 getI18nMessage("error.404.file_cannot_be_converted_to_pdf", request),
                 response);
         } catch (Exception e) {
