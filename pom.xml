@@ -20,7 +20,6 @@
         <aliyun-sdk-oss.version>2.8.1</aliyun-sdk-oss.version>
         <zip4j.version>1.3.2</zip4j.version>
         <txyun-sdk-cos.version>5.5.2</txyun-sdk-cos.version>
-        <itext-asian.version>5.2.0</itext-asian.version>
     </properties>
     <description>文件服务器，可以作为文件的存储服务单独运行，并为其他业务服务，可以作为一个文件版本管理器来运行。</description>
     <url>https://github.com/ndxt/centit-fileserver</url>
