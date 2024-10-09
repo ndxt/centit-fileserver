@@ -2,6 +2,7 @@ package com.centit.fileserver.test;
 
 import com.alibaba.fastjson2.JSON;
 import com.centit.fileserver.po.FileAccessLog;
+import com.centit.fileserver.po.FileInfo;
 import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.support.network.HttpExecutor;
 import com.centit.support.network.HttpExecutorContext;
@@ -16,7 +17,10 @@ public class TestAccessApply {
             "{\"fileName\":\"aaa\",\"fileMd5\":\"6e515d60e60f5a5f59e70c47b6060ba3\",\"fileSize\":3511," +
             "\"fileId\":\"fbc4625d47b94531992de5e737df8423\"}}";
         HttpReceiveJSON resJson  = HttpReceiveJSON.valueOfJson(jsonStr);
-        System.out.println(JSON.toJSONString(resJson.getData()));
+
+        FileInfo fileInfo = resJson.getDataAsObject(FileInfo.class);
+
+        System.out.println(JSON.toJSONString(fileInfo));
     }
     public static void main2(String[] args) throws Exception {
 
