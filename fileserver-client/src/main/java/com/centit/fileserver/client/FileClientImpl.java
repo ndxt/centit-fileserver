@@ -265,13 +265,13 @@ public class FileClientImpl implements FileClient {
 
         String jsonStr = HttpExecutor.inputStreamUpload(HttpExecutorContext.create(httpClient),
             appSession.completeQueryUrl("/upload/file"),
-            JSON.parseObject(JSON.toJSONString(fi)),
+            JSONObject.from(fi),
             inputStream,
             "file",
             ContentType.DEFAULT_BINARY,
             fi.getFileName());
 
-        HttpReceiveJSON resJson = null;
+        HttpReceiveJSON resJson;
         try {
             resJson = HttpReceiveJSON.valueOfJson(jsonStr);
         } catch (Exception e) {
