@@ -91,6 +91,8 @@ public class ViewFileController extends BaseController {
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     @ApiOperation(value = "根据路径预览文件")
     public void previewFile(HttpServletRequest request, HttpServletResponse response) {
+        // 设置缓存控制头，例如 "Cache-Control: private, max-age=604800" //一周 604800 一个与 3794400 一小时 3600
+        response.setHeader("Cache-Control", "private, max-age=3600");
         try {
             String uri = request.getRequestURI();
             ImmutableTriple<String, List<String>, String> t = fetchUnitFilePath(uri);
