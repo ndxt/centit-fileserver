@@ -81,6 +81,8 @@ public class DownloadController extends BaseController {
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response){
+        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        response.setHeader("Cache-Control", "public, max-age=604800");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String closeAuth = request.getParameter("closeAuth");
         if (noAuth(request, response, fileInfo, closeAuth)) {
@@ -150,6 +152,8 @@ public class DownloadController extends BaseController {
     @ApiOperation(value = "添加水印并浏览")
     public void previewPdfWithWaterMark(@RequestBody String jsonStr, HttpServletRequest request,
                                         HttpServletResponse response){
+        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        response.setHeader("Cache-Control", "public, max-age=604800");
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
         String fileId = jsonObj.getString("fileId");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
@@ -211,9 +215,9 @@ public class DownloadController extends BaseController {
     @ApiOperation(value = "根据文件的id下载附属文件")
     public void downloadAttach(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                HttpServletResponse response) throws IOException {
-
+        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        response.setHeader("Cache-Control", "public, max-age=604800");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
-
         if (null != fileInfo) {
             String at = fileInfo.getAttachedType();
             if (StringUtils.isBlank(at) || "N".equals(at)) {
@@ -248,7 +252,8 @@ public class DownloadController extends BaseController {
     @ApiOperation(value = "根据文件的id下载文件")
     public void downloadByFileId(@PathVariable("fileId") String fileId, HttpServletRequest request,
                                  HttpServletResponse response) throws IOException {
-
+        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        response.setHeader("Cache-Control", "public, max-age=604800");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         String fileName = request.getParameter("fileName");
         if(!StringUtils.isBlank(fileName)){
@@ -263,7 +268,6 @@ public class DownloadController extends BaseController {
                 getI18nMessage("error.404.file_not_found", request, fileId));
         }
         FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-
         downloadFile(fileStore, fileInfo, fileStoreInfo, request, response);
         fileInfoManager.writeDownloadFileLog(fileInfo, request);
     }
