@@ -263,6 +263,7 @@ public class FileInfo implements FileBaseInfo, Serializable {
             this.fileOwner = otherFile.getFileOwner();
             this.fileUnit = otherFile.getFileUnit();
             this.libraryId = otherFile.getLibraryId();
+            this.fileCatalog=otherFile.getFileCatalog();
         }
 
         if(other instanceof FileInfo){
