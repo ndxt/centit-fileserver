@@ -175,6 +175,50 @@ public abstract class UploadDownloadUtils {
         }
     }
 
+    private static void innerDownFileRange(HttpServletResponse response,
+                                     InputStream inputStream, FileRangeInfo fr) throws IOException {
+        long pos = fr.getRangeStart();
+        BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
+            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
+        try (ServletOutputStream out = response.getOutputStream();
+             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
+            if (pos > 0) {
+                /*pos =*/ bis.skip(pos);
+            }
+            byte[] buffer = new byte[64 * 1024];
+            long needSize = fr.getPartSize(); //需要传输的字节
+            int length;
+            while ((needSize > 0) && ((length = bis.read(buffer, 0, buffer.length)) != -1)) {
+                long writeLen = Math.min(needSize, length);
+                bufferOut.write(buffer, 0, (int) writeLen);
+                bufferOut.flush();
+                needSize -= writeLen;
+            }
+            //bufferOut.flush();
+            //bufferOut.close();
+            //out.close();
+        } catch (SocketException e) {
+            logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
+        }
+    }
+
+    private static void innerDownFileAll(HttpServletResponse response, InputStream inputStream) throws IOException {
+
+        BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
+            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
+        try (ServletOutputStream out = response.getOutputStream();
+             BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
+            byte[] buffer = new byte[64 * 1024];
+            int length;
+            while ( (length = bis.read(buffer, 0, buffer.length)) != -1) {
+                bufferOut.write(buffer, 0, length);
+                bufferOut.flush();
+            }
+        } catch (SocketException e) {
+            logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
+        }
+    }
+
     /**
      * @param request     HttpServletRequest
      * @param response    HttpServletResponse
@@ -206,50 +250,26 @@ public abstract class UploadDownloadUtils {
         response.setHeader("Content-Disposition",
             ("inline".equalsIgnoreCase(downloadType) ? "inline" : "attachment") + "; filename="
                 + URLEncoder.encode(fileName, "UTF-8"));
-        long pos = 0;
-
         FileRangeInfo fr = FileRangeInfo.parseRange(request);
-
-        if(fSize < 0){
-            fSize = inputStream.available();
-        }
         if (fr == null) {
-            fr = new FileRangeInfo(0, fSize - 1, fSize);
+            innerDownFileAll(response, inputStream);
         } else {
+            int availableSize = inputStream.available();
+            if (availableSize > 0) {
+                fSize = availableSize;
+            }
             if (fr.getRangeEnd() <= 0) {
                 fr.setRangeEnd(fSize - 1);
             }
             fr.setFileSize(fSize);
-            pos = fr.getRangeStart();
             if (fr.getPartSize() < fr.getFileSize()) {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             }
-        }
-        response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
-        // Content-Range: bytes 500-999/1234
-        response.setHeader("Content-Range", fr.getResponseRange());
-        //logger.debug("Content-Range :" + contentRange);
-        BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
-            (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
-        try (ServletOutputStream out = response.getOutputStream();
-            BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
-            if (pos > 0) {
-                bis.skip(pos);
-            }
-            byte[] buffer = new byte[64 * 1024];
-            long needSize = fr.getPartSize(); //需要传输的字节
-            long length;
-            while ((needSize > 0) && ((length = bis.read(buffer, 0, buffer.length)) != -1)) {
-                long writeLen = Math.min(needSize, length);
-                bufferOut.write(buffer, 0, (int) writeLen);
-                bufferOut.flush();
-                needSize -= writeLen;
-            }
-            //bufferOut.flush();
-            //bufferOut.close();
-            //out.close();
-        } catch (SocketException e) {
-            logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
+            response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
+            // Content-Range: bytes 500-999/1234
+            response.setHeader("Content-Range", fr.getResponseRange());
+            //logger.debug("Content-Range :" + contentRange);
+            innerDownFileRange(response, inputStream, fr);
         }
     }
 

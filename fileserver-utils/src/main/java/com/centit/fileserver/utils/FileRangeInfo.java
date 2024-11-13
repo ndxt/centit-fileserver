@@ -2,6 +2,7 @@ package com.centit.fileserver.utils;
 
 import com.centit.framework.common.WebOptUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -29,9 +30,9 @@ public class FileRangeInfo implements Serializable {
     }
 
     public static FileRangeInfo parseRange(String range){
-        if(range==null)
+        if(StringUtils.isBlank(range)) {
             return null;
-
+        }
         Matcher m = Pattern.compile("\\d+").matcher(range);
         if (m.find()) {
             long from = Long.parseLong(m.group(0));
