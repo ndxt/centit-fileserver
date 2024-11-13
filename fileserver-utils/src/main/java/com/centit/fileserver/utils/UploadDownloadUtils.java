@@ -253,24 +253,29 @@ public abstract class UploadDownloadUtils {
         FileRangeInfo fr = FileRangeInfo.parseRange(request);
         if (fr == null) {
             innerDownFileAll(response, inputStream);
-        } else {
-            int availableSize = inputStream.available();
-            if (availableSize > 0) {
-                fSize = availableSize;
-            }
-            if (fr.getRangeEnd() <= 0) {
-                fr.setRangeEnd(fSize - 1);
-            }
-            fr.setFileSize(fSize);
-            if (fr.getPartSize() < fr.getFileSize()) {
-                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-            }
-            response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
-            // Content-Range: bytes 500-999/1234
-            response.setHeader("Content-Range", fr.getResponseRange());
-            //logger.debug("Content-Range :" + contentRange);
-            innerDownFileRange(response, inputStream, fr);
+            return;
         }
+        int availableSize = inputStream.available();
+        if (availableSize > 0) {
+            fSize = availableSize;
+        }
+        if(fSize<0){
+            innerDownFileAll(response, inputStream);
+            return;
+        }
+
+        if (fr.getRangeEnd() <= 0) {
+            fr.setRangeEnd(fSize - 1);
+        }
+        fr.setFileSize(fSize);
+        if (fr.getPartSize() < fr.getFileSize()) {
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        }
+        response.setHeader("Content-Length", String.valueOf(fr.getPartSize()));
+        // Content-Range: bytes 500-999/1234
+        response.setHeader("Content-Range", fr.getResponseRange());
+        //logger.debug("Content-Range :" + contentRange);
+        innerDownFileRange(response, inputStream, fr);
     }
 
     private static long checkTempFileSize(String filePath) {
