@@ -148,15 +148,16 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
     }
 
     public List<FileShowInfo> listFolderFiles(String topUnit, Map<String, Object> searchColumn){
-        String sqlsen = "select a.FILE_NAME, max(a.FILE_ID) as FILE_ID, " +
-            "count(1) as FILE_SUM, min(a.ENCRYPT_TYPE) as ENCRYPT_TYPE, " +
-            "max(a.CREATE_TIME) as CREATE_TIME, max(b.FILE_SIZE) as FILE_SIZE,"+
-            "max(a.file_show_path) as file_show_path,max(c.favorite_id) as favorite_id,"+
-            "max(a.file_type) fileType,max(a.download_times) downloadTimes,max(file_owner) owner " +
-            "from FILE_INFO a join FILE_STORE_INFO b on a.FILE_MD5=b.FILE_MD5 "+
-            "left join file_favorite c on a.file_id=c.file_id [:favoriteUser | and c.favorite_user=:favoriteUser] " +
-            "where file_state='N' [:parentFolder | and parent_folder=:parentFolder] [:libraryId | and library_id=:libraryId] [:fileName | and file_name=:fileName] " +
-            "group by FILE_NAME";
+        String sqlsen="select a.file_name,b.file_id,a.file_sum,b.ENCRYPT_TYPE,b.create_time,c.file_size,b.file_show_path," +
+            "d.favorite_id,b.file_type,b.download_times,b.file_owner from " +
+            "(select a.FILE_NAME,parent_folder,library_id, count(1) as FILE_SUM, max(a.CREATE_TIME) as CREATE_TIME from FILE_INFO a  " +
+            "where file_state='N'  [:parentFolder | and parent_folder=:parentFolder] " +
+            "[:libraryId | and library_id=:libraryId]  [:fileName | and file_name=:fileName]" +
+            "group by FILE_NAME,parent_folder,library_id) a " +
+            "join file_info b on a.file_name=b.file_name and a.create_time=b.create_time " +
+            "and a.library_id=b.library_id and a.parent_folder=b.parent_folder " +
+            "join FILE_STORE_INFO c on b.FILE_MD5=c.FILE_MD5 left join file_favorite d on b.file_id=d.file_id [:favoriteUser | and d.favorite_user=:favoriteUser] "+
+            "where 1=1  [:fileName | and b.file_name=:fileName]";
         QueryAndNamedParams qap = QueryUtils.translateQuery( sqlsen, searchColumn);
         List<Object[]> objects =  DatabaseOptUtils.listObjectsByNamedSql(this,
             qap.getQuery(), qap.getParams());
@@ -177,12 +178,6 @@ public class FileInfoDao extends BaseDaoImpl<FileInfo, String> {
                 file.setFavoriteId(StringBaseOpt.objectToString(objs[7]));
                 file.setDownloadTimes(NumberBaseOpt.castObjectToInteger(objs[9]));
                 file.setOwnerName(CodeRepositoryUtil.getUserName(topUnit, StringBaseOpt.objectToString(objs[10])));
-
-                sqlsen="select file_id from FILE_INFO where file_name=? and CREATE_TIME=?";
-                Object lastFileId =DatabaseOptUtils.getScalarObjectQuery(this, sqlsen, new Object[]{file.getFileName(), file.getCreateTime()});
-                if(lastFileId!=null) {
-                    file.setAccessToken(StringBaseOpt.objectToString(lastFileId));
-                }
                 files.add(file);
             }
         }
