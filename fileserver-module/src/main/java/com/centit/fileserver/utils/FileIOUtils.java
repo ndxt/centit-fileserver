@@ -49,12 +49,13 @@ public abstract class FileIOUtils {
                     fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
                 if (attachedFileStoreInfo != null) {
                     canView = true;
-                    UploadDownloadUtils.downFileRange(request, response,
-                        FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo),
-                        attachedFileStoreInfo.getFileSize(),
-                        FileType.truncateFileExtName(newFileInfo.getFileName())
-                            + ".pdf",// + newFileInfo.getAttachedType(),
-                        "inline", null);
+                    try(InputStream is = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo)) {
+                        UploadDownloadUtils.downFileRange(request, response, is,
+                            attachedFileStoreInfo.getFileSize(),
+                            FileType.truncateFileExtName(newFileInfo.getFileName())
+                                + ".pdf",// + newFileInfo.getAttachedType(),
+                            "inline", null);
+                    }
                 }
             }
         }

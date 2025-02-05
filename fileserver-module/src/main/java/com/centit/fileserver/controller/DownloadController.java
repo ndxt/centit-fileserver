@@ -103,22 +103,27 @@ public class DownloadController extends BaseController {
                 String charset = null;
                 if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
-                    charset = new AutoDetectReader(FileIOUtils.getFileStream(fileStore, fileStoreInfo)).getCharset().name();
+                    try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                        if(is!=null)
+                            charset = new AutoDetectReader(is).getCharset().name();
+                    }
                 }
-                UploadDownloadUtils.downFileRange(request, response,
-                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
-                    fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
+                try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                    UploadDownloadUtils.downFileRange(request, response, is,
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
+                }
                 canView = true;
             } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
 
                 if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
-                    UploadDownloadUtils.downFileRange(request, response,
-                        FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo),
-                        attachedFileStoreInfo.getFileSize(),
-                        FileType.truncateFileExtName(fileInfo.getFileName())
-                            + "." + fileInfo.getAttachedType(),
-                        "inline", null);
+                    try(InputStream is = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo)) {
+                        UploadDownloadUtils.downFileRange(request, response, is,
+                            attachedFileStoreInfo.getFileSize(),
+                            FileType.truncateFileExtName(fileInfo.getFileName())
+                                + "." + fileInfo.getAttachedType(),
+                            "inline", null);
+                    }
                     canView = true;
                 } else {
                     canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
@@ -135,11 +140,12 @@ public class DownloadController extends BaseController {
                     UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]) , fileInfo.getFileName(), response);
                     return ;
                 }
-                UploadDownloadUtils.downFileRange(request, response,
-                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
+                try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                UploadDownloadUtils.downFileRange(request, response, is,
                     fileStoreInfo.getFileSize(),
                     fileInfo.getFileName(),
                     "inline", null);
+                }
             }
             fileInfoManager.writeDownloadFileLog(fileInfo, request);
         } catch (Exception e) {
@@ -191,6 +197,7 @@ public class DownloadController extends BaseController {
                     response.setHeader("Content-Disposition", "inline; filename="
                             + URLEncoder.encode(fileName, "UTF-8"));
                     Watermark4Pdf.addWatermark4Pdf(pdfFileStream, response.getOutputStream(), waterMarkStr, opacity, rotation, frontSize, isRepeat);
+                    pdfFileStream.close();
                     return ;
                 }
             }
@@ -379,9 +386,8 @@ public class DownloadController extends BaseController {
 
                 FileSystemOpt.deleteFile(tmpFile);
             } else {
-                try {
-                    UploadDownloadUtils.downFileRange(request, response,
-                        FileIOUtils.getFileStream(fileStore, fileStoreInfo),
+                try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                    UploadDownloadUtils.downFileRange(request, response, is,
                         fileStoreInfo.getFileSize(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
                 } catch (Exception e) {
                     logger.error(e.getMessage());

@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -115,21 +116,26 @@ public class ViewFileController extends BaseController {
                 String charset = null;
                 if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
                     "txt", "csv")) {
-                    charset = new AutoDetectReader(FileIOUtils.getFileStream(fileStore, fileStoreInfo)).getCharset().name();
+                    try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                        if(is!=null)
+                            charset = new AutoDetectReader(is).getCharset().name();
+                    }
                 }
-                UploadDownloadUtils.downFileRange(request, response,
-                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
-                    fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
+                try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                    UploadDownloadUtils.downFileRange(request, response, is,
+                        fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
+                }
                 canView = true;
             } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
                 if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
-                    UploadDownloadUtils.downFileRange(request, response,
-                        FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo),
-                        attachedFileStoreInfo.getFileSize(),
-                        FileType.truncateFileExtName(fileInfo.getFileName())
-                            + "." + fileInfo.getAttachedType(),
-                        "inline", null);
+                    try(InputStream is = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo)) {
+                        UploadDownloadUtils.downFileRange(request, response, is,
+                            attachedFileStoreInfo.getFileSize(),
+                            FileType.truncateFileExtName(fileInfo.getFileName())
+                                + "." + fileInfo.getAttachedType(),
+                            "inline", null);
+                    }
                     canView = true;
                 } else {
                     canView = FileIOUtils.reGetPdf(fileInfo.getFileId(), request, response, fileInfo,
@@ -141,11 +147,12 @@ public class ViewFileController extends BaseController {
             }
             if (!canView) {
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                UploadDownloadUtils.downFileRange(request, response,
-                    FileIOUtils.getFileStream(fileStore, fileStoreInfo),
-                    fileStoreInfo.getFileSize(),
-                    fileInfo.getFileName(),
-                    "inline", null);
+                try(InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                    UploadDownloadUtils.downFileRange(request, response, is,
+                        fileStoreInfo.getFileSize(),
+                        fileInfo.getFileName(),
+                        "inline", null);
+                }
             }
             fileInfoManager.writeDownloadFileLog(fileInfo, request);
         } catch (Exception e) {
