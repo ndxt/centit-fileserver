@@ -1,8 +1,8 @@
 package com.centit.fileserver.utils;
 
 import com.centit.framework.common.WebOptUtils;
-
 import org.apache.commons.lang3.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.regex.Matcher;
