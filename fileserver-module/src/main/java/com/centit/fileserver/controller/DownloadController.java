@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.centit.fileserver.common.FileStore;
 import com.centit.fileserver.po.FileInfo;
 import com.centit.fileserver.po.FileStoreInfo;
-import com.centit.fileserver.service.FileAccessLogManager;
 import com.centit.fileserver.service.FileInfoManager;
 import com.centit.fileserver.service.FileLibraryInfoManager;
 import com.centit.fileserver.service.FileStoreInfoManager;
@@ -54,16 +53,19 @@ import java.util.zip.ZipOutputStream;
 @Api(value = "文件下载", tags = "文件下载")
 public class DownloadController extends BaseController {
     private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+
     @Autowired
     private FileInfoManager fileInfoManager;
+
     @Autowired
     private FileStoreInfoManager fileStoreInfoManager;
+
     @Autowired
     private FileLibraryInfoManager fileLibraryInfoManager;
-    @Autowired
-    private FileAccessLogManager fileAccessLogManager;
+
     @Autowired
     protected FileStore fileStore;
+
     @Autowired
     protected CreatePdfOpt createPdfOpt;
 

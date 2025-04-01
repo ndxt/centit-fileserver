@@ -475,9 +475,10 @@ public class FileClientImpl implements FileClient {
             ContentType.DEFAULT_BINARY,
             "file.dat");
         try {
-            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            HttpReceiveJSON resJson = HttpReceiveJSON.dataOfJson(jsonStr);
             releaseHttpClient(httpClient);
-            return resJson.getDataAsString("fileId");
+            FileInfo fileInfo = resJson.getDataAsObject(ResponseData.RES_DATA_FILED, FileInfo.class);
+            return fileInfo==null?"":fileInfo.getFileId();
         } catch (Exception e) {
             releaseHttpClient(httpClient);
             logger.error("解析返回json串失败", e);
@@ -512,10 +513,8 @@ public class FileClientImpl implements FileClient {
     public void deleteFile(String fileId) {
         try {
             CloseableHttpClient httpClient = allocHttpClient();
-            String jsonStr = HttpExecutor.simpleDelete(HttpExecutorContext.create(httpClient),
+            /*String jsonStr =*/ HttpExecutor.simpleDelete(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/files/" + fileId), (String) null);
-            /*HttpReceiveJSON resJson =*/
-            HttpReceiveJSON.valueOfJson(jsonStr);
         } catch (IOException e) {
             logger.error("删除文件出错:" + e.getMessage() + "，文件ID：" + fileId, e);
         }
