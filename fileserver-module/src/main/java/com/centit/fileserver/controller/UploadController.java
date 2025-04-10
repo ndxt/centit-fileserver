@@ -99,6 +99,7 @@ public class UploadController extends BaseController {
 
     @Autowired
     FileOptTaskExecutor fileOptTaskExecutor;
+
     @Autowired
     FileFolderInfoDao fileFolderInfoDao;
 

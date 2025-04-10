@@ -9,6 +9,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.appclient.AppSession;
 import com.centit.framework.appclient.HttpReceiveJSON;
 import com.centit.framework.appclient.RestfulHttpRequest;
+import com.centit.framework.common.ResponseData;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.NumberBaseOpt;
 import com.centit.support.common.ObjectException;
@@ -215,14 +216,11 @@ public class FileClientImpl implements FileClient {
         appSession.checkAccessToken(httpClient);
         String jsonStr = HttpExecutor.simpleGet(HttpExecutorContext.create(httpClient),
             appSession.completeQueryUrl("/files/" + fileId));
-        HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
-        if(resJson==null){
-            throw new ObjectException(ObjectException.DATA_NOT_FOUND_EXCEPTION, "文件信息找不到："+fileId+"！");
-        }
+        HttpReceiveJSON resJson = HttpReceiveJSON.dataOfJson(jsonStr);
         if (resJson.getCode() != 0) {
             throw new ObjectException(fileId, resJson.getMessage());
         }
-        return resJson.getDataAsObject(FileInfo.class);
+        return resJson.getDataAsObject(ResponseData.RES_DATA_FILED, FileInfo.class);
     }
 
     @Override
@@ -273,15 +271,12 @@ public class FileClientImpl implements FileClient {
 
         HttpReceiveJSON resJson;
         try {
-            resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            resJson = HttpReceiveJSON.dataOfJson(jsonStr);
         } catch (Exception e) {
             logger.error("解析返回json串失败", e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
         }
-        if (resJson == null) {
-            throw new ObjectException(jsonStr, ERROR_MESSAGE);
-        }
-        return resJson.getDataAsObject(FileInfo.class);
+        return resJson.getDataAsObject(ResponseData.RES_DATA_FILED, FileInfo.class);
     }
 
     @Override
@@ -390,8 +385,8 @@ public class FileClientImpl implements FileClient {
         String jsonStr = HttpExecutor.httpExecute(
             HttpExecutorContext.create(httpClient), httpPost);
         try {
-            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
-            return resJson.getDataAsObject(FileInfo.class);
+            HttpReceiveJSON resJson = HttpReceiveJSON.dataOfJson(jsonStr);
+            return resJson.getDataAsObject(ResponseData.RES_DATA_FILED, FileInfo.class);
         } catch (Exception e) {
             logger.error("解析返回json串失败", e);
             throw new ObjectException(jsonStr, "解析返回json串失败");
@@ -480,9 +475,10 @@ public class FileClientImpl implements FileClient {
             ContentType.DEFAULT_BINARY,
             "file.dat");
         try {
-            HttpReceiveJSON resJson = HttpReceiveJSON.valueOfJson(jsonStr);
+            HttpReceiveJSON resJson = HttpReceiveJSON.dataOfJson(jsonStr);
             releaseHttpClient(httpClient);
-            return resJson.getDataAsString("fileId");
+            FileInfo fileInfo = resJson.getDataAsObject(ResponseData.RES_DATA_FILED, FileInfo.class);
+            return fileInfo==null?"":fileInfo.getFileId();
         } catch (Exception e) {
             releaseHttpClient(httpClient);
             logger.error("解析返回json串失败", e);
@@ -517,10 +513,8 @@ public class FileClientImpl implements FileClient {
     public void deleteFile(String fileId) {
         try {
             CloseableHttpClient httpClient = allocHttpClient();
-            String jsonStr = HttpExecutor.simpleDelete(HttpExecutorContext.create(httpClient),
+            /*String jsonStr =*/ HttpExecutor.simpleDelete(HttpExecutorContext.create(httpClient),
                 appSession.completeQueryUrl("/files/" + fileId), (String) null);
-            /*HttpReceiveJSON resJson =*/
-            HttpReceiveJSON.valueOfJson(jsonStr);
         } catch (IOException e) {
             logger.error("删除文件出错:" + e.getMessage() + "，文件ID：" + fileId, e);
         }
