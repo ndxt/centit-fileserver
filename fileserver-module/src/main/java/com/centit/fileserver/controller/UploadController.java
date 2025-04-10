@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -548,6 +549,11 @@ public class UploadController extends BaseController {
         if (needSave) {
             try {
                 // 先保存一个 临时文件； 如果文件已经存在是不会保存的
+                if(!fileStore.checkFile(tempFilePath)){
+                    fileInfoManager.deleteObject(fileInfo);
+                    throw new ObjectException(ObjectException.UNKNOWN_EXCEPTION,
+                        "找不到临时文件，请重新上传！");
+                }
                 fileStoreInfoManager.saveTempFileInfo(fileInfo, tempFilePath, fileInfo.getFileSize());
                 if (pretreatmentAsSync)
                     fileOptTaskExecutor.runOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
