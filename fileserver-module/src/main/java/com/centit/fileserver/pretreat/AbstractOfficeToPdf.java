@@ -2,6 +2,7 @@ package com.centit.fileserver.pretreat;
 
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
+import com.centit.support.office.OfdUtils;
 import com.centit.support.office.OfficeToPdf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -26,6 +27,7 @@ public abstract class AbstractOfficeToPdf {
     public final static String PPTX = "pptx";
     public final static String PDF = "pdf";
     public final static String TXT = "txt";
+    public final static String OFD = "ofd";
 
     private static Log logger = LogFactory.getLog(AbstractOfficeToPdf.class);
     public static boolean office2Pdf(String inputFile, String pdfFile) throws Exception {
@@ -38,7 +40,7 @@ public abstract class AbstractOfficeToPdf {
         }
         return StringUtils.equalsAnyIgnoreCase(fileType,
             //AbstractOfficeToPdf.DOC,
-            AbstractOfficeToPdf.DOCX,
+            AbstractOfficeToPdf.DOCX,AbstractOfficeToPdf.OFD,
             AbstractOfficeToPdf.XLS, AbstractOfficeToPdf.XLSX,
             AbstractOfficeToPdf.PPT, AbstractOfficeToPdf.PPTX);
     }
@@ -65,6 +67,8 @@ public abstract class AbstractOfficeToPdf {
             return OfficeToPdf.ppt2Pdf(inputFile, pdfFile, suffix);
         } else if (XLS.equalsIgnoreCase(suffix) || XLSX.equalsIgnoreCase(suffix)) {
             return OfficeToPdf.excel2Pdf(inputFile, pdfFile);
+        } else if (OFD.equalsIgnoreCase(suffix)) {
+            return OfdUtils.ofd2Pdf(inputFile, pdfFile);
         }
         return false;
     }
