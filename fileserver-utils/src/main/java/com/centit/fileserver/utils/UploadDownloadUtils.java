@@ -203,7 +203,10 @@ public abstract class UploadDownloadUtils {
     }
 
     private static void innerDownFileAll(HttpServletResponse response, InputStream inputStream) throws IOException {
-
+        int fileSize = inputStream.available();
+        if(fileSize>0) {
+            response.setHeader("Content-Length", String.valueOf(fileSize));
+        }
         BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
             (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
         try (ServletOutputStream out = response.getOutputStream();
