@@ -535,8 +535,9 @@ public class UploadController extends BaseController {
             retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
         }
         //pdf svg 去除脚本
-        if( StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".svg") ) {
+        if(StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".svg") ) {
             SvgUtils.removeSvgJSAction(tempFilePath, tempFilePath);
+            retMsg = "文件上传成功！但SVG文件中有Script脚本，已经被移除";
         } else if(StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".pdf") ) {
             if(DocOptUtil.pdfContainsJSAction(tempFilePath)){
                 fileInfo.setFileName(fileInfo.getFileName()+".rn");
