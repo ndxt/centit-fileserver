@@ -31,6 +31,8 @@ import com.centit.support.common.ObjectException;
 import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileMD5Maker;
 import com.centit.support.file.FileSystemOpt;
+import com.centit.support.image.SvgUtils;
+import com.centit.support.office.DocOptUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.fileupload.FileItem;
@@ -529,9 +531,19 @@ public class UploadController extends BaseController {
         }
         String retMsg = "文件上传成功！";
         if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
-            fileInfo.setFileName( fileInfo.getFileName()+".rn");
+            fileInfo.setFileName(fileInfo.getFileName()+".rn");
             retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
         }
+        //pdf svg 去除脚本
+        if( StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".svg") ) {
+            SvgUtils.removeSvgJSAction(tempFilePath, tempFilePath);
+        } else if(StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".pdf") ) {
+            if(DocOptUtil.pdfContainsJSAction(tempFilePath)){
+                fileInfo.setFileName(fileInfo.getFileName()+".rn");
+                retMsg = "PDF文件包含JavaScript代码为避免XSS漏洞文件已被重命名为"+fileInfo.getFileName();
+            }
+        }
+
         boolean needSave = false;
         String fileId = fileInfo.getFileId();
         if(! isUpdateFile){
