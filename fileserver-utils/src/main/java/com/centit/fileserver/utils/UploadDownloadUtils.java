@@ -306,7 +306,7 @@ public abstract class UploadDownloadUtils {
 
         long tempFileSize = checkTempFileSize(tempFilePath);
         FileRangeInfo range = FileRangeInfo.parseRange(request);
-        if (tempFileSize < size) {//文件还没有传输完成
+        if (tempFileSize < size || tempFileSize==0) {//文件还没有传输完成
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
                 throw new ObjectException(CollectionsOpt.createHashMap(

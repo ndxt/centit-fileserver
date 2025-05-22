@@ -40,6 +40,9 @@ public class FileRangeInfo implements Serializable {
                 long to = Long.parseLong(m.group(0));
                 if(m.find()){
                     long size = Long.parseLong(m.group(0));
+                    if(size==0){
+                        return new FileRangeInfo(0,-1,0);
+                    }
                     if(size>0 && to>=size)
                         to=size-1;
                     return new FileRangeInfo(from, to, size);
