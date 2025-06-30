@@ -55,7 +55,7 @@ public class FileLogController extends BaseController {
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
         Map<String, Object> searchColumn = BaseController.collectRequestParameters(request);
         List<FileLibraryInfo> fileLibraryInfos=
-            fileLibraryInfoManager.listFileLibrary(topUnit, userCode);
+            fileLibraryInfoManager.listFileLibrary(topUnit, userCode,"I");
         if(fileLibraryInfos!=null){
             String[] units=new String[fileLibraryInfos.size()];
             for(int i=0;i<fileLibraryInfos.size();i++){
