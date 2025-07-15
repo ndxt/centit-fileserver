@@ -574,8 +574,8 @@ public class UploadController extends BaseController {
                 else
                     fileOptTaskExecutor.addOptTask(fileInfo, fileInfo.getFileSize(), pretreatInfo);
             } catch (Exception e) {
+                logger.error(e.getMessage(), e);
                 throw new ObjectException(ObjectException.UNKNOWN_EXCEPTION, e.getMessage(), e);
-                //logger.error(e.getMessage(), e);
             }
             return UploadDownloadUtils.makeRangeUploadCompleteJson(
                 fileInfo.getFileMd5(), fileInfo.getFileSize(), fileInfo.getFileName(), fileId, retMsg);
