@@ -59,7 +59,7 @@ public class FileRangeInfo implements Serializable {
     }
 
     public FileRangeInfo(long from, long to, long size){
-        this.rangeStart = from;
+        this.rangeStart = from<0?0:from;
         this.rangeEnd = to;
         this.fileSize = size;
     }
