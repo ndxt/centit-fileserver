@@ -57,7 +57,7 @@ public abstract class UploadDownloadUtils {
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, size))) {//如果文件已经存在则完成秒传，无需再传
             jsonObject = UploadDownloadUtils.makeRangeCheckJson(size, fileInfo.getFileMd5(), true);
         } else {
-            long tempFileSize = -1L;
+            long tempFileSize = 0L;
             if (new File(tempFilePath).exists()) {//先查看临时目录是否存在文件
                 tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
             }
