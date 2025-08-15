@@ -276,41 +276,58 @@ public class DownloadController extends BaseController {
     public void thumbnailFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                               HttpServletResponse response) {
         response.setHeader("Cache-Control", "public, max-age=604800");
-        if (fileId == null) {
+
+        if (fileId == null || fileId.isEmpty()) {
             JsonResultUtils.writeErrorMessageJson("Invalid fileId", response);
             return;
         }
+
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
         if (fileInfo == null) {
             JsonResultUtils.writeErrorMessageJson("File not found", response);
             return;
         }
-        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+
+        String fileMd5 = fileInfo.getFileMd5();
+        if (fileMd5 == null || fileMd5.isEmpty()) {
+            JsonResultUtils.writeErrorMessageJson("Invalid file MD5", response);
+            return;
+        }
+
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileMd5);
         if (fileStoreInfo == null) {
             JsonResultUtils.writeErrorMessageJson("File store info not found", response);
             return;
         }
+
         try {
             if (fileStoreInfo.getFileSize() == 0) {
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
                 return;
             }
-            int height = NumberBaseOpt.castObjectToInteger(request.getParameter("height"), 240);
-            int width = NumberBaseOpt.castObjectToInteger(request.getParameter("width"), 320);
-            int quality = NumberBaseOpt.castObjectToInteger(request.getParameter("quality"), 100);
-            // 参数范围校验
-            height = Math.max(1, Math.min(height, 2048));
-            width = Math.max(1, Math.min(width, 2048));
-            quality = Math.max(1, Math.min(quality, 100));
-            String outFilePath = SystemTempFileUtils.getTempDirectory() + fileInfo.getFileMd5() + "_1.jpg";
+
+            int height = sanitizeParameter(request.getParameter("height"), 240, 1, 2048);
+            int width = sanitizeParameter(request.getParameter("width"), 320, 1, 2048);
+            int quality = sanitizeParameter(request.getParameter("quality"), 100, 1, 100);
+
+            String tempDir = SystemTempFileUtils.getTempDirectory();
+            String inFilePath = tempDir + fileMd5 + "_in.jpg";
+            String outFilePath = tempDir + fileMd5 + "_out.jpg";
+
             try {
-                ImageOpt.createThumbnail(fileStoreInfo.getFileStorePath(), width, height, quality, outFilePath);
+                try (InputStream fileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                    if (fileStream != null) {
+                        FileIOOpt.appendInputStreamToFile(fileStream, inFilePath);
+                    }
+                }
+                ImageOpt.createThumbnail(inFilePath, width, height, quality, outFilePath);
+
                 try (InputStream is = Files.newInputStream(Paths.get(outFilePath))) {
                     UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(),
                         fileInfo.getFileName(), "inline", null);
                 }
             } finally {
-                // 确保临时文件被删除
+                FileSystemOpt.deleteFile(inFilePath);
                 FileSystemOpt.deleteFile(outFilePath);
             }
         } catch (IOException e) {
@@ -318,6 +335,12 @@ public class DownloadController extends BaseController {
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson("Unexpected error: " + e.getMessage(), response);
         }
+    }
+
+    // 参数校验与范围限制
+    private int sanitizeParameter(String value, int defaultValue, int min, int max) {
+        int result = NumberBaseOpt.castObjectToInteger(value, defaultValue);
+        return Math.max(min, Math.min(result, max));
     }
 
 
