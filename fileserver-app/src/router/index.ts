@@ -12,6 +12,7 @@ const router = createRouter({
     { path: "/splash", component: Splash },
     { path: "/login", component: Login },
     { path: "/home", component: Home, meta: { requiresAuth: true } },
+    { path: "/transfer", component: () => import("../pages/Transfer.vue"), meta: { requiresAuth: true } },
   ],
 });
 
