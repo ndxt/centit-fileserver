@@ -25,7 +25,8 @@ async function submit() {
   if (r.ok) {
     const code = r.data?.code;
     if (code === 0) {
-      location.reload();
+      const router = (await import("vue-router")).useRouter();
+      router.replace("/home");
     } else {
       error.value = r.data?.message || "登录失败";
       refreshCaptcha();
