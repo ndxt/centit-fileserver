@@ -3,6 +3,7 @@ import Splash from "../pages/Splash.vue";
 import Login from "../pages/Login.vue";
 import Home from "../pages/Home.vue";
 import { checkAuth } from "../services/auth";
+import { loadAppConfig } from "../config/config";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -15,6 +16,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
+  await loadAppConfig();
   if (to.path === "/splash") return true;
   if (to.meta.requiresAuth) {
     const r = await checkAuth();

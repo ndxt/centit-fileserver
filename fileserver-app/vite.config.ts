@@ -24,6 +24,14 @@ export default defineConfig(async () => ({
           port: 1421,
         }
       : undefined,
+    proxy: {
+      "/api": {
+        target: "https://cloud.centit.com/locode",
+        changeOrigin: true,
+        secure: true,
+        cookieDomainRewrite: "localhost",
+      },
+    },
     watch: {
       // 3. tell Vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],

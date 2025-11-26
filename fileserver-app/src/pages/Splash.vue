@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { checkAuth } from "../services/auth";
+import { loadAppConfig } from "../config/config";
 const tips = ["正在初始化", "检查更新", "准备工作区"];
 const idx = ref(0);
 const router = useRouter();
@@ -9,6 +10,7 @@ onMounted(async () => {
   const t = setInterval(() => {
     idx.value = (idx.value + 1) % tips.length;
   }, 800);
+  await loadAppConfig();
   const r = await checkAuth();
   const ok = r.ok && r.data?.data?.authenticated === true;
   setTimeout(() => {

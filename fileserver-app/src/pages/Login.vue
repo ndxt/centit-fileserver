@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
+import { ref, onMounted } from "vue";
 import { captchaUrl, loginCommon, loginLdap } from "../services/auth";
+import { loadAppConfig, getConfig } from "../config/config";
 
 const username = ref("");
 const password = ref("");
@@ -25,7 +28,6 @@ async function submit() {
   if (r.ok) {
     const code = r.data?.code;
     if (code === 0) {
-      const router = (await import("vue-router")).useRouter();
       router.replace("/home");
     } else {
       error.value = r.data?.message || "登录失败";
@@ -36,6 +38,11 @@ async function submit() {
     refreshCaptcha();
   }
 }
+
+onMounted(async () => {
+  await loadAppConfig();
+  useLdap.value = getConfig().useLdapDefault;
+});
 </script>
 
 <template>

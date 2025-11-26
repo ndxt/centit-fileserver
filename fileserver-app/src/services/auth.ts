@@ -1,10 +1,22 @@
-import { Result, requestJson } from "../utils/invoke";
+import { Result, requestJson, isTauri } from "../utils/invoke";
+import { getConfig } from "../config/config";
 
-const BASE = "https://cloud.centit.com/locode/api";
+const BASE = import.meta.env.DEV && !isTauri() ? "/api" : `${getConfig().locodeOrigin}/api`;
 
 function enc(s: string): string {
-  const b = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(s))) : s;
-  return `encode:${b}`;
+  try {
+    if (typeof btoa === "function") {
+      return `encode:${btoa(unescape(encodeURIComponent(s)))}`;
+    }
+    const globalObj: any = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : undefined;
+    const BufferCtor = globalObj?.Buffer;
+    if (BufferCtor && typeof BufferCtor.from === "function") {
+      return `encode:${BufferCtor.from(s, "utf-8").toString("base64")}`;
+    }
+    throw new Error("base64 encoding not available in this environment");
+  } catch (e: any) {
+    throw new Error("Failed to base64-encode string: " + String(e));
+  }
 }
 
 export type CurrentUser = {
