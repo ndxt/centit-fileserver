@@ -1,4 +1,6 @@
 use serde::Serialize;
+use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Serialize)]
 pub struct AppInfo {
@@ -28,4 +30,15 @@ pub fn greet(name: &str) -> String {
 #[tauri::command]
 pub async fn http_get_json(url: String) -> Result<serde_json::Value, String> {
     crate::services::http::fetch_json(&url).await
+}
+
+#[tauri::command]
+pub async fn http_request_json(
+    method: String,
+    url: String,
+    headers: Option<Vec<(String, String)>>,
+    json: Option<Value>,
+    form: Option<HashMap<String, String>>,
+) -> Result<Value, String> {
+    crate::services::http::request_json(&method, &url, headers, json, form).await
 }

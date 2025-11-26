@@ -9,6 +9,7 @@ pub fn run() {
             commands::greet,
             commands::app_info,
             commands::http_get_json,
+            commands::http_request_json,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
