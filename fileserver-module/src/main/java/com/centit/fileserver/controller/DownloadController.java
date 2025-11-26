@@ -110,16 +110,14 @@ public class DownloadController extends BaseController {
         if (noAuth(request, response, fileInfo, closeAuth)) {
             return;
         }
-
+        File decryptFile=null;
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if (fileStoreInfo == null) {
                 JsonResultUtils.writeErrorMessageJson("文件存储信息不存在", response);
                 return;
             }
-
-            File decryptFile=handleEncryptedFileIfNeeded(request, response, fileInfo, fileStoreInfo);
-
+            decryptFile=handleEncryptedFileIfNeeded(request, response, fileInfo, fileStoreInfo);
             long fileSize = fileStoreInfo.getFileSize();
             if (fileSize == 0) {
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
@@ -137,16 +135,16 @@ public class DownloadController extends BaseController {
                 canView = FileIOUtils.reGetPdf(request, response, fileInfo,
                     fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
             }
-
             if (!canView) {
                 serveFallbackFile(request, response, fileStoreInfo, fileInfo);
-            }
-            if(decryptFile != null){
-                FileSystemOpt.deleteFile(decryptFile);
             }
         } catch (Exception e) {
             logger.error("文件预览失败，fileId: {}", fileId, e);
             JsonResultUtils.writeErrorMessageJson("文件预览失败：" + e.getMessage(), response);
+        } finally{
+            if(decryptFile != null){
+                FileSystemOpt.deleteFile(decryptFile);
+            }
         }
     }
 
