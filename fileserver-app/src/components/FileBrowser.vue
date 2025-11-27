@@ -25,6 +25,7 @@ defineEmits<{
     
     <!-- Content -->
     <div class="flex-1 flex flex-col min-w-0 bg-white">
+      <slot name="header" />
       <FileList :files="files" @open="$emit('open-file', $event)" />
     </div>
   </div>

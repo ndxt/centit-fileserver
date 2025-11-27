@@ -39,7 +39,7 @@ function open(id: string) { emit('open', id); }
           <FileIcon :name="f.name" :folder="f.folder" :size="24" :stroke-width="1.5" class="shrink-0" />
           
           <div class="flex items-center gap-1.5 min-w-0">
-            <div class="truncate text-sm text-slate-700 group-hover:text-sky-600 font-medium">
+            <div class="truncate text-sm text-slate-700 group-hover:text-sky-600 font-medium" :title="f.name">
               {{ f.name }}
             </div>
             <Lock v-if="f.encrypted" :size="14" class="text-amber-500 shrink-0" />
@@ -62,7 +62,6 @@ function open(id: string) { emit('open', id); }
       
       <!-- Load More / Empty State -->
       <div class="py-8 text-center text-xs text-slate-400 hover:text-sky-500 cursor-pointer">
-        点击加载更多
       </div>
     </div>
   </div>
