@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
-import { Cloud, ArrowRightLeft, RefreshCw, Bot, MessageSquare, Smartphone, ShieldCheck, LayoutGrid } from 'lucide-vue-next';
+import { Cloud, ArrowRightLeft } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
@@ -9,16 +9,8 @@ function go(path: string) { router.replace(path); }
 const mainMenu = [
   { path: '/home', icon: Cloud, label: '首页' },
   { path: '/transfer', icon: ArrowRightLeft, label: '传输' },
-  { path: '/sync', icon: RefreshCw, label: '同步' },
-  { path: '/ai-tools', icon: Bot, label: 'AI工具' },
-  { path: '/messages', icon: MessageSquare, label: '消息' },
 ];
 
-const bottomMenu = [
-  { path: '/app-download', icon: Smartphone, label: 'App下载' },
-  { path: '/auth', icon: ShieldCheck, label: '网盘认证' },
-  { path: '/tools', icon: LayoutGrid, label: '工具' },
-];
 </script>
 
 <template>
@@ -47,19 +39,6 @@ const bottomMenu = [
           ]"
         >
           <component :is="item.icon" :size="22" :stroke-width="2" />
-        </div>
-        <span class="text-[10px] font-medium">{{ item.label }}</span>
-      </button>
-    </div>
-
-    <div class="flex flex-col items-center gap-4 w-full pb-2">
-      <button 
-        v-for="item in bottomMenu" 
-        :key="item.path"
-        class="flex flex-col items-center gap-1 w-full py-1 text-slate-500 hover:text-slate-700 transition-colors group"
-      >
-        <div class="p-2 rounded-xl group-hover:bg-slate-200/50 transition-colors">
-          <component :is="item.icon" :size="20" :stroke-width="1.5" />
         </div>
         <span class="text-[10px] font-medium">{{ item.label }}</span>
       </button>

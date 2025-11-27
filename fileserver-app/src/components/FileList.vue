@@ -1,24 +1,12 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from "vue";
-import { FileText, Image, FileArchive, Folder, MoreHorizontal } from 'lucide-vue-next';
+import { MoreHorizontal, Lock } from 'lucide-vue-next';
+import FileIcon from './FileIcon.vue';
 
-const props = defineProps<{ files: Array<{ id: string; name: string; size: string; date: string; folder?: boolean }> }>();
+const props = defineProps<{ files: Array<{ id: string; name: string; size: string; date: string; folder?: boolean; encrypted?: boolean }> }>();
 const emit = defineEmits<{ (e: 'open', id: string): void }>();
 function open(id: string) { emit('open', id); }
 
-const getIcon = (name: string, isFolder?: boolean) => {
-  if (isFolder) return Folder;
-  if (name.endsWith('.jpg') || name.endsWith('.png')) return Image;
-  if (name.endsWith('.rar') || name.endsWith('.zip')) return FileArchive;
-  return FileText;
-};
-
-const getIconColor = (name: string, isFolder?: boolean) => {
-  if (isFolder) return 'text-amber-400 fill-current';
-  if (name.endsWith('.jpg') || name.endsWith('.png')) return 'text-orange-400';
-  if (name.endsWith('.rar') || name.endsWith('.zip')) return 'text-violet-500';
-  return 'text-slate-400';
-};
 </script>
 
 <template>
@@ -48,15 +36,15 @@ const getIconColor = (name: string, isFolder?: boolean) => {
 
         <!-- Name & Icon -->
         <div class="flex items-center gap-3 min-w-0">
-          <component 
-            :is="getIcon(f.name, f.folder)" 
-            :class="['shrink-0', getIconColor(f.name, f.folder)]" 
-            :size="24" 
-            :stroke-width="1.5"
-          />
-          <div class="truncate text-sm text-slate-700 group-hover:text-sky-600 font-medium">
-            {{ f.name }}
+          <FileIcon :name="f.name" :folder="f.folder" :size="24" :stroke-width="1.5" class="shrink-0" />
+          
+          <div class="flex items-center gap-1.5 min-w-0">
+            <div class="truncate text-sm text-slate-700 group-hover:text-sky-600 font-medium">
+              {{ f.name }}
+            </div>
+            <Lock v-if="f.encrypted" :size="14" class="text-amber-500 shrink-0" />
           </div>
+
           <!-- Hover Actions (Hidden by default, shown on group hover) -->
           <div class="hidden group-hover:flex items-center gap-2 ml-auto pr-4">
              <button class="p-1 hover:bg-sky-100 rounded text-sky-600">

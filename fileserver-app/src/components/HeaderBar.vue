@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { ArrowLeft, ArrowRight, RotateCcw, Search, Crown, Gamepad2, Settings, MoreHorizontal, Shirt } from 'lucide-vue-next';
-
+import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings, Shirt } from 'lucide-vue-next';
 const q = ref("");
 </script>
 
@@ -39,18 +38,6 @@ const q = ref("");
 
     <!-- Right: User & Actions -->
     <div class="flex items-center gap-3">
-      <button class="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-[#FAE2B9] to-[#F2C88C] text-[#6B400D] rounded-full text-xs font-bold hover:shadow-sm transition-shadow">
-        <Gamepad2 :size="14" />
-        <span>大促年卡¥176</span>
-      </button>
-      
-      <button class="flex items-center gap-1 px-3 py-1.5 bg-[#FDF6E9] text-[#B88339] rounded-full text-xs font-medium hover:bg-[#FAE2B9] transition-colors">
-        <Crown :size="14" />
-        <span>会员中心</span>
-      </button>
-
-      <div class="w-px h-4 bg-slate-300 mx-1"></div>
-
       <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
         <Shirt :size="18" />
       </button>
@@ -59,10 +46,6 @@ const q = ref("");
         <Settings :size="18" />
       </button>
 
-      <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
-        <MoreHorizontal :size="18" />
-      </button>
-      
       <div class="relative ml-2 cursor-pointer">
         <div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
