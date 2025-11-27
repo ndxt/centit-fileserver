@@ -11,15 +11,22 @@ const router = createRouter({
     { path: "/", redirect: "/splash" },
     { path: "/splash", component: Splash },
     { path: "/login", component: Login },
-    { path: "/home", component: Home, meta: { requiresAuth: true } },
-    { path: "/transfer", component: () => import("../pages/Transfer.vue"), meta: { requiresAuth: true } },
+    {
+      path: "/",
+      component: () => import("../layouts/MainLayout.vue"),
+      meta: { requiresAuth: true },
+      children: [
+        { path: "home", component: Home },
+        { path: "transfer", component: () => import("../pages/Transfer.vue") },
+      ]
+    }
   ],
 });
 
 router.beforeEach(async (to) => {
   await loadAppConfig();
   if (to.path === "/splash") return true;
-  if (to.meta.requiresAuth) {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
     const r = await checkAuth();
     const ok = r.ok && r.data?.data?.authenticated === true;
     if (!ok) return "/login";

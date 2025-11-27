@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import HeaderBar from "../components/HeaderBar.vue";
-import NavMain from "../components/NavMain.vue";
-import FolderTree from "../components/FolderTree.vue";
-import FileList from "../components/FileList.vue";
+import FileBrowser from "../components/FileBrowser.vue";
 import { ref } from "vue";
-import { UploadCloud, DownloadCloud, FolderPlus, Zap } from 'lucide-vue-next';
+import { House, Building } from 'lucide-vue-next';
 
 // Data mimicking the "Transfer" view in Baidu Netdisk
 const sidebarItems = ref([
-  { id: "upload", name: "上传", icon: UploadCloud },
-  { id: "download", name: "下载", icon: DownloadCloud },
-  { id: "cloud-add", name: "云添加", icon: FolderPlus },
-  { id: "quick-transfer", name: "文件快传", icon: Zap }
+  { id: "home", name: "我的", icon: House },
+  { id: "centit", name: "南大先腾", icon: Building },
+  { id: "tmc", name: "技术管理中心" },
 ]);
 
 const currentSidebar = ref("download");
@@ -39,43 +35,19 @@ const files = ref([
   { id: "f20", name: "server.crt", size: "4 KB", date: "11月1日", encrypted: true }
 ]);
 
-function onSelect(id: string) { 
-  currentSidebar.value = id; 
-}
-
 function onOpen(id: string) { 
   console.log("Open file", id);
 }
 </script>
 
 <template>
-  <div class="h-screen w-screen bg-white flex overflow-hidden font-sans text-slate-700">
-    <!-- Left Main Navigation -->
-    <NavMain />
-    
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0">
-      <!-- Top Header -->
-      <HeaderBar />
-      
-      <!-- Body: Sidebar + File List -->
-      <div class="flex-1 flex min-h-0">
-        <!-- Secondary Sidebar (Folder/Category Tree) -->
-        <FolderTree 
-          :items="sidebarItems" 
-          :selected-id="currentSidebar"
-          @select="onSelect" 
-        />
-        
-        <!-- Right Content: Toolbar + File List -->
-        <div class="flex-1 flex flex-col min-w-0 bg-white">
-          <!-- File List Component -->
-          <FileList :files="files" @open="onOpen" />
-        </div>
-      </div>
-    </div>
-  </div>
- </template>
+  <FileBrowser 
+    :sidebar-items="sidebarItems"
+    v-model:selected-sidebar-id="currentSidebar"
+    :files="files"
+    @open-file="onOpen"
+  />
+</template>
 
 <style scoped>
 </style>
