@@ -91,7 +91,7 @@ public class DownloadController extends BaseController {
     @ApiOperation(value = "根据权限预览文件，可以传入authCode分享码")
     public void previewFile(@PathVariable("fileId") String fileId, HttpServletRequest request,
                             HttpServletResponse response) {
-        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        // 设置缓存控制头
         response.setHeader("Cache-Control", "public, max-age=604800");
 
         // 校验 fileId 合法性
@@ -110,72 +110,127 @@ public class DownloadController extends BaseController {
         if (noAuth(request, response, fileInfo, closeAuth)) {
             return;
         }
-
-        boolean canView = false;
+        File decryptFile=null;
         try {
-            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(),
-                "txt", "csv", "pdf", "xml") && StringUtils.isBlank(fileInfo.getAttachedFileMd5())) {
-
-                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                if (fileStoreInfo == null) {
-                    JsonResultUtils.writeErrorMessageJson("文件存储信息不存在", response);
-                    return;
-                }
-
-                if (fileStoreInfo.getFileSize() == 0) {
-                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
-                    return;
-                }
-
-                String charset = null;
-                if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "txt", "csv")) {
-                    try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
-                        if (is != null)
-                            charset = new AutoDetectReader(is).getCharset().name();
-                    }
-                }
-
-                try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
-                    UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", charset);
-                }
-                canView = true;
-
-            } else if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
-                FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-                if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
-                    try (InputStream is = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo)) {
-                        String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + "." + fileInfo.getAttachedType();
-                        UploadDownloadUtils.downFileRange(request, response, is, attachedFileStoreInfo.getFileSize(), fileName, "inline", null);
-                    }
-                    canView = true;
-                } else {
-                    canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
-                        fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
-                }
-            } else {
-                canView = FileIOUtils.reGetPdf(fileId, request, response, fileInfo,
-                    fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
+            FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+            if (fileStoreInfo == null) {
+                JsonResultUtils.writeErrorMessageJson("文件存储信息不存在", response);
+                return;
+            }
+            decryptFile=handleEncryptedFileIfNeeded(request, response, fileInfo, fileStoreInfo);
+            long fileSize = fileStoreInfo.getFileSize();
+            if (fileSize == 0) {
+                UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
+                return;
             }
 
+            boolean canView = false;
+
+            if (isTextOrPdfWithoutAttachment(fileInfo)) {
+                serveTextOrPdfInline(request, response, fileStoreInfo, fileInfo);
+                canView = true;
+            } else if (hasValidAttachedFile(fileInfo)) {
+                canView = serveAttachedFile(request, response, fileInfo);
+            } else {
+                canView = FileIOUtils.reGetPdf(request, response, fileInfo,
+                    fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
+            }
             if (!canView) {
-                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                if (fileStoreInfo == null) {
-                    JsonResultUtils.writeErrorMessageJson("文件存储信息不存在", response);
-                    return;
-                }
-
-                if (fileStoreInfo.getFileSize() == 0) {
-                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
-                    return;
-                }
-
-                try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
-                    UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(), fileInfo.getFileName(), "inline", null);
-                }
+                serveFallbackFile(request, response, fileStoreInfo, fileInfo);
             }
         } catch (Exception e) {
             logger.error("文件预览失败，fileId: {}", fileId, e);
             JsonResultUtils.writeErrorMessageJson("文件预览失败：" + e.getMessage(), response);
+        } finally{
+            if(decryptFile != null){
+                FileSystemOpt.deleteFile(decryptFile);
+            }
+        }
+    }
+
+    private File handleEncryptedFileIfNeeded(HttpServletRequest request, HttpServletResponse response,
+                                             FileInfo fileInfo, FileStoreInfo fileStoreInfo) throws Exception {
+        if (StringUtils.equalsAnyIgnoreCase(fileInfo.getEncryptType(), "A", "S", "M", "G")) {
+            String password = SecurityOptUtils.decodeSecurityString(request.getParameter("password"));
+            if (password == null || password.isEmpty()) {
+                JsonResultUtils.writeErrorMessageJson("缺少解密密码", response);
+                return null;
+            }
+
+            String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
+            File decryptFile = new File(tmpFilePath);
+
+            if (!fileStoreInfo.isTemp()) {
+                try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
+                     OutputStream outFile = Files.newOutputStream(decryptFile.toPath())) {
+                    if (downFile != null) {
+                        FileEncryptUtils.decrypt(downFile, outFile, FileInfo.mapEncryptType(fileInfo.getEncryptType()), password);
+                    }
+                    fileStoreInfo.setIsTemp("T");
+                    fileStoreInfo.setFileStorePath(decryptFile.getAbsolutePath());
+                    return decryptFile;
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                    JsonResultUtils.writeErrorMessageJson(
+                        FileServerConstant.ERROR_FILE_ENCRYPT,
+                        getI18nMessage("error.423.cannt_encrypt_file", request, e.getMessage()),
+                        response);
+                    throw e;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean isTextOrPdfWithoutAttachment(FileInfo fileInfo) {
+        return StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "txt", "csv", "pdf", "xml")
+            && StringUtils.isBlank(fileInfo.getAttachedFileMd5());
+    }
+
+    private void serveTextOrPdfInline(HttpServletRequest request, HttpServletResponse response,
+                                      FileStoreInfo fileStoreInfo, FileInfo fileInfo) throws Exception {
+        String charset = null;
+        if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "txt", "csv")) {
+            try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                if (is != null)
+                    charset = new AutoDetectReader(is).getCharset().name();
+            }
+        }
+        try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+            UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(),
+                fileInfo.getFileName(), "inline", charset);
+        }
+    }
+
+    private boolean hasValidAttachedFile(FileInfo fileInfo) {
+        return StringUtils.isNotBlank(fileInfo.getAttachedFileMd5());
+    }
+
+    private boolean serveAttachedFile(HttpServletRequest request, HttpServletResponse response,
+                                      FileInfo fileInfo) throws Exception {
+        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+        if (attachedFileStoreInfo != null && attachedFileStoreInfo.getFileSize() > 0) {
+            try (InputStream is = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo)) {
+                String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + "." + fileInfo.getAttachedType();
+                UploadDownloadUtils.downFileRange(request, response, is, attachedFileStoreInfo.getFileSize(),
+                    fileName, "inline", null);
+            }
+            return true;
+        } else {
+            return FileIOUtils.reGetPdf(request, response, fileInfo,
+                fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
+        }
+    }
+
+    private void serveFallbackFile(HttpServletRequest request, HttpServletResponse response,
+                                   FileStoreInfo fileStoreInfo, FileInfo fileInfo) throws Exception {
+        if (fileStoreInfo.getFileSize() == 0) {
+            UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
+            return;
+        }
+        try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+            UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(),
+                fileInfo.getFileName(), "inline", null);
         }
     }
 
@@ -478,7 +533,7 @@ public class DownloadController extends BaseController {
                         return;
                     }
                 }
-                try (InputStream inputStream = new FileInputStream(tmpFile)) {
+                try (InputStream inputStream = Files.newInputStream(tmpFile.toPath())) {
                     UploadDownloadUtils.downFileRange(request, response,
                         inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
                 }

@@ -34,17 +34,17 @@ public abstract class FileIOUtils {
             ".py", ".py3", ".sh", ".vbs", ".wsh");
     }
 
-    public static boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo,
+    public static boolean reGetPdf(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo,
         FileStore fileStore, CreatePdfOpt createPdfOpt, FileInfoManager fileInfoManager,
                             FileStoreInfoManager fileStoreInfoManager) throws IOException {
         boolean canView = false;
         if (AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())) {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
-            addPdfTaskInfo.setFileId(fileId);
+            addPdfTaskInfo.setFileId(fileInfo.getFileId());
             addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
             createPdfOpt.doFileTask(addPdfTaskInfo);
-            FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
+            FileInfo newFileInfo = fileInfoManager.getObjectById(fileInfo.getFileId());
             if (StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo =
                     fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());

@@ -138,11 +138,11 @@ public class ViewFileController extends BaseController {
                     }
                     canView = true;
                 } else {
-                    canView = FileIOUtils.reGetPdf(fileInfo.getFileId(), request, response, fileInfo,
+                    canView = FileIOUtils.reGetPdf(request, response, fileInfo,
                         fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
                 }
             } else {
-                canView = FileIOUtils.reGetPdf(fileInfo.getFileId(), request, response, fileInfo,
+                canView = FileIOUtils.reGetPdf(request, response, fileInfo,
                     fileStore, createPdfOpt, fileInfoManager, fileStoreInfoManager);
             }
             if (!canView) {
