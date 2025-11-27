@@ -1,4 +1,5 @@
 import { Result, requestJson, isTauri } from "../utils/invoke";
+import { useAuthStore } from "../stores/auth";
 import { getConfig } from "../config/config";
 
 const BASE = import.meta.env.DEV && !isTauri() ? "/api" : `${getConfig().locodeOrigin}/api`;
@@ -26,7 +27,13 @@ export type CurrentUser = {
 };
 
 export async function checkAuth(): Promise<Result<any>> {
-  return requestJson("GET", `${BASE}/framework/system/mainframe/currentuser`);
+  const r = await requestJson("GET", `${BASE}/framework/system/mainframe/currentuser`);
+  if (r.ok && r.data) {
+    try {
+      useAuthStore().setCurrentUser(r.data?.data);
+    } catch {}
+  }
+  return r;
 }
 
 export async function loginCommon(

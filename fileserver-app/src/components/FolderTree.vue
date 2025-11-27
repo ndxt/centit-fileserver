@@ -23,8 +23,8 @@ function pick(id: string) { emit('select', id); }
           ]" 
           @click="pick(n.id)"
         >
-          <component :is="n.icon || Folder" :size="18" :stroke-width="2" class="opacity-80" />
-          <span>{{ n.name }}</span>
+          <component :is="n.icon || Folder" :size="18" :stroke-width="2" class="opacity-80 shrink-0" />
+          <span class="flex-1 min-w-0 truncate" :title="n.name">{{ n.name }}</span>
         </button>
         
         <div v-if="n.children" class="mt-1 space-y-1">
@@ -39,7 +39,7 @@ function pick(id: string) { emit('select', id); }
             ]" 
             @click="pick(c.id)"
           >
-            {{ c.name }}
+            <span class="truncate">{{ c.name }}</span>
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ const router = useRouter();
 import { ref, onMounted } from "vue";
 import { captchaUrl, loginCommon, loginLdap } from "../services/auth";
 import { loadAppConfig, getConfig } from "../config/config";
+import { useAuthStore } from "../stores/auth";
 
 const username = ref("");
 const password = ref("");
@@ -12,6 +13,7 @@ const useLdap = ref(false);
 const loading = ref(false);
 const error = ref("");
 const imgUrl = ref(captchaUrl());
+const auth = useAuthStore();
 
 function refreshCaptcha() {
   imgUrl.value = captchaUrl();
@@ -28,6 +30,8 @@ async function submit() {
   if (r.ok) {
     const code = r.data?.code;
     if (code === 0) {
+      auth.setLoginResult(r.data);
+      await auth.fetchCurrentUser();
       router.replace("/home");
     } else {
       error.value = r.data?.message || "登录失败";

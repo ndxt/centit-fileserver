@@ -42,3 +42,18 @@ pub async fn http_request_json(
 ) -> Result<Value, String> {
     crate::services::http::request_json(&method, &url, headers, json, form).await
 }
+
+#[tauri::command]
+pub async fn api_libraries(base: String) -> Result<Value, String> {
+    let url = format!("{}/api/fileserver/fileserver/library", base);
+    crate::services::http::fetch_json(&url).await
+}
+
+#[tauri::command]
+pub async fn api_folder_files(base: String, library_id: String, folder_id: String) -> Result<Value, String> {
+    let url = format!(
+        "{}/api/fileserver/fileserver/folder/{}/{}",
+        base, library_id, folder_id
+    );
+    crate::services::http::fetch_json(&url).await
+}
