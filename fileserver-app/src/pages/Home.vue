@@ -5,20 +5,15 @@ import { listLibraries, listLibraryFiles } from "../services/files";
 import { House, Building2 } from "lucide-vue-next";
 import { useAuthStore } from "../stores/auth";
 import { useGlobalStore } from "../stores/global";
+import { useExplorerStore } from "../stores/explorer";
 import Breadcrumb from "../components/Breadcrumb.vue";
 
 const auth = useAuthStore();
 const global = useGlobalStore();
+const explorer = useExplorerStore();
 const sidebarItems = ref<any[]>([]);
-const currentSidebar = ref<string>("");
 const files = ref<any[]>([]);
-const currentFolder = ref<string>("-1");
-const path = ref<Array<{ id: string; name: string }>>([]);
-const currentLibraryName = computed(() => {
-  const id = currentSidebar.value;
-  const s = sidebarItems.value.find((x: any) => x.id === id);
-  return s?.name || "根目录";
-});
+const currentLibraryName = computed(() => explorer.libraryName || "根目录");
 
 async function init() {
   try {
@@ -34,13 +29,13 @@ async function init() {
         return { id: x.libraryId, name: x.libraryName, icon, priority };
       }).sort((a, b) => b.priority - a.priority).map(({ id, name, icon }) => ({ id, name, icon }));
       sidebarItems.value = items;
-      currentSidebar.value = items[0]?.id || r1.data[0].libraryId;
-      currentFolder.value = "-1";
-      path.value = [];
-      await loadFiles(currentSidebar.value, currentFolder.value);
+      const firstId = items[0]?.id || r1.data[0].libraryId;
+      const firstName = items[0]?.name || r1.data[0].libraryName;
+      explorer.setLibrary(firstId, firstName);
+      await loadFiles(explorer.libraryId, explorer.folderId);
     } else {
       sidebarItems.value = [];
-      currentSidebar.value = "";
+      explorer.setLibrary("", "");
       files.value = [];
     }
   } finally {
@@ -61,9 +56,8 @@ async function loadFiles(libId: string, folderId: string = "-1") {
 async function onOpen(id: string) { 
   const entry = files.value.find((f: any) => f.id === id);
   if (entry?.folder) {
-    currentFolder.value = id;
-    path.value = [...path.value, { id, name: entry.name }];
-    await loadFiles(currentSidebar.value, id);
+    explorer.enterFolder(id, entry.name);
+    await loadFiles(explorer.libraryId, explorer.folderId);
   } else {
     console.log("Open file", id);
   }
@@ -71,38 +65,36 @@ async function onOpen(id: string) {
 
 onMounted(() => { init(); });
 
-watch(currentSidebar, async (id) => {
+watch(() => explorer.libraryId, async (id) => {
   if (id) {
-    currentFolder.value = "-1";
-    path.value = [];
-    await loadFiles(id, currentFolder.value);
+    const s = sidebarItems.value.find((x: any) => x.id === id);
+    explorer.setLibrary(id, s?.name || "");
+    await loadFiles(explorer.libraryId, explorer.folderId);
   }
 });
 
-async function gotoRoot() {
-  currentFolder.value = "-1";
-  path.value = [];
-  await loadFiles(currentSidebar.value, currentFolder.value);
-}
+watch(() => explorer.folderId, async (fid) => {
+  if (explorer.libraryId) {
+    await loadFiles(explorer.libraryId, fid);
+  }
+});
 
-async function gotoIndex(i: number) {
-  const target = path.value[i];
-  if (!target) return;
-  path.value = path.value.slice(0, i + 1);
-  currentFolder.value = target.id;
-  await loadFiles(currentSidebar.value, currentFolder.value);
-}
+watch(() => explorer.refreshTs, async () => {
+  if (explorer.libraryId) {
+    await loadFiles(explorer.libraryId, explorer.folderId);
+  }
+});
 </script>
 
 <template>
   <FileBrowser 
     :sidebar-items="sidebarItems"
-    v-model:selected-sidebar-id="currentSidebar"
+    v-model:selected-sidebar-id="explorer.libraryId"
     :files="files"
     @open-file="onOpen"
   >
     <template #header>
-      <Breadcrumb :items="path" :root-name="currentLibraryName" @goto-root="gotoRoot" @goto-index="gotoIndex" />
+      <Breadcrumb :items="explorer.path" :root-name="currentLibraryName" @goto-root="explorer.gotoRoot" @goto-index="explorer.gotoIndex" />
     </template>
   </FileBrowser>
 </template>

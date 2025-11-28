@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import FolderTree from "./FolderTree.vue";
 import FileList from "./FileList.vue";
+import { useGlobalStore } from "../stores/global";
 
 defineProps<{
   sidebarItems: any[];
@@ -8,10 +9,16 @@ defineProps<{
   selectedSidebarId: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'update:selectedSidebarId', id: string): void;
   (e: 'open-file', id: string): void;
 }>();
+
+const global = useGlobalStore();
+function onSelect(id: string) {
+  if (global.isLoading) return;
+  emit('update:selectedSidebarId', id);
+}
 </script>
 
 <template>
@@ -20,7 +27,7 @@ defineEmits<{
     <FolderTree 
       :items="sidebarItems" 
       :selected-id="selectedSidebarId"
-      @select="$emit('update:selectedSidebarId', $event)" 
+      @select="onSelect" 
     />
     
     <!-- Content -->

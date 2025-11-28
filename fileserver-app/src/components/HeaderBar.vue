@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { ArrowLeft, ArrowRight, RotateCcw, Search, Settings, Shirt } from 'lucide-vue-next';
+import { useExplorerStore } from "../stores/explorer";
 const q = ref("");
+const explorer = useExplorerStore();
+const canBack = computed(() => explorer.canBack());
+const canForward = computed(() => explorer.canForward());
+function goBack() { explorer.back(); }
+function goForward() { explorer.forward(); }
+function refresh() { explorer.requestRefresh(); }
 </script>
 
 <template>
@@ -9,14 +16,14 @@ const q = ref("");
     <!-- Left: Navigation & Breadcrumb -->
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1 text-slate-400">
-        <button class="p-1 hover:bg-slate-100 rounded text-slate-600">
+        <button class="p-1 hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30" :disabled="!canBack" @click="goBack">
           <ArrowLeft :size="20" />
         </button>
-        <button class="p-1 hover:bg-slate-100 rounded disabled:opacity-30" disabled>
+        <button class="p-1 hover:bg-slate-100 rounded text-slate-600 disabled:opacity-30" :disabled="!canForward" @click="goForward">
           <ArrowRight :size="20" />
         </button>
       </div>
-      <button class="p-1 text-slate-600 hover:bg-slate-100 rounded">
+      <button class="p-1 text-slate-600 hover:bg-slate-100 rounded" @click="refresh">
         <RotateCcw :size="18" />
       </button>
     </div>
