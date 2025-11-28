@@ -26,16 +26,16 @@ const visibleItems = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-2 select-none">
-    <button class="text-sm text-slate-600 hover:text-sky-600 font-medium transition-colors" @click="gotoRoot">{{ rootName }}</button>
-    <ChevronRight :size="16" class="text-slate-300" />
-    <div class="flex items-center gap-2 flex-wrap">
-      <span v-if="hasEllipsis" class="text-sm text-slate-400">...</span>
-      <ChevronRight v-if="hasEllipsis" :size="16" class="text-slate-300" />
+  <div class="flex items-center gap-2 select-none whitespace-nowrap overflow-hidden text-ellipsis">
+    <button class="text-sm text-slate-600 hover:text-sky-600 font-medium transition-colors shrink-0" @click="gotoRoot">{{ rootName }}</button>
+    <ChevronRight :size="16" class="text-slate-300 shrink-0" />
+    <div class="flex items-center gap-2 overflow-hidden">
+      <span v-if="hasEllipsis" class="text-sm text-slate-400 shrink-0">...</span>
+      <ChevronRight v-if="hasEllipsis" :size="16" class="text-slate-300 shrink-0" />
       <template v-for="(p, i) in visibleItems" :key="p.id">
         <button 
           v-if="i < visibleItems.length - 1"
-          class="max-w-[160px] text-sm text-slate-700 hover:text-sky-600 font-medium truncate"
+          class="max-w-[160px] text-sm text-slate-700 hover:text-sky-600 font-medium truncate shrink-0"
           @click="gotoIndex(p.idx)"
           :title="p.name"
         >
@@ -43,12 +43,12 @@ const visibleItems = computed(() => {
         </button>
         <span 
           v-else 
-          class="max-w-[160px] text-sm font-semibold truncate text-sky-600"
+          class="max-w-[160px] text-sm font-semibold truncate text-sky-600 shrink-0"
           :title="p.name"
         >
           {{ p.name }}
         </span>
-        <ChevronRight v-if="i < visibleItems.length - 1" :size="16" class="text-slate-300" />
+        <ChevronRight v-if="i < visibleItems.length - 1" :size="16" class="text-slate-300 shrink-0" />
       </template>
     </div>
   </div>

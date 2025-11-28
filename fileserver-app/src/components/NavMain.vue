@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { Cloud, ArrowRightLeft } from 'lucide-vue-next';
+import { useExplorerStore } from "../stores/explorer";
 
 const route = useRoute();
 const router = useRouter();
-function go(path: string) { router.replace(path); }
+const explorer = useExplorerStore();
+function go(path: string) {
+  if (route.path.startsWith('/home')) explorer.saveState('home');
+  if (path === '/home') explorer.restoreState('home');
+  router.replace(path);
+}
 
 const mainMenu = [
   { path: '/home', icon: Cloud, label: '首页' },

@@ -39,6 +39,9 @@ export const useExplorerStore = defineStore("explorer", {
       this.backStack = [];
       this.forwardStack = [];
     },
+    setLibraryName(name: string) {
+      this.libraryName = name;
+    },
     enterFolder(id: string, name: string) {
       this.backStack.push(cloneState(this));
       this.forwardStack = [];
@@ -80,6 +83,32 @@ export const useExplorerStore = defineStore("explorer", {
       this.path = next.path.slice();
     },
     requestRefresh() { this.refreshTs = Date.now(); },
+    saveState(key: string) {
+      const payload = {
+        libraryId: this.libraryId,
+        libraryName: this.libraryName,
+        folderId: this.folderId,
+        path: this.path,
+        backStack: this.backStack,
+        forwardStack: this.forwardStack,
+      };
+      try { sessionStorage.setItem(`explorer/${key}`, JSON.stringify(payload)); } catch {}
+    },
+    restoreState(key: string) {
+      try {
+        const raw = sessionStorage.getItem(`explorer/${key}`);
+        if (!raw) return false;
+        const s = JSON.parse(raw);
+        this.libraryId = s.libraryId || this.libraryId;
+        this.libraryName = s.libraryName || this.libraryName;
+        this.folderId = s.folderId || this.folderId;
+        this.path = Array.isArray(s.path) ? s.path : [];
+        this.backStack = Array.isArray(s.backStack) ? s.backStack : [];
+        this.forwardStack = Array.isArray(s.forwardStack) ? s.forwardStack : [];
+        return true;
+      } catch {
+        return false;
+      }
+    },
   },
 });
-

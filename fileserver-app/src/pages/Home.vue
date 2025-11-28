@@ -14,6 +14,7 @@ const explorer = useExplorerStore();
 const sidebarItems = ref<any[]>([]);
 const files = ref<any[]>([]);
 const selectedIds = ref<string[]>([]);
+const selectedSidebarId = ref<string>("");
 const currentLibraryName = computed(() => explorer.libraryName || "根目录");
 
 const showUploadMenu = ref(false);
@@ -49,10 +50,19 @@ async function init() {
         return { id: x.libraryId, name: x.libraryName, icon, priority };
       }).sort((a, b) => b.priority - a.priority).map(({ id, name, icon }) => ({ id, name, icon }));
       sidebarItems.value = items;
-      const firstId = items[0]?.id || r1.data[0].libraryId;
-      const firstName = items[0]?.name || r1.data[0].libraryName;
-      explorer.setLibrary(firstId, firstName);
-      await loadFiles(explorer.libraryId, explorer.folderId);
+      const hasExisting = explorer.libraryId && items.some(i => i.id === explorer.libraryId);
+      if (hasExisting) {
+        const s = items.find(i => i.id === explorer.libraryId);
+        explorer.setLibraryName(s?.name || explorer.libraryName);
+        selectedSidebarId.value = explorer.libraryId;
+        await loadFiles(explorer.libraryId, explorer.folderId);
+      } else {
+        const firstId = items[0]?.id || r1.data[0].libraryId;
+        const firstName = items[0]?.name || r1.data[0].libraryName;
+        explorer.setLibrary(firstId, firstName);
+        selectedSidebarId.value = firstId;
+        await loadFiles(explorer.libraryId, explorer.folderId);
+      }
     } else {
       sidebarItems.value = [];
       explorer.setLibrary("", "");
@@ -93,13 +103,17 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 
-watch(() => explorer.libraryId, async (id) => {
-  if (id) {
-    const s = sidebarItems.value.find((x: any) => x.id === id);
-    explorer.setLibrary(id, s?.name || "");
-    selectedIds.value = []; // Clear selection when changing library
+watch(() => selectedSidebarId.value, async (id) => {
+  if (!id) return;
+  const s = sidebarItems.value.find((x: any) => x.id === id);
+  if (id === explorer.libraryId) {
+    explorer.setLibraryName(s?.name || explorer.libraryName);
     await loadFiles(explorer.libraryId, explorer.folderId);
+    return;
   }
+  explorer.setLibrary(id, s?.name || "");
+  selectedIds.value = [];
+  await loadFiles(explorer.libraryId, explorer.folderId);
 });
 
 watch(() => explorer.folderId, async (fid) => {
@@ -119,7 +133,7 @@ watch(() => explorer.refreshTs, async () => {
 <template>
   <FileBrowser 
     :sidebar-items="sidebarItems"
-    v-model:selected-sidebar-id="explorer.libraryId"
+    v-model:selected-sidebar-id="selectedSidebarId"
     :files="files"
     v-model:selected-ids="selectedIds"
     @open-file="onOpen"
