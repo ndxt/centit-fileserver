@@ -2,7 +2,13 @@ import { invoke } from "@tauri-apps/api/core";
 
 export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
-export const isTauri = (): boolean => typeof (window as any).__TAURI__ !== "undefined";
+export const isTauri = (): boolean => {
+  const w: any = typeof window !== "undefined" ? window : undefined;
+  if (!w) return false;
+  if (typeof w.__TAURI__ !== "undefined") return true;
+  if (typeof w.__TAURI_INTERNALS__ !== "undefined") return true;
+  return false;
+};
 
 export async function invokeSafe<T>(cmd: string, payload?: Record<string, unknown>): Promise<Result<T>> {
   try {

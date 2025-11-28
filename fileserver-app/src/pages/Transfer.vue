@@ -1,21 +1,49 @@
 <script setup lang="ts">
 import FileBrowser from "../components/FileBrowser.vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { UploadCloud, DownloadCloud, CloudCheck } from 'lucide-vue-next';
+import { useTransferStore } from "../stores/transfer";
 
 const tab = ref('download');
 
 const sidebarItems = [
   { id: 'download', name: '下载中', icon: DownloadCloud },
+  { id: 'download-wait', name: '等待中', icon: DownloadCloud },
   { id: 'download-done', name: '已完成', icon: CloudCheck },
   { id: 'upload', name: '上传中', icon: UploadCloud },
 ];
 
-// Mock files for transfer view
-const files = ref([
-  { id: "t1", name: "正在下载的文件.zip", size: "120 MB / 200 MB", date: "剩余 2 分钟", folder: false },
-  { id: "t2", name: "已完成的文件.docx", size: "1.2 MB", date: "已完成", folder: false }
-]);
+const transfer = useTransferStore();
+const files = computed(() => {
+  if (tab.value === 'download') {
+    return transfer.downloading.map(t => ({
+      id: t.id,
+      name: t.name,
+      size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)} (${Math.round(t.progress)}%)`,
+      date: transfer.displaySpeed(t.speedBps),
+      folder: false,
+    }));
+  }
+  if (tab.value === 'download-wait') {
+    return transfer.queue.map(t => ({
+      id: t.id,
+      name: t.name,
+      size: '--',
+      date: '等待中',
+      folder: false,
+    }));
+  }
+  if (tab.value === 'download-done') {
+    return transfer.done.map(t => ({
+      id: t.id,
+      name: t.name,
+      size: t.total ? transfer.displaySize(t.total) : "",
+      date: t.status === 'failed' ? '失败' : '已完成',
+      folder: false,
+    }));
+  }
+  return [];
+});
 
 function onOpen(id: string) {
   console.log("Open transfer item", id);

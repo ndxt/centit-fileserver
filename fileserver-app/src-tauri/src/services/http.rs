@@ -22,6 +22,10 @@ pub async fn fetch_json(url: &str) -> Result<Value, String> {
     resp.json::<Value>().await.map_err(|e| e.to_string())
 }
 
+pub fn client() -> &'static reqwest::Client {
+    &CLIENT
+}
+
 pub async fn request_json(
     method: &str,
     url: &str,

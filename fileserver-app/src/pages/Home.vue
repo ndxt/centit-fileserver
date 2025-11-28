@@ -5,6 +5,7 @@ import { listLibraries, listLibraryFiles } from "../services/files";
 import { House, Building2, Plus, Upload, ChevronDown, FileUp, FolderUp, Download } from "lucide-vue-next";
 import { useAuthStore } from "../stores/auth";
 import { useGlobalStore } from "../stores/global";
+import { useTransferStore } from "../stores/transfer";
 import { useExplorerStore } from "../stores/explorer";
 import Breadcrumb from "../components/Breadcrumb.vue";
 
@@ -16,6 +17,16 @@ const files = ref<any[]>([]);
 const selectedIds = ref<string[]>([]);
 const selectedSidebarId = ref<string>("");
 const currentLibraryName = computed(() => explorer.libraryName || "根目录");
+
+const transfer = useTransferStore();
+
+function onDownloadSelected() {
+  const selected = files.value.filter((f: any) => selectedIds.value.includes(f.id) && !f.folder)
+    .map((f: any) => ({ id: f.id, name: f.name }));
+  if (selected.length > 0) {
+    transfer.enqueue(selected);
+  }
+}
 
 const showUploadMenu = ref(false);
 const uploadBtnRef = ref<HTMLElement | null>(null);
@@ -184,6 +195,7 @@ watch(() => explorer.refreshTs, async () => {
           <button 
             class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             :disabled="selectedIds.length === 0"
+            @click="onDownloadSelected"
           >
             <Download :size="16" />
             <span>下载</span>
@@ -196,3 +208,4 @@ watch(() => explorer.refreshTs, async () => {
 
 <style scoped>
 </style>
+ 
