@@ -8,7 +8,6 @@ const tab = ref('download');
 
 const sidebarItems = [
   { id: 'download', name: '下载中', icon: DownloadCloud },
-  { id: 'download-wait', name: '等待中', icon: DownloadCloud },
   { id: 'download-done', name: '已完成', icon: CloudCheck },
   { id: 'upload', name: '上传中', icon: UploadCloud },
 ];
@@ -16,22 +15,33 @@ const sidebarItems = [
 const transfer = useTransferStore();
 const files = computed(() => {
   if (tab.value === 'download') {
-    return transfer.downloading.map(t => ({
+    const downloading = transfer.downloading.map(t => ({
       id: t.id,
       name: t.name,
-      size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)} (${Math.round(t.progress)}%)`,
-      date: transfer.displaySpeed(t.speedBps),
+      size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)}`,
+      date: '', // Not used when progress is present
       folder: false,
+      progress: t.progress,
+      status: 'downloading',
+      speed: transfer.displaySpeed(t.speedBps),
+      eta: (() => {
+        if (!t.total || t.total <= 0 || t.speedBps <= 0) return undefined;
+        const remaining = t.total - t.received;
+        const etaSec = remaining > 0 ? Math.floor(remaining / t.speedBps) : 0;
+        return transfer.displayEta(etaSec);
+      })()
     }));
-  }
-  if (tab.value === 'download-wait') {
-    return transfer.queue.map(t => ({
+    const waiting = (transfer as any).queue.map((t: any) => ({
       id: t.id,
       name: t.name,
-      size: '--',
-      date: '等待中',
+      size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)}`,
+      date: '',
       folder: false,
+      progress: 0,
+      status: 'waiting',
+      // no speed/eta for waiting
     }));
+    return [...downloading, ...waiting];
   }
   if (tab.value === 'download-done') {
     return transfer.done.map(t => ({
@@ -40,6 +50,10 @@ const files = computed(() => {
       size: t.total ? transfer.displaySize(t.total) : "",
       date: t.status === 'failed' ? '失败' : '已完成',
       folder: false,
+      // No progress bar for done items, show date/status text instead as before
+      // Or if you want progress bar for done items too:
+      progress: t.status === 'failed' ? 0 : 100,
+      status: t.status === 'failed' ? 'failed' : 'done'
     }));
   }
   return [];
@@ -55,6 +69,7 @@ function onOpen(id: string) {
     :sidebar-items="sidebarItems"
     v-model:selected-sidebar-id="tab"
     :files="files"
+    list-type="transfer"
     @open-file="onOpen"
   />
 </template>

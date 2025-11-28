@@ -3,7 +3,20 @@ import { defineProps, defineEmits, computed, ref, onMounted, onUnmounted } from 
 import { MoreHorizontal, Lock, Trash2, Copy, FolderInput, Star, Check } from 'lucide-vue-next';
 import FileIcon from './FileIcon.vue';
 
-const props = defineProps<{ files: Array<{ id: string; name: string; size: string; date: string; folder?: boolean; encrypted?: boolean }>; selectedIds?: string[] }>();
+export interface FileItem {
+  id: string;
+  name: string;
+  size: string;
+  date: string;
+  folder?: boolean;
+  encrypted?: boolean;
+  progress?: number; // 0-100
+  status?: 'downloading' | 'waiting' | 'done' | 'failed';
+  speed?: string;
+  eta?: string;
+}
+
+const props = defineProps<{ files: FileItem[]; selectedIds?: string[]; listType?: 'files' | 'transfer' }>();
 const emit = defineEmits<{ 
   (e: 'open', id: string): void; 
   (e: 'update:selected-ids', ids: string[]): void;
@@ -35,6 +48,7 @@ function toggleAll() {
 }
 
 const activeDropdownId = ref<string | null>(null);
+const isTransfer = computed(() => props.listType === 'transfer');
 
 function toggleMenu(id: string) {
   if (activeDropdownId.value === id) {
@@ -98,7 +112,7 @@ function onAction(action: 'delete' | 'copy' | 'move' | 'toggle-favorite', file: 
       </div>
       <div>文件名</div>
       <div>大小</div>
-      <div>修改日期</div>
+      <div>{{ isTransfer ? '状态/进度' : '修改日期' }}</div>
     </div>
     
     <!-- List Body -->
@@ -177,8 +191,24 @@ function onAction(action: 'delete' | 'copy' | 'move' | 'toggle-favorite', file: 
         <!-- Size -->
         <div class="text-xs text-slate-500">{{ f.size }}</div>
 
-        <!-- Date -->
-        <div class="text-xs text-slate-400">{{ f.date }}</div>
+        <!-- Date or Progress -->
+        <div v-if="isTransfer" class="flex flex-col gap-1 justify-center min-w-0 pr-4">
+           <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>{{ f.status === 'waiting' ? '等待中' : (f.status === 'failed' ? '失败' : (f.status === 'done' ? '已完成' : '下载中')) }}</span>
+              <span class="flex items-center gap-2">
+                <span v-if="f.speed" class="font-mono">{{ f.speed }}</span>
+                <span v-if="f.eta" class="font-mono text-slate-400">剩余 {{ f.eta }}</span>
+              </span>
+           </div>
+           <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+             <div 
+               class="h-full bg-sky-500 rounded-full transition-all duration-300"
+               :style="{ width: `${f.progress}%` }"
+               :class="{ 'bg-red-500': f.status === 'failed', 'bg-slate-300': f.status === 'waiting', 'bg-green-500': f.status === 'done' }"
+             ></div>
+           </div>
+        </div>
+        <div v-else class="text-xs text-slate-400">{{ f.date }}</div>
       </div>
       
       <!-- Load More / Empty State -->

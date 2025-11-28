@@ -8,6 +8,7 @@ defineProps<{
   files: any[];
   selectedSidebarId: string;
   selectedIds?: string[];
+  listType?: 'files' | 'transfer';
 }>();
 
 const emit = defineEmits<{
@@ -38,6 +39,7 @@ function onSelect(id: string) {
       <FileList 
         :files="files" 
         :selected-ids="selectedIds"
+        :list-type="listType"
         @update:selected-ids="emit('update:selectedIds', $event)"
         @open="$emit('open-file', $event)" 
       />

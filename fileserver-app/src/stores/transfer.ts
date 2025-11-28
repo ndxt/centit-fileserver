@@ -145,5 +145,14 @@ export const useTransferStore = defineStore("transfer", {
     },
     displaySize(n?: number) { return humanSize(n); },
     displaySpeed(bps: number) { return humanSize(bps) + "/s"; },
+    displayEta(sec?: number) {
+      if (sec === undefined || sec <= 0 || !isFinite(sec)) return "--";
+      const s = Math.max(0, Math.floor(sec));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const ss = s % 60;
+      if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
+      return `${m}:${ss.toString().padStart(2,'0')}`;
+    },
   }
 });

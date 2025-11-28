@@ -91,6 +91,7 @@ pub async fn download_file(
     url: String,
     fileName: String,
     dirName: Option<String>,
+    maxKbps: Option<u64>,
 ) -> Result<String, String> {
     println!("download_start task_id={} url={} file_name={} dir_name={}", taskId, url, fileName, dirName.clone().unwrap_or_default());
     let client = crate::services::http::client();
@@ -142,10 +143,21 @@ pub async fn download_file(
     let mut received: u64 = 0;
     let mut last_ts = Instant::now();
     let mut last_received: u64 = 0;
+    let max_bps: f64 = (
+        maxKbps
+            .or_else(|| std::env::var("FILE_CLOUD_MAX_KBPS").ok().and_then(|v| v.parse::<u64>().ok()))
+            .unwrap_or(100) as f64
+    ) * 1024.0;
+    let mut ema_speed: f64 = 0.0;
+    let mut last_speed: f64 = 0.0;
     let mut stream = resp.bytes_stream();
     while let Some(chunk) = stream.next().await {
         match chunk {
             Ok(bytes) => {
+                let sleep_secs = (bytes.len() as f64) / max_bps;
+                if sleep_secs > 0.0 {
+                    tokio::time::sleep(std::time::Duration::from_secs_f64(sleep_secs)).await;
+                }
                 if let Err(e) = file.write_all(&bytes) {
                     eprintln!("write_chunk_error task_id={} error={}", taskId, e);
                     let _ = app.emit(
@@ -157,20 +169,22 @@ pub async fn download_file(
                 received += bytes.len() as u64;
                 let now = Instant::now();
                 let dt = now.duration_since(last_ts).as_secs_f64();
-                let speed = if dt > 0.2 {
+                let mut speed = 0.0;
+                if dt > 0.5 {
                     let diff = received.saturating_sub(last_received) as f64;
                     last_received = received;
                     last_ts = now;
-                    diff / dt
-                } else {
-                    0.0
-                };
-                if speed > 0.0 {
-                    println!("download_progress_log task_id={} received={} total={:?} speed_bps={}", taskId, received, total, speed);
+                    let inst = diff / dt;
+                    ema_speed = if ema_speed <= 0.0 { inst } else { 0.7 * ema_speed + 0.3 * inst };
+                    speed = ema_speed;
+                }
+                let speed_to_emit = if speed > 0.0 { last_speed = speed; speed } else { last_speed };
+                if speed_to_emit > 0.0 {
+                    // println!("download_progress_log task_id={} received={} total={:?} speed_bps={}", taskId, received, total, speed_to_emit);
                 }
                 let _ = app.emit(
                     "download_progress",
-                    DownloadProgressPayload { task_id: taskId.clone(), file_name: fileName.clone(), received, total, speed_bps: speed },
+                    DownloadProgressPayload { task_id: taskId.clone(), file_name: fileName.clone(), received, total, speed_bps: speed_to_emit },
                 );
             }
             Err(e) => {
