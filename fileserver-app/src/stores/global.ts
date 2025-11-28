@@ -18,3 +18,4 @@ export const useGlobalStore = defineStore("global", () => {
   return { isLoading, loadingText, startLoading, stopLoading };
 });
 
+

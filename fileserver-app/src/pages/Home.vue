@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import FileBrowser from "../components/FileBrowser.vue";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
 import { listLibraries, listLibraryFiles } from "../services/files";
-import { House, Building2 } from "lucide-vue-next";
+import { House, Building2, Plus, Upload, ChevronDown, FileUp, FolderUp, Download } from "lucide-vue-next";
 import { useAuthStore } from "../stores/auth";
 import { useGlobalStore } from "../stores/global";
 import { useExplorerStore } from "../stores/explorer";
@@ -13,7 +13,27 @@ const global = useGlobalStore();
 const explorer = useExplorerStore();
 const sidebarItems = ref<any[]>([]);
 const files = ref<any[]>([]);
+const selectedIds = ref<string[]>([]);
 const currentLibraryName = computed(() => explorer.libraryName || "根目录");
+
+const showUploadMenu = ref(false);
+const uploadBtnRef = ref<HTMLElement | null>(null);
+const uploadMenuRef = ref<HTMLElement | null>(null);
+
+function toggleUploadMenu() {
+  showUploadMenu.value = !showUploadMenu.value;
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (showUploadMenu.value && 
+      uploadMenuRef.value && 
+      !uploadMenuRef.value.contains(event.target as Node) &&
+      uploadBtnRef.value &&
+      !uploadBtnRef.value.contains(event.target as Node)
+  ) {
+    showUploadMenu.value = false;
+  }
+}
 
 async function init() {
   try {
@@ -57,24 +77,34 @@ async function onOpen(id: string) {
   const entry = files.value.find((f: any) => f.id === id);
   if (entry?.folder) {
     explorer.enterFolder(id, entry.name);
+    selectedIds.value = []; // Clear selection when entering a folder
     await loadFiles(explorer.libraryId, explorer.folderId);
   } else {
     console.log("Open file", id);
   }
 }
 
-onMounted(() => { init(); });
+onMounted(() => { 
+  init(); 
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 
 watch(() => explorer.libraryId, async (id) => {
   if (id) {
     const s = sidebarItems.value.find((x: any) => x.id === id);
     explorer.setLibrary(id, s?.name || "");
+    selectedIds.value = []; // Clear selection when changing library
     await loadFiles(explorer.libraryId, explorer.folderId);
   }
 });
 
 watch(() => explorer.folderId, async (fid) => {
   if (explorer.libraryId) {
+    selectedIds.value = []; // Clear selection when changing folder (via breadcrumb/nav)
     await loadFiles(explorer.libraryId, fid);
   }
 });
@@ -91,10 +121,61 @@ watch(() => explorer.refreshTs, async () => {
     :sidebar-items="sidebarItems"
     v-model:selected-sidebar-id="explorer.libraryId"
     :files="files"
+    v-model:selected-ids="selectedIds"
     @open-file="onOpen"
   >
     <template #header>
-      <Breadcrumb :items="explorer.path" :root-name="currentLibraryName" @goto-root="explorer.gotoRoot" @goto-index="explorer.gotoIndex" />
+      <div class="h-12 border-b border-slate-100 bg-white flex items-center justify-between px-4 shrink-0 select-none z-10 relative">
+        <div class="flex-1 flex items-center min-w-0 mr-4 overflow-hidden">
+          <Breadcrumb 
+            :items="explorer.path" 
+            :root-name="currentLibraryName" 
+            @goto-root="explorer.gotoRoot" 
+            @goto-index="explorer.gotoIndex" 
+          />
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-50 text-sky-600 hover:bg-sky-100 transition-colors text-sm font-medium">
+            <Plus :size="16" />
+            <span>新建文件夹</span>
+          </button>
+
+          <div class="relative">
+            <button 
+              ref="uploadBtnRef"
+              @click="toggleUploadMenu" 
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-sky-600 text-white hover:bg-sky-700 transition-colors text-sm font-medium shadow-sm shadow-sky-200"
+            >
+              <Upload :size="16" />
+              <span>上传</span>
+              <ChevronDown :size="14" :class="{ 'rotate-180': showUploadMenu }" class="transition-transform duration-200" />
+            </button>
+            
+            <div 
+              v-if="showUploadMenu" 
+              ref="uploadMenuRef"
+              class="absolute top-full right-0 mt-1 w-36 bg-white rounded-lg shadow-xl border border-slate-100 py-1 z-50"
+            >
+                <button class="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                    <FileUp :size="16" class="text-slate-400" />
+                    上传文件
+                </button>
+                <button class="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                    <FolderUp :size="16" class="text-slate-400" />
+                    上传文件夹
+                </button>
+            </div>
+          </div>
+
+          <button 
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            :disabled="selectedIds.length === 0"
+          >
+            <Download :size="16" />
+            <span>下载</span>
+          </button>
+        </div>
+      </div>
     </template>
   </FileBrowser>
 </template>

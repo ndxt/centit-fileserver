@@ -7,11 +7,13 @@ defineProps<{
   sidebarItems: any[];
   files: any[];
   selectedSidebarId: string;
+  selectedIds?: string[];
 }>();
 
 const emit = defineEmits<{
   (e: 'update:selectedSidebarId', id: string): void;
   (e: 'open-file', id: string): void;
+  (e: 'update:selectedIds', ids: string[]): void;
 }>();
 
 const global = useGlobalStore();
@@ -33,7 +35,12 @@ function onSelect(id: string) {
     <!-- Content -->
     <div class="flex-1 flex flex-col min-w-0 bg-white">
       <slot name="header" />
-      <FileList :files="files" @open="$emit('open-file', $event)" />
+      <FileList 
+        :files="files" 
+        :selected-ids="selectedIds"
+        @update:selected-ids="emit('update:selectedIds', $event)"
+        @open="$emit('open-file', $event)" 
+      />
     </div>
   </div>
 </template>

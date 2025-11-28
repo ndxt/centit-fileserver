@@ -26,8 +26,8 @@ const visibleItems = computed(() => {
 </script>
 
 <template>
-  <div class="h-10 px-4 border-b border-slate-100 bg-white flex items-center gap-2 select-none shrink-0">
-    <button class="text-sm text-slate-600 hover:text-sky-600 font-medium" @click="gotoRoot">{{ rootName }}</button>
+  <div class="flex items-center gap-2 select-none">
+    <button class="text-sm text-slate-600 hover:text-sky-600 font-medium transition-colors" @click="gotoRoot">{{ rootName }}</button>
     <ChevronRight :size="16" class="text-slate-300" />
     <div class="flex items-center gap-2 flex-wrap">
       <span v-if="hasEllipsis" class="text-sm text-slate-400">...</span>
