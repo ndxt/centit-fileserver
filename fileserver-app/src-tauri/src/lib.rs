@@ -14,6 +14,8 @@ pub fn run() {
             commands::api_libraries,
             commands::api_folder_files,
             commands::download_file,
+            commands::open_file_location,
+            commands::pause_download,
         ])
         .setup(|app| {
             #[cfg(debug_assertions)]

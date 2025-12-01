@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, computed, ref, onMounted, onUnmounted } from "vue";
-import { MoreHorizontal, Lock, Trash2, Copy, FolderInput, Star, Check } from 'lucide-vue-next';
+import { MoreHorizontal, Lock, Trash2, Copy, FolderInput, Star, Check, Folder, Pause, Play } from 'lucide-vue-next';
 import FileIcon from './FileIcon.vue';
 
 export interface FileItem {
@@ -24,6 +24,9 @@ const emit = defineEmits<{
   (e: 'copy', file: any): void;
   (e: 'move', file: any): void;
   (e: 'toggle-favorite', file: any): void;
+  (e: 'open-folder', file: any): void;
+  (e: 'pause', file: any): void;
+  (e: 'resume', file: any): void;
 }>();
 
 function open(id: string) { emit('open', id); }
@@ -196,7 +199,27 @@ function onAction(action: 'delete' | 'copy' | 'move' | 'toggle-favorite', file: 
         </div>
 
         <!-- Size -->
-        <div class="text-xs text-slate-500">{{ f.size }}</div>
+        <div class="text-xs text-slate-500 min-w-[60px] flex items-center">
+          <template v-if="!isTransfer">
+            {{ f.size }}
+          </template>
+          <template v-else>
+            <span :class="{ 'group-hover:hidden': ['done', 'downloading', 'waiting'].includes(f.status || '') }">
+              {{ f.size }}
+            </span>
+            <div class="hidden group-hover:flex items-center text-slate-400">
+              <button v-if="f.status === 'done'" @click.stop="emit('open-folder', f)" class="hover:text-sky-500" title="打开文件夹">
+                <Folder :size="16" />
+              </button>
+              <button v-if="f.status === 'downloading'" @click.stop="emit('pause', f)" class="hover:text-sky-500" title="暂停">
+                <Pause :size="16" />
+              </button>
+              <button v-if="f.status === 'waiting'" @click.stop="emit('resume', f)" class="hover:text-sky-500" title="开始">
+                <Play :size="16" />
+              </button>
+            </div>
+          </template>
+        </div>
 
         <!-- Date or Progress -->
         <div v-if="isTransfer" class="flex flex-col gap-1 justify-center min-w-0 pr-4">

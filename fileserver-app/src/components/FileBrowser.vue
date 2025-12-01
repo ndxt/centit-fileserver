@@ -15,6 +15,9 @@ const emit = defineEmits<{
   (e: 'update:selectedSidebarId', id: string): void;
   (e: 'open-file', id: string): void;
   (e: 'update:selectedIds', ids: string[]): void;
+  (e: 'open-folder', file: any): void;
+  (e: 'pause', file: any): void;
+  (e: 'resume', file: any): void;
 }>();
 
 const global = useGlobalStore();
@@ -42,6 +45,9 @@ function onSelect(id: string) {
         :list-type="listType"
         @update:selected-ids="emit('update:selectedIds', $event)"
         @open="$emit('open-file', $event)" 
+        @open-folder="$emit('open-folder', $event)"
+        @pause="$emit('pause', $event)"
+        @resume="$emit('resume', $event)"
       />
     </div>
   </div>

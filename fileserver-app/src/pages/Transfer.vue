@@ -43,7 +43,7 @@ const files = computed(() => {
   }
   if (tab.value === 'download-done') {
     return transfer.done
-      .filter(t => !t.isFolder)
+      // .filter(t => !t.isFolder) // Don't filter folders, we want to see them
       .map(t => ({
       id: t.id,
       name: t.name,
@@ -53,7 +53,8 @@ const files = computed(() => {
       // No progress bar for done items, show date/status text instead as before
       // Or if you want progress bar for done items too:
       progress: t.status === 'failed' ? 0 : 100,
-      status: t.status === 'failed' ? 'failed' : 'done'
+      status: t.status === 'failed' ? 'failed' : 'done',
+      savePath: t.savePath, // Pass savePath to use for open-folder
     }));
   }
   return [];
@@ -61,6 +62,21 @@ const files = computed(() => {
 
 function onOpen(id: string) {
   console.log("Open transfer item", id);
+}
+
+function onOpenFolder(file: any) {
+    console.log("Open folder", file);
+    if (file.savePath) {
+        transfer.openFolder(file.savePath);
+    }
+}
+
+function onPause(file: any) {
+    transfer.pause(file.id);
+}
+
+function onResume(file: any) {
+    transfer.resume(file.id);
 }
 </script>
 
@@ -71,6 +87,9 @@ function onOpen(id: string) {
     :files="files"
     list-type="transfer"
     @open-file="onOpen"
+    @open-folder="onOpenFolder"
+    @pause="onPause"
+    @resume="onResume"
   />
 </template>
 

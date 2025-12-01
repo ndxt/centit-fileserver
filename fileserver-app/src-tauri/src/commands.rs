@@ -1,9 +1,11 @@
 use serde::Serialize;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 use futures_util::StreamExt;
 use tauri::Emitter;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
 #[derive(Serialize)]
 pub struct AppInfo {
@@ -28,6 +30,52 @@ pub fn app_info() -> AppInfo {
 #[tauri::command]
 pub fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+pub fn open_file_location(path: String) {
+    #[cfg(target_os = "windows")]
+    {
+        // If it's a file, select it. If directory, open it?
+        // explorer /select,path always opens parent and selects item.
+        // If path is a directory, it selects the directory in its parent.
+        // If we want to enter the directory, just `explorer path`.
+        // But let's check if it is a dir.
+        let is_dir = std::path::Path::new(&path).is_dir();
+        if is_dir {
+            std::process::Command::new("explorer")
+                .arg(&path)
+                .spawn()
+                .unwrap();
+        } else {
+            std::process::Command::new("explorer")
+                .args(["/select,", &path])
+                .spawn()
+                .unwrap();
+        }
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .args(["-R", &path])
+            .spawn()
+            .unwrap();
+    }
+    #[cfg(target_os = "linux")]
+    {
+        let path = std::path::PathBuf::from(&path);
+        if path.is_dir() {
+             std::process::Command::new("xdg-open")
+                .arg(&path)
+                .spawn()
+                .unwrap();
+        } else if let Some(parent) = path.parent() {
+             std::process::Command::new("xdg-open")
+                .arg(parent)
+                .spawn()
+                .unwrap();
+        }
+    }
 }
 
 #[tauri::command]
@@ -106,6 +154,15 @@ struct TransferItem {
     speed_bps: u64,
 }
 
+static PAUSED_TASKS: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(HashSet::new()));
+
+#[tauri::command]
+pub fn pause_download(task_id: String) -> Result<(), String> {
+    let mut set = PAUSED_TASKS.lock().map_err(|e| e.to_string())?;
+    set.insert(task_id);
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn download_file(
     app: tauri::AppHandle,
@@ -117,6 +174,7 @@ pub async fn download_file(
     is_folder: Option<bool>,
     library_id: Option<String>,
 ) -> Result<String, String> {
+    if let Ok(mut set) = PAUSED_TASKS.lock() { set.remove(&task_id); }
     
     println!("download_start task_id={} url={} file_name={} dir_name={} is_folder={:?}", task_id, url, file_name, dir_name.clone().unwrap_or_default(), is_folder);
 
@@ -353,6 +411,12 @@ pub async fn download_file(
     let mut last_speed: f64 = 0.0;
     let mut stream = resp.bytes_stream();
     while let Some(chunk) = stream.next().await {
+        if let Ok(set) = PAUSED_TASKS.lock() {
+            if set.contains(&task_id) {
+                let save_path_str = save_path.to_string_lossy().to_string();
+                return Ok(save_path_str);
+            }
+        }
         match chunk {
             Ok(bytes) => {
                 let sleep_secs = (bytes.len() as f64) / max_bps;

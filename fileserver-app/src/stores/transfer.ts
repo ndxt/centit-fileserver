@@ -275,6 +275,52 @@ export const useTransferStore = defineStore("transfer", {
         }
       }
     },
+    async pause(id: string) {
+        console.log('pause download', id);
+        if (isTauri()) {
+            await invoke("pause_download", { taskId: id });
+        }
+        // Move from active to queue (paused state) or handle status update based on backend event
+        // For now assume backend will send an event or we just mark it locally?
+        // Actually standard practice: if backend supports pause, call it.
+        // If we need to reflect immediate UI state:
+        const idx = this.active.findIndex(x => x.id === id);
+        if (idx >= 0) {
+             const item = this.active[idx];
+             item.status = 'queued'; // or 'waiting'
+             this.active.splice(idx, 1);
+             this.queue.push(item); // Put back in queue? or a separate paused list?
+             // If put back in queue, startIfNeeded will pick it up again immediately if slots open?
+             // Maybe we need a 'paused' status.
+             // For this requirement "waiting" is used for non-downloading.
+             // "waiting" in UI maps to "queued" in store.
+             this.startIfNeeded();
+        }
+    },
+    async resume(id: string) {
+        console.log('resume download', id);
+        // If it's in queue, maybe move to top?
+        // Or if we have a specific resume command.
+        // If it was just "queued", startIfNeeded picks it up.
+        // But if we want to force start?
+        const idx = this.queue.findIndex(x => x.id === id);
+        if (idx >= 0) {
+            // Move to front to be picked up next
+            const item = this.queue.splice(idx, 1)[0];
+            this.queue.unshift(item);
+            this.startIfNeeded();
+        }
+    },
+    async openFolder(path?: string) {
+         if (!path) return;
+         if (isTauri()) {
+             try {
+                await invoke('open_file_location', { path });
+             } catch (e) {
+                 console.error(e);
+             }
+         }
+    },
     clearCompleted() {
       this.completed = [];
     },
