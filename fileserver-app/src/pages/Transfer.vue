@@ -14,7 +14,7 @@ const sidebarItems = [
 
 const transfer = useTransferStore();
 onMounted(() => {
-  if (import.meta.env.DEV) transfer.simulate();
+  // if (import.meta.env.DEV) transfer.simulate();
 });
 const files = computed(() => {
   if (tab.value === 'download') {
@@ -42,7 +42,9 @@ const files = computed(() => {
     return [...downloading, ...waiting];
   }
   if (tab.value === 'download-done') {
-    return transfer.done.map(t => ({
+    return transfer.done
+      .filter(t => !t.isFolder)
+      .map(t => ({
       id: t.id,
       name: t.name,
       size: t.total ? transfer.displaySize(t.total) : "",

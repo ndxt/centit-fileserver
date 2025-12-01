@@ -85,35 +85,212 @@ struct DownloadErrorPayload {
     error: String,
 }
 
+#[derive(Serialize, Clone)]
+struct TransferFolderContentPayload {
+    files: Vec<TransferItem>,
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct TransferItem {
+    id: String,
+    name: String,
+    url: String,
+    library_id: Option<String>,
+    is_folder: bool,
+    dir_name: Option<String>,
+    status: String,
+    progress: u64,
+    received: u64,
+    total: Option<u64>,
+    speed_bps: u64,
+}
+
 #[tauri::command]
-#[allow(non_snake_case)]
 pub async fn download_file(
     app: tauri::AppHandle,
-    taskId: String,
+    task_id: String,
     url: String,
-    fileName: String,
-    dirName: Option<String>,
-    maxKbps: Option<u64>,
-    isFolder: Option<bool>,
+    file_name: String,
+    dir_name: Option<String>,
+    max_kbps: Option<u64>,
+    is_folder: Option<bool>,
+    library_id: Option<String>,
 ) -> Result<String, String> {
-    let task_id = taskId.clone();
-    let file_name = fileName.clone();
-    let dir_name = dirName.clone();
-    let is_folder = isFolder;
     
     println!("download_start task_id={} url={} file_name={} dir_name={} is_folder={:?}", task_id, url, file_name, dir_name.clone().unwrap_or_default(), is_folder);
 
-    // Check if it's a folder download request
     if is_folder.unwrap_or(false) {
-         // The URL in this case is essentially just a way to pass the folder ID (or we can parse taskId if it is the folder ID)
-         // But since we have the URL, we can just proceed. 
-         // The Rust backend logic for recursive folder download should be implemented here.
-         
-         eprintln!("Folder download logic triggered for task_id={}", task_id);
-         
-         // TODO: Implement actual recursive download logic here.
-         // For now, we simulate it being started.
-         return Ok("Folder download initiated (mock)".to_string());
+        #[cfg(target_os = "windows")]
+        let mut base_dir = std::path::PathBuf::from(
+            std::env::var("USERPROFILE").map_err(|e| e.to_string())?
+        );
+        #[cfg(target_os = "windows")]
+        base_dir.push("Downloads");
+
+        #[cfg(not(target_os = "windows"))]
+        let mut base_dir = std::env::current_dir().map_err(|e| e.to_string())?;
+
+        let current_rel_dir = dir_name.clone().unwrap_or_else(|| "download".to_string());
+        println!("folder download: current_rel_dir='{}', file_name='{}'", current_rel_dir, file_name);
+        base_dir.push(&current_rel_dir);
+        println!("folder download: base_dir after push={}", base_dir.to_string_lossy());
+        
+        // For the folder itself, create it
+        let folder_path = base_dir.join(&file_name);
+        println!("folder download: folder_path to create={}", folder_path.to_string_lossy());
+        if let Err(e) = std::fs::create_dir_all(&folder_path) {
+            let _ = app.emit(
+                "download_error",
+                DownloadErrorPayload { task_id: task_id.clone(), file_name: file_name.clone(), error: e.to_string() },
+            );
+            return Err(e.to_string());
+        }
+
+        // Calculate the relative path for children: current_rel_dir + / + file_name
+        // We use PathBuf to handle separators correctly but need string for API
+        let child_rel_dir = std::path::Path::new(&current_rel_dir).join(&file_name).to_string_lossy().to_string();
+
+        let parse_base = |u: &str| -> Option<(String, String)> {
+            let marker = "/fileserver/fileserver/";
+            let idx = u.find(marker)?;
+            let base = u[..idx].to_string();
+            let dl_marker = "/folder/download/";
+            let di = u.find(dl_marker)?;
+            let start = di + dl_marker.len();
+            let end = u[start..].find('?').map(|i| start + i).unwrap_or(u.len());
+            let folder_id = u[start..end].to_string();
+            Some((base, folder_id))
+        };
+
+        let (base, root_folder_id) = parse_base(&url).ok_or_else(|| "invalid folder download url".to_string())?;
+
+        // We need to find the correct library ID to list files.
+        // If libraryId is passed, use it. Otherwise try to find it (expensive).
+        let library_id_val = if let Some(lid) = library_id.clone() {
+            lid
+        } else {
+            // Try to guess library ID (fallback)
+            let libs_v = crate::services::http::fetch_json(&format!("{}/fileserver/fileserver/library", base)).await?;
+            let mut lib_ids: Vec<String> = vec![];
+            if let Some(arr) = libs_v.get("data").and_then(|d| d.get("objList")).and_then(|x| x.as_array()) {
+                lib_ids = arr.iter().filter_map(|x| x.get("libraryId").and_then(|v| v.as_str()).map(|s| s.to_string())).collect();
+            }
+            if lib_ids.is_empty() {
+                return Err("no libraries".to_string());
+            }
+            let mut used_lib: Option<String> = None;
+            for lib_id in lib_ids.iter() {
+                let url_list = format!("{}/fileserver/fileserver/folder/{}/{}", base, lib_id, root_folder_id);
+                let r = crate::services::http::fetch_json(&url_list).await;
+                if let Ok(v) = r {
+                    let arr_opt = v.get("data").and_then(|d| d.get("objList")).and_then(|x| x.as_array()).or_else(|| v.get("data").and_then(|x| x.as_array()));
+                    if arr_opt.is_some() {
+                        used_lib = Some(lib_id.clone());
+                        break;
+                    }
+                }
+            }
+            used_lib.ok_or_else(|| "folder not found in any library".to_string())?
+        };
+
+        // Fetch children
+        let url_list = format!("{}/fileserver/fileserver/folder/{}/{}", base, library_id_val, root_folder_id);
+        println!("fetching folder contents from: {}", url_list);
+        let v = crate::services::http::fetch_json(&url_list).await?;
+        println!("API response: {}", serde_json::to_string_pretty(&v).unwrap_or_else(|_| "failed to serialize".to_string()));
+        let mut new_items: Vec<TransferItem> = vec![];
+
+        let empty_vec = vec![];
+        let entries = v.get("data").and_then(|d| d.get("objList")).and_then(|x| x.as_array())
+            .or_else(|| v.get("data").and_then(|x| x.as_array()))
+            .unwrap_or(&empty_vec);
+        
+        println!("found {} entries in API response", entries.len());
+
+        for it in entries {
+            let is_dir = it.get("folder").and_then(|v| v.as_bool()).unwrap_or(false);
+            let name = it.get("fileName").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            let id = if is_dir {
+                it.get("folderId").and_then(|v| v.as_str()).unwrap_or("").to_string()
+            } else {
+                // For files, API returns 'accessToken' instead of 'fileId'
+                // Try accessToken first, then fileId as fallback
+                it.get("accessToken")
+                    .and_then(|v| v.as_str())
+                    .or_else(|| it.get("fileId").and_then(|v| v.as_str()))
+                    .unwrap_or("")
+                    .to_string()
+            };
+
+            println!("  processing entry: name='{}', id='{}', is_dir={}", name, id, is_dir);
+            
+            if id.is_empty() || name.is_empty() { 
+                println!("  SKIPPED: empty id or name");
+                continue; 
+            }
+
+            // Construct URL for child
+            // Frontend expects: 
+            // if folder: `${base}/fileserver/fileserver/folder/download/${id}?${params}`
+            // if file:   `${base}/fileserver/fileserver/download/downloadwithauth/${id}?${params}`
+            // We need to reconstruct params. The original 'url' has params.
+            let query_start = url.find('?').unwrap_or(url.len());
+            let query_str = if query_start < url.len() { &url[query_start+1..] } else { "" };
+            
+            // We need to replace 'accessToken' param with new id
+            let mut new_query = String::new();
+            for pair in query_str.split('&') {
+                let mut parts = pair.splitn(2, '=');
+                let key = parts.next().unwrap_or("");
+                let val = parts.next().unwrap_or("");
+                if key == "accessToken" {
+                    new_query.push_str(&format!("accessToken={}&", id));
+                } else if !key.is_empty() {
+                    new_query.push_str(&format!("{}={}&", key, val));
+                }
+            }
+            // Remove trailing &
+            if new_query.ends_with('&') { new_query.pop(); }
+
+            let child_url = if is_dir {
+                format!("{}/fileserver/fileserver/folder/download/{}?{}", base, id, new_query)
+            } else {
+                format!("{}/fileserver/fileserver/download/downloadwithauth/{}?{}", base, id, new_query)
+            };
+
+            new_items.push(TransferItem {
+                id,
+                name,
+                url: child_url,
+                library_id: Some(library_id_val.clone()),
+                is_folder: is_dir,
+                dir_name: Some(child_rel_dir.clone()), // Pass the new relative directory
+                status: "queued".to_string(),
+                progress: 0,
+                received: 0,
+                total: None,
+                speed_bps: 0,
+            });
+        }
+
+        println!("expanding folder {} -> {} items, child_rel_dir={}", task_id, new_items.len(), child_rel_dir);
+        for item in &new_items {
+            println!("  - {} (is_folder={}, dir_name={:?})", item.name, item.is_folder, item.dir_name);
+        }
+        
+        // Emit event to frontend to add these items to queue
+        let _ = app.emit("transfer_folder_content", TransferFolderContentPayload { files: new_items });
+
+        // Mark this folder task as finished (it's just a generator)
+        // We use the path of the folder we created as 'save_path'
+        let save_path_str = folder_path.to_string_lossy().to_string();
+        println!("folder expansion finished, created directory: {}", save_path_str);
+        let _ = app.emit(
+            "download_finished",
+            DownloadFinishedPayload { task_id: task_id.clone(), file_name: file_name.clone(), save_path: save_path_str.clone() },
+        );
+        return Ok(save_path_str);
     }
 
     let client = crate::services::http::client();
@@ -142,13 +319,15 @@ pub async fn download_file(
     #[cfg(not(target_os = "windows"))]
     let mut base_dir = std::env::current_dir().map_err(|e| e.to_string())?;
 
-    let dir = dir_name.unwrap_or_else(|| "download".to_string());
-    base_dir.push(dir);
+    let dir = dir_name.clone().unwrap_or_else(|| "download".to_string());
+    base_dir.push(&dir);
+    println!("file download: dir_name={:?}, base_dir before create={}, file_name={}", dir_name, base_dir.to_string_lossy(), file_name);
     if let Err(e) = std::fs::create_dir_all(&base_dir) {
         eprintln!("create_dir_error task_id={} path={} error={}", task_id, base_dir.to_string_lossy(), e);
         return Err(e.to_string());
     }
     let save_path = base_dir.join(&file_name);
+    println!("file download: final save_path={}", save_path.to_string_lossy());
     let mut file = match std::fs::File::create(&save_path) {
         Ok(f) => f,
         Err(e) => {
@@ -166,9 +345,9 @@ pub async fn download_file(
     let mut last_ts = Instant::now();
     let mut last_received: u64 = 0;
     let max_bps: f64 = (
-        maxKbps
+        max_kbps
             .or_else(|| std::env::var("FILE_CLOUD_MAX_KBPS").ok().and_then(|v| v.parse::<u64>().ok()))
-            .unwrap_or(100) as f64
+            .unwrap_or(1024) as f64
     ) * 1024.0;
     let mut ema_speed: f64 = 0.0;
     let mut last_speed: f64 = 0.0;

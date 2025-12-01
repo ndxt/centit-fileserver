@@ -11,7 +11,9 @@ export type TransferItem = {
   id: string;
   name: string;
   url: string;
+  libraryId?: string;
   isFolder?: boolean;
+  dirName?: string;
   status: TransferStatus;
   progress: number;
   received: number;
@@ -69,6 +71,15 @@ export const useTransferStore = defineStore("transfer", {
         t.etaSec = p.eta_secs;
         t.progress = p.total && p.total > 0 ? Math.min(100, (p.received * 100) / p.total) : 0;
       });
+      
+      await listen<{ files: TransferItem[] }>("transfer_folder_content", (evt) => {
+        console.log("event: transfer_folder_content", evt.payload);
+        if (evt.payload && evt.payload.files) {
+           this.queue.unshift(...evt.payload.files);
+           this.startIfNeeded();
+        }
+      });
+
       await listen<{ task_id: string; file_name: string; save_path: string }>("download_finished", (evt) => {
         console.log("event: download_finished", evt.payload);
         const p = evt.payload;
@@ -79,7 +90,9 @@ export const useTransferStore = defineStore("transfer", {
           item.progress = 100;
           item.savePath = p.save_path;
           this.active.splice(idx, 1);
-          this.completed.unshift(item);
+          if (!item.isFolder) {
+            this.completed.unshift(item);
+          }
           this.startIfNeeded();
         }
       });
@@ -92,12 +105,13 @@ export const useTransferStore = defineStore("transfer", {
           item.status = "failed";
           item.error = p.error;
           this.active.splice(idx, 1);
+          // Folders that fail might need different handling, but for now treat as normal
           this.completed.unshift(item);
           this.startIfNeeded();
         }
       });
     },
-    enqueue(files: Array<{ id: string; name: string; isFolder?: boolean }>) {
+    enqueue(files: Array<{ id: string; name: string; isFolder?: boolean; libraryId?: string }>) {
       const base = `${getConfig().locodeOrigin}/api`;
       const auth = useAuthStore();
       const userCode: string | undefined = (auth.currentUser?.userInfo?.userCode || auth.currentUser?.userCode) as string | undefined;
@@ -124,6 +138,7 @@ export const useTransferStore = defineStore("transfer", {
             id: f.id,
             name: name,
             url: url,
+            libraryId: f.libraryId,
             isFolder: f.isFolder,
             status: "queued",
             progress: 0,
@@ -236,13 +251,14 @@ export const useTransferStore = defineStore("transfer", {
         item.status = "downloading";
         this.active.push(item);
         if (isTauri()) {
-          console.log("invoke download_file", { task_id: item.id, url: item.url, file_name: item.name, is_folder: item.isFolder });
+          console.log("invoke download_file", { task_id: item.id, url: item.url, file_name: item.name, dir_name: item.dirName, is_folder: item.isFolder, library_id: item.libraryId });
           invoke<string>("download_file", {
             taskId: item.id,
             url: item.url,
             fileName: item.name,
-            dirName: "download",
+            dirName: item.dirName || "download",
             isFolder: !!item.isFolder,
+            libraryId: item.libraryId,
           }).catch((e: any) => {
             console.error("invoke download_file error", e, { task_id: item.id, url: item.url, file_name: item.name });
 

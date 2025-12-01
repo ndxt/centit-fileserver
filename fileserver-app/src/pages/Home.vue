@@ -91,7 +91,12 @@ async function flyToTransfer(ids: string[]) {
 
 function onDownloadSelected() {
   const selected = files.value.filter((f: any) => selectedIds.value.includes(f.id))
-    .map((f: any) => ({ id: f.id, name: f.name, isFolder: !!f.folder }));
+    .map((f: any) => ({ 
+      id: f.id, 
+      name: f.name, 
+      isFolder: !!f.folder, 
+      libraryId: explorer.libraryId // Pass libraryId for recursive download
+    }));
   
   if (selected.length > 0) {
     flyToTransfer(selected.map((s: any) => s.id));
@@ -279,4 +284,3 @@ watch(() => explorer.refreshTs, async () => {
 
 <style scoped>
 </style>
- 
