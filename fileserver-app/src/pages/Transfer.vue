@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import FileBrowser from "../components/FileBrowser.vue";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { UploadCloud, DownloadCloud, CloudCheck } from 'lucide-vue-next';
 import { useTransferStore } from "../stores/transfer";
 
@@ -13,23 +13,21 @@ const sidebarItems = [
 ];
 
 const transfer = useTransferStore();
+onMounted(() => {
+  // if (import.meta.env.DEV) transfer.simulate();
+});
 const files = computed(() => {
   if (tab.value === 'download') {
     const downloading = transfer.downloading.map(t => ({
       id: t.id,
       name: t.name,
       size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)}`,
-      date: '', // Not used when progress is present
+      date: '',
       folder: false,
       progress: t.progress,
       status: 'downloading',
       speed: transfer.displaySpeed(t.speedBps),
-      eta: (() => {
-        if (!t.total || t.total <= 0 || t.speedBps <= 0) return undefined;
-        const remaining = t.total - t.received;
-        const etaSec = remaining > 0 ? Math.floor(remaining / t.speedBps) : 0;
-        return transfer.displayEta(etaSec);
-      })()
+      eta: t.etaSec ? transfer.displayEta(t.etaSec) : undefined
     }));
     const waiting = (transfer as any).queue.map((t: any) => ({
       id: t.id,

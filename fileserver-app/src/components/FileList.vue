@@ -100,7 +100,7 @@ function onAction(action: 'delete' | 'copy' | 'move' | 'toggle-favorite', file: 
 <template>
   <div class="flex-1 bg-white flex flex-col min-h-0">
     <!-- List Header -->
-    <div class="grid grid-cols-[auto_1fr_120px_150px] gap-4 px-4 py-3 text-xs text-slate-500 border-b border-slate-100 select-none"> 
+    <div class="grid grid-cols-[auto_1fr_120px_200px] gap-4 px-4 py-3 text-xs text-slate-500 border-b border-slate-100 select-none"> 
       <div class="w-5 flex items-center justify-center">
         <div 
           class="w-4 h-4 border rounded flex items-center justify-center cursor-pointer transition-all duration-200"
@@ -120,7 +120,7 @@ function onAction(action: 'delete' | 'copy' | 'move' | 'toggle-favorite', file: 
       <div 
         v-for="(f, index) in props.files" 
         :key="f.id" 
-        class="group grid grid-cols-[auto_1fr_120px_150px] gap-4 px-4 py-3 hover:bg-[#F0F5FF] border-b border-slate-50 transition-colors cursor-pointer items-center"
+        class="group grid grid-cols-[auto_1fr_120px_200px] gap-4 px-4 py-3 hover:bg-[#F0F5FF] border-b border-slate-50 transition-colors cursor-pointer items-center"
         @click="open(f.id)"
       >
         <!-- Checkbox -->

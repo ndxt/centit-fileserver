@@ -68,6 +68,7 @@ struct DownloadProgressPayload {
     received: u64,
     total: Option<u64>,
     speed_bps: f64,
+    eta_secs: Option<u64>,
 }
 
 #[derive(Serialize, Clone)]
@@ -182,9 +183,19 @@ pub async fn download_file(
                 if speed_to_emit > 0.0 {
                     // println!("download_progress_log task_id={} received={} total={:?} speed_bps={}", taskId, received, total, speed_to_emit);
                 }
+                let eta_secs = if let Some(tot) = total {
+                    if speed_to_emit > 0.0 {
+                        let remaining = if tot > received { tot - received } else { 0 };
+                        Some(((remaining as f64) / speed_to_emit).round() as u64)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
                 let _ = app.emit(
                     "download_progress",
-                    DownloadProgressPayload { task_id: taskId.clone(), file_name: fileName.clone(), received, total, speed_bps: speed_to_emit },
+                    DownloadProgressPayload { task_id: taskId.clone(), file_name: fileName.clone(), received, total, speed_bps: speed_to_emit, eta_secs },
                 );
             }
             Err(e) => {

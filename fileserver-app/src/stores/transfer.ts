@@ -16,6 +16,7 @@ export type TransferItem = {
   received: number;
   total?: number;
   speedBps: number;
+  etaSec?: number;
   savePath?: string;
   error?: string;
 };
@@ -51,6 +52,7 @@ export const useTransferStore = defineStore("transfer", {
         received: number;
         total?: number;
         speed_bps: number;
+        eta_secs?: number;
       }>("download_progress", (evt) => {
         console.log("event: download_progress", evt.payload);
         const p = evt.payload;
@@ -59,6 +61,7 @@ export const useTransferStore = defineStore("transfer", {
         t.received = p.received;
         t.total = p.total;
         t.speedBps = p.speed_bps || 0;
+        t.etaSec = p.eta_secs;
         t.progress = p.total && p.total > 0 ? Math.min(100, (p.received * 100) / p.total) : 0;
       });
       await listen<{ task_id: string; file_name: string; save_path: string }>("download_finished", (evt) => {
@@ -106,6 +109,51 @@ export const useTransferStore = defineStore("transfer", {
       console.log("enqueue", newItems);
       this.queue.push(...newItems);
       this.startIfNeeded();
+    },
+    simulate() {
+      if (this.active.length || this.queue.length || this.completed.length) return;
+      const a1: TransferItem = {
+        id: "sim-1",
+        name: "报告.pdf",
+        url: "",
+        status: "downloading",
+        progress: Math.min(100, (15 * 1024 * 1024 * 100) / (50 * 1024 * 1024)),
+        received: 15 * 1024 * 1024,
+        total: 50 * 1024 * 1024,
+        speedBps: 95 * 1024,
+      };
+      const a2: TransferItem = {
+        id: "sim-2",
+        name: "视频.mp4",
+        url: "",
+        status: "downloading",
+        progress: Math.min(100, (120 * 1024 * 1024 * 100) / (200 * 1024 * 1024)),
+        received: 120 * 1024 * 1024,
+        total: 200 * 1024 * 1024,
+        speedBps: 80 * 1024,
+      };
+      const q1: TransferItem = {
+        id: "sim-q1",
+        name: "图片.zip",
+        url: "",
+        status: "queued",
+        progress: 0,
+        received: 0,
+        total: undefined,
+        speedBps: 0,
+      };
+      const q2: TransferItem = {
+        id: "sim-q2",
+        name: "源码.tar.gz",
+        url: "",
+        status: "queued",
+        progress: 0,
+        received: 0,
+        total: undefined,
+        speedBps: 0,
+      };
+      this.active = [a1, a2];
+      this.queue = [q1, q2];
     },
     async startIfNeeded() {
       await this.initListeners();
