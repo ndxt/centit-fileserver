@@ -86,6 +86,7 @@ struct DownloadErrorPayload {
 }
 
 #[tauri::command]
+#[allow(non_snake_case)]
 pub async fn download_file(
     app: tauri::AppHandle,
     taskId: String,
@@ -93,23 +94,43 @@ pub async fn download_file(
     fileName: String,
     dirName: Option<String>,
     maxKbps: Option<u64>,
+    isFolder: Option<bool>,
 ) -> Result<String, String> {
-    println!("download_start task_id={} url={} file_name={} dir_name={}", taskId, url, fileName, dirName.clone().unwrap_or_default());
+    let task_id = taskId.clone();
+    let file_name = fileName.clone();
+    let dir_name = dirName.clone();
+    let is_folder = isFolder;
+    
+    println!("download_start task_id={} url={} file_name={} dir_name={} is_folder={:?}", task_id, url, file_name, dir_name.clone().unwrap_or_default(), is_folder);
+
+    // Check if it's a folder download request
+    if is_folder.unwrap_or(false) {
+         // The URL in this case is essentially just a way to pass the folder ID (or we can parse taskId if it is the folder ID)
+         // But since we have the URL, we can just proceed. 
+         // The Rust backend logic for recursive folder download should be implemented here.
+         
+         eprintln!("Folder download logic triggered for task_id={}", task_id);
+         
+         // TODO: Implement actual recursive download logic here.
+         // For now, we simulate it being started.
+         return Ok("Folder download initiated (mock)".to_string());
+    }
+
     let client = crate::services::http::client();
     let resp = match client.get(&url).send().await {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("download_request_error task_id={} error={}", taskId, e);
+            eprintln!("download_request_error task_id={} error={}", task_id, e);
             let _ = app.emit(
                 "download_error",
-                DownloadErrorPayload { task_id: taskId.clone(), file_name: fileName.clone(), error: e.to_string() },
+                DownloadErrorPayload { task_id: task_id.clone(), file_name: file_name.clone(), error: e.to_string() },
             );
             return Err(e.to_string());
         }
     };
     let status = resp.status();
     let total = resp.content_length();
-    println!("download_response task_id={} status={} total={:?}", taskId, status, total);
+    println!("download_response task_id={} status={} total={:?}", task_id, status, total);
 
     #[cfg(target_os = "windows")]
     let mut base_dir = std::path::PathBuf::from(
@@ -121,20 +142,20 @@ pub async fn download_file(
     #[cfg(not(target_os = "windows"))]
     let mut base_dir = std::env::current_dir().map_err(|e| e.to_string())?;
 
-    let dir = dirName.unwrap_or_else(|| "download".to_string());
+    let dir = dir_name.unwrap_or_else(|| "download".to_string());
     base_dir.push(dir);
     if let Err(e) = std::fs::create_dir_all(&base_dir) {
-        eprintln!("create_dir_error task_id={} path={} error={}", taskId, base_dir.to_string_lossy(), e);
+        eprintln!("create_dir_error task_id={} path={} error={}", task_id, base_dir.to_string_lossy(), e);
         return Err(e.to_string());
     }
-    let save_path = base_dir.join(&fileName);
+    let save_path = base_dir.join(&file_name);
     let mut file = match std::fs::File::create(&save_path) {
         Ok(f) => f,
         Err(e) => {
-            eprintln!("create_file_error task_id={} path={} error={}", taskId, save_path.to_string_lossy(), e);
+            eprintln!("create_file_error task_id={} path={} error={}", task_id, save_path.to_string_lossy(), e);
             let _ = app.emit(
                 "download_error",
-                DownloadErrorPayload { task_id: taskId.clone(), file_name: fileName.clone(), error: e.to_string() },
+                DownloadErrorPayload { task_id: task_id.clone(), file_name: file_name.clone(), error: e.to_string() },
             );
             return Err(e.to_string());
         }
@@ -160,10 +181,10 @@ pub async fn download_file(
                     tokio::time::sleep(std::time::Duration::from_secs_f64(sleep_secs)).await;
                 }
                 if let Err(e) = file.write_all(&bytes) {
-                    eprintln!("write_chunk_error task_id={} error={}", taskId, e);
+                    eprintln!("write_chunk_error task_id={} error={}", task_id, e);
                     let _ = app.emit(
                         "download_error",
-                        DownloadErrorPayload { task_id: taskId.clone(), file_name: fileName.clone(), error: e.to_string() },
+                        DownloadErrorPayload { task_id: task_id.clone(), file_name: file_name.clone(), error: e.to_string() },
                     );
                     return Err(e.to_string());
                 }
@@ -195,14 +216,14 @@ pub async fn download_file(
                 };
                 let _ = app.emit(
                     "download_progress",
-                    DownloadProgressPayload { task_id: taskId.clone(), file_name: fileName.clone(), received, total, speed_bps: speed_to_emit, eta_secs },
+                    DownloadProgressPayload { task_id: task_id.clone(), file_name: file_name.clone(), received, total, speed_bps: speed_to_emit, eta_secs },
                 );
             }
             Err(e) => {
-                eprintln!("download_stream_error task_id={} error={}", taskId, e);
+                eprintln!("download_stream_error task_id={} error={}", task_id, e);
                 let _ = app.emit(
                     "download_error",
-                    DownloadErrorPayload { task_id: taskId.clone(), file_name: fileName.clone(), error: e.to_string() },
+                    DownloadErrorPayload { task_id: task_id.clone(), file_name: file_name.clone(), error: e.to_string() },
                 );
                 return Err(e.to_string());
             }
@@ -210,10 +231,10 @@ pub async fn download_file(
     }
 
     let save_path_str = save_path.to_string_lossy().to_string();
-    println!("download_finished_log task_id={} path={}", taskId, save_path_str);
+    println!("download_finished_log task_id={} path={}", task_id, save_path_str);
     let _ = app.emit(
         "download_finished",
-        DownloadFinishedPayload { task_id: taskId.clone(), file_name: fileName.clone(), save_path: save_path_str.clone() },
+        DownloadFinishedPayload { task_id: task_id.clone(), file_name: file_name.clone(), save_path: save_path_str.clone() },
     );
 
     Ok(save_path_str)

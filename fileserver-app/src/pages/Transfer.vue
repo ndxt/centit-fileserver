@@ -14,7 +14,7 @@ const sidebarItems = [
 
 const transfer = useTransferStore();
 onMounted(() => {
-  // if (import.meta.env.DEV) transfer.simulate();
+  if (import.meta.env.DEV) transfer.simulate();
 });
 const files = computed(() => {
   if (tab.value === 'download') {
@@ -23,7 +23,7 @@ const files = computed(() => {
       name: t.name,
       size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)}`,
       date: '',
-      folder: false,
+      folder: !!t.isFolder,
       progress: t.progress,
       status: 'downloading',
       speed: transfer.displaySpeed(t.speedBps),
@@ -34,7 +34,7 @@ const files = computed(() => {
       name: t.name,
       size: `${transfer.displaySize(t.received)} / ${transfer.displaySize(t.total)}`,
       date: '',
-      folder: false,
+      folder: !!t.isFolder,
       progress: 0,
       status: 'waiting',
       // no speed/eta for waiting
@@ -47,7 +47,7 @@ const files = computed(() => {
       name: t.name,
       size: t.total ? transfer.displaySize(t.total) : "",
       date: t.status === 'failed' ? '失败' : '已完成',
-      folder: false,
+      folder: !!t.isFolder,
       // No progress bar for done items, show date/status text instead as before
       // Or if you want progress bar for done items too:
       progress: t.status === 'failed' ? 0 : 100,

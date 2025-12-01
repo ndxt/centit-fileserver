@@ -2,10 +2,13 @@
 import { useRoute, useRouter } from "vue-router";
 import { Cloud, ArrowRightLeft } from 'lucide-vue-next';
 import { useExplorerStore } from "../stores/explorer";
+import { useTransferStore } from "../stores/transfer";
 
 const route = useRoute();
 const router = useRouter();
 const explorer = useExplorerStore();
+const transfer = useTransferStore();
+
 function go(path: string) {
   if (route.path.startsWith('/home')) explorer.saveState('home');
   if (path === '/home') explorer.restoreState('home');
@@ -32,6 +35,7 @@ const mainMenu = [
       <button 
         v-for="item in mainMenu" 
         :key="item.path"
+        :id="`nav-item-${item.path.replace('/', '')}`"
         :class="[
           'flex flex-col items-center gap-1 w-full py-2 cursor-pointer transition-colors group relative',
           route.path.startsWith(item.path) ? 'text-sky-600' : 'text-slate-500 hover:text-slate-700'
@@ -40,11 +44,12 @@ const mainMenu = [
       >
         <div 
           :class="[
-            'p-2 rounded-xl transition-all duration-200',
+            'p-2 rounded-xl transition-all duration-200 relative',
             route.path.startsWith(item.path) ? 'bg-sky-100 text-sky-600' : 'group-hover:bg-slate-200/50'
           ]"
         >
           <component :is="item.icon" :size="22" :stroke-width="2" />
+          <div v-if="item.path === '/transfer' && transfer.hasPendingOrRunning" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-white"></div>
         </div>
         <span class="text-[10px] font-medium">{{ item.label }}</span>
       </button>

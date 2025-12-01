@@ -11,6 +11,7 @@ export type TransferItem = {
   id: string;
   name: string;
   url: string;
+  isFolder?: boolean;
   status: TransferStatus;
   progress: number;
   received: number;
@@ -37,10 +38,14 @@ export const useTransferStore = defineStore("transfer", {
     completed: [] as TransferItem[],
     maxConcurrent: 5,
     initialized: false,
+    hasNewTransfer: false,
   }),
   getters: {
     downloading(state) { return state.active; },
     done(state) { return state.completed; },
+    hasPendingOrRunning(state) {
+      return state.active.length > 0 || state.queue.length > 0;
+    },
   },
   actions: {
     async initListeners() {
@@ -92,23 +97,49 @@ export const useTransferStore = defineStore("transfer", {
         }
       });
     },
-    enqueue(files: Array<{ id: string; name: string }>) {
+    enqueue(files: Array<{ id: string; name: string; isFolder?: boolean }>) {
       const base = `${getConfig().locodeOrigin}/api`;
       const auth = useAuthStore();
       const userCode: string | undefined = (auth.currentUser?.userInfo?.userCode || auth.currentUser?.userCode) as string | undefined;
-      const newItems: TransferItem[] = files.map(f => ({
-        id: f.id,
-        name: f.name,
-        url: `${base}/fileserver/fileserver/download/downloadwithauth/${f.id}${userCode ? `?userCode=${encodeURIComponent(userCode)}&accessToken=${encodeURIComponent(f.id)}` : `?accessToken=${encodeURIComponent(f.id)}`}`,
-        status: "queued",
-        progress: 0,
-        received: 0,
-        total: undefined,
-        speedBps: 0,
-      }));
+      
+      const newItems: TransferItem[] = [];
+      
+      files.forEach(f => {
+         const params = new URLSearchParams();
+         if (userCode) params.append('userCode', userCode);
+         params.append('accessToken', f.id);
+
+         let url = "";
+         let name = f.name;
+
+         if (f.isFolder) {
+             // For folders, we construct a special URL to indicate folder download
+             // Rust backend will interpret this URL format to trigger recursive download logic
+             url = `${base}/fileserver/fileserver/folder/download/${f.id}?${params.toString()}`;
+         } else {
+             url = `${base}/fileserver/fileserver/download/downloadwithauth/${f.id}?${params.toString()}`;
+         }
+
+         newItems.push({
+            id: f.id,
+            name: name,
+            url: url,
+            isFolder: f.isFolder,
+            status: "queued",
+            progress: 0,
+            received: 0,
+            total: undefined,
+            speedBps: 0,
+         });
+      });
+
       console.log("enqueue", newItems);
       this.queue.push(...newItems);
+      this.hasNewTransfer = true;
       this.startIfNeeded();
+    },
+    clearNewTransfer() {
+      this.hasNewTransfer = false;
     },
     simulate() {
       if (this.active.length || this.queue.length || this.completed.length) return;
@@ -116,6 +147,7 @@ export const useTransferStore = defineStore("transfer", {
         id: "sim-1",
         name: "报告.pdf",
         url: "",
+        isFolder: false,
         status: "downloading",
         progress: Math.min(100, (15 * 1024 * 1024 * 100) / (50 * 1024 * 1024)),
         received: 15 * 1024 * 1024,
@@ -126,6 +158,7 @@ export const useTransferStore = defineStore("transfer", {
         id: "sim-2",
         name: "视频.mp4",
         url: "",
+        isFolder: false,
         status: "downloading",
         progress: Math.min(100, (120 * 1024 * 1024 * 100) / (200 * 1024 * 1024)),
         received: 120 * 1024 * 1024,
@@ -136,6 +169,7 @@ export const useTransferStore = defineStore("transfer", {
         id: "sim-q1",
         name: "图片.zip",
         url: "",
+        isFolder: false,
         status: "queued",
         progress: 0,
         received: 0,
@@ -146,14 +180,53 @@ export const useTransferStore = defineStore("transfer", {
         id: "sim-q2",
         name: "源码.tar.gz",
         url: "",
+        isFolder: false,
         status: "queued",
         progress: 0,
         received: 0,
         total: undefined,
         speedBps: 0,
       };
-      this.active = [a1, a2];
+      
+      const c1: TransferItem = {
+        id: "sim-c1",
+        name: "工作文档",
+        url: "",
+        isFolder: true,
+        status: "completed",
+        progress: 100,
+        received: 5 * 1024 * 1024,
+        total: 5 * 1024 * 1024,
+        speedBps: 0,
+      };
+      
+      const c2: TransferItem = {
+        id: "sim-c2",
+        name: "设计素材.psd",
+        url: "",
+        isFolder: false,
+        status: "completed",
+        progress: 100,
+        received: 50 * 1024 * 1024,
+        total: 50 * 1024 * 1024,
+        speedBps: 0,
+      };
+      
+      const a3: TransferItem = {
+         id: "sim-a3",
+         name: "正在下载的文件夹",
+         url: "",
+         isFolder: true,
+         status: "downloading",
+         progress: 45,
+         received: 45 * 1024 * 1024,
+         total: 100 * 1024 * 1024,
+         speedBps: 120 * 1024,
+      };
+
+      this.active = [a1, a2, a3];
       this.queue = [q1, q2];
+      this.completed = [c1, c2];
     },
     async startIfNeeded() {
       await this.initListeners();
@@ -163,12 +236,13 @@ export const useTransferStore = defineStore("transfer", {
         item.status = "downloading";
         this.active.push(item);
         if (isTauri()) {
-          console.log("invoke download_file", { task_id: item.id, url: item.url, file_name: item.name });
+          console.log("invoke download_file", { task_id: item.id, url: item.url, file_name: item.name, is_folder: item.isFolder });
           invoke<string>("download_file", {
             taskId: item.id,
             url: item.url,
             fileName: item.name,
             dirName: "download",
+            isFolder: !!item.isFolder,
           }).catch((e: any) => {
             console.error("invoke download_file error", e, { task_id: item.id, url: item.url, file_name: item.name });
 

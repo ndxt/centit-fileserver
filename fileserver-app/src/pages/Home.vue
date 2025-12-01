@@ -20,10 +20,81 @@ const currentLibraryName = computed(() => explorer.libraryName || "根目录");
 
 const transfer = useTransferStore();
 
+async function flyToTransfer(ids: string[]) {
+  const targetBtn = document.getElementById('nav-item-transfer');
+  if (!targetBtn) return;
+  const targetRect = targetBtn.getBoundingClientRect();
+  // Center of the target button
+  const targetX = targetRect.left + targetRect.width / 2;
+  const targetY = targetRect.top + targetRect.height / 2;
+
+  // Limit animation to 5 items to prevent performance issues
+  const maxItems = 5;
+  const itemsToAnimate = ids.slice(0, maxItems);
+
+  for (const id of itemsToAnimate) {
+    // Find the row element
+    const row = document.querySelector(`[data-file-id="${id}"]`);
+    if (!row) continue;
+    
+    // Find the icon inside the row
+    const icon = row.querySelector('.shrink-0') || row.querySelector('img') || row.querySelector('svg');
+    if (!icon) continue;
+
+    const rect = icon.getBoundingClientRect();
+    
+    // Create a clone for animation
+    const clone = (icon as HTMLElement).cloneNode(true) as HTMLElement;
+    
+    // Set initial style
+    clone.style.position = 'fixed';
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.zIndex = '9999';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)'; // Slower, smooth
+    clone.style.opacity = '1'; // Start fully visible
+    clone.style.transform = 'scale(1)';
+    
+    // If it's an SVG, ensure it has size if not set by style
+    if (clone.tagName === 'svg' || clone.tagName === 'SVG') {
+       clone.style.width = rect.width + 'px';
+       clone.style.height = rect.height + 'px';
+       clone.style.color = '#0284c7'; // Sky-600 color for visibility
+       clone.style.fill = 'currentColor';
+    }
+
+    document.body.appendChild(clone);
+
+    // Force reflow to ensure transition works
+    clone.getBoundingClientRect();
+
+    // Start animation in next frame
+    requestAnimationFrame(() => {
+      clone.style.left = `${targetX - rect.width / 2}px`; // Center on target
+      clone.style.top = `${targetY - rect.height / 2}px`;
+      clone.style.transform = 'scale(0.5)'; // Shrink to half size, not too small
+      clone.style.opacity = '0'; // Fade out at the very end
+    });
+
+    // Clean up
+    setTimeout(() => {
+      clone.remove();
+    }, 800);
+    
+    // Small delay between items for "stream" effect
+    await new Promise(r => setTimeout(r, 100));
+  }
+}
+
 function onDownloadSelected() {
-  const selected = files.value.filter((f: any) => selectedIds.value.includes(f.id) && !f.folder)
-    .map((f: any) => ({ id: f.id, name: f.name }));
+  const selected = files.value.filter((f: any) => selectedIds.value.includes(f.id))
+    .map((f: any) => ({ id: f.id, name: f.name, isFolder: !!f.folder }));
+  
   if (selected.length > 0) {
+    flyToTransfer(selected.map((s: any) => s.id));
     transfer.enqueue(selected);
   }
 }
