@@ -14,8 +14,6 @@ import java.util.Map;
 public class BackupApplication {
 
     public static Map<String, String> parseArgs(String[] args) {
-        if(args==null || args.length==0)
-            return null;
         Map<String, String> argMap = new HashMap<>();
         String key="noname", value;
         boolean getValue = false;
@@ -74,23 +72,23 @@ public class BackupApplication {
         return info;
     }
 
-    public static void main(String[] args) {
-        boolean haveArgs = true;
+    private static void writeErrorLog(){
+        System.out.println("Usage: java -jar backup.jar backupId=<backupId> destPath=<destPath> osId=<osId> beginTime=<beginTime> endTime=<endTime>");
+        System.out.println();
+        System.out.println("backupId: 备份ID，继续上次没有完成的备份");
+        System.out.println("osId: 应用ID，备份指定应用的附件");
+        System.out.println("beginTime: 新增附件的时间，从指定时间开始备份");
+        System.out.println("endTime: 新增附件的时间，备份指定时间前的文件");
+    }
 
+    public static void main(String[] args) {
         if(args==null) {
-            haveArgs = false;
+            writeErrorLog();
+            return;
         }
         FileBackupInfo backupInfo = mapToBackup(parseArgs(args));
         if(StringUtils.isBlank(backupInfo.getBackupId()) && StringUtils.isBlank(backupInfo.getDestPath())) {
-            haveArgs = false;
-        }
-        if(!haveArgs) { // pring help
-            System.out.println("Usage: java -jar backup.jar backupId=<backupId> destPath=<destPath> osId=<osId> beginTime=<beginTime> endTime=<endTime>");
-            System.out.println();
-            System.out.println("backupId: 备份ID，继续上次没有完成的备份");
-            System.out.println("osId: 应用ID，备份指定应用的附件");
-            System.out.println("beginTime: 新增附件的时间，从指定时间开始备份");
-            System.out.println("endTime: 新增附件的时间，备份指定时间前的文件");
+            writeErrorLog();
             return;
         }
         System.out.println("正在准备备份，创建备份列表，可能需要几分钟，请耐心等待......");
