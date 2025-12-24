@@ -17,13 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
+import java.nio.file.Files;
 
 public abstract class FileIOUtils {
     private static final int URI_START_PARAM = 5;
     public static final String LOG_OPERATION_NAME = "FileServerLog";
     public static InputStream getFileStream(FileStore fileStore, FileStoreInfo fileStoreInfo) throws IOException {
         if("E".equals(fileStoreInfo.getIsTemp())) return null;
-        return fileStoreInfo.isTemp() ? new FileInputStream(new File(fileStoreInfo.getFileStorePath())) :
+        return fileStoreInfo.isTemp() ? Files.newInputStream(new File(fileStoreInfo.getFileStorePath()).toPath()) :
             fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
     }
 
@@ -33,17 +34,17 @@ public abstract class FileIOUtils {
             ".py", ".py3", ".sh", ".vbs", ".wsh");
     }
 
-    public static boolean reGetPdf(String fileId, HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo,
+    public static boolean reGetPdf(HttpServletRequest request, HttpServletResponse response, FileInfo fileInfo,
         FileStore fileStore, CreatePdfOpt createPdfOpt, FileInfoManager fileInfoManager,
                             FileStoreInfoManager fileStoreInfoManager) throws IOException {
         boolean canView = false;
         if (AbstractOfficeToPdf.canTransToPdf(fileInfo.getFileType())) {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
-            addPdfTaskInfo.setFileId(fileId);
+            addPdfTaskInfo.setFileId(fileInfo.getFileId());
             addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
             createPdfOpt.doFileTask(addPdfTaskInfo);
-            FileInfo newFileInfo = fileInfoManager.getObjectById(fileId);
+            FileInfo newFileInfo = fileInfoManager.getObjectById(fileInfo.getFileId());
             if (StringUtils.isNotBlank(newFileInfo.getAttachedFileMd5())) {
                 FileStoreInfo attachedFileStoreInfo =
                     fileStoreInfoManager.getObjectById(newFileInfo.getAttachedFileMd5());
@@ -62,14 +63,10 @@ public abstract class FileIOUtils {
         return canView;
     }
 
-    public static InputStream createPdfStream(String fileId, FileInfo fileInfo,
+    public static InputStream createPdfStream(FileInfo fileInfo,
                                                  FileStoreInfo fileStoreInfo ,
                                    FileStore fileStore, CreatePdfOpt createPdfOpt,
                                    FileStoreInfoManager fileStoreInfoManager) throws IOException {
-
-        FileTaskInfo addPdfTaskInfo = new FileTaskInfo(createPdfOpt.getOpeatorName());
-        addPdfTaskInfo.setFileId(fileId);
-        addPdfTaskInfo.setFileSize(fileStoreInfo.getFileSize());
         createPdfOpt.doPdfOpt(fileInfo, fileStoreInfo.getFileSize());
         if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
             FileStoreInfo attachedFileStoreInfo =

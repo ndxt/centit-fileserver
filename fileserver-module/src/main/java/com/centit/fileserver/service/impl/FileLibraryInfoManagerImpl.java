@@ -67,14 +67,15 @@ public class FileLibraryInfoManagerImpl extends BaseEntityManagerImpl<FileLibrar
     }
 
     @Override
-    public List<FileLibraryInfo> listFileLibrary(String topUnit, String userCode) {
+    public List<FileLibraryInfo> listFileLibrary(String topUnit, String userCode,String libraryType) {
         if(StringUtils.isBlank(userCode)){
             return null;
         }
         Map<String, Object> map = new HashMap<>();
         map.put("accessUser", userCode);
-        StringBuilder sqlBuilder= new StringBuilder("where ( " +
-            "(library_type='T' and library_id in (select group_id from work_group where user_code=:accessUser) )");
+        map.put("libraryType",libraryType);
+        StringBuilder sqlBuilder= new StringBuilder("where 1=1 and ( " +
+            "(library_type=:libraryType and library_id in (select group_id from work_group where user_code=:accessUser) )");
         Set<String> units = getUnits(topUnit, userCode);
         if(units != null && units.size() > 0){
             map.put("ownUnits", units);

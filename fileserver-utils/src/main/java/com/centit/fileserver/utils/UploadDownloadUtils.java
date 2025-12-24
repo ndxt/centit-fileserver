@@ -57,7 +57,7 @@ public abstract class UploadDownloadUtils {
         if (fileStore.checkFile(fileStore.matchFileStoreUrl(fileInfo, size))) {//如果文件已经存在则完成秒传，无需再传
             jsonObject = UploadDownloadUtils.makeRangeCheckJson(size, fileInfo.getFileMd5(), true);
         } else {
-            long tempFileSize = 0l;
+            long tempFileSize = 0L;
             if (new File(tempFilePath).exists()) {//先查看临时目录是否存在文件
                 tempFileSize = SystemTempFileUtils.checkTempFileSize(tempFilePath);
             }
@@ -306,7 +306,7 @@ public abstract class UploadDownloadUtils {
 
         long tempFileSize = checkTempFileSize(tempFilePath);
         FileRangeInfo range = FileRangeInfo.parseRange(request);
-        if (tempFileSize < size) {//文件还没有传输完成
+        if (tempFileSize < size || tempFileSize==0) {//文件还没有传输完成
             // 必须要抛出异常或者返回非200响应前台才能捕捉
             if (tempFileSize != range.getRangeStart()) {
                 throw new ObjectException(CollectionsOpt.createHashMap(

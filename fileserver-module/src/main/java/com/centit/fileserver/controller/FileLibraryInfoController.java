@@ -67,7 +67,8 @@ public class FileLibraryInfoController extends BaseController {
         }
 
         String topUnit = WebOptUtils.getCurrentTopUnit(request);
-        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userCode);
+        String libraryType = request.getParameter("libraryType");
+        List<FileLibraryInfo> fileLibraryInfos = fileLibraryInfoMag.listFileLibrary(topUnit, userCode,libraryType);
         return PageQueryResult.createResult(fileLibraryInfos, null);
     }
 
