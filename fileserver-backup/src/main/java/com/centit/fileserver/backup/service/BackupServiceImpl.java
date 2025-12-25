@@ -6,8 +6,6 @@ import com.centit.fileserver.backup.dao.DatabaseConfig;
 import com.centit.fileserver.backup.dao.FileBackupInfoDao;
 import com.centit.fileserver.backup.dao.FileBackupListDao;
 import com.centit.fileserver.backup.po.FileBackupInfo;
-import com.centit.fileserver.dao.FileInfoDao;
-import com.centit.fileserver.dao.FileStoreInfoDao;
 import com.centit.support.algorithm.DatetimeOpt;
 import com.centit.support.algorithm.UuidOpt;
 import com.centit.support.common.ObjectException;
@@ -20,25 +18,17 @@ import java.io.IOException;
 
 public class BackupServiceImpl {
 
-    private FileInfoDao fileInfoDao;
-    private FileStoreInfoDao fileStoreInfoDao;
-
     private FileBackupInfoDao fileBackupInfoDao;
 
     private FileBackupListDao fileBackupListDao;
 
     public void init(){
         DataSource dataSource = DatabaseConfig.createDataSource();
-        fileInfoDao = new FileInfoDao();
-        fileInfoDao.setDataSource(dataSource);
-        fileStoreInfoDao = new FileStoreInfoDao();
-        fileStoreInfoDao.setDataSource(dataSource);
-        fileInfoDao.getJdbcTemplate().execute(DatabaseConfig::checkBackupTables);
-
         fileBackupInfoDao = new FileBackupInfoDao();
         fileBackupInfoDao.setDataSource(dataSource);
         fileBackupListDao = new FileBackupListDao();
         fileBackupListDao.setDataSource(dataSource);
+        fileBackupInfoDao.getJdbcTemplate().execute(DatabaseConfig::checkBackupTables);
     }
 
     public FileBackupInfo createFileBackupList(FileBackupInfo backupInfo){

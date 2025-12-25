@@ -25,12 +25,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--   <dependency>
-               <groupId>com.centit.support</groupId>
-               <artifactId>centit-es-client</artifactId>
-               <version>${centit.commons.modules.version}</version>
-           </dependency>-->
-
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-es-client</artifactId>
@@ -48,15 +42,12 @@
             <artifactId>centit-persistence-jdbc</artifactId>
             <version>${revision}</version>
         </dependency>
+
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-report-utils</artifactId>
             <version>${revision}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.centit.support</groupId>-->
-        <!--<artifactId>centit-office</artifactId>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -77,15 +68,6 @@
             <version>${zip4j.version}</version>
         </dependency>
 
-        <!-- server runtime library -->
-        <!--<dependency>
-            <groupId>com.sun</groupId>
-            <artifactId>tools</artifactId>
-            <version>${jdk.version}</version>
-            <systemPath>${java.home}/../lib/tools.jar</systemPath>
-            <scope>system</scope>
-        </dependency>-->
-
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -97,16 +79,12 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.poi</groupId>-->
-        <!--            <artifactId>poi-scratchpad</artifactId>-->
-        <!--            <version>3.16</version>-->
-        <!--        </dependency>-->
         <dependency>
             <groupId>com.centit.framework</groupId>
             <artifactId>centit-persistence-extend</artifactId>
             <version>${revision}</version>
         </dependency>
+
         <dependency>
             <groupId>com.centit.support</groupId>
             <artifactId>centit-office-utils</artifactId>
