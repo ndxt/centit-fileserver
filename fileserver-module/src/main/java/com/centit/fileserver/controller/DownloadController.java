@@ -292,13 +292,15 @@ public class DownloadController extends BaseController {
     /**
      * 将pdf文件转换为图片预览
      * @param fileId 文件id
-     * @param request 请求 可以添加 ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素
+     * @param request 请求 可以添加 origin = true  &
+     *                rotate = 90  旋转角度
+     *                ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素 origin = false时有效
      * @param response 响应
      */
     @GetMapping(value = "/viewPdfAsImage/{fileId}")
     @ApiOperation(value = "添加水印并浏览")
-    public void previewPdfAsImage(@PathVariable("fileId") String fileId, HttpServletRequest request,
-                                        HttpServletResponse response) {
+    public void previewPdfAsImage(@PathVariable("fileId") String fileId,
+                                  HttpServletRequest request, HttpServletResponse response) {
         // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
         response.setHeader("Cache-Control", "public, max-age=604800");
         FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
@@ -306,36 +308,41 @@ public class DownloadController extends BaseController {
         if (noAuth(request, response, fileInfo, closeAuth)) {
             return;
         }
+        if (!"pdf".equalsIgnoreCase(fileInfo.getFileType())) {
+            throw new RuntimeException("文件不是pdf格式");
+        }
+        FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
         try {
-            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "pdf", "docx", "xlsx")) {
-                InputStream pdfFileStream;
-                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
-                if (fileStoreInfo.getFileSize() == 0) {
-                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
-                    return;
-                }
-                if ("pdf".equals(fileInfo.getFileType())) {
-                    pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
-                } else {
-                    if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
-                        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
-                        pdfFileStream = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo);
-                    } else {
-                        pdfFileStream = FileIOUtils.createPdfStream(fileInfo, fileStoreInfo, fileStore, createPdfOpt, fileStoreInfoManager);
-                    }
-                }
-                if (pdfFileStream != null) {
-                    String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + ".png";
-                    response.setHeader("Content-Disposition", "inline; filename="
-                        + URLEncoder.encode(fileName, "UTF-8"));
-                    double ppm = NumberBaseOpt.castObjectToDouble(request.getParameter("ppm"), 10.0d);
-                    response.setContentType(FileType.mapExtNameToMimeType("png"));
-                    BufferedImage image = DocOptUtil.pdf2OneImage(pdfFileStream, 1);
-                    ImageIO.write(image, "png", response.getOutputStream());
-                    pdfFileStream.close();
-                    return;
-                }
+            if (fileStoreInfo.getFileSize() == 0) {
+                UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
+                return;
             }
+            InputStream pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
+
+            if (pdfFileStream != null) {
+                String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + ".png";
+                response.setHeader("Content-Disposition", "inline; filename="
+                    + URLEncoder.encode(fileName, "UTF-8"));
+                response.setContentType(FileType.mapExtNameToMimeType("png"));
+                boolean isOrigin = BooleanBaseOpt.castObjectToBoolean(request.getParameter("origin"), true);
+                int rotate = NumberBaseOpt.castObjectToInteger(request.getParameter("rotate"), 0);
+                BufferedImage image = null;
+                if (isOrigin) {
+                    image = ImageOpt.mergeImages(
+                        DocOptUtil.fetchPdfImages(pdfFileStream), 1, 0);
+                } else {
+                    double ppm = NumberBaseOpt.castObjectToDouble(request.getParameter("ppm"), 10.0d);
+                    image = ImageOpt.mergeImages(
+                        DocOptUtil.pdf2Images(pdfFileStream, ppm), 1, 0);
+                }
+                if(rotate != 0){
+                    image = ImageOpt.rotateImage(image, rotate);
+                }
+                ImageIO.write(image, "png", response.getOutputStream());
+                pdfFileStream.close();
+                return;
+            }
+
             JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_NOT_FOUND,
                 getI18nMessage("error.404.file_cannot_be_converted_to_pdf", request),
                 response);
