@@ -292,7 +292,7 @@ public class DownloadController extends BaseController {
     /**
      * 将pdf文件转换为图片预览
      * @param fileId 文件id
-     * @param request 请求 可以添加 origin = true  &
+     * @param request 请求 可以添加 origin = true
      *                rotate = 90  旋转角度
      *                ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素 origin = false时有效
      * @param response 响应
