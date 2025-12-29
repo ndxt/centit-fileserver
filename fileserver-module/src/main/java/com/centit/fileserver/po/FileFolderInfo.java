@@ -118,6 +118,14 @@ public class FileFolderInfo implements java.io.Serializable {
     @Transient
     private String msg;
 
+    /**
+     * 源始文件夹id 迁移时使用
+     */
+    @ApiModelProperty(value = "源始文件夹id")
+    @Column(name = "source_id")
+    @JsonIgnore
+    private String sourceId;
+
     public String getParentFolder() {
         if (StringUtils.isBlank(this.parentFolder)) {
             return StringUtils.substringAfterLast(this.folderPath, "/");
