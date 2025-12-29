@@ -4,7 +4,6 @@ import com.centit.support.database.orm.GeneratorCondition;
 import com.centit.support.database.orm.GeneratorTime;
 import com.centit.support.database.orm.GeneratorType;
 import com.centit.support.database.orm.ValueGenerator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +46,6 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "上级文件夹")
     @Column(name = "parent_folder")
-    @JsonIgnore
     private String parentFolder;
     /**
      * 文件夹路径 文件夹路径
@@ -73,7 +71,6 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "验证码")
     @Column(name = "auth_code")
-    @JsonIgnore
     private String authCode;
     /**
      * 文件夹名称 文件夹名称
@@ -87,7 +84,6 @@ public class FileFolderInfo implements java.io.Serializable {
      */
     @ApiModelProperty(value = "创建人")
     @Column(name = "create_user")
-    @JsonIgnore
     private String createUser;
     /**
      * 创建时间 创建时间
@@ -95,14 +91,12 @@ public class FileFolderInfo implements java.io.Serializable {
     @ApiModelProperty(value = "创建时间")
     @Column(name = "create_time")
     @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.NEW, value = "today()")
-    @JsonIgnore
     private Date createTime;
     /**
      * 修改人 修改人
      */
     @ApiModelProperty(value = "修改人")
     @Column(name = "update_user")
-    @JsonIgnore
     private String updateUser;
     /**
      * 修改时间 修改时间
@@ -111,12 +105,18 @@ public class FileFolderInfo implements java.io.Serializable {
     @Column(name = "update_time")
     @ValueGenerator(strategy = GeneratorType.FUNCTION, occasion = GeneratorTime.UPDATE,
         condition = GeneratorCondition.ALWAYS, value = "today()")
-    @JsonIgnore
     private Date updateTime;
     @Transient
     private String oldFoldId;
     @Transient
     private String msg;
+
+    /**
+     * 源始文件夹id 迁移时使用
+     */
+    @ApiModelProperty(value = "源始文件夹id")
+    @Column(name = "source_id")
+    private String sourceId;
 
     public String getParentFolder() {
         if (StringUtils.isBlank(this.parentFolder)) {
