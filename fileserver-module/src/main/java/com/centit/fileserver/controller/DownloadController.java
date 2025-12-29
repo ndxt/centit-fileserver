@@ -298,7 +298,7 @@ public class DownloadController extends BaseController {
      * @param response 响应
      */
     @GetMapping(value = "/viewPdfAsImage/{fileId}")
-    @ApiOperation(value = "添加水印并浏览")
+    @ApiOperation(value = " 将pdf文件转换为图片预览")
     public void previewPdfAsImage(@PathVariable("fileId") String fileId,
                                   HttpServletRequest request, HttpServletResponse response) {
         // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
