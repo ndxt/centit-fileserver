@@ -1,6 +1,5 @@
 package com.centit.fileserver.controller;
 
-
 import com.centit.fileserver.common.FileLibraryInfo;
 import com.centit.fileserver.common.OperateFileLibrary;
 import com.centit.fileserver.service.FileLibraryInfoManager;
@@ -74,7 +73,7 @@ public class FileLibraryInfoController extends BaseController {
 
     /**
      * 查询单个  文件库信息
-     *
+     * @param request request
      * @param libraryId library_id
      * @return {data:{}}
      */

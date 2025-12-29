@@ -37,7 +37,7 @@ public class FileBackupListDao extends BaseDaoImpl<FileBackupList, JSONObject> {
     }
 
     public JSONArray getBackupList(FileBackupInfo backupInfo, int limit){
-        String sqlSen = "select  a.FILE_ID, c.FILE_MD5, c.FILE_STORE_PATH, c.IS_TEMP, " +
+        String sqlSen = "select  a.FILE_ID, c.FILE_MD5, c.FILE_STORE_PATH, c.IS_TEMP " +
             " from FILE_BACKUP_LIST a join FILE_INFO b on a.FILE_ID=b.FILE_ID " +
             " join FILE_STORE_INFO c on b.FILE_MD5 = c.FILE_MD5" +
             " where a.BACKUP_ID = '" + backupInfo.getBackupId() +"' and a.BACKUP_STATUS='I' ";
