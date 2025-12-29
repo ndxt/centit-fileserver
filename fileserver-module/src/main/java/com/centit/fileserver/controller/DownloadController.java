@@ -25,6 +25,7 @@ import com.centit.support.file.FileIOOpt;
 import com.centit.support.file.FileSystemOpt;
 import com.centit.support.file.FileType;
 import com.centit.support.image.ImageOpt;
+import com.centit.support.office.DocOptUtil;
 import com.centit.support.office.Watermark4Pdf;
 import com.centit.support.security.FileEncryptUtils;
 import com.centit.support.security.Md5Encoder;
@@ -37,13 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -234,7 +234,6 @@ public class DownloadController extends BaseController {
         }
     }
 
-
     @RequestMapping(value = "/viewPdf", method = RequestMethod.POST)
     @ApiOperation(value = "添加水印并浏览")
     public void previewPdfWithWaterMark(@RequestBody String jsonStr, HttpServletRequest request,
@@ -278,6 +277,61 @@ public class DownloadController extends BaseController {
                     response.setHeader("Content-Disposition", "inline; filename="
                         + URLEncoder.encode(fileName, "UTF-8"));
                     Watermark4Pdf.addWatermark4Pdf(pdfFileStream, response.getOutputStream(), waterMarkStr, opacity, rotation, frontSize, isRepeat);
+                    pdfFileStream.close();
+                    return;
+                }
+            }
+            JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_NOT_FOUND,
+                getI18nMessage("error.404.file_cannot_be_converted_to_pdf", request),
+                response);
+        } catch (Exception e) {
+            JsonResultUtils.writeErrorMessageJson(e.getMessage(), response);
+        }
+    }
+
+    /**
+     * 将pdf文件转换为图片预览
+     * @param fileId 文件id
+     * @param request 请求 可以添加 ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素
+     * @param response 响应
+     */
+    @GetMapping(value = "/viewPdfAsImage/{fileId}")
+    @ApiOperation(value = "添加水印并浏览")
+    public void previewPdfAsImage(@PathVariable("fileId") String fileId, HttpServletRequest request,
+                                        HttpServletResponse response) {
+        // 设置缓存控制头，例如 "Cache-Control: public, max-age=604800" //一周 604800 一个与 3794400
+        response.setHeader("Cache-Control", "public, max-age=604800");
+        FileInfo fileInfo = fileInfoManager.getObjectById(fileId);
+        String closeAuth = request.getParameter("closeAuth");
+        if (noAuth(request, response, fileInfo, closeAuth)) {
+            return;
+        }
+        try {
+            if (StringUtils.equalsAnyIgnoreCase(fileInfo.getFileType(), "pdf", "docx", "xlsx")) {
+                InputStream pdfFileStream;
+                FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
+                if (fileStoreInfo.getFileSize() == 0) {
+                    UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
+                    return;
+                }
+                if ("pdf".equals(fileInfo.getFileType())) {
+                    pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
+                } else {
+                    if (StringUtils.isNotBlank(fileInfo.getAttachedFileMd5())) {
+                        FileStoreInfo attachedFileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getAttachedFileMd5());
+                        pdfFileStream = FileIOUtils.getFileStream(fileStore, attachedFileStoreInfo);
+                    } else {
+                        pdfFileStream = FileIOUtils.createPdfStream(fileInfo, fileStoreInfo, fileStore, createPdfOpt, fileStoreInfoManager);
+                    }
+                }
+                if (pdfFileStream != null) {
+                    String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + ".png";
+                    response.setHeader("Content-Disposition", "inline; filename="
+                        + URLEncoder.encode(fileName, "UTF-8"));
+                    double ppm = NumberBaseOpt.castObjectToDouble(request.getParameter("ppm"), 10.0d);
+                    response.setContentType(FileType.mapExtNameToMimeType("png"));
+                    BufferedImage image = DocOptUtil.pdf2OneImage(pdfFileStream, 1);
+                    ImageIO.write(image, "png", response.getOutputStream());
                     pdfFileStream.close();
                     return;
                 }
