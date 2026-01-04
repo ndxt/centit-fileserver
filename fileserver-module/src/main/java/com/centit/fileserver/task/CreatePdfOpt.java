@@ -51,8 +51,9 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
             if(!new File(originalTempFilePath).exists()){
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 if(fileStoreInfo!=null) {
-                    InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath());
-                    FileSystemOpt.createFile(inputStream, originalTempFilePath);
+                    try(InputStream inputStream = fileStore.loadFileStream(fileStoreInfo.getFileStorePath())) {
+                        FileSystemOpt.createFile(inputStream, originalTempFilePath);
+                    }
                 }
             }
 
