@@ -39,7 +39,7 @@ public abstract class AbstractOfficeToPdf {
             return false;
         }
         return StringUtils.equalsAnyIgnoreCase(fileType,
-            //AbstractOfficeToPdf.DOC,
+            AbstractOfficeToPdf.DOC,
             AbstractOfficeToPdf.DOCX,AbstractOfficeToPdf.OFD,
             AbstractOfficeToPdf.XLS, AbstractOfficeToPdf.XLSX,
             AbstractOfficeToPdf.PPT, AbstractOfficeToPdf.PPTX);
