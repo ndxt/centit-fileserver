@@ -10,6 +10,7 @@ import com.centit.fileserver.utils.SystemTempFileUtils;
 import com.centit.framework.components.OperationLogCenter;
 import com.centit.framework.model.basedata.OperationLog;
 import com.centit.support.algorithm.StringBaseOpt;
+import com.centit.support.file.FileSystemOpt;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,13 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
             return;
         }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
-        save(tempFilePath, fileInfo, fileSize);
-        logger.info("存储文件完成");
+        try {
+            save(tempFilePath, fileInfo, fileSize);
+            logger.info("存储文件完成");
+        } finally {
+            // 清理临时文件
+            FileSystemOpt.deleteFile(tempFilePath);
+        }
     }
 
 
@@ -82,7 +88,12 @@ public class SaveFileOpt extends FileStoreOpt implements FileTaskOpeator {
             return 0;
         }
         String tempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
-        save(tempFilePath, fileInfo, fileSize);
-        return 1;
+        try {
+            save(tempFilePath, fileInfo, fileSize);
+            return 1;
+        } finally {
+            // 清理临时文件
+            FileSystemOpt.deleteFile(tempFilePath);
+        }
     }
 }

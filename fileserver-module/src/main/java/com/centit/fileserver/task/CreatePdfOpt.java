@@ -46,8 +46,9 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
     public void doPdfOpt(FileInfo fileInfo, long fileSize) {
         FileInfo pdfFileInfo = new FileInfo();
         pdfFileInfo.copy(fileInfo);
+        String originalTempFilePath = null;
         try {
-            String originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
+            originalTempFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileSize);
             if(!new File(originalTempFilePath).exists()){
                 FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
                 if(fileStoreInfo!=null) {
@@ -70,6 +71,11 @@ public class CreatePdfOpt extends FileStoreOpt implements FileTaskOpeator {
             logger.error("生成PDF文件出错！" + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            // 清理临时文件
+            if (originalTempFilePath != null) {
+                FileSystemOpt.deleteFile(originalTempFilePath);
+            }
         }
     }
 
