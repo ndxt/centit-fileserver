@@ -72,7 +72,6 @@ public abstract class UploadDownloadUtils {
      *
      * @param request HttpServletRequest
      * @param useCommonsReolver 是否使用 CommonsMultipartResolver
-     * @return Pair<文件名, 输入流>
      * @throws IOException IOException
      */
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
@@ -126,7 +125,6 @@ public abstract class UploadDownloadUtils {
      * 注意：返回的 InputStream 需要调用者负责关闭
      *
      * @param request HttpServletRequest
-     * @return Pair<文件名, 输入流>
      * @throws IOException IOException
      * @throws FileUploadException FileUploadException
      * @deprecated 使用 {@link #fetchInputStreamFromRequest(HttpServletRequest, boolean)} 替代
