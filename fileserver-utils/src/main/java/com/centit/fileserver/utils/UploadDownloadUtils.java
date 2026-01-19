@@ -66,6 +66,15 @@ public abstract class UploadDownloadUtils {
         return jsonObject;
     }
 
+    /**
+     * 从请求中获取输入流
+     * 注意：返回的 InputStream 需要调用者负责关闭
+     *
+     * @param request HttpServletRequest
+     * @param useCommonsReolver 是否使用 CommonsMultipartResolver
+     * @return Pair<文件名, 输入流>
+     * @throws IOException IOException
+     */
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request, boolean useCommonsReolver) throws IOException {
         String fileName = WebOptUtils.getRequestFirstOneParameter(request, "name", "fileName");
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -90,6 +99,8 @@ public abstract class UploadDownloadUtils {
                         break;
                     }
                 }
+                // 释放 FileItem 资源
+                fi.delete();
             }
         } else {
             for (Map.Entry<String, MultipartFile> entry : map.entrySet()) {
@@ -110,6 +121,16 @@ public abstract class UploadDownloadUtils {
         return fetchInputStreamFromRequest(request, false);
     }
 
+    /**
+     * 从请求中获取输入流（已弃用，建议使用 fetchInputStreamFromRequest(HttpServletRequest, boolean)）
+     * 注意：返回的 InputStream 需要调用者负责关闭
+     *
+     * @param request HttpServletRequest
+     * @return Pair<文件名, 输入流>
+     * @throws IOException IOException
+     * @throws FileUploadException FileUploadException
+     * @deprecated 使用 {@link #fetchInputStreamFromRequest(HttpServletRequest, boolean)} 替代
+     */
     @Deprecated
     public static Pair<String, InputStream> fetchInputStreamFromRequest(HttpServletRequest request)
         throws IOException, FileUploadException {
@@ -127,13 +148,22 @@ public abstract class UploadDownloadUtils {
         ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
         List<FileItem> fileItems = servletFileUpload.parseRequest(request);
         InputStream fis = null;
-        for (FileItem fi : fileItems) {
-            if (!fi.isFormField()) {
-                fileName = fi.getName();
-                fis = fi.getInputStream();
-                if (fis != null) {
-                    break;
+        try {
+            for (FileItem fi : fileItems) {
+                if (!fi.isFormField()) {
+                    fileName = fi.getName();
+                    fis = fi.getInputStream();
+                    if (fis != null) {
+                        break;
+                    }
                 }
+                // 释放 FileItem 资源
+                fi.delete();
+            }
+        } finally {
+            // 确保所有 FileItem 都被释放
+            for (FileItem fi : fileItems) {
+                fi.delete();
             }
         }
 
@@ -178,8 +208,12 @@ public abstract class UploadDownloadUtils {
     private static void innerDownFileRange(HttpServletResponse response,
                                      InputStream inputStream, FileRangeInfo fr) throws IOException {
         long pos = fr.getRangeStart();
+        boolean needCloseBis = false;
         BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
             (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
+        if (!(inputStream instanceof BufferedInputStream)) {
+            needCloseBis = true;
+        }
         try (ServletOutputStream out = response.getOutputStream();
              BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
             if (pos > 0) {
@@ -194,11 +228,13 @@ public abstract class UploadDownloadUtils {
                 bufferOut.flush();
                 needSize -= writeLen;
             }
-            //bufferOut.flush();
-            //bufferOut.close();
-            //out.close();
         } catch (SocketException e) {
             logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
+        } finally {
+            // 如果创建了新的 BufferedInputStream，需要关闭它
+            if (needCloseBis) {
+                bis.close();
+            }
         }
     }
 
@@ -207,8 +243,12 @@ public abstract class UploadDownloadUtils {
         if(fileSize>0) {
             response.setHeader("Content-Length", String.valueOf(fileSize));
         }
+        boolean needCloseBis = false;
         BufferedInputStream bis = (inputStream instanceof BufferedInputStream)?
             (BufferedInputStream) inputStream : new BufferedInputStream(inputStream, 64 * 1024);
+        if (!(inputStream instanceof BufferedInputStream)) {
+            needCloseBis = true;
+        }
         try (ServletOutputStream out = response.getOutputStream();
              BufferedOutputStream bufferOut = new BufferedOutputStream(out)) {
             byte[] buffer = new byte[64 * 1024];
@@ -219,6 +259,11 @@ public abstract class UploadDownloadUtils {
             }
         } catch (SocketException e) {
             logger.error("客户端断开链接：" + ObjectException.extortExceptionMessage(e));
+        } finally {
+            // 如果创建了新的 BufferedInputStream，需要关闭它
+            if (needCloseBis) {
+                bis.close();
+            }
         }
     }
 
@@ -290,10 +335,13 @@ public abstract class UploadDownloadUtils {
     }
 
     /**
+     * 上传文件片段
+     * 注意：如果文件MD5计算失败，临时文件会被删除
+     *
      * @param tempFilePath    需要保存的临时文件路径
-     * @param token           String
-     * @param size            long
-     * @param fileInputStream InputStream
+     * @param fileInputStream 文件输入流
+     * @param token           文件MD5
+     * @param size            文件大小
      * @param request         HttpServletRequest
      * @return long 0 complete &lt; 0 error &gt; 0 completeSize rangecomplete
      * @throws IOException     IOException
@@ -337,7 +385,15 @@ public abstract class UploadDownloadUtils {
         if (tempFileSize == size) {
             //判断是否传输完成
             //fs.saveFile(tempFilePath, token, size);
-            String fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+            String fileMd5;
+            try {
+                fileMd5 = FileMD5Maker.makeFileMD5(new File(tempFilePath));
+            } catch (Exception e) {
+                // MD5计算失败，删除临时文件
+                FileSystemOpt.deleteFile(tempFilePath);
+                throw new ObjectException(FileServerConstant.ERROR_FILE_MD5_ERROR,
+                    "Code: " + FileServerConstant.ERROR_FILE_MD5_ERROR + " 文件MD5计算错误：" + e.getMessage());
+            }
             if (StringUtils.equals(fileMd5, token)) {
                 //FileSystemOpt.deleteFile(tempFilePath);
                 //成功上传到临时路径
@@ -415,6 +471,16 @@ public abstract class UploadDownloadUtils {
         }
     }
 
+    /**
+     * 内部下载文件方法
+     * 注意：downloadFile 流需要调用者负责关闭
+     *
+     * @param downloadFile 下载文件流
+     * @param fileName 文件名
+     * @param response HttpServletResponse
+     * @param characterEncoding 字符编码
+     * @throws IOException IOException
+     */
     private static void innerDownloadFile(InputStream downloadFile, String fileName,
                                     HttpServletResponse response, String characterEncoding)
         throws IOException {

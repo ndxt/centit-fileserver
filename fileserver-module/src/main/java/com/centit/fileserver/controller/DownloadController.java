@@ -110,14 +110,14 @@ public class DownloadController extends BaseController {
         if (noAuth(request, response, fileInfo, closeAuth)) {
             return;
         }
-        File decryptFile=null;
+        File decryptFile = null;
         try {
             FileStoreInfo fileStoreInfo = fileStoreInfoManager.getObjectById(fileInfo.getFileMd5());
             if (fileStoreInfo == null) {
                 JsonResultUtils.writeErrorMessageJson("文件存储信息不存在", response);
                 return;
             }
-            decryptFile=handleEncryptedFileIfNeeded(request, response, fileInfo, fileStoreInfo);
+            decryptFile = handleEncryptedFileIfNeeded(request, response, fileInfo, fileStoreInfo);
             long fileSize = fileStoreInfo.getFileSize();
             if (fileSize == 0) {
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
@@ -141,8 +141,8 @@ public class DownloadController extends BaseController {
         } catch (Exception e) {
             logger.error("文件预览失败，fileId: {}", fileId, e);
             JsonResultUtils.writeErrorMessageJson("文件预览失败：" + e.getMessage(), response);
-        } finally{
-            if(decryptFile != null){
+        } finally {
+            if (decryptFile != null) {
                 FileSystemOpt.deleteFile(decryptFile);
             }
         }
@@ -161,6 +161,7 @@ public class DownloadController extends BaseController {
             File decryptFile = new File(tmpFilePath);
 
             if (!fileStoreInfo.isTemp()) {
+                boolean success = false;
                 try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
                      OutputStream outFile = Files.newOutputStream(decryptFile.toPath())) {
                     if (downFile != null) {
@@ -168,6 +169,7 @@ public class DownloadController extends BaseController {
                     }
                     fileStoreInfo.setIsTemp("T");
                     fileStoreInfo.setFileStorePath(decryptFile.getAbsolutePath());
+                    success = true;
                     return decryptFile;
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
@@ -176,6 +178,11 @@ public class DownloadController extends BaseController {
                         getI18nMessage("error.423.cannt_encrypt_file", request, e.getMessage()),
                         response);
                     throw e;
+                } finally {
+                    // 如果解密失败，删除临时文件
+                    if (!success && decryptFile.exists()) {
+                        FileSystemOpt.deleteFile(decryptFile);
+                    }
                 }
             }
         }
@@ -291,10 +298,11 @@ public class DownloadController extends BaseController {
 
     /**
      * 将pdf文件转换为图片预览
-     * @param fileId 文件id
-     * @param request 请求 可以添加 origin = true
-     *                rotate = 90  旋转角度
-     *                ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素 origin = false时有效
+     *
+     * @param fileId   文件id
+     * @param request  请求 可以添加 origin = true
+     *                 rotate = 90  旋转角度
+     *                 ppm 参数调整分辨率，默认值10.0 表示每毫米10个像素 origin = false时有效
      * @param response 响应
      */
     @GetMapping(value = "/viewPdfAsImage/{fileId}")
@@ -317,30 +325,36 @@ public class DownloadController extends BaseController {
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
                 return;
             }
-            InputStream pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
-
-            if (pdfFileStream != null) {
-                String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + ".png";
-                response.setHeader("Content-Disposition", "inline; filename="
-                    + URLEncoder.encode(fileName, "UTF-8"));
-                response.setContentType(FileType.mapExtNameToMimeType("png"));
-                boolean isOrigin = BooleanBaseOpt.castObjectToBoolean(request.getParameter("origin"), true);
-                int rotate = NumberBaseOpt.castObjectToInteger(request.getParameter("rotate"), 0);
-                BufferedImage image = null;
-                if (isOrigin) {
-                    image = ImageOpt.mergeImages(
-                        DocOptUtil.fetchPdfImages(pdfFileStream), 1, 0);
-                } else {
-                    double ppm = NumberBaseOpt.castObjectToDouble(request.getParameter("ppm"), 10.0d);
-                    image = ImageOpt.mergeImages(
-                        DocOptUtil.pdf2Images(pdfFileStream, ppm), 1, 0);
+            try (InputStream pdfFileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                if (pdfFileStream != null) {
+                    String fileName = FileType.truncateFileExtName(fileInfo.getFileName()) + ".png";
+                    response.setHeader("Content-Disposition", "inline; filename="
+                        + URLEncoder.encode(fileName, "UTF-8"));
+                    response.setContentType(FileType.mapExtNameToMimeType("png"));
+                    boolean isOrigin = BooleanBaseOpt.castObjectToBoolean(request.getParameter("origin"), true);
+                    int rotate = NumberBaseOpt.castObjectToInteger(request.getParameter("rotate"), 0);
+                    BufferedImage image = null;
+                    try {
+                        if (isOrigin) {
+                            image = ImageOpt.mergeImages(
+                                DocOptUtil.fetchPdfImages(pdfFileStream), 1, 0);
+                        } else {
+                            double ppm = NumberBaseOpt.castObjectToDouble(request.getParameter("ppm"), 10.0d);
+                            image = ImageOpt.mergeImages(
+                                DocOptUtil.pdf2Images(pdfFileStream, ppm), 1, 0);
+                        }
+                        if (rotate != 0) {
+                            image = ImageOpt.rotateImage(image, rotate);
+                        }
+                        ImageIO.write(image, "png", response.getOutputStream());
+                    } finally {
+                        if (image != null) {
+                            // 清理像素数据（如果需要）
+                            image.flush();
+                        }
+                    }
+                    return;
                 }
-                if(rotate != 0){
-                    image = ImageOpt.rotateImage(image, rotate);
-                }
-                ImageIO.write(image, "png", response.getOutputStream());
-                pdfFileStream.close();
-                return;
             }
 
             JsonResultUtils.writeErrorMessageJson(ResponseData.ERROR_NOT_FOUND,
@@ -416,6 +430,8 @@ public class DownloadController extends BaseController {
             return;
         }
 
+        String inFilePath = null;
+        String outFilePath = null;
         try {
             if (fileStoreInfo.getFileSize() == 0) {
                 UploadDownloadUtils.downloadFile(new ByteArrayInputStream(new byte[0]), fileInfo.getFileName(), response);
@@ -427,29 +443,32 @@ public class DownloadController extends BaseController {
             int quality = sanitizeParameter(request.getParameter("quality"), 100, 1, 100);
 
             String tempDir = SystemTempFileUtils.getTempDirectory();
-            String inFilePath = tempDir + fileMd5 + "_in.jpg";
-            String outFilePath = tempDir + fileMd5 + "_out.jpg";
+            inFilePath = tempDir + fileMd5 + "_in.jpg";
+            outFilePath = tempDir + fileMd5 + "_out.jpg";
 
-            try {
-                try (InputStream fileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
-                    if (fileStream != null) {
-                        FileIOOpt.appendInputStreamToFile(fileStream, inFilePath);
-                    }
+            try (InputStream fileStream = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
+                if (fileStream != null) {
+                    FileIOOpt.appendInputStreamToFile(fileStream, inFilePath);
                 }
-                ImageOpt.createThumbnail(inFilePath, width, height, quality, outFilePath);
+            }
+            ImageOpt.createThumbnail(inFilePath, width, height, quality, outFilePath);
 
-                try (InputStream is = Files.newInputStream(Paths.get(outFilePath))) {
-                    UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(),
-                        fileInfo.getFileName(), "inline", null);
-                }
-            } finally {
-                FileSystemOpt.deleteFile(inFilePath);
-                FileSystemOpt.deleteFile(outFilePath);
+            try (InputStream is = Files.newInputStream(Paths.get(outFilePath))) {
+                UploadDownloadUtils.downFileRange(request, response, is, fileStoreInfo.getFileSize(),
+                    fileInfo.getFileName(), "inline", null);
             }
         } catch (IOException e) {
             JsonResultUtils.writeErrorMessageJson("IO error: " + e.getMessage(), response);
         } catch (Exception e) {
             JsonResultUtils.writeErrorMessageJson("Unexpected error: " + e.getMessage(), response);
+        } finally {
+            // 确保临时文件被清理
+            if (inFilePath != null) {
+                FileSystemOpt.deleteFile(inFilePath);
+            }
+            if (outFilePath != null) {
+                FileSystemOpt.deleteFile(outFilePath);
+            }
         }
     }
 
@@ -537,6 +556,7 @@ public class DownloadController extends BaseController {
             String fileId = Md5Encoder.encode(fileIdSb.toString());
             String tempFilePath = SystemTempFileUtils.getTempFilePath(fileId, 1024);
             File file = new File(tempFilePath);
+            boolean needCleanup = false;
             if (!file.exists()) {
                 int len = fileIds.length;
                 String[] fileUrls = new String[len];
@@ -558,10 +578,23 @@ public class DownloadController extends BaseController {
                     return;
                 }
                 compressFiles(tempFilePath, fileUrls, fileNames, j);
+                needCleanup = true;
             }
             file = new File(tempFilePath);
             fileSize = file.length();
             inputStream = Files.newInputStream(file.toPath());
+
+            // 下载完成后清理临时文件
+            try {
+                UploadDownloadUtils.downFileRange(request, response,
+                    inputStream,
+                    fileSize, fileName, request.getParameter("downloadType"), null);
+            } finally {
+                if (needCleanup && file.exists()) {
+                    FileSystemOpt.deleteFile(file);
+                }
+            }
+            return;
         }
 
         UploadDownloadUtils.downFileRange(request, response,
@@ -581,25 +614,34 @@ public class DownloadController extends BaseController {
                 String password = SecurityOptUtils.decodeSecurityString(request.getParameter("password"));
                 String tmpFilePath = SystemTempFileUtils.getTempFilePath(fileInfo.getFileMd5(), fileStoreInfo.getFileSize());
                 File tmpFile = new File(tmpFilePath);
+                boolean success = false;
                 if (!fileStoreInfo.isTemp()) { //fileStore.checkFile(fileStoreInfo.getFileMd5(), fileStoreInfo.getFileSize()) ){// !fileStoreInfo.isTemp()){
                     try (InputStream downFile = FileIOUtils.getFileStream(fileStore, fileStoreInfo);
                          OutputStream diminationFile = new FileOutputStream(tmpFile)) {
                         FileEncryptUtils.decrypt(downFile, diminationFile, FileInfo.mapEncryptType(fileInfo.getEncryptType()), password);
+                        success = true;
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
                         JsonResultUtils.writeErrorMessageJson(
                             FileServerConstant.ERROR_FILE_ENCRYPT,
                             getI18nMessage("error.423.cannt_encrypt_file", request, e.getMessage()),
                             response);
+                        // 如果解密失败，删除临时文件
+                        if (tmpFile.exists()) {
+                            FileSystemOpt.deleteFile(tmpFile);
+                        }
                         return;
                     }
                 }
                 try (InputStream inputStream = Files.newInputStream(tmpFile.toPath())) {
                     UploadDownloadUtils.downFileRange(request, response,
                         inputStream, tmpFile.length(), fileInfo.getFileName(), request.getParameter("downloadType"), null);
+                } finally {
+                    // 下载完成后删除临时文件
+                    if (success && tmpFile.exists()) {
+                        FileSystemOpt.deleteFile(tmpFile);
+                    }
                 }
-
-                FileSystemOpt.deleteFile(tmpFile);
             } else {
                 try (InputStream is = FileIOUtils.getFileStream(fileStore, fileStoreInfo)) {
                     UploadDownloadUtils.downFileRange(request, response, is,
@@ -637,12 +679,9 @@ public class DownloadController extends BaseController {
     }
 
     private void compressFiles(String zipFilePathName, String[] fileUrls, String[] fileNames, int len) {
-        try {
-            File zipFile = new File(zipFilePathName);
-            FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
-
-            ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream);
-            // new ZipOutputStream(cos);
+        File zipFile = new File(zipFilePathName);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(zipFile);
+             ZipOutputStream out = ZipCompressor.convertToZipOutputStream(fileOutputStream)) {
             String basedir = "";
 
             for (int i = 0; i < len; i++) {
@@ -661,7 +700,6 @@ public class DownloadController extends BaseController {
                     logger.info("获取文件" + fileUrls[i] + "出错！");
                 }
             }
-            out.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

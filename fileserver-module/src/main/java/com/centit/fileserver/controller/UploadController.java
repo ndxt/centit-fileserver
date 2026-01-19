@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -168,7 +167,7 @@ public class UploadController extends BaseController {
     public JSONArray addSaveFileOpt(HttpServletRequest request) {
         JSONArray jsonArray = fileInfoManager.listStoredFiles(CollectionsOpt.createHashMap("isTemp", "D"), null);
         for (Object o : jsonArray) {
-            FileInfo fileInfo = JSON.to(FileInfo.class , o);
+            FileInfo fileInfo = JSON.to(FileInfo.class, o);
             documentIndexOpt.doFileIndex(fileInfo, fileInfo.getFileSize());
         }
         return jsonArray;
@@ -178,7 +177,7 @@ public class UploadController extends BaseController {
      * 完成秒传，如果文件不存在会返回失败
      *
      * @param token    token
-     *  size/fileSize     大小
+     *                 size/fileSize     大小
      * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @throws IOException IOException
@@ -242,37 +241,50 @@ public class UploadController extends BaseController {
         if (checkUploadToken && uploadIsForbidden(request, response)) {
             return;
         }
-        Triple<FileInfo, Map<String, Object>, InputStream> formData
-            = fetchUploadFormFromRequest(request);
-        FileInfo fileInfo = formData.getLeft();
-        fileInfo.setFileMd5(token);
-        fileInfo.setFileSize(size);
-        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
-        if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {
-            completedFileStoreAndPretreat(tempFilePath, fileInfo,
-                formData.getMiddle(), request, response);
-            return;
-        }
+        String tempFilePath = null;
+        try {
+            Triple<FileInfo, Map<String, Object>, InputStream> formData
+                = fetchUploadFormFromRequest(request);
+            FileInfo fileInfo = formData.getLeft();
+            fileInfo.setFileMd5(token);
+            fileInfo.setFileSize(size);
+            FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+            tempFilePath = SystemTempFileUtils.getTempFilePath(token, size);
 
-        long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
-        if (uploadSize == size) {
-            completedFileStoreAndPretreat(tempFilePath, fileInfo,
-                formData.getMiddle(), request, response);
+            if (fileStore.checkFile(fileStore.matchFileStoreUrl(formData.getLeft(), size))) {
+                completedFileStoreAndPretreat(tempFilePath, fileInfo,
+                    formData.getMiddle(), request, response);
+                return;
+            }
 
-        } else {
-            JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token + "_" + size);
-            JsonResultUtils.writeOriginalJson(json.toString(), response);
+            long uploadSize = UploadDownloadUtils.uploadRange(tempFilePath, formData.getRight(), token, size, request);
+            if (uploadSize == size) {
+                completedFileStoreAndPretreat(tempFilePath, fileInfo,
+                    formData.getMiddle(), request, response);
+
+            } else {
+                JSONObject json = UploadDownloadUtils.makeRangeUploadJson(uploadSize, token, token + "_" + size);
+                JsonResultUtils.writeOriginalJson(json.toString(), response);
+            }
+            OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
+                .unit(formData.getLeft().getLibraryId())
+                .topUnit(WebOptUtils.getCurrentTopUnit(request))
+                .correlation(WebOptUtils.getCorrelationId(request))
+                .loginIp(WebOptUtils.getRequestAddr(request))
+                .user(WebOptUtils.getCurrentUserCode(request))
+                .method("上传").tag(formData.getLeft().getFileId())
+                .content(formData.getLeft().getFileName())
+                .newObject(formData.getLeft()));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            // 确保临时文件被删除
+            if (tempFilePath != null) {
+                FileSystemOpt.deleteFile(tempFilePath);
+            }
+            JsonResultUtils.writeErrorMessageJson(
+                FileServerConstant.ERROR_FILE_PRETREAT,
+                "文件上传失败：" + ObjectException.extortExceptionMessage(e), response);
         }
-        OperationLogCenter.log(OperationLog.create().operation(FileIOUtils.LOG_OPERATION_NAME)
-            .unit(formData.getLeft().getLibraryId())
-            .topUnit(WebOptUtils.getCurrentTopUnit(request))
-            .correlation(WebOptUtils.getCorrelationId(request))
-            .loginIp(WebOptUtils.getRequestAddr(request))
-            .user(WebOptUtils.getCurrentUserCode(request))
-            .method("上传").tag(formData.getLeft().getFileId())
-            .content(formData.getLeft().getFileName())
-            .newObject(formData.getLeft()));
     }
 
     /**
@@ -292,53 +304,75 @@ public class UploadController extends BaseController {
         }
         request.setCharacterEncoding("utf8");
 
-        Triple<FileInfo, Map<String, Object>, InputStream> formData = fetchUploadFormFromRequest(request);
-        FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
-        String token = formData.getLeft().getFileMd5();
-        boolean needCheck = !StringUtils.isBlank(token);
-        Long size = NumberBaseOpt.parseLong(
-            request.getParameter("size"), -1l);
-        if (size < 1) {
-            size = NumberBaseOpt.parseLong(
-                request.getParameter("fileSize"), -1l);
-        }
-        String tempFilePath = needCheck ?
-        SystemTempFileUtils.getTempFilePath(token, size) :
-        SystemTempFileUtils.getRandomTempFilePath();
-
-        if (FileSystemOpt.existFile(tempFilePath)) {
-            FileSystemOpt.deleteFile(tempFilePath);
-        }
-        int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
-        File tempFile = new File(tempFilePath);
-        String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
-
-        boolean isValid = fileSize != 0;
-        if (needCheck) {
-            isValid = size == (long) fileSize && token.equals(fileMd5);
-        } else {
-            tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
-            tempFile.renameTo(new File(tempFilePath));
-        }
-
-        if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
-            FileInfo fileInfo = formData.getLeft();
-            fileInfo.setFileMd5(fileMd5);
-            String fileName = fileInfo.getFileName();
-            if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
-                fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
+        String tempFilePath = null;
+        try {
+            Triple<FileInfo, Map<String, Object>, InputStream> formData = fetchUploadFormFromRequest(request);
+            FileSystemOpt.createDirect(SystemTempFileUtils.getTempDirectory());
+            String token = formData.getLeft().getFileMd5();
+            boolean needCheck = !StringUtils.isBlank(token);
+            Long size = NumberBaseOpt.parseLong(
+                request.getParameter("size"), -1l);
+            if (size < 1) {
+                size = NumberBaseOpt.parseLong(
+                    request.getParameter("fileSize"), -1l);
             }
-            fileInfo.setFileName(fileName);
-            fileInfo.setFileSize(fileSize);
-            completedFileStoreAndPretreat(tempFilePath,
-                fileInfo, formData.getMiddle(), request, response);
-        } else {
-            FileSystemOpt.deleteFile(tempFilePath);
-            JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
-        }
 
+            tempFilePath = needCheck ?
+                SystemTempFileUtils.getTempFilePath(token, size) :
+                SystemTempFileUtils.getRandomTempFilePath();
+
+            if (FileSystemOpt.existFile(tempFilePath)) {
+                FileSystemOpt.deleteFile(tempFilePath);
+            }
+            int fileSize = FileIOOpt.writeInputStreamToFile(formData.getRight(), tempFilePath);
+            File tempFile = new File(tempFilePath);
+            String fileMd5 = FileMD5Maker.makeFileMD5(tempFile);
+
+            boolean isValid = fileSize != 0;
+            if (needCheck) {
+                isValid = size == (long) fileSize && token.equals(fileMd5);
+            } else {
+                tempFilePath = SystemTempFileUtils.getTempFilePath(fileMd5, fileSize);
+                tempFile.renameTo(new File(tempFilePath));
+            }
+
+            if (isValid && !StringUtils.isBlank(formData.getLeft().getFileName())) {
+                FileInfo fileInfo = formData.getLeft();
+                fileInfo.setFileMd5(fileMd5);
+                String fileName = fileInfo.getFileName();
+                if (!(java.nio.charset.Charset.forName("GBK").newEncoder().canEncode(fileName))) {
+                    fileName = new String(fileName.getBytes("iso-8859-1"), "utf-8");
+                }
+                fileInfo.setFileName(fileName);
+                fileInfo.setFileSize(fileSize);
+                completedFileStoreAndPretreat(tempFilePath,
+                    fileInfo, formData.getMiddle(), request, response);
+            } else {
+                FileSystemOpt.deleteFile(tempFilePath);
+                JsonResultUtils.writeErrorMessageJson("文件上传出错，fileName参数必须传，如果传了token和size参数请检查是否正确，并确认选择的文件！", response);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            // 确保临时文件被删除
+            if (tempFilePath != null) {
+                FileSystemOpt.deleteFile(tempFilePath);
+            }
+            JsonResultUtils.writeErrorMessageJson(
+                FileServerConstant.ERROR_FILE_PRETREAT,
+                "文件上传失败：" + ObjectException.extortExceptionMessage(e), response);
+        }
     }
 
+    /**
+     * 从 CommonsMultipartResolver 获取输入流
+     * 注意：返回的 InputStream 需要调用者负责关闭
+     *
+     * @param request      HttpServletRequest
+     * @param fileInfo     文件信息
+     * @param pretreatInfo 预处理信息
+     * @return InputStream
+     * @throws IOException IOException
+     */
     private InputStream fetchISFromCommonsResolver(HttpServletRequest request, FileInfo fileInfo, Map<String, Object> pretreatInfo) throws IOException {
         MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
@@ -362,6 +396,8 @@ public class UploadController extends BaseController {
                 }
                 fis = fi.getInputStream();
             }
+            // 释放 FileItem 资源
+            fi.delete();
         }
         return fis;
     }
@@ -442,6 +478,16 @@ public class UploadController extends BaseController {
         return pretreatInfo;
     }
 
+    /**
+     * 从 StandardServletMultipartResolver 获取输入流
+     * 注意：返回的 InputStream 需要调用者负责关闭
+     *
+     * @param request      HttpServletRequest
+     * @param fileInfo     文件信息
+     * @param pretreatInfo 预处理信息
+     * @return InputStream
+     * @throws IOException IOException
+     */
     private InputStream fetchISFromStandardResolver(HttpServletRequest request, FileInfo fileInfo, Map<String, Object> pretreatInfo) throws IOException {
         MultipartResolver resolver = new StandardServletMultipartResolver();
         MultipartHttpServletRequest multiRequest = resolver.resolveMultipart(request);
@@ -471,6 +517,14 @@ public class UploadController extends BaseController {
         return fis;
     }
 
+    /**
+     * 从请求中获取上传表单数据
+     * 注意：返回的 InputStream 需要调用者负责关闭
+     *
+     * @param request HttpServletRequest
+     * @return Triple<文件信息, 预处理信息, 输入流>
+     * @throws IOException IOException
+     */
     private Triple<FileInfo, Map<String, Object>, InputStream>
     fetchUploadFormFromRequest(HttpServletRequest request) throws IOException {
         FileInfo fileInfo = fetchFileInfoFromRequest(request);
@@ -521,33 +575,33 @@ public class UploadController extends BaseController {
             fileInfo.setFileId(UuidOpt.getUuidAsString());
         } else {
             FileInfo dbFile = fileInfoManager.getObjectById(fileInfo.getFileId());
-            isUpdateFile = dbFile!=null;
+            isUpdateFile = dbFile != null;
         }
-        if(StringUtils.isBlank(fileInfo.getOsId())) {
+        if (StringUtils.isBlank(fileInfo.getOsId())) {
             fileInfo.setOsId("NOTSET");
         }
-        if(StringUtils.isBlank(fileInfo.getOptId())) {
+        if (StringUtils.isBlank(fileInfo.getOptId())) {
             fileInfo.setOptId("NOTSET");
         }
         String retMsg = "文件上传成功！";
-        if(FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())){
-            fileInfo.setFileName(fileInfo.getFileName()+".rn");
-            retMsg = "文件上传成功,但是因为文件名敏感已被重命名为"+fileInfo.getFileName();
+        if (FileIOUtils.hasSensitiveExtName(fileInfo.getFileName())) {
+            fileInfo.setFileName(fileInfo.getFileName() + ".rn");
+            retMsg = "文件上传成功,但是因为文件名敏感已被重命名为" + fileInfo.getFileName();
         }
         //pdf svg 去除脚本
-        if(StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".svg") ) {
+        if (StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".svg")) {
             SvgUtils.removeSvgJSAction(tempFilePath, tempFilePath);
             retMsg = "文件上传成功！但SVG文件中有Script脚本，已经被移除";
-        } else if(StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".pdf") ) {
-            if(DocOptUtil.pdfContainsJSAction(tempFilePath)){
-                fileInfo.setFileName(fileInfo.getFileName()+".rn");
-                retMsg = "PDF文件包含JavaScript代码为避免XSS漏洞文件已被重命名为"+fileInfo.getFileName();
+        } else if (StringUtils.endsWithIgnoreCase(fileInfo.getFileName(), ".pdf")) {
+            if (DocOptUtil.pdfContainsJSAction(tempFilePath)) {
+                fileInfo.setFileName(fileInfo.getFileName() + ".rn");
+                retMsg = "PDF文件包含JavaScript代码为避免XSS漏洞文件已被重命名为" + fileInfo.getFileName();
             }
         }
 
         boolean needSave = false;
         String fileId = fileInfo.getFileId();
-        if(! isUpdateFile){
+        if (!isUpdateFile) {
             FileInfo dbFile = fileInfoManager.getDuplicateFile(fileInfo);
             if (dbFile == null) {
                 fileInfoManager.saveNewFile(fileInfo);
@@ -563,7 +617,7 @@ public class UploadController extends BaseController {
         if (needSave) {
             try {
                 // 先保存一个 临时文件； 如果文件已经存在是不会保存的
-                if(!fileStore.checkFile(tempFilePath)){
+                if (!fileStore.checkFile(tempFilePath)) {
                     fileInfoManager.deleteObject(fileInfo);
                     throw new ObjectException(ObjectException.UNKNOWN_EXCEPTION,
                         "找不到临时文件，请重新上传！");
