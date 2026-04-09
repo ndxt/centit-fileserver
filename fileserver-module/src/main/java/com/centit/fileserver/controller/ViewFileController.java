@@ -69,6 +69,7 @@ public class ViewFileController extends BaseController {
             return null;
         }
         String libCode =URLDecoder.decode(urips[i], "UTF-8");// TOP_UNIT FILE_LIBRARY
+        i++;
         List<String> path = new ArrayList<>();
         for (; i < n - 1; i++){
             path.add(URLDecoder.decode(urips[i], "UTF-8"));
